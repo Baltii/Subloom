@@ -1,0 +1,9 @@
+# Requires an existing staging subscription and SUBSCRIPTION_ID/SUBSCRIPTION_NAME env values.
+# This checks routing, not notification delivery. See docs/TESTING.md for the real push test.
+appId: com.subloom.app
+name: Staging reminder route
+---
+- launchApp
+- openLink: "subloom://subscription/${SUBSCRIPTION_ID}"
+- assertVisible: "${SUBSCRIPTION_NAME}"
+- assertVisible: "Your reminders"

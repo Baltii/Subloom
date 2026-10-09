@@ -1,0 +1,8 @@
+Merchant: Example Music
+Subscription confirmation
+USD 8.50 monthly
+Purchase date: 2026-10-09
+Next renewal: 2026-11-09
+Invoice: TEST-RECEIPT-1001
+
+This is a fictional QA receipt, not a real purchase.

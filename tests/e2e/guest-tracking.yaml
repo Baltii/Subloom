@@ -1,0 +1,77 @@
+# Run only on a disposable installed preview/simulator app; this clears its local state.
+appId: com.subloom.app
+name: Guest tracking, editing and restart persistence
+---
+- launchApp:
+    clearState: true
+- scrollUntilVisible:
+    element:
+      text: USD
+    direction: DOWN
+- tapOn: USD
+- scrollUntilVisible:
+    element:
+      id: get-started
+    direction: DOWN
+- tapOn:
+    id: get-started
+- assertVisible: "Your subscriptions, at a glance."
+- tapOn: Add
+- scrollUntilVisible:
+    element:
+      text: Subscription name
+    direction: DOWN
+- tapOn:
+    id: subscription-name
+- inputText: E2E subscription
+- tapOn:
+    id: subscription-amount
+- inputText: "12.34"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "Next renewal.*"
+    direction: DOWN
+- tapOn:
+    id: subscription-nextRenewal
+- eraseText: 20
+- inputText: "2050-01-31"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: save-subscription
+    direction: DOWN
+- tapOn:
+    id: save-subscription
+- assertVisible: "E2E subscription"
+- assertVisible: "\\$12.34"
+- tapOn: Edit
+- scrollUntilVisible:
+    element:
+      text: "Next renewal.*YYYY-MM-DD"
+    direction: DOWN
+- tapOn:
+    id: subscription-nextRenewal
+- eraseText: 20
+- inputText: "2050-02-28"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: save-subscription
+    direction: DOWN
+- tapOn:
+    id: save-subscription
+- assertVisible: "February 28, 2050"
+- stopApp
+- launchApp
+- openLink: "subloom://subscriptions"
+- tapOn:
+    id: subscriptions-search
+- inputText: E2E subscription
+- hideKeyboard
+- assertVisible: "E2E subscription.*"
+- tapOn: "E2E subscription.*"
+- assertVisible: "February 28, 2050"
+- openLink: "subloom://"
+- assertVisible: "\\$12.34"
+- takeScreenshot: guest-dashboard

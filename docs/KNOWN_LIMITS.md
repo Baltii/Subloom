@@ -1,0 +1,35 @@
+# Known limitations and future milestones
+
+## Current release gates
+
+The implemented client can run with persisted guest data without external services. Cloud auth/sync, receipt forwarding, screenshot OCR and server push/email require the configuration in SETUP.md. No live credentials were supplied, so these integrations have been tested with SQL execution and explicit provider adapters, not live accounts or deliveries.
+
+JavaScript/Hermes bundles export for iOS, Android and web. Native compilation/signing, EAS cloud builds, App Store/Play submission, Maestro and physical-device tests have not run in this environment. The web preview is useful for UI verification and tracking; it does not validate native permission behavior, notification transport, camera/photo access, SQLite or SecureStore on a device.
+
+OCR handles JPEG, PNG and WebP under 5 MB. Text/HTML import is limited to 100 KB. PDF receipt OCR and incoming share extensions are not implemented. Deterministic parsing recognizes supported currency codes and ISO dates (`YYYY-MM-DD`) with English recurring wording. It intentionally leaves ambiguous dollar currencies, promotional/multiple amounts, missing dates and unsupported formats for review. Confidence is a heuristic, not a measured probability. Change `detectionThresholds` in `src/domain/detection.ts` after evaluating labeled receipts. Very large histories may exceed the ingestion match windows (500 recent candidates/1,000 subscriptions); increase indexed server matching before scaling beyond these limits.
+
+A sender rechecks state before each provider call, but a subscription can still be edited in the tiny interval between the final check and provider acceptance. Delivered notifications cannot be recalled. Expo has no idempotency key for exactly-once push: ambiguous timeouts/expired sending leases are recorded as `unknown` and are not blindly retried. Email retries reuse Resend idempotency keys within 23 hours. Review `unknown` outcomes operationally. Scheduler batches need production load testing; current throughput is sized for an initial deployment.
+
+Dashboard costs are **estimated recurring commitments**, not verified payment history. Weekly intervals use a documented 365-day annual estimate. No historical comparison, FX conversion, speculative savings or automatic merchant cancellation is presented. Canceled subscriptions can show paid-through access without new renewal alerts. Native swipe actions pause/resume tracking only and require confirmation; full edits/deletion remain in Details.
+
+No Apple/Google social login, Gmail/Outlook scanning, Android notification listener, RevenueCat billing, Sentry, or analytics is enabled. The UI labels future sources as unavailable. Account security email templates are supplied for Supabase Auth configuration; they are not sent by the mobile app.
+
+## Dependency audit — 2026-10-09
+
+`npm audit` reports **18 high, 0 critical, 0 moderate** findings. The count includes parent packages affected transitively by two unresolved advisories:
+
+- [`braces` stack-exhaustion DoS](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), through matching/build tooling; installed 3.0.3 is within the reported affected range.
+- [`node-forge` RSA signature verification](https://github.com/advisories/GHSA-86w9-cpqp-85rv), through Expo tooling; installed 1.4.0 is within the reported affected range.
+
+At the implementation audit, the latest registry versions were still affected. npm's suggested major SDK downgrade is incompatible with the chosen current Expo stack and was not applied. The receipt parser does not use glob matching or node-forge; these findings primarily affect development/tooling paths, but that is **not** an assurance of zero production reachability. Review the actual signed-bundle/update/build environment and monitor patched upstream releases before shipping. Avoid exposing Metro outside a trusted development environment and avoid untrusted build patterns or certificates.
+
+Patched dependencies are pinned for `uuid` in `xcode` and `decode-uri-component`. The local MIT-licensed URI adapter contains upstream 0.5.0 plus a minimal CommonJS entry for Router's `query-string` dependency; regression tests verify decoding and malformed-input handling. It is a compatibility wrapper, not an independent cryptographic or parsing redesign. Run `npm audit`, Expo dependency checks and platform exports after changing overrides.
+
+## Advanced integration roadmap
+
+1. **Native share intake:** Build a supported iOS share extension and Android intent receiver with user-controlled file selection, URI/MIME/size validation and explicit OCR consent. Expo SDK 57's incoming-share path is experimental; its iOS app-opening mechanism is not officially supported by Apple. Keep it disabled until a reviewed implementation passes store/native tests. [Expo sharing](https://docs.expo.dev/versions/v57.0.0/sdk/sharing/).
+2. **Gmail:** Obtain explicit opt-in for minimum necessary read scopes. Gmail read access can involve restricted-scope verification and a security assessment when server-side data is stored/transmitted. Complete verification and budget the assessment/ongoing compliance before enabling scanning. Design limited subscription searches, incremental history cursors, refresh-token encryption, rate-limited workers, reconnect UX and revocation/deletion. Do not substitute the broad `mail.google.com` scope merely for convenience. [Gmail scopes](https://developers.google.com/workspace/gmail/api/auth/scopes), [restricted-scope verification](https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification).
+3. **Outlook:** Review delegated `Mail.Read` and tenant consent restrictions; do not request application-wide mailbox permissions for consumer subscriptions. Design delta synchronization, throttling/backoff, encrypted refresh tokens, provider disconnect and credential deletion. [Microsoft permissions](https://learn.microsoft.com/graph/permissions-reference?view=graph-rest-1.0).
+4. **Android notifications:** Confirm current Play sensitive-permission eligibility, then implement a dedicated optional native notification listener with an explanatory supported Settings grant, relevant-event filtering, no OTP/password collection, minimal retention and immediate revocation. There is no equivalent device-wide iOS listener. No Accessibility workaround is planned. [Play sensitive APIs policy](https://support.google.com/googleplay/android-developer/answer/16329168).
+5. **Operations and pricing:** Before each advanced source release, obtain current provider/security-assessor pricing and model active accounts, API calls, OCR images, mail volume, retained metadata, queue execution and monitoring costs. Configure quotas and budgets. No speculative cost/assessment price is hardcoded here.
+6. **Pro/insights:** Add reviewed RevenueCat entitlements and compliant store purchases only after the free experience is validated. Add historical comparisons only with real history; add FX totals only with a named rate source/timestamp. Consider redacted error monitoring after privacy review.

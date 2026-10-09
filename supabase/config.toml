@@ -1,0 +1,35 @@
+project_id = "subloom"
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+max_rows = 1000
+[db]
+port = 54322
+major_version = 17
+[auth]
+enabled = true
+site_url = "http://localhost:8081"
+additional_redirect_urls = ["subloom://**"]
+enable_signup = true
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+[functions.inbound-receipt]
+verify_jwt = false
+[functions.email-status]
+verify_jwt = false
+[functions.schedule-reminders]
+verify_jwt = false
+[functions.send-reminder]
+verify_jwt = false
+[functions.process-detection]
+verify_jwt = false
+[functions.detection-sources]
+verify_jwt = false
+[functions.delete-account]
+verify_jwt = false
+[functions.export-data]
+verify_jwt = false
+[functions.email-preferences]
+verify_jwt = false

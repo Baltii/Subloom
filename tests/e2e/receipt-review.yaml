@@ -1,0 +1,64 @@
+# Run after guest-tracking.yaml; uses only an explicit local fixture.
+appId: com.subloom.app
+name: Receipt review, confirmation and duplicate prevention
+---
+- launchApp
+- openLink: "subloom://import"
+- scrollUntilVisible:
+    element:
+      text: Receipt text
+    direction: DOWN
+- tapOn:
+    id: receipt-text
+- inputText: "Merchant: E2E Music subscription USD 8.50 monthly Next renewal: 2050-03-09 Invoice: E2E-RECEIPT-1001"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: review-receipt
+    direction: DOWN
+- tapOn:
+    id: review-receipt
+- assertVisible: "A receipt worth a look."
+- assertVisible: "Review before confirming"
+- scrollUntilVisible:
+    element:
+      id: save-subscription
+    direction: DOWN
+- tapOn:
+    id: save-subscription
+- assertVisible: "E2E Music.*"
+- assertVisible: "\\$8.50"
+- openLink: "subloom://import"
+- scrollUntilVisible:
+    element:
+      text: Receipt text
+    direction: DOWN
+- tapOn:
+    id: receipt-text
+- inputText: "Merchant: E2E Music subscription USD 8.50 monthly Next renewal: 2050-03-09 Invoice: E2E-RECEIPT-1001"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: review-receipt
+    direction: DOWN
+- tapOn:
+    id: review-receipt
+- assertVisible: "This receipt has been reviewed."
+- openLink: "subloom://settings"
+- scrollUntilVisible:
+    element:
+      text: Trial ending reminders
+    direction: DOWN
+- tapOn:
+    id: preference-trial-ending-reminders
+- stopApp
+- launchApp
+- openLink: "subloom://settings"
+- scrollUntilVisible:
+    element:
+      text: Trial ending reminders
+    direction: DOWN
+- assertVisible:
+    id: preference-trial-ending-reminders
+    checked: false
+- takeScreenshot: persisted-reminders

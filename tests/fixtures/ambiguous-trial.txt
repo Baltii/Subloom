@@ -1,0 +1,5 @@
+Merchant: Example Trial
+Free trial confirmation
+Trial ends: 2026-10-20
+
+This fictional fixture intentionally omits price, currency and billing frequency.

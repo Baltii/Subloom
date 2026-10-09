@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
+    "zod": "npm:zod@3",
+    "@js-temporal/polyfill": "npm:@js-temporal/polyfill@0.5.1",
+    "svix": "npm:svix@1"
+  },
+  "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true },
+  "unstable": ["sloppy-imports"]
+}
