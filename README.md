@@ -20,9 +20,9 @@ npm run test:backend
 npm run export:web
 ```
 
-For mobile, use an **Expo development build**, not Expo Go. See [setup](docs/SETUP.md) for Supabase, Resend, OCR, APNs/FCM, and EAS instructions.
+For mobile, use an **Expo development build**, not Expo Go. Configure Supabase, Resend, OCR, APNs/FCM, and EAS for the integrations you enable.
 
-The updated standalone Mac test app is `build/Subloom-update.app`. Quit the running Subloom copy, then open this replacement. It keeps the same bundle identifier and storage origin. Rebuild separately with `npm run build:macos -- --update`; it bundles the web interface and runs without Metro. See [Mac setup and limitations](docs/MACOS.md).
+The updated standalone Mac test app is `build/Subloom-update.app`. Quit the running Subloom copy, then open this replacement. It keeps the same bundle identifier and storage origin. Rebuild separately with `npm run build:macos -- --update`; it bundles the web interface and runs without Metro. This ad-hoc signed test app requires macOS 14+.
 
 ## What works
 
@@ -36,18 +36,10 @@ The updated standalone Mac test app is `build/Subloom-update.app`. Quit the runn
 
 ## Verification and release status
 
-Supabase migrations and all ten Edge Functions are deployed. On 2026-10-09, 141 application tests, 10 backend tests and 20 live Auth/PostgREST/Realtime/Edge Function checks passed. The live checks used disposable accounts and two sessions for one account, verifying CRUD, account isolation, conflict rejection, deletion signals and push registration ownership. Three hosted scheduler/retention jobs are active; worker authorization and execution returned the expected results. See [recorded checks](docs/TESTING.md).
+Supabase migrations and all ten Edge Functions are deployed. On 2026-10-09, 141 application tests, 10 backend tests and 20 live Auth/PostgREST/Realtime/Edge Function checks passed. The live checks used disposable accounts and two sessions for one account, verifying CRUD, account isolation, conflict rejection, deletion signals and push registration ownership. Three hosted scheduler/retention jobs are active; worker authorization and execution returned the expected results.
 
 Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. APNs and FCM credentials are absent, so actual iOS/Android delivery and signed mobile builds remain pending. Mac notifications are disabled by request. Resend SMTP passed a user-requested real send through the temporary test sender. The configured sender still needs domain verification; OCR and email forwarding require provider setup and live delivery validation.
 
-The dependency audit still reports upstream high-severity findings in Expo/React Native tooling. See [known limitations](docs/KNOWN_LIMITS.md) before a store release. This is not a claim of production certification.
-
-## Documentation
-
-- [Setup and deployment](docs/SETUP.md)
-- [Architecture and milestone boundaries](docs/ARCHITECTURE.md)
-- [Tests and native-device runbook](docs/TESTING.md)
-- [Security, privacy and retention](docs/SECURITY.md)
-- [Known limits and integration roadmap](docs/KNOWN_LIMITS.md)
+The dependency audit still reports upstream high-severity findings in Expo/React Native tooling. Review these before a store release. This is not a claim of production certification.
 
 Source: `src/app` routes; `src/components` design system; `src/domain` shared pure logic; `src/services` persistence/providers; `src/store` durable state; `supabase/migrations` schema and RLS; `supabase/functions` server integrations. No bank connection, mailbox OAuth scanning, paywall, automatic merchant cancellation, or advertising SDK is enabled.

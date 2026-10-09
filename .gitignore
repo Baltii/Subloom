@@ -14,3 +14,8 @@ supabase/.branches/
 # Local build products and server-only configuration
 build/
 .env.*.local
+
+# Local documentation and installed agent skills
+/docs/
+/.agents/
+/skills-lock.json
