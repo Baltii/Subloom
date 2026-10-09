@@ -1,5 +1,7 @@
 # Subloom
 
+GitHub CI checks pull requests and produces Mac test builds. See [CI/CD and release versioning](docs/CI_CD.md) for automated release PRs, versioned downloads, and backend/mobile deployment setup.
+
 **Take control of your subscriptions.** An Expo React Native app for iOS and Android, with a responsive web preview, durable offline tracking, precise recurring-cost estimates, editable receipt detections, and a Supabase reminder backend.
 
 ## Run the app
