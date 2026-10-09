@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ActivityIndicator, Platform, View } from "react-native";
+import { ActivityIndicator, AppState, Platform, View } from "react-native";
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -19,12 +19,15 @@ import NetInfo from "@react-native-community/netinfo";
 import { useReducedMotion } from "react-native-reanimated";
 import { useApp, hydrate, readableError } from "../store/app";
 import { supabase, startSessionRefresh } from "../services/supabase";
-import { syncNow } from "../services/sync";
+import { syncNow, watchAccountChanges } from "../services/sync";
 import { useTheme } from "../theme/useTheme";
 import { Brand } from "../components/ui/Brand";
 import { Button, Label, Toast } from "../components/ui/Primitives";
 import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
-import { installNotificationNavigation } from "../services/notifications";
+import {
+  installNotificationNavigation,
+  maintainPushRegistration,
+} from "../services/notifications";
 export { ErrorBoundary } from "expo-router";
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,10 +36,11 @@ const queryClient = new QueryClient({
 });
 function Session() {
   const identity = useApp((s) => s.identity),
-    outboxSize = useApp((s) => s.data.outbox.length),
+    outboxRevision = useApp((s) => s.data.outbox.at(-1)?.id ?? "empty"),
+    pushEnabled = useApp((s) => s.data.preferences.pushEnabled),
     hydrated = useApp((s) => s.hydrated);
   const { refetch } = useQuery({
-    queryKey: ["sync", identity, outboxSize],
+    queryKey: ["sync", identity, outboxRevision],
     queryFn: async () => {
       await syncNow();
       return true;
@@ -46,13 +50,15 @@ function Session() {
   });
   useEffect(() => {
     let alive = true;
+    let authRevision = 0;
     void (async () => {
       if (!supabase) {
         await hydrate();
         return;
       }
+      const revision = authRevision;
       const { data, error } = await supabase.auth.getSession();
-      if (!alive) return;
+      if (!alive || revision !== authRevision) return;
       if (error)
         useApp.setState({
           syncError:
@@ -62,9 +68,10 @@ function Session() {
       await hydrate(data.session?.user.id || "guest");
     })().catch((error) => useApp.setState({ error: readableError(error) }));
     const auth = supabase?.auth.onAuthStateChange((_event, session) => {
+      const revision = ++authRevision;
       // Defer storage work outside the auth callback to avoid Supabase auth-lock deadlocks.
       setTimeout(() => {
-        if (alive) {
+        if (alive && revision === authRevision) {
           useApp.setState({ email: session?.user.email || null });
           const nextIdentity = session?.user.id || "guest";
           if (
@@ -91,9 +98,27 @@ function Session() {
     [hydrated, identity, refetch],
   );
   useEffect(() => {
-    if (Platform.OS !== "web")
+    if (hydrated && Platform.OS !== "web")
       return installNotificationNavigation((path) => router.push(path as "/"));
+  }, [hydrated]);
+  useEffect(() => {
+    if (!hydrated || identity === "guest") return;
+    return watchAccountChanges(identity, () => {
+      void syncNow().catch(() => {});
+    });
+  }, [hydrated, identity]);
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    const listener = AppState.addEventListener("change", (state) => {
+      if (state === "active" && useApp.getState().hydrated)
+        void syncNow().catch(() => {});
+    });
+    return () => listener.remove();
   }, []);
+  useEffect(() => {
+    if (hydrated && identity !== "guest")
+      return maintainPushRegistration(identity);
+  }, [hydrated, identity, pushEnabled]);
   return null;
 }
 function Shell() {

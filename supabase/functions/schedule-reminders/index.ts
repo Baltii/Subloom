@@ -53,7 +53,7 @@ export const handler = endpoint(async (req) => {
       if (userError || deviceError || profileError)
         throw new HttpError(500, "Could not read delivery preferences.");
       const verifiedEmail =
-        userResult.user?.email_confirmed_at && !accountProfile?.email_suppressed
+        Deno.env.get("RESEND_API_KEY") && Deno.env.get("EMAIL_FROM") && userResult.user?.email_confirmed_at && !accountProfile?.email_suppressed
           ? userResult.user.email
           : undefined;
       const tokens = p.pushEnabled

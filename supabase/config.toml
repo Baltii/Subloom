@@ -33,3 +33,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.email-preferences]
 verify_jwt = false
+[functions.test-push]
+verify_jwt = false

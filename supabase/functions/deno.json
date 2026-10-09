@@ -1,9 +1,9 @@
 {
   "imports": {
-    "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
-    "zod": "npm:zod@3",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.117.3",
+    "zod": "npm:zod@3.25.76",
     "@js-temporal/polyfill": "npm:@js-temporal/polyfill@0.5.1",
-    "svix": "npm:svix@1"
+    "svix": "npm:svix@1.99.1"
   },
   "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true },
   "unstable": ["sloppy-imports"]

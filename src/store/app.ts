@@ -28,6 +28,8 @@ type AppState = {
   syncError: string | null;
   syncing: boolean;
   email: string | null;
+  pushError: string | null;
+  pushDeviceEnabled: boolean | null;
 };
 export const useApp = create<AppState>(() => ({
   data: emptySnapshot(),
@@ -38,6 +40,8 @@ export const useApp = create<AppState>(() => ({
   syncError: null,
   syncing: false,
   email: null,
+  pushError: null,
+  pushDeviceEnabled: null,
 }));
 let writes: Promise<unknown> = Promise.resolve();
 let hydrationGeneration = 0;
@@ -57,22 +61,39 @@ export async function hydrate(identity = "guest") {
   try {
     const data = await loadSnapshot(identity);
     if (generation !== hydrationGeneration) return;
-    useApp.setState({ data, identity, hydrated: true, error: null });
+    useApp.setState({
+      data,
+      identity,
+      hydrated: true,
+      error: null,
+      syncError: null,
+      syncing: false,
+      pushError: null,
+      pushDeviceEnabled: null,
+    });
   } catch (error) {
     if (generation !== hydrationGeneration) return;
     useApp.setState({ hydrated: false, error: readableError(error) });
   }
 }
-export function commit(update: (data: Snapshot) => Snapshot): Promise<void> {
+export function commit(
+  update: (data: Snapshot) => Snapshot,
+  identity = useApp.getState().identity,
+): Promise<void> {
   const work = writes.then(async () => {
-    const state = useApp.getState(),
-      next = update(state.data);
+    const state = useApp.getState();
+    if (state.identity !== identity)
+      throw new Error(
+        "The account changed. Please retry in the current workspace.",
+      );
+    const next = update(state.data);
     await saveSnapshot(state.identity, next);
     useApp.setState({ data: next, error: null });
   });
   writes = work.catch(() => {});
   return work.catch((error) => {
-    useApp.setState({ error: readableError(error) });
+    if (useApp.getState().identity === identity)
+      useApp.setState({ error: readableError(error) });
     throw error;
   });
 }

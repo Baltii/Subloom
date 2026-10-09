@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Switch, View } from "react-native";
+import { Platform, Switch, View } from "react-native";
 import { router } from "expo-router";
 import {
   Download,
@@ -20,10 +20,13 @@ import {
   hydrate,
   notify,
 } from "../../store/app";
-import { currencies } from "../../domain/models";
 import { moneyInput, parseMoney } from "../../domain/money";
 import { supabase } from "../../services/supabase";
-import { disableDevice, registerPush } from "../../services/notifications";
+import {
+  disableDevice,
+  registerPush,
+  sendTestPush,
+} from "../../services/notifications";
 import { exportData } from "../../services/export";
 import { removeSnapshot } from "../../services/storage";
 import { syncNow, resolveConflict } from "../../services/sync";
@@ -40,6 +43,12 @@ import {
   Page,
   SectionTitle,
 } from "../../components/ui/Primitives";
+import { SelectField } from "../../components/ui/Selection";
+import {
+  currencyOptions,
+  hourOptions,
+  timezoneOptions,
+} from "../../components/ui/pickerOptions";
 export default function Settings() {
   const { colors } = useTheme(),
     wide = useWide(),
@@ -233,41 +242,42 @@ export default function Settings() {
             <Chips
               values={["system", "light", "dark"] as const}
               selected={p.appearance}
+              labels={{ system: "System", light: "Light", dark: "Dark" }}
+              disabled={busy}
               onChange={(appearance) =>
                 void run(() => updatePreferences({ appearance }))
               }
             />
-            <Label
-              size={12}
-              bold
-              color={colors.secondary}
-              style={{ marginTop: 25, marginBottom: 12 }}
-            >
-              Preferred currency
-            </Label>
-            <Chips
-              values={currencies}
-              selected={p.currency}
-              onChange={(currency) =>
-                void run(async () => {
-                  await updatePreferences({
-                    currency,
-                    highRenewalThresholdMinor: null,
-                  });
-                  setThreshold("");
-                })
-              }
-            />
+            <View style={{ marginTop: 24 }}>
+              <SelectField
+                label="Preferred currency"
+                value={p.currency}
+                options={currencyOptions}
+                searchable
+                disabled={busy}
+                onChange={(currency) =>
+                  void run(async () => {
+                    await updatePreferences({
+                      currency,
+                      highRenewalThresholdMinor: null,
+                    });
+                    setThreshold("");
+                  })
+                }
+              />
+            </View>
             <Label size={11} color={colors.secondary} style={{ marginTop: 12 }}>
               Original currencies are always preserved. Different currencies are
               shown as separate totals.
             </Label>
             <View style={{ marginTop: 24 }}>
-              <Field
-                label="Timezone · IANA name"
+              <SelectField
+                label="Timezone"
                 value={timezone}
-                onChangeText={setTimezone}
-                autoCapitalize="none"
+                onChange={setTimezone}
+                options={timezoneOptions(p.timezone)}
+                searchable
+                hint="Renewals and reminders follow this timezone."
               />
               <Button
                 variant="secondary"
@@ -307,14 +317,86 @@ export default function Settings() {
               <Badge tone="neutral">Connect an account for delivery</Badge>
             )}
             {toggle(
-              "Push reminders",
-              "A timely nudge on your iOS or Android device.",
+              "Mobile push reminders",
+              "Send reminders to the phones registered to your account.",
               p.pushEnabled,
               async (enabled) => {
-                if (enabled) await registerPush();
+                if (enabled && state.identity === "guest")
+                  throw new Error(
+                    "Connect an account before enabling push reminders.",
+                  );
+                if (enabled && Platform.OS !== "web") await registerPush();
                 else await disableDevice();
                 await updatePreferences({ pushEnabled: enabled });
               },
+            )}
+            {Platform.OS === "web" ? (
+              <Label size={12} color={colors.secondary}>
+                Enable delivery on each iOS or Android device. Mac notifications
+                are not enabled.
+              </Label>
+            ) : state.identity !== "guest" && p.pushEnabled ? (
+              <View style={{ gap: 10, marginBottom: 16 }}>
+                <Label size={12} color={colors.secondary}>
+                  {state.pushDeviceEnabled === null
+                    ? "Checking this device…"
+                    : state.pushDeviceEnabled
+                      ? "This device is registered for push reminders."
+                      : "Push delivery is not enabled on this device yet."}
+                </Label>
+                <Button
+                  variant="secondary"
+                  loading={busy}
+                  onPress={() =>
+                    void run(async () => {
+                      await registerPush();
+                      notify("This device is registered for push reminders.");
+                    })
+                  }
+                >
+                  {state.pushDeviceEnabled
+                    ? "Refresh this device’s registration"
+                    : "Enable push on this device"}
+                </Button>
+                {state.pushDeviceEnabled && (
+                  <Button
+                    variant="ghost"
+                    loading={busy}
+                    onPress={() =>
+                      void run(async () => {
+                        await syncNow();
+                        await sendTestPush();
+                        notify(
+                          "Test push queued for this device. The server will dispatch it shortly.",
+                        );
+                      })
+                    }
+                  >
+                    Send a test notification
+                  </Button>
+                )}
+                {state.pushDeviceEnabled && (
+                  <Button
+                    variant="ghost"
+                    loading={busy}
+                    onPress={() =>
+                      void run(async () => {
+                        await disableDevice();
+                        notify(
+                          "Push is off on this device. Your other devices keep their reminders.",
+                        );
+                      })
+                    }
+                  >
+                    Turn off push on this device
+                  </Button>
+                )}
+              </View>
+            ) : null}
+            {state.pushError && (
+              <Label size={12} color={colors.error}>
+                {state.pushError}
+              </Label>
             )}
             {toggle(
               "Email reminders",
@@ -388,32 +470,38 @@ export default function Settings() {
               ))}
             </View>
             <View style={{ marginTop: 24 }}>
-              {
-                <Field
-                  label="Reminder hour · 0–23, in your timezone"
-                  value={hour}
-                  onChangeText={setHour}
-                  keyboardType="number-pad"
-                />
-              }
+              <SelectField
+                label="Reminder time"
+                value={hour}
+                onChange={setHour}
+                options={hourOptions}
+                hint="In your selected timezone."
+              />
               <View style={{ flexDirection: "row", gap: 12 }}>
                 <View style={{ flex: 1 }}>
-                  <Field
-                    label="Quiet hours start · 0–23"
+                  <SelectField
+                    label="Quiet hours start"
                     value={quietStart}
-                    onChangeText={setQuietStart}
-                    keyboardType="number-pad"
+                    onChange={setQuietStart}
+                    options={hourOptions}
                   />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Field
-                    label="Quiet hours end · 0–23"
+                  <SelectField
+                    label="Quiet hours end"
                     value={quietEnd}
-                    onChangeText={setQuietEnd}
-                    keyboardType="number-pad"
+                    onChange={setQuietEnd}
+                    options={hourOptions}
                   />
                 </View>
               </View>
+              <Label
+                size={11}
+                color={colors.secondary}
+                style={{ marginBottom: 14 }}
+              >
+                Use the same start and end time to turn off quiet hours.
+              </Label>
               <Button
                 variant="secondary"
                 small

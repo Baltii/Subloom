@@ -2,9 +2,9 @@
   "version": "5",
   "specifiers": {
     "npm:@js-temporal/polyfill@0.5.1": "0.5.1",
-    "npm:@supabase/supabase-js@2": "2.117.3",
-    "npm:svix@1": "1.99.1",
-    "npm:zod@3": "3.25.76"
+    "npm:@supabase/supabase-js@2.117.3": "2.117.3",
+    "npm:svix@1.99.1": "1.99.1",
+    "npm:zod@3.25.76": "3.25.76"
   },
   "npm": {
     "@js-temporal/polyfill@0.5.1": {
@@ -93,9 +93,9 @@
   "workspace": {
     "dependencies": [
       "npm:@js-temporal/polyfill@0.5.1",
-      "npm:@supabase/supabase-js@2",
-      "npm:svix@1",
-      "npm:zod@3"
+      "npm:@supabase/supabase-js@2.117.3",
+      "npm:svix@1.99.1",
+      "npm:zod@3.25.76"
     ]
   }
 }

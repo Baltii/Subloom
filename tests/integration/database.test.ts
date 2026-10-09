@@ -45,6 +45,7 @@ beforeAll(async () => {
     "202610090003_scheduling.sql",
     "202610090004_contract_validation.sql",
     "202610090005_retention.sql",
+    "20261009154930_account_sync_and_push_devices.sql",
   ])
     await database.exec(
       readFileSync(
@@ -283,7 +284,7 @@ describe("real PostgreSQL migrations, transactions and RLS", () => {
         "insert into push_devices(id,user_id,token,platform) values($1,$2,$3,'ios')",
         [randomUUID(), userA, "ExpoPushToken[abc123]"],
       ),
-    ).rejects.toThrow(/row-level security/);
+    ).rejects.toThrow(/permission denied|row-level security/);
   });
   it("confirms a candidate and subscription atomically, including retries", async () => {
     const candidate = extractReceipt(
@@ -459,6 +460,83 @@ describe("real PostgreSQL migrations, transactions and RLS", () => {
       (await database.query("select id from operation_results")).rows,
     ).toHaveLength(before);
   });
+  it("notifies only the owner of subscription deletions using a revision marker", async () => {
+    const value = subscription({ id: randomUUID() });
+    await asUser(userA, "select apply_operation($1::jsonb)", [
+      JSON.stringify(
+        operation("subscription", value.id, { subscription: value }),
+      ),
+    ]);
+    const before = (
+      await asUser(userA, "select revision from account_sync_state")
+    ).rows[0] as { revision: number };
+    await asUser(userA, "select apply_operation($1::jsonb)", [
+      JSON.stringify(operation("subscription", value.id, {}, 1, "delete")),
+    ]);
+    const after = (
+      await asUser(userA, "select revision from account_sync_state")
+    ).rows[0] as { revision: number };
+    expect(BigInt(after.revision)).toBeGreaterThan(BigInt(before.revision));
+    expect(
+      (
+        await asUser(
+          userB,
+          "select * from account_sync_state where user_id=$1",
+          [userA],
+        )
+      ).rows,
+    ).toHaveLength(0);
+    await expect(
+      asUser(userB, "update account_sync_state set revision=999"),
+    ).rejects.toThrow(/permission denied/);
+  });
+  it("registers and rotates owned push tokens without leaving the previous account enabled", async () => {
+    const a = randomUUID(),
+      b = randomUUID(),
+      token = "ExpoPushToken[disposable-test]";
+    await asUser(userA, "select register_push_device($1,$2,'ios')", [a, token]);
+    await asUser(userB, "select register_push_device($1,$2,'android')", [
+      b,
+      token,
+    ]);
+    expect(
+      (await asUser(userA, "select enabled from push_devices where id=$1", [a]))
+        .rows[0],
+    ).toMatchObject({ enabled: false });
+    expect(
+      (await asUser(userB, "select enabled from push_devices where id=$1", [b]))
+        .rows[0],
+    ).toMatchObject({ enabled: true });
+    await expect(
+      asUser(userA, "select register_push_device($1,$2,'ios')", [
+        b,
+        "ExpoPushToken[other]",
+      ]),
+    ).rejects.toThrow(/identity/);
+    await expect(
+      asUser(userB, "update push_devices set enabled=true where id=$1", [b]),
+    ).rejects.toThrow(/permission denied/);
+    await asUser(userB, "select disable_push_device($1)", [a]);
+    await asUser(userB, "select register_push_device($1,$2,'android')", [
+      b,
+      "ExpoPushToken[rotated]",
+    ]);
+    expect(
+      (await asUser(userB, "select token from push_devices where id=$1", [b]))
+        .rows[0],
+    ).toMatchObject({ token: "ExpoPushToken[rotated]" });
+    await asUser(userB, "select disable_push_device($1)", [b]);
+    expect(
+      (await asUser(userB, "select enabled from push_devices where id=$1", [b]))
+        .rows[0],
+    ).toMatchObject({ enabled: false });
+    await expect(
+      asUser(userB, "select register_push_device($1,$2,'macos')", [
+        randomUUID(),
+        token,
+      ]),
+    ).rejects.toThrow(/Invalid push/);
+  });
   it("cascades account deletion without touching another user", async () => {
     await database.query("delete from auth.users where id=$1", [userA]);
     expect(
@@ -470,5 +548,13 @@ describe("real PostgreSQL migrations, transactions and RLS", () => {
     expect((await asUser(userB, "select * from profiles")).rows).toHaveLength(
       1,
     );
+    expect(
+      (
+        await database.query(
+          "select * from account_sync_state where user_id=$1",
+          [userA],
+        )
+      ).rows,
+    ).toHaveLength(0);
   });
 });

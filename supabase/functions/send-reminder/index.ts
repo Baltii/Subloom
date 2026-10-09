@@ -17,7 +17,7 @@ export const handler = endpoint(async (req) => {
   requireCron(req);
   const client = admin();
   const { data: deliveries, error } = await client.rpc("claim_deliveries", {
-    batch_size: 50,
+    batch_size: 5,
   });
   if (error) throw new HttpError(500, "Could not claim deliveries.");
   let accepted = 0,
@@ -108,7 +108,7 @@ export const handler = endpoint(async (req) => {
           continue;
         }
       }
-      if (event.kind !== "welcome") {
+      if (event.kind !== "welcome" && event.kind !== "test") {
         const local = Temporal.Instant.from(
           now.toISOString(),
         ).toZonedDateTimeISO(p.timezone);

@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { accountClient, supabase } from "./supabase";
 import { commit, useApp } from "../store/app";
 import {
   candidateSchema,
@@ -6,14 +6,26 @@ import {
   preferencesSchema,
   subscriptionSchema,
 } from "../domain/models";
+
 let active: Promise<void> | null = null;
-async function pages(table: string): Promise<unknown[]> {
-  if (!supabase) return [];
+let requested = false;
+type Client = Awaited<ReturnType<typeof accountClient>>;
+function current(identity: string) {
+  const state = useApp.getState();
+  return state.identity === identity && state.hydrated && !state.data.demo;
+}
+async function pages(
+  client: Client,
+  table: string,
+  identity: string,
+): Promise<unknown[]> {
   const result: unknown[] = [];
   for (let offset = 0; ; offset += 500) {
-    const { data, error } = await supabase
+    if (!current(identity)) return [];
+    const { data, error } = await client
       .from(table)
       .select("data")
+      .eq("user_id", identity)
       .order("id")
       .range(offset, offset + 499);
     if (error) throw new Error(error.message);
@@ -22,75 +34,114 @@ async function pages(table: string): Promise<unknown[]> {
   }
   return result;
 }
+async function revision(client: Client, identity: string) {
+  const { data, error } = await client
+    .from("account_sync_state")
+    .select("revision")
+    .eq("user_id", identity)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return String(data?.revision ?? "0");
+}
 export function syncNow(): Promise<void> {
+  requested = true;
   if (active) return active;
-  active = performSync().finally(() => {
+  active = (async () => {
+    while (requested) {
+      requested = false;
+      const identity = useApp.getState().identity;
+      if (supabase && identity !== "guest" && current(identity))
+        await performSync(identity);
+    }
+  })().finally(() => {
     active = null;
   });
   return active;
 }
-async function performSync() {
-  const identity = useApp.getState().identity;
-  if (!supabase || identity === "guest" || useApp.getState().data.demo) return;
+async function performSync(identity: string) {
   useApp.setState({ syncing: true, syncError: null });
   try {
-    while (useApp.getState().identity === identity) {
-      const operation = useApp.getState().data.outbox[0];
-      if (!operation) break;
-      const { error } = await supabase.rpc("apply_operation", { operation });
-      if (error)
-        throw new Error(
-          error.message.includes("conflict")
-            ? "A subscription changed on another device. Resolve the sync conflict in Settings; your local changes are safe."
-            : error.message,
-        );
-      if (useApp.getState().identity !== identity) return;
-      await commit((data) => ({
-        ...data,
-        outbox: data.outbox.filter((op) => op.id !== operation.id),
-      }));
-    }
-    const before = useApp.getState().data;
-    const [subscriptionData, candidateData, activityData, preferenceResult] =
-      await Promise.all([
-        pages("subscriptions"),
-        pages("detected_candidates"),
-        pages("subscription_activity"),
-        supabase
-          .from("user_preferences")
-          .select("data")
-          .eq("user_id", identity)
-          .maybeSingle(),
-      ]);
-    if (preferenceResult.error) throw new Error(preferenceResult.error.message);
-    if (
-      useApp.getState().identity !== identity ||
-      useApp.getState().data !== before
-    )
-      return;
-    const subscriptions = subscriptionData.map((s) =>
-      subscriptionSchema.parse(s),
-    );
-    const candidates = candidateData.map((c) => candidateSchema.parse(c));
-    const preferences = preferenceResult.data
-      ? preferencesSchema.parse(preferenceResult.data.data)
-      : before.preferences;
-    await commit((data) =>
-      data === before
-        ? {
+    const client = await accountClient(identity);
+    for (let attempt = 0; attempt < 5 && current(identity); attempt++) {
+      while (current(identity)) {
+        const operation = useApp.getState().data.outbox[0];
+        if (!operation) break;
+        const { error } = await client.rpc("apply_operation", { operation });
+        if (!current(identity)) return;
+        if (error)
+          throw new Error(
+            error.message.toLowerCase().includes("conflict")
+              ? "A subscription changed on another device. Resolve the sync conflict in Settings; your local changes are safe."
+              : error.message,
+          );
+        await commit(
+          (data) => ({
             ...data,
-            subscriptions,
-            candidates,
-            preferences,
-            activity: activityData
-              .map((a) => activitySchema.parse(a))
-              .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-              .slice(0, 500),
-            lastSyncedAt: new Date().toISOString(),
-          }
-        : data,
-    );
+            outbox: data.outbox.filter((op) => op.id !== operation.id),
+          }),
+          identity,
+        );
+      }
+      if (!current(identity)) return;
+      const before = useApp.getState().data;
+      const startRevision = await revision(client, identity);
+      const [subscriptionData, candidateData, activityData, preferenceResult] =
+        await Promise.all([
+          pages(client, "subscriptions", identity),
+          pages(client, "detected_candidates", identity),
+          pages(client, "subscription_activity", identity),
+          client
+            .from("user_preferences")
+            .select("data")
+            .eq("user_id", identity)
+            .maybeSingle(),
+        ]);
+      if (!current(identity)) return;
+      if (preferenceResult.error)
+        throw new Error(preferenceResult.error.message);
+      const endRevision = await revision(client, identity);
+      if (!current(identity)) return;
+      // A paginated pull is accepted only when the cloud revision and local snapshot stayed stable.
+      if (startRevision !== endRevision || useApp.getState().data !== before)
+        continue;
+      const subscriptions = subscriptionData.map((s) =>
+        subscriptionSchema.parse(s),
+      );
+      const candidates = candidateData.map((c) => candidateSchema.parse(c));
+      const preferences = preferenceResult.data
+        ? preferencesSchema.parse(preferenceResult.data.data)
+        : before.preferences;
+      await commit(
+        (data) =>
+          data === before
+            ? {
+                ...data,
+                subscriptions,
+                candidates,
+                preferences,
+                onboarded:
+                  data.onboarded ||
+                  Boolean(preferenceResult.data) ||
+                  subscriptions.length > 0 ||
+                  candidates.length > 0,
+                activity: activityData
+                  .map((a) => activitySchema.parse(a))
+                  .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+                  .slice(0, 500),
+                lastSyncedAt: new Date().toISOString(),
+              }
+            : data,
+        identity,
+      );
+      if (useApp.getState().data.outbox.length) continue;
+      return;
+    }
+    if (current(identity))
+      throw new Error(
+        "Your account is changing on another device. Sync will retry; local changes are saved.",
+      );
   } catch (error) {
+    if (!current(identity)) return;
     useApp.setState({
       syncError:
         error instanceof Error
@@ -99,11 +150,60 @@ async function performSync() {
     });
     throw error;
   } finally {
-    useApp.setState({ syncing: false });
+    if (current(identity)) useApp.setState({ syncing: false });
   }
 }
+
+export function watchAccountChanges(
+  identity: string,
+  refresh: () => void,
+): () => void {
+  if (!supabase || identity === "guest") return () => {};
+  let disposed = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const changed = () => {
+    if (disposed) return;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      if (!disposed && current(identity)) refresh();
+    }, 250);
+  };
+  const channel = supabase
+    .channel("account-sync:" + identity)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "account_sync_state",
+        filter: "user_id=eq." + identity,
+      },
+      changed,
+    )
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "account_sync_state",
+        filter: "user_id=eq." + identity,
+      },
+      changed,
+    )
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") changed();
+    });
+  return () => {
+    disposed = true;
+    if (timer) clearTimeout(timer);
+    void supabase?.removeChannel(channel);
+  };
+}
+
 export async function resolveConflict(strategy: "remote" | "local") {
-  if (!supabase) return;
+  if (active) await active.catch(() => {});
+  const identity = useApp.getState().identity;
+  if (!current(identity) || identity === "guest") return;
   const operation = useApp.getState().data.outbox[0];
   if (!operation) return;
   if (
@@ -111,13 +211,17 @@ export async function resolveConflict(strategy: "remote" | "local") {
     operation.entity !== "confirmation"
   )
     throw new Error("Retry sync after checking your connection.");
-  const { data, error } = await supabase
+  const client = await accountClient(identity);
+  const { data, error } = await client
     .from("subscriptions")
     .select("version")
+    .eq("user_id", identity)
     .eq("id", operation.entityId)
     .maybeSingle();
   if (error) throw error;
+  if (!current(identity)) return;
   await commit((snapshot) => {
+    if (snapshot.outbox[0]?.id !== operation.id) return snapshot;
     if (strategy === "remote")
       return {
         ...snapshot,
@@ -125,12 +229,11 @@ export async function resolveConflict(strategy: "remote" | "local") {
           (op) => op.entityId !== operation.entityId,
         ),
       };
-    const remoteVersion = (data?.version as number | undefined) ?? null;
-    let version = remoteVersion ?? 0;
+    let version: number | null = data?.version ?? null;
     const outbox = snapshot.outbox.map((op) => {
       if (op.entityId !== operation.entityId) return op;
-      const expectedVersion = version || null;
-      version++;
+      const expectedVersion = version;
+      version = op.action === "delete" ? null : (version ?? 0) + 1;
       const payload = op.payload as {
         subscription?: import("../domain/models").Subscription;
       };
@@ -138,7 +241,10 @@ export async function resolveConflict(strategy: "remote" | "local") {
         ...op,
         expectedVersion,
         payload: payload.subscription
-          ? { ...payload, subscription: { ...payload.subscription, version } }
+          ? {
+              ...payload,
+              subscription: { ...payload.subscription, version: version ?? 1 },
+            }
           : payload,
       };
     });
@@ -146,9 +252,9 @@ export async function resolveConflict(strategy: "remote" | "local") {
       ...snapshot,
       outbox,
       subscriptions: snapshot.subscriptions.map((s) =>
-        s.id === operation.entityId ? { ...s, version } : s,
+        s.id === operation.entityId ? { ...s, version: version ?? 1 } : s,
       ),
     };
-  });
+  }, identity);
   await syncNow();
 }

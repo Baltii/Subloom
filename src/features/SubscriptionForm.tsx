@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { router } from "expo-router";
 import * as Crypto from "expo-crypto";
-import { Check, Search } from "lucide-react-native";
+import { Check, ChevronDown, Search } from "lucide-react-native";
 import {
   categories,
   currencies,
@@ -27,6 +27,13 @@ import {
   Heading,
   Label,
 } from "../components/ui/Primitives";
+import { DateField } from "../components/ui/DateField";
+import { SelectField } from "../components/ui/Selection";
+import {
+  currencyOptions,
+  categoryOptions,
+  intervalOptions,
+} from "../components/ui/pickerOptions";
 import { ServiceIcon } from "../components/subscriptions/ServiceIcon";
 import { useTheme, useWide } from "../theme/useTheme";
 const formSchema = z
@@ -161,6 +168,27 @@ export function SubscriptionForm({
       />
     );
   }
+  function dateField(
+    name: "nextRenewal" | "startDate" | "trialEnd",
+    label: string,
+  ) {
+    return (
+      <Controller
+        control={control}
+        name={name}
+        render={({ field: f }) => (
+          <DateField
+            testID={"subscription-" + name}
+            label={label}
+            value={f.value}
+            onChange={f.onChange}
+            onBlur={f.onBlur}
+            error={errors[name]?.message}
+          />
+        )}
+      />
+    );
+  }
   async function submit(values: z.output<typeof formSchema>) {
     setBusy(true);
     setError(null);
@@ -214,6 +242,7 @@ export function SubscriptionForm({
           <View style={{ marginTop: 14 }}>
             <Field
               label="Find a service"
+              leading={<Search size={17} color={colors.secondary} />}
               placeholder="Search Netflix, Spotify, iCloud…"
               value={search}
               onChangeText={setSearch}
@@ -297,56 +326,40 @@ export function SubscriptionForm({
             )}
           </View>
           <View style={{ flex: 1 }}>
-            <Label
-              size={12}
-              bold
-              color={colors.secondary}
-              style={{ marginBottom: 8 }}
-            >
-              Currency
-            </Label>
             <Controller
               control={control}
               name="currency"
               render={({ field: f }) => (
-                <Chips
-                  values={currencies}
-                  selected={f.value}
+                <SelectField
+                  label="Currency"
+                  testID="subscription-currency"
+                  showDetail={false}
+                  value={f.value}
                   onChange={f.onChange}
+                  options={currencyOptions}
+                  searchable
+                  placeholder="Choose currency"
+                  error={errors.currency?.message}
                 />
               )}
             />
-            {errors.currency && (
-              <Label size={12} color={colors.error}>
-                {errors.currency.message}
-              </Label>
-            )}
           </View>
         </View>
-        <Label
-          size={12}
-          bold
-          color={colors.secondary}
-          style={{ marginBottom: 10 }}
-        >
-          Billing frequency
-        </Label>
         <Controller
           control={control}
           name="interval"
           render={({ field: f }) => (
-            <Chips
-              values={intervals}
-              selected={f.value}
+            <SelectField
+              label="Billing frequency"
+              value={f.value}
               onChange={f.onChange}
+              options={intervalOptions}
+              testID="subscription-interval"
+              placeholder="Choose frequency"
+              error={errors.interval?.message}
             />
           )}
         />
-        {errors.interval && (
-          <Label size={12} color={colors.error}>
-            {errors.interval.message}
-          </Label>
-        )}
         {interval === "custom" && (
           <View style={{ marginTop: 16 }}>
             {field("intervalCount", "Repeat every", {
@@ -366,10 +379,7 @@ export function SubscriptionForm({
           </View>
         )}
         <View style={{ marginTop: 22 }}>
-          {field("nextRenewal", "Next renewal · YYYY-MM-DD", {
-            placeholder: "2026-10-31",
-            autoCapitalize: "none",
-          })}
+          {dateField("nextRenewal", "Next renewal")}
         </View>
         <Label
           size={12}
@@ -386,37 +396,31 @@ export function SubscriptionForm({
             <Chips
               values={["active", "trial", "paused"] as const}
               selected={f.value as "active" | "trial" | "paused"}
+              labels={{ active: "Active", trial: "Trial", paused: "Paused" }}
               onChange={f.onChange}
             />
           )}
         />
         {status === "trial" && (
           <View style={{ marginTop: 20 }}>
-            {field("trialEnd", "Trial ends · YYYY-MM-DD", {
-              placeholder: "2026-10-31",
-            })}
+            {dateField("trialEnd", "Trial ends")}
             <Label size={11} color={colors.secondary}>
               Enter the price that will apply after the trial.
             </Label>
           </View>
         )}
         <View style={{ marginTop: 22 }}>
-          <Label
-            size={12}
-            bold
-            color={colors.secondary}
-            style={{ marginBottom: 10 }}
-          >
-            Category
-          </Label>
           <Controller
             control={control}
             name="category"
             render={({ field: f }) => (
-              <Chips
-                values={categories}
-                selected={f.value}
+              <SelectField
+                label="Category"
+                value={f.value}
                 onChange={f.onChange}
+                options={categoryOptions}
+                testID="subscription-category"
+                searchable
               />
             )}
           />
@@ -425,7 +429,7 @@ export function SubscriptionForm({
           <Button
             variant="ghost"
             small
-            icon={Search}
+            icon={ChevronDown}
             onPress={() => setAdvanced(!advanced)}
           >
             {advanced ? "Hide extra details" : "Add extra details"}
@@ -433,7 +437,7 @@ export function SubscriptionForm({
         </View>
         {advanced && (
           <View style={{ marginTop: 12 }}>
-            {field("startDate", "Started on · YYYY-MM-DD")}
+            {dateField("startDate", "Started on")}
             {interval !== "custom" &&
               field("intervalCount", "Billing interval count", {
                 keyboardType: "number-pad",
