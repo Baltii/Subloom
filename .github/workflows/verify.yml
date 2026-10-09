@@ -1,0 +1,84 @@
+name: Verify app and build Mac artifacts
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: App, database and backend checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Validate GitHub workflows
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+      - run: npm run check
+      - run: npm run check:backend
+      - run: npm run test:backend
+      - name: Export web and native JavaScript bundles
+        run: |
+          npx expo export --platform all --output-dir build/ci-bundles
+          npx expo config --type public --json > build/expo-config.json
+          node -e 'const assert = require("node:assert/strict"); assert.equal(require("./build/expo-config.json").version, require("./package.json").version)'
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+          EXPO_PUBLIC_EAS_PROJECT_ID: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
+
+  macos:
+    name: Mac build (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x64
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Select installed Xcode
+        run: echo "DEVELOPER_DIR=$(xcode-select -p)" >> "$GITHUB_ENV"
+      - name: Compile and verify signed Mac test app
+        run: npm run build:macos
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+          EXPO_PUBLIC_EAS_PROJECT_ID: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
+      - name: Package versioned test app
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' build/Subloom.app/Contents/Info.plist)" = "$version"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' build/Subloom.app/Contents/Info.plist)" = "$version"
+          ditto -c -k --sequesterRsrc --keepParent build/Subloom.app "build/Subloom-${version}-macos-${ARCH}.zip"
+          cd build
+          shasum -a 256 "Subloom-${version}-macos-${ARCH}.zip" > "Subloom-${version}-macos-${ARCH}.sha256"
+        env:
+          ARCH: ${{ matrix.arch }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: macos-${{ matrix.arch }}
+          path: |
+            build/Subloom-*-macos-*.zip
+            build/Subloom-*-macos-*.sha256
+          if-no-files-found: error
+          retention-days: 14

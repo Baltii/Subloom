@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 const env = {
   ...process.env,
@@ -34,6 +34,16 @@ mkdirSync(app + "/Contents/MacOS", { recursive: true });
 mkdirSync(app + "/Contents/Resources", { recursive: true });
 cpSync("build/macos-web", app + "/Contents/Resources/Web", { recursive: true });
 cpSync("macos/Info.plist", app + "/Contents/Info.plist");
+// Release Please owns package.json; stamp both Mac versions before signing.
+const { version } = JSON.parse(readFileSync("package.json", "utf8"));
+if (!/^\d+\.\d+\.\d+$/.test(version))
+  throw new Error("The Mac build requires a stable semantic version.");
+for (const key of ["CFBundleVersion", "CFBundleShortVersionString"])
+  run("/usr/libexec/PlistBuddy", [
+    "-c",
+    `Set :${key} ${version}`,
+    app + "/Contents/Info.plist",
+  ]);
 const iconset = resolve("build/Subloom.iconset");
 mkdirSync(iconset, { recursive: true });
 for (const size of [16, 32, 128, 256, 512]) {
