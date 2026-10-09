@@ -1,10 +1,11 @@
 import type { ExpoConfig } from "expo/config";
 import { existsSync } from "node:fs";
+import { version } from "./package.json";
 
 const config: ExpoConfig = {
   name: "Subloom",
   slug: "subloom",
-  version: "1.0.0",
+  version,
   scheme: "subloom",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
