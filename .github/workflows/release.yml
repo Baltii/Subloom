@@ -39,7 +39,7 @@ jobs:
           SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
           SUPABASE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
           EAS_PROJECT: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
-      - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
           target-branch: main
