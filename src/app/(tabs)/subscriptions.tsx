@@ -18,6 +18,7 @@ import {
 } from "../../components/ui/Primitives";
 import { SubscriptionRow } from "../../components/subscriptions/SubscriptionRow";
 import { SwipeRow } from "../../components/subscriptions/SwipeRow";
+import { SelectField } from "../../components/ui/Selection";
 export default function Subscriptions() {
   const { colors } = useTheme(),
     wide = useWide(),
@@ -145,27 +146,37 @@ export default function Subscriptions() {
               selected={status}
               onChange={setStatus}
             />
-            <View style={{ marginTop: 12 }}>
-              <Chips
-                values={["All categories", ...categories]}
-                selected={category}
-                onChange={setCategory}
-              />
-            </View>
             <View
               style={{
                 flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop: 19,
-                marginBottom: 20,
                 gap: 10,
+                marginTop: 16,
+                marginBottom: 20,
+                alignItems: "center",
               }}
             >
               <View style={{ flex: 1 }}>
-                <Chips
-                  values={["Renewal date", "Name", "Price"]}
-                  selected={sort}
+                <SelectField
+                  compact
+                  label="Filter category"
+                  value={category}
+                  options={["All categories", ...categories].map((value) => ({
+                    value,
+                    label: value,
+                  }))}
+                  onChange={setCategory}
+                  searchable
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <SelectField
+                  compact
+                  label="Sort subscriptions"
+                  value={sort}
+                  options={["Renewal date", "Name", "Price"].map((value) => ({
+                    value,
+                    label: value,
+                  }))}
                   onChange={setSort}
                 />
               </View>

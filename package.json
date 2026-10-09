@@ -16,7 +16,14 @@
     "check": "npm run typecheck && npm run lint && npm test",
     "test:backend": "deno test --allow-env --allow-net --config supabase/functions/deno.json supabase/functions/tests",
     "check:backend": "deno check --config supabase/functions/deno.json supabase/functions/*/index.ts",
-    "format": "prettier --write src tests docs *.ts *.json"
+    "format": "prettier --write src tests docs *.ts *.json",
+    "test:live": "node scripts/live-smoke.mjs",
+    "deploy:supabase": "node scripts/deploy-supabase.mjs",
+    "configure:scheduler": "node scripts/configure-scheduler.mjs",
+    "eas": "node scripts/eas.mjs",
+    "test:macos": "node scripts/test-macos-server.mjs",
+    "build:macos": "node scripts/build-macos.mjs",
+    "open:macos": "open build/Subloom.app"
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.4.2",
@@ -71,6 +78,7 @@
     "eslint": "^9.39.5",
     "eslint-config-expo": "^57.0.2",
     "prettier": "^3.9.9",
+    "supabase": "^2.120.0",
     "typescript": "^6.0.3",
     "vitest": "^5.0.3"
   },

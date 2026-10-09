@@ -1,24 +1,32 @@
 import { useState } from "react";
-import { View, Pressable } from "react-native";
-import { router } from "expo-router";
+import { ActivityIndicator, View, Pressable } from "react-native";
+import { Redirect, router } from "expo-router";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react-native";
 import { Brand, BloomArt } from "../components/ui/Brand";
 import {
   Button,
   Card,
-  Chips,
-  Field,
   Heading,
   Label,
   Page,
 } from "../components/ui/Primitives";
-import { currencies, type Currency } from "../domain/models";
+import { type Currency } from "../domain/models";
 import { finishOnboarding, readableError, useApp } from "../store/app";
 import { useTheme, useWide } from "../theme/useTheme";
+import { syncNow } from "../services/sync";
+import { SelectField } from "../components/ui/Selection";
+import {
+  currencyOptions,
+  timezoneOptions,
+} from "../components/ui/pickerOptions";
 export default function Onboarding() {
   const { colors } = useTheme(),
     wide = useWide(),
-    defaults = useApp((s) => s.data.preferences);
+    defaults = useApp((s) => s.data.preferences),
+    identity = useApp((s) => s.identity),
+    onboarded = useApp((s) => s.data.onboarded),
+    lastSyncedAt = useApp((s) => s.data.lastSyncedAt),
+    syncError = useApp((s) => s.syncError);
   const [currency, setCurrency] = useState<Currency>(defaults.currency),
     [timezone, setTimezone] = useState(defaults.timezone),
     [busy, setBusy] = useState(false),
@@ -35,6 +43,36 @@ export default function Onboarding() {
       setBusy(false);
     }
   }
+  if (onboarded) return <Redirect href="/" />;
+  if (identity !== "guest" && !lastSyncedAt)
+    return (
+      <Page title="Your account, on this device">
+        <Card style={{ gap: 18, maxWidth: 480 }}>
+          <Heading size={24}>Loading your subscriptions</Heading>
+          <Label color={colors.secondary}>
+            We’re checking your account before setting up this device.
+          </Label>
+          {syncError ? (
+            <>
+              <Label color={colors.error}>{syncError}</Label>
+              <Button
+                loading={busy}
+                onPress={() => {
+                  setBusy(true);
+                  void syncNow()
+                    .catch(() => {})
+                    .finally(() => setBusy(false));
+                }}
+              >
+                Retry account sync
+              </Button>
+            </>
+          ) : (
+            <ActivityIndicator color={colors.primary} />
+          )}
+        </Card>
+      </Page>
+    );
   return (
     <Page title="" right={<Brand />}>
       <View
@@ -112,19 +150,21 @@ export default function Onboarding() {
             ))}
           </View>
           <Card style={{ padding: 18, gap: 12 }}>
-            <Label size={12} bold>
-              Your preferred currency
-            </Label>
-            <Chips
-              values={currencies}
-              selected={currency}
+            <SelectField
+              label="Your preferred currency"
+              testID="onboarding-currency"
+              value={currency}
               onChange={setCurrency}
+              options={currencyOptions}
+              searchable
             />
-            <Field
+            <SelectField
               label="Your timezone"
+              testID="onboarding-timezone"
               value={timezone}
-              onChangeText={setTimezone}
-              autoCapitalize="none"
+              onChange={setTimezone}
+              options={timezoneOptions(defaults.timezone)}
+              searchable
             />
           </Card>
           {error && <Label color={colors.error}>{error}</Label>}

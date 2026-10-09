@@ -36,13 +36,13 @@ import {
   Chips,
   Confirm,
   Empty,
-  Field,
   Heading,
   Label,
   Page,
   SectionTitle,
 } from "../../components/ui/Primitives";
 import { ServiceIcon } from "../../components/subscriptions/ServiceIcon";
+import { DateField } from "../../components/ui/DateField";
 export default function Details() {
   const { id } = useLocalSearchParams<{ id: string }>(),
     { colors } = useTheme(),
@@ -367,10 +367,10 @@ export default function Details() {
           await changeStatus(id, "canceled", paidThrough || null);
         }}
       >
-        <Field
-          label="Paid through (optional) · YYYY-MM-DD"
+        <DateField
+          label="Paid through (optional)"
           value={paidThrough}
-          onChangeText={setPaidThrough}
+          onChange={setPaidThrough}
         />
       </Confirm>
     </Page>

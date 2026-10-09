@@ -2,7 +2,7 @@
 
 ## Current release gates
 
-The implemented client can run with persisted guest data without external services. Cloud auth/sync, receipt forwarding, screenshot OCR and server push/email require the configuration in SETUP.md. No live credentials were supplied, so these integrations have been tested with SQL execution and explicit provider adapters, not live accounts or deliveries.
+The implemented client can run with persisted guest data without external services. Cloud auth/sync is deployed and verified with live disposable accounts, including Realtime and same-account sessions. Reminder workers and Cron are deployed and verified on empty queues. Receipt forwarding, screenshot OCR and actual push/email delivery still require provider configuration and device acceptance in SETUP.md. EAS has no APNs/FCM credentials; Mac notifications are intentionally disabled.
 
 JavaScript/Hermes bundles export for iOS, Android and web. Native compilation/signing, EAS cloud builds, App Store/Play submission, Maestro and physical-device tests have not run in this environment. The web preview is useful for UI verification and tracking; it does not validate native permission behavior, notification transport, camera/photo access, SQLite or SecureStore on a device.
 

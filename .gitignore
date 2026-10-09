@@ -10,3 +10,7 @@ android/
 .DS_Store
 supabase/.temp/
 supabase/.branches/
+
+# Local build products and server-only configuration
+build/
+.env.*.local

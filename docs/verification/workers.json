@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-09T16:15:08.344Z",
+  "checks": [
+    {
+      "function": "schedule-reminders",
+      "unauthorizedStatus": 401,
+      "authorizedStatus": 200,
+      "counts": {
+        "scheduled": 0,
+        "failures": 0,
+        "users": 0
+      }
+    },
+    {
+      "function": "send-reminder",
+      "unauthorizedStatus": 401,
+      "authorizedStatus": 200,
+      "counts": {
+        "accepted": 0,
+        "failed": 0
+      }
+    }
+  ]
+}

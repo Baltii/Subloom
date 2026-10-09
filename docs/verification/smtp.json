@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-09T16:27:43.670Z",
+  "flow": "Supabase Auth sign-in OTP using project SMTP",
+  "status": "failed",
+  "statusCode": 500,
+  "scope": "Request acceptance is verified; inbox receipt needs confirmation.",
+  "cause": "Resend SMTP 550: configured sender domain subloom.io is not verified.",
+  "smtpSettingsValidated": {
+    "host": "smtp.resend.com",
+    "port": 465,
+    "username": "resend"
+  },
+  "checkedAt": "2026-10-09T16:31:18.212Z",
+  "temporarySenderTest": {
+    "at": "2026-10-09T16:34:47.228Z",
+    "sender": "onboarding@resend.dev",
+    "status": "accepted",
+    "scope": "Actual Supabase SMTP send request; inbox receipt not yet confirmed."
+  },
+  "originalSenderRestored": true,
+  "provider": {
+    "id": "01a12184-646a-7924-a129-0e5db8d18e09",
+    "event": "delivered",
+    "createdAt": "2026-10-09 16:34:47.201000+00",
+    "checkedAt": "2026-10-09T16:35:22.933Z"
+  },
+  "otpTemplates": {
+    "confirmation": "configured and readback verified",
+    "magicLink": "configured and readback verified",
+    "subject": "Your Subloom sign-in code",
+    "at": "2026-10-09T16:36:24.663Z",
+    "scope": "Future sends contain a numeric OTP; the already-delivered test used the earlier template."
+  },
+  "finalStatus": "Test email delivered using temporary Resend sender; configured custom-domain sender remains blocked."
+}

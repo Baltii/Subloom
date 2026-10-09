@@ -124,6 +124,8 @@ export function Button({
       accessibilityRole="button"
       accessibilityLabel={children}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
+      aria-disabled={disabled || loading}
+      aria-busy={loading}
       disabled={disabled || loading}
       onPress={() => {
         if (Platform.OS !== "web")
@@ -309,36 +311,83 @@ export function SectionTitle({
 export function Field({
   label,
   error,
+  hint,
+  leading,
+  trailing,
   ...props
-}: TextInputProps & { label: string; error?: string }) {
+}: TextInputProps & {
+  label: string;
+  error?: string;
+  hint?: string;
+  leading?: ReactNode;
+  trailing?: ReactNode;
+}) {
   const { colors } = useTheme();
+  const [focused, setFocused] = useState(false);
   return (
     <View style={{ gap: 8, marginBottom: 18 }}>
       <Label size={12} bold color={colors.secondary}>
         {label}
       </Label>
-      <TextInput
-        accessibilityLabel={label}
-        placeholderTextColor={colors.faint}
-        {...props}
-        style={[
-          {
-            backgroundColor: colors.background,
-            borderWidth: 1,
-            borderColor: error ? colors.error : colors.border,
-            borderRadius: 12,
-            padding: 14,
-            minHeight: 50,
-            fontFamily: tokens.fonts.body,
-            fontSize: 15,
-            color: colors.text,
-          },
-          props.style,
-        ]}
-      />
-      {error && (
-        <Label size={12} color={colors.error} accessibilityLiveRegion="polite">
-          {error}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: props.multiline ? "flex-start" : "center",
+          gap: 10,
+          backgroundColor: colors.background,
+          borderWidth: focused ? 2 : 1,
+          borderColor: error
+            ? colors.error
+            : focused
+              ? colors.primary
+              : colors.border,
+          borderRadius: 12,
+          paddingHorizontal: focused ? 13 : 14,
+          minHeight: 52,
+          opacity: props.editable === false ? 0.6 : 1,
+        }}
+      >
+        {leading}
+        <TextInput
+          accessibilityLabel={label}
+          accessibilityHint={error || hint}
+          {...(Platform.OS === "web" ? { "aria-invalid": Boolean(error) } : {})}
+          placeholderTextColor={colors.secondary}
+          selectionColor={colors.primary}
+          {...props}
+          onFocus={(event) => {
+            setFocused(true);
+            props.onFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setFocused(false);
+            props.onBlur?.(event);
+          }}
+          style={[
+            {
+              flex: 1,
+              minWidth: 0,
+              minHeight: 50,
+              paddingVertical: focused ? 11 : 12,
+              fontFamily: tokens.fonts.body,
+              fontSize: 15,
+              color: colors.text,
+              ...(Platform.OS === "web"
+                ? ({ outlineStyle: "none" } as object)
+                : {}),
+            },
+            props.style,
+          ]}
+        />
+        {trailing}
+      </View>
+      {(error || hint) && (
+        <Label
+          size={12}
+          color={error ? colors.error : colors.secondary}
+          accessibilityLiveRegion={error ? "polite" : undefined}
+        >
+          {error || hint}
         </Label>
       )}
     </View>
@@ -348,10 +397,14 @@ export function Chips<T extends string>({
   values,
   selected,
   onChange,
+  labels,
+  disabled = false,
 }: {
   values: readonly T[];
   selected: T;
   onChange: (value: T) => void;
+  labels?: Partial<Record<T, string>>;
+  disabled?: boolean;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -364,14 +417,18 @@ export function Chips<T extends string>({
         <Pressable
           key={value}
           accessibilityRole="button"
-          accessibilityState={{ selected: value === selected }}
+          accessibilityState={{ selected: value === selected, disabled }}
+          aria-pressed={value === selected}
+          aria-disabled={disabled}
+          disabled={disabled}
           onPress={() => onChange(value)}
           style={{
             borderWidth: 1,
             borderColor: value === selected ? colors.primary : colors.border,
             backgroundColor:
               value === selected ? colors.primary : colors.surface,
-            borderRadius: 10,
+            borderRadius: 12,
+            opacity: disabled ? 0.5 : 1,
             minHeight: 44,
             paddingVertical: 11,
             paddingHorizontal: 15,
@@ -388,7 +445,7 @@ export function Chips<T extends string>({
                 : colors.secondary
             }
           >
-            {value}
+            {labels?.[value] || value}
           </Label>
         </Pressable>
       ))}

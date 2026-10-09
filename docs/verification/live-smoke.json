@@ -1,0 +1,87 @@
+{
+  "at": "2026-10-09T16:18:14.494Z",
+  "scope": "Live Auth/PostgREST/Edge Functions with disposable accounts; no actual SMTP, OCR or push delivery.",
+  "results": [
+    {
+      "name": "Real Auth OTP verification and profile creation for two disposable accounts",
+      "status": "passed"
+    },
+    {
+      "name": "Verified session user and refresh token",
+      "status": "passed"
+    },
+    {
+      "name": "Invalid OTP rejected without establishing a session",
+      "status": "passed"
+    },
+    {
+      "name": "Second device session and owner-protected Realtime subscriptions",
+      "status": "passed"
+    },
+    {
+      "name": "Authenticated create and idempotent replay",
+      "status": "passed"
+    },
+    {
+      "name": "Second device receives create signal and reads the same account data",
+      "status": "passed"
+    },
+    {
+      "name": "Cross-account RLS isolates subscription reads",
+      "status": "passed"
+    },
+    {
+      "name": "Cross-account ID hijacking rejected",
+      "status": "passed"
+    },
+    {
+      "name": "Direct client writes and anonymous RPC denied",
+      "status": "passed"
+    },
+    {
+      "name": "Malformed price and invalid date rejected on server",
+      "status": "passed"
+    },
+    {
+      "name": "Update persists version two and prevents stale overwrite",
+      "status": "passed"
+    },
+    {
+      "name": "Privileged worker RPC cannot be called by account clients",
+      "status": "passed"
+    },
+    {
+      "name": "Second device sees update and its edit rejects stale first-device writes",
+      "status": "passed"
+    },
+    {
+      "name": "Push registration rotation, account isolation and client-write restrictions",
+      "status": "passed"
+    },
+    {
+      "name": "Test-push rejects malformed authenticated requests",
+      "status": "passed"
+    },
+    {
+      "name": "Authenticated cloud export excludes other account and credentials",
+      "status": "passed"
+    },
+    {
+      "name": "Edge Functions reject missing/forged auth and unsigned webhooks",
+      "status": "passed"
+    },
+    {
+      "name": "Authenticated delete removes subscription and replay stays idempotent",
+      "status": "passed"
+    },
+    {
+      "name": "Session logout revokes refresh-token use",
+      "status": "passed"
+    },
+    {
+      "name": "Account deletion invalidates authenticated Edge Function use",
+      "status": "passed"
+    }
+  ],
+  "cleanupFailed": 0
+}

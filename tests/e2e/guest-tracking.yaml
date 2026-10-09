@@ -6,8 +6,10 @@ name: Guest tracking, editing and restart persistence
     clearState: true
 - scrollUntilVisible:
     element:
-      text: USD
+      id: onboarding-currency
     direction: DOWN
+- tapOn:
+    id: onboarding-currency
 - tapOn: USD
 - scrollUntilVisible:
     element:
@@ -48,7 +50,7 @@ name: Guest tracking, editing and restart persistence
 - tapOn: Edit
 - scrollUntilVisible:
     element:
-      text: "Next renewal.*YYYY-MM-DD"
+      text: "Next renewal"
     direction: DOWN
 - tapOn:
     id: subscription-nextRenewal

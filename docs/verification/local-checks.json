@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-09T16:26:51.558Z",
+  "typecheck": "passed",
+  "lint": "passed",
+  "vitest": {
+    "passed": 141,
+    "failed": 0
+  },
+  "backend": {
+    "functionsChecked": 10,
+    "testsPassed": 10
+  },
+  "exports": {
+    "web": "passed",
+    "iosHermes": "passed",
+    "androidHermes": "passed"
+  },
+  "macos": {
+    "app": "build/Subloom-update.app",
+    "compile": "passed",
+    "strictSignature": "passed",
+    "updatedAppLaunched": false
+  },
+  "scope": "Automated verification and exports; physical-device delivery not verified."
+}

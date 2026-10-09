@@ -9,26 +9,30 @@ The initial experience works without `.env`. Copy `.env.example` to `.env.local`
 ## Supabase
 
 1. Create separate development and production Supabase projects. Obtain the project URL and publishable/anon key from the dashboard. Set the public mobile values in `.env.local` and the corresponding EAS environment.
-2. Install the official Supabase CLI. Authenticate, then link the appropriate project:
+2. The official Supabase CLI is pinned in this repository. Authenticate from Terminal, then preview the migrations targeting the hosted URL configured in `.env.local`:
 
    ```sh
-   supabase login
-   supabase link --project-ref YOUR_PROJECT_REF
-   supabase db push
+   npx supabase login --agent no --output-format text
+   npm run deploy:supabase -- --plan
    ```
 
-3. Deploy the nine functions:
+3. Deploy the pending migrations and ten functions, then run the live acceptance script:
 
    ```sh
-   supabase functions deploy
+   npm run deploy:supabase
+   npm run test:live
    ```
+
+   Deployment uses server-side function bundling, so Docker is not required. It does not seed sample data, prune other functions, change Vault secrets, install Cron or configure SMTP/provider credentials. It runs security advisors after deployment. If the CLI requests a database password, enter it in Terminal or use the private `SUPABASE_DB_PASSWORD` environment variable; never put it in an `EXPO_PUBLIC_` variable. See the [test runbook](TESTING.md) for the disposable-account checks.
 
 4. Each function has `verify_jwt=false` deliberately: authenticated endpoints validate the bearer token using Supabase `getUser`; webhooks validate Svix signatures; worker endpoints validate a constant-time cron secret; digest preferences validate an expiring HMAC token. Turning off gateway JWT checks does not bypass these independent checks. Verify these routes against a staging project before release.
 5. For the complete local backend, install Docker and run `supabase start`, then `supabase db reset` and `supabase functions serve --env-file /path/to/server-secrets.env`. Use values from `supabase status` for the app and local mail inbox for OTPs. Real providers require reachable webhook URLs. PostgreSQL WASM tests are not a replacement for this full stack.
 
 ### Authentication email
 
-Enable email signup and email confirmation. The app uses `signInWithOtp` and `verifyOtp({type:'email'})` with a six-digit code. In **Authentication → Email Templates**, install `supabase/templates/auth-otp.html` in both **Magic link/OTP** and **Confirm signup**, with subject `Your Subloom sign-in code`. The template must contain `{{ .Token }}`; a link-only default template does not work with the code-entry screen.
+Enable email signup and email confirmation. The app uses `signInWithOtp` and `verifyOtp({type:'email'})`; its code-entry field accepts the numeric OTP length configured by Supabase. In **Authentication → Email Templates**, install `supabase/templates/auth-otp.html` in both **Magic link/OTP** and **Confirm signup**, with subject `Your Subloom sign-in code`. The template must contain `{{ .Token }}`; a link-only default template does not work with the code-entry screen.
+
+The current hosted SMTP host/port/user were verified, and a temporary `onboarding@resend.dev` test was delivered to the user’s Gmail address. The original `subloom.io` sender was restored and remains blocked until the domain is verified in Resend. Confirmation/magic-link code templates are installed for this project. Resend’s test sender is limited to the Resend account’s email and is for development only.
 
 Configure custom SMTP with host `smtp.resend.com`, port `465` (TLS) or `587` (STARTTLS), username `resend`, and a server-side Resend API key as the password. Use a verified sender and follow [Resend's SMTP settings](https://resend.com/docs/send-with-smtp). Disable link/open tracking on auth emails. Set the production Site URL to an owned support/app page; allow only needed redirect URLs (development localhost and `subloom://**` for native deep links). OTP entry does not depend on browser redirects.
 
@@ -69,12 +73,20 @@ Sources: [Resend webhook verification](https://resend.com/docs/webhooks/verify-w
 
 ## Scheduling and retention
 
-Enable Supabase Cron (`pg_cron`) and `pg_net`. In Vault create secrets named **subloom_project_url** (`https://YOUR_PROJECT_REF.supabase.co`) and **subloom_cron_secret** (exactly the function `CRON_SECRET`). Then run `supabase/ops/install-cron.sql` in the hosted SQL editor. It replaces only the three named Subloom jobs:
+The hosted Subloom project now has all three jobs installed. To install or reconcile them for the configured project, run:
+
+```sh
+npm run configure:scheduler
+```
+
+This command generates a cron secret, deploys it to Edge Functions, installs `pg_cron`/`pg_net`, stores matching Vault values, and replaces only the three named jobs. The private credential file is `~/.config/subloom/<project-ref>/scheduler.env` with mode 0600; it stays outside Git. Preserve it for reruns. If an existing remote cron secret has no matching local file, the script stops instead of overwriting it. Temporary secret-bearing SQL is private and deleted after use. Results contain no credentials.
+
+For manual installation, enable Supabase Cron (`pg_cron`) and `pg_net`. In Vault create secrets named **subloom_project_url** (`https://YOUR_PROJECT_REF.supabase.co`) and **subloom_cron_secret** (exactly the function `CRON_SECRET`). Then run `supabase/ops/install-cron.sql` in the hosted SQL editor. It replaces only the three named Subloom jobs:
 
 - Every minute: schedule due users and dispatch reminders.
 - Daily at 03:17 UTC: purge aged evidence/delivery metadata.
 
-The scheduler leases 25 users per invocation and revisits users approximately every five minutes at low load. The sender claims up to 50 deliveries per invocation. Provider calls are bounded at 15 seconds, but sequential worst-case batches may exceed hosted execution limits. Leases and idempotency recover interruption; **load-test throughput and reduce batch sizes or add carefully bounded concurrency before increasing traffic**. Monitor scheduling lag, not just HTTP success. Weekly digests are generated by the same scheduler on Monday in the user's timezone; no additional weekly job is needed.
+The scheduler leases 25 users per invocation and revisits users approximately every five minutes at low load. The sender claims up to five deliveries per invocation to bound sequential provider calls, each limited to 15 seconds. Leases and idempotency recover interruption. Load-test throughput and use carefully bounded concurrency before increasing traffic. Monitor scheduling lag, not just HTTP success. Weekly digests are generated by the same scheduler on Monday in the user's timezone; no additional weekly job is needed.
 
 Inspect `cron.job_run_details`, `net._http_response`, scheduling failure counts and delivery states without logging destinations, raw receipts or tokens. Alert on jobs absent/failed, persistent `unknown` push outcomes, growing retry queues, bounce spikes and stale `next_check_at`. Purge cron/network response logs according to the platform's operating policy. Configure backup retention and access for Supabase separately.
 
@@ -88,26 +100,31 @@ The app explicitly explains the destination and asks consent before upload. The 
 
 ## Native push and EAS
 
+Mac notifications are disabled by request; account sync works in the standalone Mac app. Use [the Mac instructions](MACOS.md). EAS project `@baltii/subloom` is linked and its public Supabase/project settings are configured for development, preview and production. Neither platform has push/signing credentials configured yet.
+
+Use `npm run eas -- <command>` in this repository: the wrapper loads local public configuration for EAS app-config evaluation and excludes server integration keys from the child environment.
+
 1. Set owned iOS bundle and Android package IDs in `app.config.ts`. The current `com.subloom.app` is a replaceable project identifier.
 2. Install and authenticate the EAS CLI, then link this project:
 
    ```sh
    npm install --global eas-cli
-   eas login
-   eas init
+   npm run eas -- login
+   npm run eas -- init
    ```
 
    Set `EXPO_PUBLIC_EAS_PROJECT_ID` to the linked project's UUID. See [EAS build setup](https://docs.expo.dev/build/setup/).
-3. Configure Apple team/APNs credentials and Android Firebase/FCM v1 credentials through `eas credentials`, following [Expo push setup](https://docs.expo.dev/push-notifications/push-notifications-setup/). If Firebase configuration requires a `google-services.json`, supply your environment-specific file and `android.googleServicesFile` in app config; don't commit private service-account keys.
+
+3. Configure Apple team/APNs credentials and Android Firebase/FCM v1 credentials through `npm run eas -- credentials --platform ios` and `npm run eas -- credentials --platform android`, following [Expo push setup](https://docs.expo.dev/push-notifications/push-notifications-setup/). Android requires the Firebase `google-services.json` for `com.subloom.app` plus an FCM v1 service-account key uploaded to EAS. App config reads `GOOGLE_SERVICES_JSON` (an EAS file variable) or a local `google-services.json`. The service-account key is server-only and must never be bundled or committed. Follow [Expo FCM v1 setup](https://docs.expo.dev/push-notifications/fcm-credentials/). iOS requires a paid Apple Developer account and APNs/signing credentials.
 4. Build:
 
    ```sh
-   eas build --platform ios --profile development
-   eas build --platform android --profile development
-   eas build --platform ios --profile simulator
+   npm run eas -- build --platform ios --profile development
+   npm run eas -- build --platform android --profile development
+   npm run eas -- build --platform ios --profile simulator
    ```
 
-5. Install on physical devices. Connect a verified staging account, then enable push in Settings. The permission prompt is contextual. Denial produces a useful error. Server reminders require an account, enabled channel and synced subscription; guest/sample mode never pretends to deliver.
+5. Install on physical devices. Connect a verified staging account, then enable Mobile push reminders and enable delivery on each phone in Settings. You can turn off one phone while preserving reminders on the other devices. Use Send a test notification after registration; queued means the worker has accepted the request, not that the device received it. The permission prompt is contextual. Denial produces a useful error. Server reminders require an account, enabled channel and synced subscription; guest/sample mode never pretends to deliver.
 6. For enhanced Expo push security, enable it in Expo and set a scoped `EXPO_ACCESS_TOKEN` on the backend. The worker handles tickets, polls receipts and revokes invalid device tokens. A provider-accepted ticket is not proof the user saw a notification. See [Expo sending/receipts](https://docs.expo.dev/push-notifications/sending-notifications/).
 7. Complete the device tests, release review and dependency audit before `eas build --profile production` and store submission. Build configuration is included; no native binary has been built or uploaded here.
 

@@ -1,4 +1,5 @@
 import type { ExpoConfig } from "expo/config";
+import { existsSync } from "node:fs";
 
 const config: ExpoConfig = {
   name: "Subloom",
@@ -15,6 +16,11 @@ const config: ExpoConfig = {
   },
   android: {
     package: "com.subloom.app",
+    googleServicesFile:
+      process.env.GOOGLE_SERVICES_JSON ||
+      (existsSync("google-services.json")
+        ? "./google-services.json"
+        : undefined),
     adaptiveIcon: {
       foregroundImage: "./assets/icon.png",
       backgroundColor: "#E1F3EA",
