@@ -44,8 +44,16 @@ Guest subscriptions, receipt candidates, settings, and activity are saved automa
 
 Supabase migrations and all ten Edge Functions are deployed. On 2026-10-09, 141 application tests, 10 backend tests and 20 live Auth/PostgREST/Realtime/Edge Function checks passed. The live checks used disposable accounts and two sessions for one account, verifying CRUD, account isolation, conflict rejection, deletion signals and push registration ownership. Three hosted scheduler/retention jobs are active; worker authorization and execution returned the expected results.
 
-Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. APNs and FCM credentials are absent, so actual iOS/Android delivery and signed mobile builds remain pending. Mac local reminders and durable guest files are implemented. Resend SMTP passed a user-requested real send through the temporary test sender. The configured sender still needs domain verification; OCR and email forwarding require provider setup and live delivery validation.
+Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. APNs and FCM credentials are absent, so actual iOS/Android delivery and signed mobile builds remain pending. Mac local reminders and durable guest files are implemented. Email notifications and Supabase Auth SMTP now use the existing Resend API key with the temporary sender `Subloom <onboarding@resend.dev>`. Resend's test sender delivers to the email associated with the Resend account; other real recipients require a verified sending domain. Provider simulation addresses can be used for development checks. OCR and email forwarding still require provider setup and live delivery validation.
 
 The dependency audit still reports upstream high-severity findings in Expo/React Native tooling. Review these before a store release. This is not a claim of production certification.
 
 Source: `src/app` routes; `src/components` design system; `src/domain` shared pure logic; `src/services` persistence/providers; `src/store` durable state; `supabase/migrations` schema and RLS; `supabase/functions` server integrations. No bank connection, mailbox OAuth scanning, paywall, automatic merchant cancellation, or advertising SDK is enabled.
+
+## Email templates
+
+Run `npm run preview:emails` to generate a gallery and individual HTML/plain-text examples in `build/email-templates/`. Preview data is illustrative, and the command does not load credentials or send email.
+
+The shared template library covers subscription additions, upcoming renewals, renewals due today, past tracked due dates, trial endings, price changes, recorded cancellations, weekly digests, welcome emails, and receipt detections. Existing renewal/trial scheduling, digests, welcome emails, and inbound receipt alerts use the structured templates. Addition, price-change, cancellation, and past-due templates are available for future event triggers; creating a template does not enable automatic delivery for those events. Subloom does not verify payment failures or merchant cancellations.
+
+Templates use inline styles, presentation tables, escaped dynamic content, and equivalent plain text. Weekly digests retain signed opt-out links. Browser previews verify desktop and phone layouts; compatibility with every email client is not implied.

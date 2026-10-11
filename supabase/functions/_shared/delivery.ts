@@ -1,13 +1,15 @@
 import { z } from "zod";
 import { admin, env, HttpError } from "./http.ts";
-import { emailTemplate } from "./email.ts";
+import { emailTemplate, emailText } from "./email.ts";
+import { emailPresentationSchema } from "./notification-emails.ts";
 import { signPreferencesToken } from "./preferences-token.ts";
-const eventSchema = z.object({
+export const eventSchema = z.object({
   title: z.string().max(160),
   body: z.string().max(3000),
   path: z
     .string()
     .regex(/^\/(subscription|detection)\/[0-9a-f-]{36}$|^\/(settings)?$/i),
+  email: emailPresentationSchema.optional(),
 });
 export async function enqueue(
   client: ReturnType<typeof admin>,
@@ -40,8 +42,7 @@ export async function enqueue(
     .select("id")
     .maybeSingle();
   if (error) throw new HttpError(500, "Could not schedule the reminder.");
-  const id =
-    data?.id ||
+  const id = data?.id ||
     (
       await client
         .from("notification_events")
@@ -81,8 +82,9 @@ export async function enqueue(
         .eq("destination", delivery.destination)
         .eq("status", "suppressed")
         .eq("error_code", "preferences_changed");
-      if (error)
+      if (error) {
         throw new HttpError(500, "Could not refresh reminder preferences.");
+      }
     }
   }
   return id as string;
@@ -97,14 +99,22 @@ export async function sendEmail(
   const parsed = eventSchema.parse(content),
     base = Deno.env.get("APP_LINK_BASE") || "subloom://";
   const url = base.replace(/\/$/, "") + parsed.path;
-  const preferencesUrl =
-    optional && recipient
-      ? env("SUPABASE_URL") +
-        "/functions/v1/email-preferences?token=" +
-        encodeURIComponent(
-          await signPreferencesToken(recipient.userId, recipient.issuedAt),
-        )
-      : undefined;
+  const preferencesUrl = optional && recipient
+    ? env("SUPABASE_URL") +
+      "/functions/v1/email-preferences?token=" +
+      encodeURIComponent(
+        await signPreferencesToken(recipient.userId, recipient.issuedAt),
+      )
+    : undefined;
+  const email = {
+    title: parsed.title,
+    preview: parsed.email?.preview ?? parsed.body.slice(0, 100),
+    body: parsed.body,
+    action: parsed.email?.action ?? "Open Subloom",
+    url,
+    preferencesUrl,
+    presentation: parsed.email,
+  };
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -116,37 +126,25 @@ export async function sendEmail(
       from: env("EMAIL_FROM"),
       to: [destination],
       subject: parsed.title,
-      html: emailTemplate({
-        title: parsed.title,
-        preview: parsed.body.slice(0, 100),
-        body: parsed.body,
-        action: "Open Subloom",
-        url,
-        preferencesUrl,
-      }),
-      text:
-        parsed.title +
-        "\n\n" +
-        parsed.body +
-        "\n\n" +
-        url +
-        "\n\nChange optional delivery preferences in Subloom Settings.",
+      html: emailTemplate(email),
+      text: emailText(email),
       ...(preferencesUrl
         ? {
-            headers: {
-              "List-Unsubscribe": "<" + preferencesUrl + ">",
-              "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-            },
-          }
+          headers: {
+            "List-Unsubscribe": "<" + preferencesUrl + ">",
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          },
+        }
         : {}),
     }),
     signal: AbortSignal.timeout(15_000),
   });
-  if (!response.ok)
+  if (!response.ok) {
     throw new HttpError(
       response.status === 429 || response.status >= 500 ? 503 : 422,
       "Email delivery failed.",
     );
+  }
   const result = z.object({ id: z.string() }).parse(await response.json());
   return result.id;
 }
@@ -175,11 +173,12 @@ export async function sendPush(
     }),
     signal: AbortSignal.timeout(15_000),
   });
-  if (!response.ok)
+  if (!response.ok) {
     throw new HttpError(
       response.status === 429 ? 429 : 502,
       "Push delivery could not be confirmed.",
     );
+  }
   const result = z
     .object({
       data: z.object({
@@ -189,12 +188,14 @@ export async function sendPush(
       }),
     })
     .parse(await response.json());
-  if (result.data.status === "error")
+  if (result.data.status === "error") {
     throw new HttpError(
       result.data.details?.error === "DeviceNotRegistered" ? 410 : 422,
       result.data.details?.error || "Push rejected",
     );
-  if (!result.data.id)
+  }
+  if (!result.data.id) {
     throw new HttpError(502, "Push ticket was not returned.");
+  }
   return result.data.id;
 }

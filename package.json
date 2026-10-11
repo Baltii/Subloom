@@ -20,6 +20,7 @@
     "test:live": "node scripts/live-smoke.mjs",
     "deploy:supabase": "node scripts/deploy-supabase.mjs",
     "configure:scheduler": "node scripts/configure-scheduler.mjs",
+    "preview:emails": "node scripts/preview-emails.mjs",
     "eas": "node scripts/eas.mjs",
     "test:macos": "node scripts/test-macos-server.mjs",
     "build:macos": "node scripts/build-macos.mjs",
