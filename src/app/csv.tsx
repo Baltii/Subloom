@@ -138,8 +138,9 @@ function Editor({ identity }: { identity: string }) {
               </Label>
               {preview.map((s) => (
                 <Label key={s.id}>
-                  {s.name} · {formatMoney(s.amountMinor, s.currency)} ·{" "}
-                  {s.interval} · {s.status} · next renewal {s.nextRenewal}
+                  {s.name} · {formatMoney(s.amountMinor, s.currency)}{" "}
+                  {s.currency} · {s.interval} · {s.status} · next renewal{" "}
+                  {s.nextRenewal}
                 </Label>
               ))}
               <Button
