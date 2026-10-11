@@ -1,4 +1,6 @@
+import { createClient } from "@supabase/supabase-js";
 import {
+  env,
   authenticated,
   endpoint,
   HttpError,
@@ -55,6 +57,29 @@ export const handler = endpoint(async (req) => {
           return safe;
         }),
       );
+      if (!data || data.length < 500) break;
+    }
+    result[table] = rows;
+  }
+  const scoped = createClient(env("SUPABASE_URL"), env("SUPABASE_ANON_KEY"), {
+    global: { headers: { Authorization: req.headers.get("authorization")! } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  for (const table of [
+    "workspaces",
+    "workspace_members",
+    "workspace_subscriptions",
+  ]) {
+    const rows: unknown[] = [];
+    for (let start = 0; ; start += 500) {
+      const { data, error } = await scoped
+        .from(table)
+        .select("*")
+        .order(table === "workspace_members" ? "user_id" : "id")
+        .range(start, start + 499);
+      if (error)
+        throw new HttpError(500, "Could not export shared workspace data.");
+      rows.push(...(data || []));
       if (!data || data.length < 500) break;
     }
     result[table] = rows;

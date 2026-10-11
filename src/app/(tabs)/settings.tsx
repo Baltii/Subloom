@@ -124,6 +124,12 @@ export default function Settings() {
         <View style={{ flex: 1 }}>
           <Card>
             <SectionTitle title="Your account" />
+            <LinkRow
+              icon={UserRound}
+              title="Family workspaces"
+              detail="Shared subscriptions and cost splits"
+              onPress={() => router.push("/workspaces")}
+            />
             <View
               style={{
                 flexDirection: "row",
