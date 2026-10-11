@@ -53,7 +53,12 @@ export default function Budgets() {
         {settings.error ? (
           <Card>
             <Label>{settings.error}</Label>
-            <Button onPress={() => void settings.reload()}>
+            <Button
+              onPress={() => {
+                setError(null);
+                void settings.reload();
+              }}
+            >
               Reload budgets
             </Button>
           </Card>

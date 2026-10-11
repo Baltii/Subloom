@@ -81,6 +81,10 @@ export function useFeatureSetting<T>(
           version,
           error: null,
         });
+    } catch (error) {
+      if (current === generation.current)
+        setState({ ...state, loaded: false, error: readableError(error) });
+      throw error;
     } finally {
       setBusy(false);
     }
