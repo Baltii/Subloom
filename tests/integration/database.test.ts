@@ -46,6 +46,7 @@ beforeAll(async () => {
     "202610090004_contract_validation.sql",
     "202610090005_retention.sql",
     "20261009154930_account_sync_and_push_devices.sql",
+    "202610110002_price_history.sql",
   ])
     await database.exec(
       readFileSync(
@@ -536,6 +537,73 @@ describe("real PostgreSQL migrations, transactions and RLS", () => {
         token,
       ]),
     ).rejects.toThrow(/Invalid push/);
+  });
+  it("captures actual price changes, prevents writes and isolates price history", async () => {
+    const value = subscription({ id: randomUUID() });
+    await asUser(userA, "select apply_operation($1::jsonb)", [
+      JSON.stringify(
+        operation("subscription", value.id, { subscription: value }),
+      ),
+    ]);
+    await asUser(userA, "select apply_operation($1::jsonb)", [
+      JSON.stringify(
+        operation(
+          "subscription",
+          value.id,
+          { subscription: { ...value, amountMinor: 1299, version: 2 } },
+          1,
+        ),
+      ),
+    ]);
+    await asUser(userA, "select apply_operation($1::jsonb)", [
+      JSON.stringify(
+        operation(
+          "subscription",
+          value.id,
+          {
+            subscription: {
+              ...value,
+              amountMinor: 1299,
+              version: 3,
+              notes: "note",
+            },
+          },
+          2,
+        ),
+      ),
+    ]);
+    expect(
+      (
+        await asUser(
+          userA,
+          "select * from subscription_price_history where subscription_id=$1",
+          [value.id],
+        )
+      ).rows,
+    ).toHaveLength(2);
+    expect(
+      (
+        await asUser(
+          userB,
+          "select * from subscription_price_history where subscription_id=$1",
+          [value.id],
+        )
+      ).rows,
+    ).toHaveLength(0);
+    await expect(
+      asUser(userA, "delete from subscription_price_history"),
+    ).rejects.toThrow(/permission denied/);
+    await asUser(userA, "select apply_operation($1::jsonb)", [
+      JSON.stringify(operation("subscription", value.id, {}, 3, "delete")),
+    ]);
+    expect(
+      (
+        await database.query(
+          "select * from subscription_price_history where subscription_id=$1",
+          [value.id],
+        )
+      ).rows,
+    ).toHaveLength(0);
   });
   it("cascades account deletion without touching another user", async () => {
     await database.query("delete from auth.users where id=$1", [userA]);

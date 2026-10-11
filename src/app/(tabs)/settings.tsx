@@ -299,6 +299,12 @@ export default function Settings() {
             <SectionTitle title="Receipts & discovery" />
             <LinkRow
               icon={ShieldCheck}
+              title="Price history"
+              detail="Recorded price and billing period changes"
+              onPress={() => router.push("/price-history")}
+            />
+            <LinkRow
+              icon={ShieldCheck}
               title="Cancellation assistant"
               detail="Deadlines, provider steps and confirmation"
               onPress={() => router.push("/cancellation")}

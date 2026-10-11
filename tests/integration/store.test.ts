@@ -188,3 +188,15 @@ it("queues every CSV record for account sync with owned identities", async () =>
     payload: { subscription: { userId: userA, version: 1 } },
   });
 });
+
+it("persists price changes in the same snapshot as subscription edits", async () => {
+  await saveSubscription(subscription());
+  await saveSubscription({
+    ...useApp.getState().data.subscriptions[0]!,
+    amountMinor: 1299,
+  });
+  await hydrate("guest");
+  expect(useApp.getState().data.priceHistory.map((p) => p.amountMinor)).toEqual(
+    [1099, 1299],
+  );
+});

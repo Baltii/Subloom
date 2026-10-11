@@ -1,6 +1,7 @@
 import { Platform } from "react-native";
 import type { Snapshot } from "../domain/models";
 import {
+  pricePointSchema,
   candidateSchema,
   activitySchema,
   emptySnapshot,
@@ -46,6 +47,9 @@ export async function loadSnapshot(identity: string): Promise<Snapshot> {
   );
   value.candidates = value.candidates.map((c) => candidateSchema.parse(c));
   value.activity = value.activity.map((a) => activitySchema.parse(a));
+  value.priceHistory = (value.priceHistory ?? []).map((point) =>
+    pricePointSchema.parse(point),
+  );
   value.preferences = preferencesSchema.parse(value.preferences);
   return value;
 }

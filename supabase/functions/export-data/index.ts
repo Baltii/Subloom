@@ -13,6 +13,7 @@ export const handler = endpoint(async (req) => {
     "user_preferences",
     "feature_settings",
     "subscriptions",
+    "subscription_price_history",
     "detected_candidates",
     "subscription_activity",
     "detection_evidence_metadata",

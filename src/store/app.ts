@@ -14,6 +14,7 @@ import {
   preferencesSchema,
   subscriptionSchema,
 } from "../domain/models";
+import { recordPrice, pricePoint } from "../domain/priceHistory";
 import { uniqueCsvRows } from "../domain/csv";
 import { duplicateCandidate, possibleMatch } from "../domain/detection";
 import { loadSnapshot, saveSnapshot } from "../services/storage";
@@ -225,6 +226,7 @@ export async function saveSubscription(
         );
     return {
       ...data,
+      priceHistory: recordPrice(data.priceHistory, previous, subscription),
       subscriptions: [
         subscription,
         ...data.subscriptions.filter((s) => s.id !== subscription.id),
@@ -279,6 +281,7 @@ export async function deleteSubscription(id: string) {
     return {
       ...data,
       subscriptions: data.subscriptions.filter((s) => s.id !== id),
+      priceHistory: data.priceHistory.filter((p) => p.subscriptionId !== id),
       activity: [event, ...data.activity],
       outbox: queue(
         data,
@@ -379,6 +382,10 @@ export async function importGuestData() {
       ...data,
       onboarded: true,
       subscriptions: [...data.subscriptions, ...imported],
+      priceHistory: [
+        ...data.priceHistory,
+        ...imported.map((s) => pricePoint(s)),
+      ],
       candidates: [...data.candidates, ...candidates],
       outbox: [
         ...data.outbox,
@@ -434,6 +441,10 @@ export async function importSubscriptions(
     return {
       ...data,
       subscriptions: [...data.subscriptions, ...imported],
+      priceHistory: [
+        ...data.priceHistory,
+        ...imported.map((s) => pricePoint(s)),
+      ],
       activity: [...events, ...data.activity],
       outbox:
         identity === "guest"
