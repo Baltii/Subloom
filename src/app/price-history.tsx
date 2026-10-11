@@ -84,8 +84,8 @@ export default function PriceHistory() {
                     return (
                       <View key={p.version} style={{ gap: 4 }}>
                         <Label bold>
-                          {formatMoney(p.amountMinor, p.currency)} ·{" "}
-                          {p.intervalCount}{" "}
+                          {formatMoney(p.amountMinor, p.currency)} {p.currency}{" "}
+                          · {p.intervalCount}{" "}
                           {p.interval === "custom" ? p.customUnit : p.interval}
                         </Label>
                         <Label>
@@ -104,7 +104,9 @@ export default function PriceHistory() {
                                 : (delta > 0
                                     ? "Increase of "
                                     : "Decrease of ") +
-                                  formatMoney(Math.abs(delta), p.currency)}
+                                  formatMoney(Math.abs(delta), p.currency) +
+                                  " " +
+                                  p.currency}
                           </Label>
                         ) : null}
                       </View>
