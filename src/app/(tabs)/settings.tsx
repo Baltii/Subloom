@@ -304,6 +304,12 @@ export default function Settings() {
           <Card style={{ marginTop: 24 }}>
             <SectionTitle title="Receipts & discovery" />
             <LinkRow
+              icon={Mail}
+              title="Mailbox discovery"
+              detail="Read-only Gmail and Outlook receipt scans"
+              onPress={() => router.push("/mailboxes")}
+            />
+            <LinkRow
               icon={ShieldCheck}
               title="Price history"
               detail="Recorded price and billing period changes"

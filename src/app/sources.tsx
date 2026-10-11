@@ -148,11 +148,14 @@ export default function Sources() {
         </Card>
         <Card style={{ gap: 13 }}>
           <Heading size={19}>Connected mailboxes</Heading>
-          <Badge tone="neutral">Future release</Badge>
+          <Badge tone="neutral">Explicit consent</Badge>
           <Label size={13} color={colors.secondary}>
-            Gmail and Outlook scanning need separate provider verification and
-            an explicit consent flow. No mailbox access is enabled.
+            Connect Gmail or Outlook with read-only permission, then scan recent
+            receipts when you choose. Every suggestion needs your review.
           </Label>
+          <Button variant="secondary" onPress={() => router.push("/mailboxes")}>
+            Manage mailbox connections
+          </Button>
         </Card>
         <Card style={{ gap: 13 }}>
           <Heading size={19}>Device notification detection</Heading>

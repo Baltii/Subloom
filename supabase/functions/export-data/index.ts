@@ -22,6 +22,7 @@ export const handler = endpoint(async (req) => {
     "detection_sources",
     "inbound_email_aliases",
     "connected_accounts",
+    "mailbox_connections",
     "notification_events",
     "notification_deliveries",
     "email_deliveries",

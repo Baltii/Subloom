@@ -16,14 +16,15 @@ export async function ingestReceipt(
   text: string,
   providerId: string,
   senderHash: string,
+  source: "receipt" | "connected_email" = "receipt",
 ) {
   const candidate = extractReceipt(
     text,
     crypto.randomUUID(),
     "connected_email",
   );
-  // The source is a forwarded email, not a mailbox connection. The evidence explains it explicitly.
-  candidate.source = "receipt";
+  // Keep forwarded receipts distinct from an explicitly connected mailbox.
+  candidate.source = source;
   const [
     { data: existing, error: candidateError },
     { data: subscriptions, error: subscriptionError },
@@ -72,7 +73,10 @@ export async function ingestReceipt(
       const activity = {
         id: crypto.randomUUID(),
         type: "detected",
-        title: "Forwarded receipt to review",
+        title:
+          source === "connected_email"
+            ? "Mailbox receipt to review"
+            : "Forwarded receipt to review",
         detail: candidate.merchant,
         targetId: id,
         createdAt: new Date().toISOString(),
@@ -84,6 +88,7 @@ export async function ingestReceipt(
         throw new HttpError(500, "Could not record detection activity.");
     }
   }
+  if (!id) throw new HttpError(500, "Could not recover receipt detection.");
   const { error: evidenceError } = await client
     .from("detection_evidence_metadata")
     .upsert(
