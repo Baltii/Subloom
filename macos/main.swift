@@ -2,7 +2,7 @@ import AppKit
 import WebKit
 import Network
 
-// Serves only the bundled public web export. No native JS bridge or privileged data endpoints.
+// Serves only the bundled public web export. Native capabilities use a main-frame-only WebKit bridge.
 final class BundleServer {
     let port: NWEndpoint.Port = 48187
     let root: URL
@@ -82,6 +82,7 @@ final class BundleServer {
     var window: NSWindow!
     var webView: WKWebView!
     var server: BundleServer!
+    var bridge: MacBridge!
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
         let menu = NSMenu(), appItem = NSMenuItem(), appMenu = NSMenu()
@@ -99,7 +100,14 @@ final class BundleServer {
         window.minSize = NSSize(width: 390, height: 600)
         window.center(); window.setFrameAutosaveName("SubloomMainWindow")
         let config = WKWebViewConfiguration(); config.websiteDataStore = .default()
+        do {
+            let support = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            bridge = MacBridge(store: try SnapshotStore(directory: support.appendingPathComponent("Subloom/Snapshots", isDirectory: true)))
+            config.userContentController.addScriptMessageHandler(bridge, contentWorld: .page, name: "subloom")
+            config.userContentController.addUserScript(WKUserScript(source: MacBridge.bootstrap, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        } catch { fail("Local storage could not open. Your existing data has been preserved. Check disk space and reopen Subloom."); return }
         webView = WKWebView(frame: .zero, configuration: config)
+        bridge.webView = webView
         webView.navigationDelegate = self; webView.uiDelegate = self
         window.contentView = webView; window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
         guard let root = Bundle.main.resourceURL?.appendingPathComponent("Web"), FileManager.default.fileExists(atPath: root.appendingPathComponent("index.html").path) else {
@@ -111,11 +119,14 @@ final class BundleServer {
     }
     @objc func about() {
         let alert = NSAlert(); alert.messageText = "Subloom for Mac"
-        alert.informativeText = "A standalone macOS test shell with the bundled Subloom web app and configured Supabase connection. Mobile push, native SQLite and mobile permissions require the iOS/Android builds. No Metro server is needed."
+        alert.informativeText = "Subloom stores your workspace on this Mac and schedules local system notifications. An account is optional and enables sync between devices. No Metro server is needed."
         alert.runModal()
     }
     func fail(_ message: String) { let alert = NSAlert(); alert.messageText = "Subloom could not open"; alert.informativeText = message; alert.runModal() }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+    func applicationDidBecomeActive(_ notification: Notification) {
+        webView?.evaluateJavaScript("window.dispatchEvent(new Event('focus'))", completionHandler: nil)
+    }
     func applicationWillTerminate(_ notification: Notification) { server?.listener?.cancel() }
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = action.request.url else { decisionHandler(.cancel); return }

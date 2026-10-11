@@ -1,6 +1,6 @@
 # Subloom
 
-GitHub CI checks pull requests and produces Mac test builds. See [CI/CD and release versioning](docs/CI_CD.md) for automated release PRs, versioned downloads, and backend/mobile deployment setup.
+GitHub CI checks pull requests, produces Mac test builds, and tests native storage. Release Please opens versioning PRs; merging a release PR publishes versioned Mac test downloads. Backend and mobile deployments use the protected deployment workflow. Detailed setup docs and agent skills stay local and are ignored by Git.
 
 **Take control of your subscriptions.** An Expo React Native app for iOS and Android, with a responsive web preview, durable offline tracking, precise recurring-cost estimates, editable receipt detections, and a Supabase reminder backend.
 
@@ -26,6 +26,10 @@ For mobile, use an **Expo development build**, not Expo Go. Configure Supabase, 
 
 The updated standalone Mac test app is `build/Subloom-update.app`. Quit the running Subloom copy, then open this replacement. It keeps the same bundle identifier and storage origin. Rebuild separately with `npm run build:macos -- --update`; it bundles the web interface and runs without Metro. This ad-hoc signed test app requires macOS 14+.
 
+In the Mac app, enable **Settings → Mac notifications**, then use **Send a Mac test notification**. These are local system reminders; no Apple login, paid developer membership, APNs credentials, or Subloom account is needed. macOS permission is required, and Focus or banner settings can suppress visible alerts. Up to 48 upcoming reminders within a year stay scheduled while the app is closed. Opening the app, returning to it, or editing subscriptions refreshes the schedule. Device consent is separate from account-wide mobile push preferences; switching workspaces cancels the previous workspace’s reminders.
+
+Guest subscriptions, receipt candidates, settings, and activity are saved automatically before an edit is reported as successful. On Mac, atomic files live in the app sandbox under `Library/Application Support/Subloom/Snapshots`; validated existing WebKit data migrates on first launch. Mobile uses SQLite and browser previews use localStorage. Guest data stays separate when signing into or out of an account and is imported only on request. Files are private to the OS user, but are not separately encrypted; protect your Mac and backups. Run `npm run test:macos:storage` for native persistence and bridge-origin checks.
+
 ## What works
 
 - Subscription CRUD, catalog search without invented prices, recurrence dates, status changes, provider links, notes, category filters, sorting, timeline and activity.
@@ -40,7 +44,7 @@ The updated standalone Mac test app is `build/Subloom-update.app`. Quit the runn
 
 Supabase migrations and all ten Edge Functions are deployed. On 2026-10-09, 141 application tests, 10 backend tests and 20 live Auth/PostgREST/Realtime/Edge Function checks passed. The live checks used disposable accounts and two sessions for one account, verifying CRUD, account isolation, conflict rejection, deletion signals and push registration ownership. Three hosted scheduler/retention jobs are active; worker authorization and execution returned the expected results.
 
-Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. APNs and FCM credentials are absent, so actual iOS/Android delivery and signed mobile builds remain pending. Mac notifications are disabled by request. Resend SMTP passed a user-requested real send through the temporary test sender. The configured sender still needs domain verification; OCR and email forwarding require provider setup and live delivery validation.
+Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. APNs and FCM credentials are absent, so actual iOS/Android delivery and signed mobile builds remain pending. Mac local reminders and durable guest files are implemented. Resend SMTP passed a user-requested real send through the temporary test sender. The configured sender still needs domain verification; OCR and email forwarding require provider setup and live delivery validation.
 
 The dependency audit still reports upstream high-severity findings in Expo/React Native tooling. Review these before a store release. This is not a claim of production certification.
 

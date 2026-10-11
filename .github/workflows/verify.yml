@@ -58,6 +58,8 @@ jobs:
       - run: npm ci
       - name: Select installed Xcode
         run: echo "DEVELOPER_DIR=$(xcode-select -p)" >> "$GITHUB_ENV"
+      - name: Test native workspace persistence and bridge origins
+        run: npm run test:macos:storage
       - name: Compile and verify signed Mac test app
         run: npm run build:macos
         env:

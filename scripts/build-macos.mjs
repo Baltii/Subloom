@@ -78,6 +78,8 @@ run("xcrun", [
   "-O",
   "-target",
   `${process.arch === "arm64" ? "arm64" : "x86_64"}-apple-macos14.0`,
+  "macos/SnapshotStore.swift",
+  "macos/MacBridge.swift",
   "macos/main.swift",
   "-o",
   app + "/Contents/MacOS/Subloom",

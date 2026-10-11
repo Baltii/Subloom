@@ -23,7 +23,8 @@
     "eas": "node scripts/eas.mjs",
     "test:macos": "node scripts/test-macos-server.mjs",
     "build:macos": "node scripts/build-macos.mjs",
-    "open:macos": "open build/Subloom.app"
+    "open:macos": "open build/Subloom.app",
+    "test:macos:storage": "node scripts/test-macos-storage.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.4.2",

@@ -22,7 +22,7 @@ export default function Privacy() {
     ],
     [
       "Local storage and device privacy.",
-      "On native devices, account tokens use SecureStore and tracking data uses app-private SQLite. Device backups and unlocked devices may expose local financial data. The web preview uses browser storage and should be used on a trusted device.",
+      "On iOS and Android, account tokens use SecureStore and tracking data uses app-private SQLite. The Mac app stores tracking data in private files in its sandbox; account sessions use WebKit storage. Device backups and unlocked devices may expose local financial data. The web preview uses browser storage and should be used on a trusted device.",
     ],
     [
       "You can leave at any time.",
