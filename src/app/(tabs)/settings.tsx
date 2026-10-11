@@ -577,6 +577,12 @@ export default function Settings() {
             <SectionTitle title="Your data belongs to you" />
             <LinkRow
               icon={Download}
+              title="Calendar export"
+              detail="Scheduled renewals as an .ics file"
+              onPress={() => router.push("/calendar-export")}
+            />
+            <LinkRow
+              icon={Download}
               title="CSV import & export"
               detail="Review spreadsheets and export subscriptions"
               onPress={() => router.push("/csv")}
