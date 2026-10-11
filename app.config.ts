@@ -35,6 +35,7 @@ const config: ExpoConfig = {
   },
   plugins: [
     "expo-router",
+    "expo-web-browser",
     "expo-secure-store",
     "expo-sqlite",
     "expo-notifications",

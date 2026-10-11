@@ -1,0 +1,12 @@
+# Google and Apple sign-in
+
+The account screen offers Google/Apple alongside existing email OTP. Supabase’s PKCE flow exchanges authorization codes using a locally stored verifier. Web uses a full-page provider redirect; native uses Expo’s system browser authentication session and registered `subloom` scheme. The callback validates the exact expected origin/path, rejects token fragments and provider errors, and coalesces duplicate native callback exchanges. Cancellation, unavailable providers and expired codes have visible recovery. Existing session hydration/sync continues to isolate account snapshots; guest import stays explicit.
+
+## Credentials and setup
+
+- Google Cloud OAuth **web client ID and client secret**, configured in Supabase Authentication → Providers → Google. Provider redirect: `https://fdjsmpmgrwzmqovzundx.supabase.co/auth/v1/callback`. Configure your production web origin in Google’s authorized origins.
+- Apple Developer **Team ID, Key ID, Services ID/client ID and Sign in with Apple private `.p8` key**. Generate/configure the Apple OAuth client secret in Supabase; renew before its expiry. Register the same Supabase provider callback and your website domain. Apple developer membership/domain setup is external.
+- Supabase redirect allowlist: exact production `https://YOUR_APP_DOMAIN/auth-callback`, each local development origin (for example `http://localhost:8081/auth-callback`), and `subloom://auth-callback`. No provider secret belongs in EXPO_PUBLIC variables.
+- Build a fresh iOS/Android development/production binary after installing `expo-web-browser`; Expo Go is not the target OAuth environment. HTTPS production hosting and native deep-link routing must be tested on their real domains/binaries. Mac’s web wrapper follows the hosted web flow and needs the browser redirect to return to that same app origin.
+
+No database migration. `npm run check` tests callback origin/path, missing/error codes and PKCE exchange/cancel/provider error behavior with mocked provider contracts. Web export/backend checks run independently. Live Google/Apple sign-in is pending missing provider credentials; this PR remains draft until both providers and native callbacks pass a live smoke test. See [Supabase Google](https://supabase.com/docs/guides/auth/social-login/auth-google), [Apple](https://supabase.com/docs/guides/auth/social-login/auth-apple), and [mobile redirects](https://supabase.com/docs/guides/auth/native-mobile-deep-linking). Stacked after family workspaces.
