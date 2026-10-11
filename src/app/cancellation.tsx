@@ -128,7 +128,13 @@ function Planner({ s }: { s: Subscription }) {
                   }
                 </Label>
                 <Switch
-                  accessibilityLabel={key}
+                  accessibilityLabel={
+                    {
+                      reviewedBilling: "I reviewed who bills me and the terms",
+                      openedProvider: "I opened the provider account",
+                      requested: "I requested cancellation at the provider",
+                    }[key]
+                  }
                   value={checks[key]}
                   onValueChange={(value) =>
                     setChecks((current) => ({ ...current, [key]: value }))
