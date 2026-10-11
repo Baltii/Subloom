@@ -79,9 +79,9 @@ function Mailboxes({ identity }: { identity: string }) {
                   Google and Microsoft grant access to read mailbox messages.
                   Subloom requests read-only access, scans up to 25 matching
                   messages from the last 30 days when you press Scan, and keeps
-                  extracted receipt candidates plus hashed evidence metadata.
-                  Attachments are not downloaded. Subscription creation always
-                  needs your review.
+                  extracted receipt candidates, message identifiers and sender
+                  hashes. Attachments are not downloaded. Subscription creation
+                  always needs your review.
                 </Label>
                 <View
                   style={{

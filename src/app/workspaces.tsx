@@ -414,7 +414,7 @@ function Spaces({ identity }: { identity: string }) {
                           {formatMoney(
                             item.data.amountMinor,
                             item.data.currency,
-                          )}{" "}
+                          )} {item.data.currency}{" "}
                           · {item.data.interval} · {item.data.status} · next{" "}
                           {item.data.nextRenewal}
                         </Label>
@@ -428,7 +428,7 @@ function Spaces({ identity }: { identity: string }) {
                             {members.find((m) => m.user_id === share.userId)
                               ?.display_name || "Member"}
                             :{" "}
-                            {formatMoney(share.amountMinor, item.data.currency)}{" "}
+                            {formatMoney(share.amountMinor, item.data.currency)} {item.data.currency}{" "}
                             per charge
                           </Label>
                         ))}
