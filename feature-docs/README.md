@@ -13,7 +13,7 @@ Each feature has its own branch, tested pull request and Markdown document. Thes
 | 7 | Family workspaces | `codex/family-workspaces` | [#10](https://github.com/Baltii/Subloom/pull/10) | [Setup](family-workspaces.md) |
 | 8 | Google/Apple login | `codex/social-login` | [#11](https://github.com/Baltii/Subloom/pull/11) | [Setup](google-apple-login.md) |
 | 9 | Gmail/Outlook discovery | `codex/mailbox-discovery` | [#12](https://github.com/Baltii/Subloom/pull/12) | [Setup](mailbox-discovery.md) |
-| 10 | Team workspaces + SAML SSO | `codex/team-sso` | See this branch's PR | [Setup](team-workspaces-sso.md) |
+| 10 | Team workspaces + SAML SSO | `codex/team-sso` | [#13](https://github.com/Baltii/Subloom/pull/13) | [Setup](team-workspaces-sso.md) |
 
 The last three PRs remain drafts until live provider credentials, hosted configuration and device callbacks are tested. The existing Supabase/Resend credentials do not provide Google, Apple, Microsoft or organization IdP credentials. Detailed exact requirements and callback URLs are in each document; no secret values are stored here.
 
