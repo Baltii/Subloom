@@ -11,6 +11,7 @@ export const handler = endpoint(async (req) => {
   const tables = [
     "profiles",
     "user_preferences",
+    "feature_settings",
     "subscriptions",
     "detected_candidates",
     "subscription_activity",
@@ -32,9 +33,12 @@ export const handler = endpoint(async (req) => {
   for (const table of tables) {
     const rows: unknown[] = [];
     for (let start = 0; ; start += 500) {
-      const order = ["profiles", "user_entitlements"].includes(table)
-        ? "user_id"
-        : "id";
+      const order =
+        table === "feature_settings"
+          ? "key"
+          : ["profiles", "user_entitlements"].includes(table)
+            ? "user_id"
+            : "id";
       const { data, error } = await client
         .from(table)
         .select("*")

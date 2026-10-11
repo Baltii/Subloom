@@ -28,6 +28,7 @@ import {
   sendTestPush,
 } from "../../services/notifications";
 import { exportData } from "../../services/export";
+import { clearLocalFeatures } from "../../services/featureSettings";
 import { removeSnapshot } from "../../services/storage";
 import { syncNow, resolveConflict } from "../../services/sync";
 import { useTheme, useWide } from "../../theme/useTheme";
@@ -296,6 +297,12 @@ export default function Settings() {
           </Card>
           <Card style={{ marginTop: 24 }}>
             <SectionTitle title="Receipts & discovery" />
+            <LinkRow
+              icon={ShieldCheck}
+              title="Monthly budgets"
+              detail="Category limits and spending alerts"
+              onPress={() => router.push("/budgets")}
+            />
             <LinkRow
               icon={ReceiptText}
               title="Import a receipt"
@@ -615,6 +622,7 @@ export default function Settings() {
         danger
         onClose={() => setConfirmReset(false)}
         onConfirm={async () => {
+          await clearLocalFeatures("guest");
           await removeSnapshot("guest");
           await hydrate("guest");
           router.replace("/onboarding");
@@ -633,7 +641,9 @@ export default function Settings() {
             throw new Error(
               "Account deletion did not complete. Try again while connected.",
             );
+          await clearLocalFeatures(state.identity);
           await removeSnapshot(state.identity);
+          await clearLocalFeatures("guest");
           await removeSnapshot("guest");
           await supabase!.auth.signOut({ scope: "local" });
           await hydrate("guest");
