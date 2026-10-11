@@ -577,6 +577,12 @@ export default function Settings() {
             <SectionTitle title="Your data belongs to you" />
             <LinkRow
               icon={Download}
+              title="CSV import & export"
+              detail="Review spreadsheets and export subscriptions"
+              onPress={() => router.push("/csv")}
+            />
+            <LinkRow
+              icon={Download}
               title="Export my data"
               detail="Download your data as a JSON archive"
               onPress={() => void run(exportData)}
