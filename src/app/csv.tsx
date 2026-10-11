@@ -4,6 +4,7 @@ import * as Crypto from "expo-crypto";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import { useApp, importSubscriptions, readableError } from "../store/app";
+import { formatMoney } from "../domain/money";
 import type { Subscription } from "../domain/models";
 import {
   csvExample,
@@ -137,7 +138,8 @@ function Editor({ identity }: { identity: string }) {
               </Label>
               {preview.map((s) => (
                 <Label key={s.id}>
-                  {s.name} · {s.currency} · next renewal {s.nextRenewal}
+                  {s.name} · {formatMoney(s.amountMinor, s.currency)} ·{" "}
+                  {s.interval} · {s.status} · next renewal {s.nextRenewal}
                 </Label>
               ))}
               <Button
