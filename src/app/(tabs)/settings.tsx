@@ -299,6 +299,12 @@ export default function Settings() {
             <SectionTitle title="Receipts & discovery" />
             <LinkRow
               icon={ShieldCheck}
+              title="Savings simulator"
+              detail="Explore potential recurring savings"
+              onPress={() => router.push("/savings")}
+            />
+            <LinkRow
+              icon={ShieldCheck}
               title="Monthly budgets"
               detail="Category limits and spending alerts"
               onPress={() => router.push("/budgets")}
