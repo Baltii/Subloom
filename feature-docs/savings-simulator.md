@@ -1,5 +1,7 @@
 # Savings simulator
 
+**Hosted setup, 2026-10-11:** Included in the combined tested Mac/web build; no additional credentials or cloud service required. See [setup progress](setup-progress.md).
+
 Settings → Savings simulator opens a reversible scenario. Select active subscriptions and trials; view monthly/annual potential savings and remaining recurring cost per currency. It never edits subscriptions, cancels a merchant account or sends a notification. Selection lasts only while this screen is mounted.
 
 Estimates use existing integer/rational recurring-cost calculations and current recorded prices. Annual prepaid contracts do not imply a refund. Trials use their future recorded price. Paused/canceled/expired items and stale/duplicate selection IDs are excluded. Currency conversion is deliberately unavailable.

@@ -1,5 +1,7 @@
 # Calendar export (.ics)
 
+**Hosted setup, 2026-10-11:** Included in the combined tested Mac/web build; no additional credentials required. See [setup progress](setup-progress.md).
+
 Settings → Calendar export downloads/shares the next year of scheduled renewal dates, trial endings and paid-through dates. Dates use the account timezone and all-day events, avoiding daylight-saving shifts. Existing anchored recurrence logic handles month ends. Paused/expired items have no events; canceled items get only their remaining access end date. Event UIDs remain stable for the same subscription/date/type.
 
 Merchant names and prices are hidden by default and can be enabled explicitly. Events are marked private, transparent, and never claim a payment succeeded. No account/calendar access token is needed: import the file manually into Google Calendar, Apple Calendar or Outlook. This is a snapshot, not a live calendar subscription. Reimport behavior depends on the calendar provider and can duplicate events.

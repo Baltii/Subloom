@@ -1,5 +1,7 @@
 # Team workspaces and enterprise SSO
 
+**Hosted setup, 2026-10-11:** Migration 005 applied; hosted non-SSO team creation and private RPC calls are denied. No SAML provider is registered; live organization sign-in remains pending. See [setup progress](setup-progress.md).
+
 Branch: `codex/team-sso`. Depends on the entire feature stack through `codex/mailbox-discovery` (#12), including family workspaces, the shared editor and the PKCE sign-in callback.
 
 ## Behavior
@@ -24,7 +26,7 @@ SSO identities can be separate Supabase user UUIDs from email/social accounts wi
 
 The Postgres integration test covers correct/wrong SAML providers, non-member isolation, MFA claim order, forged user metadata, denied reads and owner mutations, private underlying functions, wrong-provider invitations without consuming them, shared records, delete cascades and family behavior. Unit tests cover domain validation and claim hints. Auth adapter tests cover domain routing through the PKCE callback and unavailable providers. TypeScript, ESLint and production web export are checked.
 
-**Live SAML sign-in, organization routing, real IdP session expiry, deployment/RLS on the hosted project, and signed iOS/Android callback tests remain pending.** This is a draft PR until those checks can run with the organization's configuration. No IdP was registered and no production migration was applied during implementation.
+**Live SAML sign-in, organization routing, real IdP session expiry, and signed iOS/Android callback tests remain pending. Hosted schema and denied non-SSO access are verified in the setup report.** This is a draft PR until those checks can run with the organization's configuration. No IdP was registered and no production migration was applied during implementation.
 
 ## References
 

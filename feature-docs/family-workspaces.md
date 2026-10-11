@@ -1,5 +1,7 @@
 # Family shared workspaces
 
+**Hosted setup, 2026-10-11:** Migrations 003 and 005 applied; hosted invitations, billing splits, owner edits and family access passed. See [setup progress](setup-progress.md).
+
 Settings → Family workspaces requires sign-in and a connection. Create a named space with your display name. Owners generate single-use invitation codes valid for 48 hours, share them privately, and can revoke all unused invitations. Anyone signed in with a valid code can join and read the shared records: there is no automatic email invitation. The code is shown once and only its SHA-256 hash is stored. Failed join attempts are rate-limited; membership/invite limits bound access.
 
 Owners explicitly copy a personal subscription into the shared space. The copy removes private notes, payment-method text and reminders, and has a separate ID. It never moves or edits the personal record. Members can read shared subscription dates/prices, the assigned billing owner and cost splits. Owners edit those details with server version checks; split amounts must exactly sum to the recorded price and reference current members. An equal-split action allocates integer remainders without losing minor units. Shared and personal totals remain separate to avoid silently double-counting copied records. Workspace subscriptions currently use workspace screens, not the personal reminder scheduler.

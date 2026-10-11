@@ -1,5 +1,7 @@
 # Cancellation assistant
 
+**Hosted setup, 2026-10-11:** Migration 001 applied; hosted checklist storage and owner isolation passed. Merchant cancellation remains manual. See [setup progress](setup-progress.md).
+
 Settings → Cancellation assistant → subscription. Review billing and cancellation terms, open the existing first-party catalog account link when available, track a target date/checklist, and save a plan. Deadlines are user-set targets; no merchant-specific notice period is assumed. In-app deadline text is recalculated in the selected timezone. No deadline email/push job is introduced.
 
 After the provider confirms cancellation, enter a confirmation reference and optional paid-through date, then explicitly record it. This updates subscription status/notes through the normal atomic store transaction and account outbox. It does not cancel a merchant subscription or claim to verify billing. The confirmation reference is appended to notes; existing note length validation prevents silent truncation. Trial-ending dates and provider/partner billing terms may differ.
