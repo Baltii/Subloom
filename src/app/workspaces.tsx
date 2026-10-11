@@ -171,13 +171,25 @@ function SharedEditor({
     </Card>
   );
 }
-function Spaces({ identity }: { identity: string }) {
+export function WorkspaceManager({
+  identity,
+  kind = "family",
+}: {
+  identity: string;
+  kind?: "family" | "team";
+}) {
   const personal = useApp((s) => s.data.subscriptions),
     demo = useApp((s) => s.data.demo);
   const query = useQuery({
-    queryKey: ["workspaces", identity],
+    queryKey: ["workspaces", identity, kind],
     enabled: identity !== "guest" && !demo,
-    queryFn: () => workspaceData(identity),
+    queryFn: async () => {
+      const data = await workspaceData(identity);
+      return {
+        ...data,
+        workspaces: data.workspaces.filter((w) => w.kind === kind),
+      };
+    },
   });
   const [name, setName] = useState(""),
     [memberName, setMemberName] = useState(""),
@@ -212,7 +224,7 @@ function Spaces({ identity }: { identity: string }) {
   }
   return (
     <Page
-      title="Family shared spaces"
+      title={kind === "family" ? "Family shared spaces" : "Team shared spaces"}
       subtitle="Keep shared subscriptions, billing owners and cost splits in one place."
       back
     >
@@ -255,11 +267,15 @@ function Spaces({ identity }: { identity: string }) {
                   void run(async () => {
                     const id = await workspaceRpc(
                       identity,
-                      "create_workspace",
+                      kind === "team"
+                        ? "create_team_workspace"
+                        : "create_workspace",
                       {
                         workspace_name: name,
                         member_name: memberName,
-                        workspace_kind: "family",
+                        ...(kind === "family"
+                          ? { workspace_kind: "family" }
+                          : {}),
                       },
                     );
                     setSelected(String(id));
@@ -267,7 +283,9 @@ function Spaces({ identity }: { identity: string }) {
                   })
                 }
               >
-                Create family workspace
+                {kind === "family"
+                  ? "Create family workspace"
+                  : "Create SSO team workspace"}
               </Button>
             </Card>
             <Card>
@@ -338,9 +356,11 @@ function Spaces({ identity }: { identity: string }) {
                     {invite ? (
                       <Card>
                         <Label>
-                          Anyone signed in with this code can join and read
-                          shared records. It expires in 48 hours and works once.
-                          Share privately.
+                          {kind === "team"
+                            ? "Only members signed in through this organization’s SSO can use this code."
+                            : "Anyone signed in with this code can join and read shared records."}{" "}
+                          It expires in 48 hours and works once. Share
+                          privately.
                         </Label>
                         <Label selectable>{invite}</Label>
                         <Button
@@ -414,9 +434,9 @@ function Spaces({ identity }: { identity: string }) {
                           {formatMoney(
                             item.data.amountMinor,
                             item.data.currency,
-                          )} {item.data.currency}{" "}
-                          · {item.data.interval} · {item.data.status} · next{" "}
-                          {item.data.nextRenewal}
+                          )}{" "}
+                          {item.data.currency} · {item.data.interval} ·{" "}
+                          {item.data.status} · next {item.data.nextRenewal}
                         </Label>
                         <Label>
                           Billing owner:{" "}
@@ -428,8 +448,8 @@ function Spaces({ identity }: { identity: string }) {
                             {members.find((m) => m.user_id === share.userId)
                               ?.display_name || "Member"}
                             :{" "}
-                            {formatMoney(share.amountMinor, item.data.currency)} {item.data.currency}{" "}
-                            per charge
+                            {formatMoney(share.amountMinor, item.data.currency)}{" "}
+                            {item.data.currency} per charge
                           </Label>
                         ))}
                         {owner ? (
@@ -569,5 +589,5 @@ function Spaces({ identity }: { identity: string }) {
 }
 export default function Workspaces() {
   const identity = useApp((s) => s.identity);
-  return <Spaces key={identity} identity={identity} />;
+  return <WorkspaceManager key={identity} identity={identity} />;
 }

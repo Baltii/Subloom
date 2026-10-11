@@ -130,6 +130,12 @@ export default function Settings() {
               detail="Shared subscriptions and cost splits"
               onPress={() => router.push("/workspaces")}
             />
+            <LinkRow
+              icon={UserRound}
+              title="Team workspaces and SSO"
+              detail="Organization access and shared billing"
+              onPress={() => router.push("/team")}
+            />
             <View
               style={{
                 flexDirection: "row",

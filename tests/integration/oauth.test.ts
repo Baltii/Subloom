@@ -1,7 +1,12 @@
-import { signInSocial, finishSignIn } from "../../src/services/oauth";
+import {
+  signInSocial,
+  finishSignIn,
+  signInOrganization,
+} from "../../src/services/oauth";
 import { beforeEach, it, expect, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   provider: vi.fn(),
+  sso: vi.fn(),
   exchange: vi.fn(),
   browser: vi.fn(),
 }));
@@ -12,24 +17,21 @@ vi.mock("../../src/services/supabase", () => ({
   supabase: {
     auth: {
       signInWithOAuth: mocks.provider,
+      signInWithSSO: mocks.sso,
       exchangeCodeForSession: mocks.exchange,
     },
   },
 }));
 beforeEach(() => {
-  mocks.provider
-    .mockReset()
-    .mockResolvedValue({
-      data: { url: "https://provider.test/authorize" },
-      error: null,
-    });
+  mocks.provider.mockReset().mockResolvedValue({
+    data: { url: "https://provider.test/authorize" },
+    error: null,
+  });
   mocks.exchange.mockReset().mockResolvedValue({ error: null });
-  mocks.browser
-    .mockReset()
-    .mockResolvedValue({
-      type: "success",
-      url: "subloom://auth-callback?code=native-code",
-    });
+  mocks.browser.mockReset().mockResolvedValue({
+    type: "success",
+    url: "subloom://auth-callback?code=native-code",
+  });
 });
 it("requests PKCE redirect and exchanges the native code once", async () => {
   await signInSocial("google");
@@ -59,4 +61,33 @@ it("reports exchange failures and permits another attempt", async () => {
   ).rejects.toThrow(/expired/);
   mocks.exchange.mockResolvedValue({ error: null });
   await finishSignIn("subloom://auth-callback?code=new-code");
+});
+
+it("routes organization SSO through the shared PKCE callback and surfaces unavailable domains", async () => {
+  mocks.sso.mockResolvedValue({
+    data: { url: "https://sso.test/authorize" },
+    error: null,
+  });
+  mocks.browser.mockResolvedValue({
+    type: "success",
+    url: "subloom://auth-callback?code=sso-code",
+  });
+  await signInOrganization("Company.COM");
+  expect(mocks.sso).toHaveBeenCalledWith({
+    domain: "company.com",
+    options: {
+      redirectTo: "subloom://auth-callback",
+      skipBrowserRedirect: true,
+    },
+  });
+  mocks.sso.mockResolvedValue({
+    data: { url: null },
+    error: new Error("missing provider"),
+  });
+  await expect(signInOrganization("company.com")).rejects.toThrow(
+    /administrator/,
+  );
+  await expect(signInOrganization("https://evil.test")).rejects.toThrow(
+    /domain/,
+  );
 });

@@ -2,6 +2,7 @@ import { Platform } from "react-native";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { supabase } from "./supabase";
+import { organizationDomain } from "../domain/sso";
 import { callbackCode } from "../domain/oauth";
 export function authRedirect() {
   return Platform.OS === "web"
@@ -55,6 +56,27 @@ export async function signInSocial(provider: "google" | "apple") {
     if (error || !data.url)
       throw new Error(
         "This provider is unavailable. Check its Supabase configuration or use an email code.",
+      );
+    await openSignIn(data.url);
+  } finally {
+    starting = false;
+  }
+}
+
+export async function signInOrganization(domain: string) {
+  if (!supabase)
+    throw new Error("Account sign-in needs Supabase configuration.");
+  if (starting) throw new Error("A sign-in is already in progress.");
+  const validDomain = organizationDomain(domain);
+  starting = true;
+  try {
+    const { data, error } = await supabase.auth.signInWithSSO({
+      domain: validDomain,
+      options: { redirectTo: authRedirect(), skipBrowserRedirect: true },
+    });
+    if (error || !data.url)
+      throw new Error(
+        "Organization SSO is unavailable. Ask your administrator to configure this domain in Supabase.",
       );
     await openSignIn(data.url);
   } finally {
