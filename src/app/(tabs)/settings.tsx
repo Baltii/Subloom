@@ -299,6 +299,12 @@ export default function Settings() {
             <SectionTitle title="Receipts & discovery" />
             <LinkRow
               icon={ShieldCheck}
+              title="Cancellation assistant"
+              detail="Deadlines, provider steps and confirmation"
+              onPress={() => router.push("/cancellation")}
+            />
+            <LinkRow
+              icon={ShieldCheck}
               title="Savings simulator"
               detail="Explore potential recurring savings"
               onPress={() => router.push("/savings")}
