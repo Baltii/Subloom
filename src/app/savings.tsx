@@ -32,8 +32,8 @@ export default function Savings() {
             {result.savings.length ? (
               result.savings.map((t) => (
                 <Label key={t.currency}>
-                  {formatMoney(t.monthly, t.currency)} / month ·{" "}
-                  {formatMoney(t.annual, t.currency)} / year
+                  {formatMoney(t.monthly, t.currency)} {t.currency} / month ·{" "}
+                  {formatMoney(t.annual, t.currency)} {t.currency} / year
                 </Label>
               ))
             ) : (
@@ -60,7 +60,7 @@ export default function Savings() {
           eligible.map((s) => (
             <View key={s.id} style={{ gap: 8 }}>
               <Label bold>
-                {s.name} · {formatMoney(s.amountMinor, s.currency)}
+                {s.name} · {formatMoney(s.amountMinor, s.currency)} {s.currency}
               </Label>
               <Button
                 variant={ids.includes(s.id) ? "primary" : "secondary"}
