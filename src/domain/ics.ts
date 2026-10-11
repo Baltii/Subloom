@@ -82,6 +82,8 @@ export function exportIcs(
               ? "Open Subloom for subscription details."
               : "Recorded price: " +
                   formatMoney(s.amountMinor, s.currency) +
+                  " " +
+                  s.currency +
                   ". Scheduled date, not a payment confirmation.",
           ),
         "CLASS:PRIVATE",
