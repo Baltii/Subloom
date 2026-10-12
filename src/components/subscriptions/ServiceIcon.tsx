@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { Cloud, Dumbbell, Grid2X2, Sparkles } from "lucide-react-native";
 import Svg, { Path, Rect, Circle } from "react-native-svg";
+import { serviceLogos } from "../../assets/serviceLogos";
 import { serviceFor } from "../../domain/catalog";
 import { tokens } from "../../theme/tokens";
 import { useTheme } from "../../theme/useTheme";
@@ -16,7 +17,11 @@ export function ServiceIcon({
   const service = serviceFor(serviceId),
     { colors } = useTheme(),
     color = service?.color || colors.primary,
-    glyph = service?.glyph;
+    glyph = service?.glyph,
+    logo =
+      serviceId && Object.hasOwn(serviceLogos, serviceId)
+        ? serviceLogos[serviceId]
+        : undefined;
   return (
     <View
       accessibilityElementsHidden
@@ -29,7 +34,11 @@ export function ServiceIcon({
         justifyContent: "center",
       }}
     >
-      {glyph === "spotify" ? (
+      {logo ? (
+        <Svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24">
+          <Path d={logo} fill={color} />
+        </Svg>
+      ) : glyph === "spotify" ? (
         <Svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24">
           <Circle cx="12" cy="12" r="11" fill={color} />
           <Path
