@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { FlatList, TextInput, View } from "react-native";
 import { router } from "expo-router";
-import { CalendarDays, List, Plus, Search } from "lucide-react-native";
+import { Plus, Search, Zap, X } from "lucide-react-native";
 import { useApp } from "../../store/app";
 import { categories } from "../../domain/models";
 import { dateLabel, nextEvent, today, upcoming } from "../../domain/renewal";
@@ -19,7 +19,9 @@ import {
 import { SubscriptionRow } from "../../components/subscriptions/SubscriptionRow";
 import { SwipeRow } from "../../components/subscriptions/SwipeRow";
 import { SelectField } from "../../components/ui/Selection";
+import { useQuickActions } from "../../hooks/useQuickActions";
 export default function Subscriptions() {
+  const quickActions = useQuickActions();
   const { colors } = useTheme(),
     wide = useWide(),
     data = useApp((s) => s.data);
@@ -84,18 +86,29 @@ export default function Subscriptions() {
               }}
             >
               <View style={{ flex: 1, gap: 6 }}>
-                <Heading size={wide ? 30 : 27}>Your recurring world.</Heading>
+                <Heading size={wide ? 30 : 27}>Subscriptions</Heading>
                 <Label size={13} color={colors.secondary}>
                   {data.subscriptions.length} subscriptions. One clear picture.
                 </Label>
               </View>
-              <Button
-                small
-                icon={Plus}
-                onPress={() => router.push("/subscription/new")}
+              <View
+                style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
               >
-                {wide ? "Add subscription" : "Add"}
-              </Button>
+                {quickActions && (
+                  <IconButton
+                    icon={Zap}
+                    label="Quick actions"
+                    onPress={quickActions}
+                  />
+                )}
+                <Button
+                  small
+                  icon={Plus}
+                  onPress={() => router.push("/subscription/new")}
+                >
+                  {wide ? "Add subscription" : "Add"}
+                </Button>
+              </View>
             </View>
             {data.demo && (
               <View style={{ marginBottom: 16 }}>
@@ -128,13 +141,21 @@ export default function Subscriptions() {
                 style={{
                   color: colors.text,
                   fontFamily: tokens.fonts.body,
-                  fontSize: 14,
+                  fontSize: 16,
                   flex: 1,
                   minHeight: 50,
                 }}
               />
+              {Boolean(query) && (
+                <IconButton
+                  icon={X}
+                  label="Clear subscription search"
+                  onPress={() => setQuery("")}
+                />
+              )}
             </View>
             <Chips
+              wrap
               values={[
                 "All",
                 "Active",
@@ -151,7 +172,7 @@ export default function Subscriptions() {
                 flexDirection: "row",
                 gap: 10,
                 marginTop: 16,
-                marginBottom: 20,
+                marginBottom: 12,
                 alignItems: "center",
               }}
             >
@@ -180,12 +201,27 @@ export default function Subscriptions() {
                   onChange={setSort}
                 />
               </View>
-              <IconButton
-                icon={timeline ? List : CalendarDays}
-                label={
-                  timeline ? "Show subscription list" : "Show renewal timeline"
-                }
-                onPress={() => setTimeline(!timeline)}
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                gap: 12,
+                alignItems: "center",
+                marginBottom: 18,
+              }}
+            >
+              <Label size={12} color={colors.secondary}>
+                {rows.length}{" "}
+                {rows.length === 1 ? "subscription" : "subscriptions"}
+                {filtered.length !== data.subscriptions.length
+                  ? " matching your filters"
+                  : " tracked"}
+              </Label>
+              <Chips
+                values={["List", "Timeline"] as const}
+                selected={timeline ? "Timeline" : "List"}
+                onChange={(value) => setTimeline(value === "Timeline")}
               />
             </View>
             {sort === "Price" && (
@@ -240,7 +276,11 @@ export default function Subscriptions() {
                 }}
               >
                 <SwipeRow subscription={item}>
-                  <SubscriptionRow subscription={item} reference={reference} />
+                  <SubscriptionRow
+                    subscription={item}
+                    reference={reference}
+                    showActions
+                  />
                 </SwipeRow>
                 {item.status !== "active" && (
                   <View style={{ marginBottom: 14 }}>
@@ -258,6 +298,7 @@ export default function Subscriptions() {
         ListEmptyComponent={
           <Empty
             icon={Search}
+            actionIcon={data.subscriptions.length ? X : Plus}
             title={
               data.subscriptions.length
                 ? "Nothing matches just yet."
@@ -268,8 +309,17 @@ export default function Subscriptions() {
                 ? "Try another search or clear your filters."
                 : "Add your first subscription to start seeing your recurring costs clearly."
             }
-            action={data.subscriptions.length ? undefined : "Add subscription"}
-            onPress={() => router.push("/subscription/new")}
+            action={
+              data.subscriptions.length ? "Clear filters" : "Add subscription"
+            }
+            onPress={() => {
+              if (data.subscriptions.length) {
+                setQuery("");
+                setStatus("All");
+                setCategory("All categories");
+                setTimeline(false);
+              } else router.push("/subscription/new");
+            }}
           />
         }
       />

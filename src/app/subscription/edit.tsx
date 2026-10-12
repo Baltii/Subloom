@@ -7,16 +7,17 @@ export default function EditSubscription() {
     subscription = useApp((s) =>
       s.data.subscriptions.find((sub) => sub.id === id),
     );
-  return (
-    <Page title="Edit subscription." back>
-      {subscription ? (
-        <SubscriptionForm initial={subscription} />
-      ) : (
-        <Empty
-          title="Subscription not found."
-          body="It may have been deleted on another device."
-        />
-      )}
+  return subscription ? (
+    <SubscriptionForm
+      initial={subscription}
+      page={{ title: "Edit " + subscription.name }}
+    />
+  ) : (
+    <Page title="Edit subscription" back>
+      <Empty
+        title="Subscription not found."
+        body="It may have been deleted on another device."
+      />
     </Page>
   );
 }

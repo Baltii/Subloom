@@ -1,11 +1,15 @@
-import { useRef, useState } from "react";
-import { View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { View, Platform } from "react-native";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
+import {
+  usePreventRemove,
+  type NavigationAction,
+} from "expo-router/react-navigation";
 import * as Crypto from "expo-crypto";
-import { Check, ChevronDown } from "lucide-react-native";
+import { Check, ChevronDown, ChevronUp, Search } from "lucide-react-native";
 import {
   categories,
   currencies,
@@ -26,9 +30,11 @@ import {
   Chips,
   Field,
   Label,
+  Confirm,
+  Page,
 } from "../components/ui/Primitives";
 import { DateField } from "../components/ui/DateField";
-import { SelectField } from "../components/ui/Selection";
+import { PickerSheet, SelectField } from "../components/ui/Selection";
 import {
   currencyOptions,
   categoryOptions,
@@ -84,15 +90,19 @@ export function SubscriptionForm({
   initial,
   candidate,
   defaultRenewalDate,
+  page,
 }: {
   initial?: Subscription;
   candidate?: Candidate;
   defaultRenewalDate?: string;
+  page?: { title: string; subtitle?: string };
 }) {
+  const navigation = useNavigation();
   const { colors } = useTheme(),
     wide = useWide(),
-    preferences = useApp((s) => s.data.preferences);
-  const formIdentity = useRef(useApp.getState().identity);
+    preferences = useApp((s) => s.data.preferences),
+    identity = useApp((s) => s.identity);
+  const formIdentity = useRef(identity);
   const dateDefaults = quickAddDates(
     defaultRenewalDate,
     today(preferences.timezone),
@@ -101,7 +111,10 @@ export function SubscriptionForm({
       initial?.serviceId || candidate?.serviceId || null,
     ),
     [error, setError] = useState<string | null>(null),
-    [advanced, setAdvanced] = useState(Boolean(initial)),
+    [advanced, setAdvanced] = useState(false),
+    [choosingService, setChoosingService] = useState(false),
+    [pendingNavigation, setPendingNavigation] =
+      useState<NavigationAction | null>(null),
     [busy, setBusy] = useState(false);
   const currency =
     initial?.currency ||
@@ -111,7 +124,8 @@ export function SubscriptionForm({
     control,
     setValue,
     handleSubmit,
-    formState: { errors },
+    setFocus,
+    formState: { errors, isDirty },
   } = useForm<Values, unknown, z.output<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -148,6 +162,22 @@ export function SubscriptionForm({
       notes: initial?.notes || "",
     },
   });
+  const saved = useRef(false);
+  usePreventRemove(isDirty, ({ data }) => {
+    if (saved.current) navigation.dispatch(data.action);
+    else setPendingNavigation(data.action);
+  });
+  useEffect(() => {
+    if (Platform.OS !== "web" || !isDirty) return;
+    function protectDraft(event: BeforeUnloadEvent) {
+      if (!saved.current) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    }
+    window.addEventListener("beforeunload", protectDraft);
+    return () => window.removeEventListener("beforeunload", protectDraft);
+  }, [isDirty]);
   const interval = useWatch({ control, name: "interval" }),
     status = useWatch({ control, name: "status" }),
     chosenCurrency = useWatch({ control, name: "currency" });
@@ -167,7 +197,9 @@ export function SubscriptionForm({
             value={f.value}
             onChangeText={f.onChange}
             onBlur={f.onBlur}
+            inputRef={f.ref}
             error={errors[name]?.message}
+            editable={!busy}
             {...extra}
           />
         )}
@@ -186,9 +218,11 @@ export function SubscriptionForm({
           <DateField
             testID={"subscription-" + name}
             label={label}
+            disabled={busy}
             value={f.value}
             onChange={f.onChange}
             onBlur={f.onBlur}
+            inputRef={f.ref}
             error={errors[name]?.message}
           />
         )}
@@ -238,6 +272,7 @@ export function SubscriptionForm({
         version: initial?.version || 0,
       };
       await saveSubscription(subscription, candidate?.id);
+      saved.current = true;
       router.replace({ pathname: "/subscription/[id]", params: { id } });
     } catch (e) {
       setError(readableError(e));
@@ -245,23 +280,67 @@ export function SubscriptionForm({
       setBusy(false);
     }
   }
-  return (
+  const saveBar = (
+    <View style={{ width: "100%", maxWidth: 780, alignSelf: "center", gap: 8 }}>
+      <Button
+        testID="save-subscription"
+        icon={Check}
+        loading={busy}
+        disabled={busy}
+        onPress={() =>
+          void handleSubmit(submit, () => {
+            setError("Check the highlighted fields before saving.");
+            setAdvanced(true);
+          })()
+        }
+      >
+        {candidate
+          ? initial
+            ? "Confirm update"
+            : "Confirm subscription"
+          : initial
+            ? "Save changes"
+            : "Add subscription"}
+      </Button>
+      <Label size={12} color={colors.secondary} style={{ textAlign: "center" }}>
+        {identity === "guest"
+          ? "Saves on this device"
+          : "Saves locally and queues secure sync"}
+      </Label>
+    </View>
+  );
+  const content = (
     <View style={{ maxWidth: 780, width: "100%", alignSelf: "center" }}>
-      {!initial && !candidate && (
-        <ServicePicker
-          selected={serviceId}
-          onSelect={(service, customName) => {
-            setServiceId(service?.id ?? null);
-            setValue("name", service?.name ?? customName ?? "", {
-              shouldDirty: true,
-            });
-            setValue("category", service?.category ?? "Other", {
-              shouldDirty: true,
-            });
-          }}
-        />
-      )}
       <Card style={{ padding: wide ? 30 : 20 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 18,
+          }}
+        >
+          {!candidate && (
+            <Button
+              icon={Search}
+              variant="secondary"
+              small
+              disabled={busy}
+              onPress={() => {
+                setChoosingService(true);
+              }}
+            >
+              Choose a service
+            </Button>
+          )}
+          {isDirty && (
+            <Label size={12} color={colors.secondary}>
+              Unsaved changes
+            </Label>
+          )}
+        </View>
         {candidate && (
           <View style={{ marginBottom: 20, gap: 8 }}>
             <Badge tone="warning">Review before confirming</Badge>
@@ -278,6 +357,8 @@ export function SubscriptionForm({
         {field("name", "Subscription name", {
           placeholder: "e.g. Spotify Premium",
           autoFocus: Boolean(initial),
+          returnKeyType: "next",
+          onSubmitEditing: () => setFocus("amount"),
         })}
         <View style={{ flexDirection: "row", gap: 16 }}>
           <View style={{ flex: 1 }}>
@@ -298,6 +379,7 @@ export function SubscriptionForm({
               name="currency"
               render={({ field: f }) => (
                 <SelectField
+                  disabled={busy}
                   label="Currency"
                   testID="subscription-currency"
                   showDetail={false}
@@ -317,6 +399,7 @@ export function SubscriptionForm({
           name="interval"
           render={({ field: f }) => (
             <SelectField
+              disabled={busy}
               label="Billing frequency"
               value={f.value}
               onChange={f.onChange}
@@ -337,6 +420,7 @@ export function SubscriptionForm({
               name="customUnit"
               render={({ field: f }) => (
                 <Chips
+                  disabled={busy}
                   values={["day", "week", "month", "year"] as const}
                   selected={f.value}
                   onChange={f.onChange}
@@ -361,9 +445,26 @@ export function SubscriptionForm({
           name="status"
           render={({ field: f }) => (
             <Chips
-              values={["active", "trial", "paused"] as const}
-              selected={f.value as "active" | "trial" | "paused"}
-              labels={{ active: "Active", trial: "Trial", paused: "Paused" }}
+              disabled={busy}
+              values={
+                [
+                  "active",
+                  "trial",
+                  "paused",
+                  ...(initial?.status === "canceled" ||
+                  initial?.status === "expired"
+                    ? [initial.status]
+                    : []),
+                ] as const
+              }
+              selected={f.value}
+              labels={{
+                active: "Active",
+                trial: "Trial",
+                paused: "Paused",
+                canceled: "Canceled",
+                expired: "Expired",
+              }}
               onChange={f.onChange}
             />
           )}
@@ -376,34 +477,36 @@ export function SubscriptionForm({
             </Label>
           </View>
         )}
-        <View style={{ marginTop: 22 }}>
-          <Controller
-            control={control}
-            name="category"
-            render={({ field: f }) => (
-              <SelectField
-                label="Category"
-                value={f.value}
-                onChange={f.onChange}
-                options={categoryOptions}
-                testID="subscription-category"
-                searchable
-              />
-            )}
-          />
-        </View>
         <View style={{ marginTop: 17 }}>
           <Button
             variant="ghost"
             small
-            icon={ChevronDown}
+            icon={advanced ? ChevronUp : ChevronDown}
+            disabled={busy}
             onPress={() => setAdvanced(!advanced)}
           >
-            {advanced ? "Hide extra details" : "Add extra details"}
+            {advanced ? "Hide optional details" : "More details (optional)"}
           </Button>
         </View>
         {advanced && (
           <View style={{ marginTop: 12 }}>
+            <View style={{ marginTop: 22 }}>
+              <Controller
+                control={control}
+                name="category"
+                render={({ field: f }) => (
+                  <SelectField
+                    disabled={busy}
+                    label="Category"
+                    value={f.value}
+                    onChange={f.onChange}
+                    options={categoryOptions}
+                    testID="subscription-category"
+                    searchable
+                  />
+                )}
+              />
+            </View>
             {dateField("startDate", "Started on")}
             {interval !== "custom" &&
               field("intervalCount", "Billing interval count", {
@@ -424,34 +527,58 @@ export function SubscriptionForm({
             {error}
           </Label>
         )}
-        <View style={{ marginTop: 23 }}>
-          <Button
-            testID="save-subscription"
-            icon={Check}
-            loading={busy}
-            onPress={() => void handleSubmit(submit)()}
-          >
-            {candidate
-              ? initial
-                ? "Confirm update"
-                : "Confirm subscription"
-              : initial
-                ? "Save changes"
-                : "Add subscription"}
-          </Button>
-        </View>
-        <Label
-          size={10}
-          color={colors.secondary}
-          style={{ textAlign: "center", marginTop: 12 }}
-        >
-          Saved on this device
-          {useApp.getState().identity !== "guest"
-            ? " and queued for secure sync"
-            : ""}
-          .
-        </Label>
+        {!page && saveBar}
       </Card>
+      <PickerSheet
+        visible={choosingService}
+        title="Choose a service"
+        description="Select a service or use a custom name in the form."
+        onClose={() => setChoosingService(false)}
+      >
+        {choosingService && (
+          <ServicePicker
+            selected={serviceId}
+            presentation="sheet"
+            autoFocus
+            onSelect={(service, customName) => {
+              setServiceId(service?.id ?? null);
+              setValue("name", service?.name ?? customName ?? "", {
+                shouldDirty: true,
+                shouldValidate: true,
+              });
+              setValue("category", service?.category ?? "Other", {
+                shouldDirty: true,
+              });
+              setChoosingService(false);
+              requestAnimationFrame(() => setFocus("amount"));
+            }}
+          />
+        )}
+      </PickerSheet>
+
+      <Confirm
+        visible={Boolean(pendingNavigation)}
+        title="Discard unsaved changes?"
+        body="Your edits have not been saved. Discarding them keeps the existing subscription record unchanged."
+        action="Discard changes"
+        cancelLabel="Keep editing"
+        danger
+        onClose={() => setPendingNavigation(null)}
+        onConfirm={async () => {
+          if (pendingNavigation) {
+            const action = pendingNavigation;
+            setPendingNavigation(null);
+            navigation.dispatch(action);
+          }
+        }}
+      />
     </View>
+  );
+  return page ? (
+    <Page title={page.title} subtitle={page.subtitle} back footer={saveBar}>
+      {content}
+    </Page>
+  ) : (
+    content
   );
 }

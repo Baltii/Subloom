@@ -24,6 +24,8 @@ import { useTheme } from "../theme/useTheme";
 import { Brand } from "../components/ui/Brand";
 import { Button, Label, Toast } from "../components/ui/Primitives";
 import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
+import { QuickActionsProvider } from "../components/ui/QuickActions";
+import { BrowserStyles } from "../components/ui/BrowserStyles";
 import {
   installNotificationNavigation,
   maintainPushRegistration,
@@ -134,6 +136,7 @@ function Shell() {
       edges={["top", "left", "right"]}
     >
       <StatusBar style={isDark ? "light" : "dark"} />
+      <BrowserStyles />
       <Session />
       {!hydrated ? (
         <View
@@ -156,7 +159,7 @@ function Shell() {
           )}
         </View>
       ) : (
-        <>
+        <QuickActionsProvider>
           <Stack
             screenOptions={{
               headerShown: false,
@@ -177,7 +180,7 @@ function Shell() {
             <Stack.Screen name="import" options={{ presentation: "modal" }} />
           </Stack>
           <Toast />
-        </>
+        </QuickActionsProvider>
       )}
     </SafeAreaView>
   );

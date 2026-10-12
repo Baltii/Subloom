@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { useApp } from "../store/app";
 import { accountClient } from "../services/supabase";
 import { pricePointSchema } from "../domain/models";
@@ -13,6 +14,9 @@ import {
   Page,
 } from "../components/ui/Primitives";
 export default function PriceHistory() {
+  const { subscriptionId } = useLocalSearchParams<{
+    subscriptionId?: string;
+  }>();
   const identity = useApp((s) => s.identity),
     data = useApp((s) => s.data);
   const query = useQuery({
@@ -40,6 +44,9 @@ export default function PriceHistory() {
       return points;
     },
   });
+  const subscriptions = data.subscriptions.filter(
+    (s) => !subscriptionId || s.id === subscriptionId,
+  );
   return (
     <Page
       title="Price history"
@@ -65,8 +72,8 @@ export default function PriceHistory() {
             conflicts before relying on a price comparison.
           </Label>
         ) : null}
-        {data.subscriptions.length ? (
-          data.subscriptions.map((s) => {
+        {subscriptions.length ? (
+          subscriptions.map((s) => {
             const points = new Map<number, ReturnType<typeof pricePoint>>();
             for (const p of [...(query.data || []), ...data.priceHistory])
               if (p.subscriptionId === s.id) points.set(p.version, p);

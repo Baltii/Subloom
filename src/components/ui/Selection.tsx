@@ -29,6 +29,8 @@ export function PickerSheet({
   onClose,
   children,
   footer,
+  busy = false,
+  onDismiss,
 }: {
   visible: boolean;
   title: string;
@@ -36,6 +38,8 @@ export function PickerSheet({
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
+  busy?: boolean;
+  onDismiss?: () => void;
 }) {
   const { colors } = useTheme(),
     wide = useWide(),
@@ -43,10 +47,14 @@ export function PickerSheet({
   const insets = useSafeAreaInsets();
   return (
     <Modal
+      accessibilityLabel={title}
       visible={visible}
       transparent
       animationType={reduced ? "none" : "fade"}
-      onRequestClose={onClose}
+      onRequestClose={() => {
+        if (!busy) onClose();
+      }}
+      onDismiss={onDismiss}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -59,7 +67,9 @@ export function PickerSheet({
       >
         <Pressable
           accessible={false}
-          onPress={onClose}
+          onPress={() => {
+            if (!busy) onClose();
+          }}
           style={[
             StyleSheet.absoluteFill,
             { backgroundColor: "rgba(8, 22, 16, 0.46)" },
@@ -67,6 +77,7 @@ export function PickerSheet({
         />
         <View
           accessibilityViewIsModal
+          accessibilityLabel={title}
           style={{
             backgroundColor: colors.surface,
             width: "100%",
@@ -108,7 +119,12 @@ export function PickerSheet({
                 </Label>
               )}
             </View>
-            <IconButton icon={X} label={"Close " + title} onPress={onClose} />
+            <IconButton
+              icon={X}
+              label={"Close " + title}
+              disabled={busy}
+              onPress={onClose}
+            />
           </View>
           <ScrollView
             keyboardShouldPersistTaps="handled"
