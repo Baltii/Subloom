@@ -174,7 +174,20 @@ export type Operation = {
   payload: unknown;
   createdAt: string;
 };
+export const pricePointSchema = z.object({
+  subscriptionId: z.string().uuid(),
+  version: z.number().int().positive(),
+  amountMinor: z.number().int().min(0).max(1_000_000_000),
+  currency: z.enum(currencies),
+  interval: z.enum(intervals),
+  intervalCount: z.number().int().min(1).max(365),
+  customUnit: z.enum(["day", "week", "month", "year"]),
+  capturedAt: z.string().datetime(),
+  source: z.enum(["recorded", "baseline"]),
+});
+export type PricePoint = z.infer<typeof pricePointSchema>;
 export type Snapshot = {
+  priceHistory: PricePoint[];
   schemaVersion: 1;
   subscriptions: Subscription[];
   candidates: Candidate[];
@@ -205,6 +218,7 @@ export function defaultPreferences(): Preferences {
 export function emptySnapshot(): Snapshot {
   return {
     schemaVersion: 1,
+    priceHistory: [],
     subscriptions: [],
     candidates: [],
     activity: [],

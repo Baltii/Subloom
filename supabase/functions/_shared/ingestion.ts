@@ -1,29 +1,31 @@
 import {
-  extractReceipt,
   duplicateCandidate,
+  extractReceipt,
   possibleMatch,
 } from "../../../src/domain/detection.ts";
 import {
-  subscriptionSchema,
   candidateSchema,
   preferencesSchema,
+  subscriptionSchema,
 } from "../../../src/domain/models.ts";
 import { admin, HttpError } from "./http.ts";
 import { enqueue } from "./delivery.ts";
+import { receiptDetectedNotification } from "./notification-emails.ts";
 export async function ingestReceipt(
   client: ReturnType<typeof admin>,
   owner: string,
   text: string,
   providerId: string,
   senderHash: string,
+  source: "receipt" | "connected_email" = "receipt",
 ) {
   const candidate = extractReceipt(
     text,
     crypto.randomUUID(),
     "connected_email",
   );
-  // The source is a forwarded email, not a mailbox connection. The evidence explains it explicitly.
-  candidate.source = "receipt";
+  // Keep forwarded receipts distinct from an explicitly connected mailbox.
+  candidate.source = source;
   const [
     { data: existing, error: candidateError },
     { data: subscriptions, error: subscriptionError },
@@ -40,8 +42,9 @@ export async function ingestReceipt(
       .eq("user_id", owner)
       .limit(1000),
   ]);
-  if (candidateError || subscriptionError)
+  if (candidateError || subscriptionError) {
     throw new HttpError(500, "Could not compare receipt evidence.");
+  }
   const duplicate = duplicateCandidate(
     candidate,
     (existing || []).map((row) => candidateSchema.parse(row.data)),
@@ -55,8 +58,9 @@ export async function ingestReceipt(
     const { error } = await client
       .from("detected_candidates")
       .insert({ id: candidate.id, user_id: owner, data: candidate });
-    if (error && error.code !== "23505")
+    if (error && error.code !== "23505") {
       throw new HttpError(500, "Could not save receipt detection.");
+    }
     if (error) {
       const { data } = await client
         .from("detected_candidates")
@@ -64,15 +68,19 @@ export async function ingestReceipt(
         .eq("user_id", owner)
         .eq("fingerprint", candidate.fingerprint)
         .single();
-      if (!data)
+      if (!data) {
         throw new HttpError(500, "Could not recover receipt detection.");
+      }
       id = data.id;
     } else {
       id = candidate.id;
       const activity = {
         id: crypto.randomUUID(),
         type: "detected",
-        title: "Forwarded receipt to review",
+        title:
+          source === "connected_email"
+            ? "Mailbox receipt to review"
+            : "Forwarded receipt to review",
         detail: candidate.merchant,
         targetId: id,
         createdAt: new Date().toISOString(),
@@ -80,10 +88,12 @@ export async function ingestReceipt(
       const { error } = await client
         .from("subscription_activity")
         .insert({ id: activity.id, user_id: owner, data: activity });
-      if (error)
+      if (error) {
         throw new HttpError(500, "Could not record detection activity.");
+      }
     }
   }
+  if (!id) throw new HttpError(500, "Could not recover receipt detection.");
   const { error: evidenceError } = await client
     .from("detection_evidence_metadata")
     .upsert(
@@ -96,8 +106,9 @@ export async function ingestReceipt(
       },
       { onConflict: "user_id,provider_message_id", ignoreDuplicates: true },
     );
-  if (evidenceError)
+  if (evidenceError) {
     throw new HttpError(500, "Could not record receipt evidence.");
+  }
   const { data: preferences } = await client
     .from("user_preferences")
     .select("data")
@@ -118,20 +129,12 @@ export async function ingestReceipt(
         key: "candidate:" + id,
         kind: "candidate",
         dueAt: new Date().toISOString(),
-        payload: {
-          title: "A receipt worth a look.",
-          body:
-            "Potential subscription detected: " +
-            candidate.merchant +
-            ". Review before adding it.",
-          path: "/detection/" + id,
-        },
+        payload: receiptDetectedNotification(candidate.merchant, id),
       },
       {
-        email:
-          p.emailEnabled && user.user?.email_confirmed_at
-            ? user.user.email
-            : undefined,
+        email: p.emailEnabled && user.user?.email_confirmed_at
+          ? user.user.email
+          : undefined,
         tokens: p.pushEnabled
           ? (devices || []).map((d) => d.token as string)
           : [],

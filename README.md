@@ -1,5 +1,7 @@
 # Subloom
 
+GitHub CI checks pull requests, produces Mac test builds, and tests native storage. Release Please opens versioning PRs; merging a release PR publishes versioned Mac test downloads. Backend and mobile deployments use the protected deployment workflow. Feature setup documentation is tracked in [feature-docs](feature-docs/README.md); installed agent skills and local verification artifacts are ignored by Git.
+
 **Take control of your subscriptions.** An Expo React Native app for iOS and Android, with a responsive web preview, durable offline tracking, precise recurring-cost estimates, editable receipt detections, and a Supabase reminder backend.
 
 ## Run the app
@@ -24,6 +26,10 @@ For mobile, use an **Expo development build**, not Expo Go. Configure Supabase, 
 
 The updated standalone Mac test app is `build/Subloom-update.app`. Quit the running Subloom copy, then open this replacement. It keeps the same bundle identifier and storage origin. Rebuild separately with `npm run build:macos -- --update`; it bundles the web interface and runs without Metro. This ad-hoc signed test app requires macOS 14+.
 
+In the Mac app, enable **Settings → Mac notifications**, then use **Send a Mac test notification**. These are local system reminders; no Apple login, paid developer membership, APNs credentials, or Subloom account is needed. macOS permission is required, and Focus or banner settings can suppress visible alerts. Up to 48 upcoming reminders within a year stay scheduled while the app is closed. Opening the app, returning to it, or editing subscriptions refreshes the schedule. Device consent is separate from account-wide mobile push preferences; switching workspaces cancels the previous workspace’s reminders.
+
+Guest subscriptions, receipt candidates, settings, and activity are saved automatically before an edit is reported as successful. On Mac, atomic files live in the app sandbox under `Library/Application Support/Subloom/Snapshots`; validated existing WebKit data migrates on first launch. Mobile uses SQLite and browser previews use localStorage. Guest data stays separate when signing into or out of an account and is imported only on request. Files are private to the OS user, but are not separately encrypted; protect your Mac and backups. Run `npm run test:macos:storage` for native persistence and bridge-origin checks.
+
 ## What works
 
 - Subscription CRUD, catalog search without invented prices, recurrence dates, status changes, provider links, notes, category filters, sorting, timeline and activity.
@@ -36,10 +42,18 @@ The updated standalone Mac test app is `build/Subloom-update.app`. Quit the runn
 
 ## Verification and release status
 
-Supabase migrations and all ten Edge Functions are deployed. On 2026-10-09, 141 application tests, 10 backend tests and 20 live Auth/PostgREST/Realtime/Edge Function checks passed. The live checks used disposable accounts and two sessions for one account, verifying CRUD, account isolation, conflict rejection, deletion signals and push registration ownership. Three hosted scheduler/retention jobs are active; worker authorization and execution returned the expected results.
+The ten-feature stack and preserved email templates are integrated on the rebased Mac branch. On 2026-10-11, all five feature migrations and twelve Edge Functions were deployed to the existing test project. The combined branch passes 195 application/Postgres tests and 22 backend tests. Three hosted scheduler/retention jobs remain active. See [setup progress](feature-docs/setup-progress.md) for live verification and the remaining Google/Apple, mailbox and SAML credentials.
 
-Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. APNs and FCM credentials are absent, so actual iOS/Android delivery and signed mobile builds remain pending. Mac notifications are disabled by request. Resend SMTP passed a user-requested real send through the temporary test sender. The configured sender still needs domain verification; OCR and email forwarding require provider setup and live delivery validation.
+Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. APNs and FCM credentials are absent, so actual iOS/Android delivery and signed mobile builds remain pending. Mac local reminders and durable guest files are implemented. Email notifications and Supabase Auth SMTP now use the existing Resend API key with the temporary sender `Subloom <onboarding@resend.dev>`. Resend's test sender delivers to the email associated with the Resend account; other real recipients require a verified sending domain. Provider simulation addresses can be used for development checks. OCR and email forwarding still require provider setup and live delivery validation.
 
 The dependency audit still reports upstream high-severity findings in Expo/React Native tooling. Review these before a store release. This is not a claim of production certification.
 
 Source: `src/app` routes; `src/components` design system; `src/domain` shared pure logic; `src/services` persistence/providers; `src/store` durable state; `supabase/migrations` schema and RLS; `supabase/functions` server integrations. No bank connection, mailbox OAuth scanning, paywall, automatic merchant cancellation, or advertising SDK is enabled.
+
+## Email templates
+
+Run `npm run preview:emails` to generate a gallery and individual HTML/plain-text examples in `build/email-templates/`. Preview data is illustrative, and the command does not load credentials or send email.
+
+The shared template library covers subscription additions, upcoming renewals, renewals due today, past tracked due dates, trial endings, price changes, recorded cancellations, weekly digests, welcome emails, and receipt detections. Existing renewal/trial scheduling, digests, welcome emails, and inbound receipt alerts use the structured templates. Addition, price-change, cancellation, and past-due templates are available for future event triggers; creating a template does not enable automatic delivery for those events. Subloom does not verify payment failures or merchant cancellations.
+
+Templates use inline styles, presentation tables, escaped dynamic content, and equivalent plain text. Weekly digests retain signed opt-out links. Browser previews verify desktop and phone layouts; compatibility with every email client is not implied.

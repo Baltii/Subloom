@@ -1,4 +1,6 @@
+import { createClient } from "@supabase/supabase-js";
 import {
+  env,
   authenticated,
   endpoint,
   HttpError,
@@ -11,13 +13,16 @@ export const handler = endpoint(async (req) => {
   const tables = [
     "profiles",
     "user_preferences",
+    "feature_settings",
     "subscriptions",
+    "subscription_price_history",
     "detected_candidates",
     "subscription_activity",
     "detection_evidence_metadata",
     "detection_sources",
     "inbound_email_aliases",
     "connected_accounts",
+    "mailbox_connections",
     "notification_events",
     "notification_deliveries",
     "email_deliveries",
@@ -32,9 +37,12 @@ export const handler = endpoint(async (req) => {
   for (const table of tables) {
     const rows: unknown[] = [];
     for (let start = 0; ; start += 500) {
-      const order = ["profiles", "user_entitlements"].includes(table)
-        ? "user_id"
-        : "id";
+      const order =
+        table === "feature_settings"
+          ? "key"
+          : ["profiles", "user_entitlements"].includes(table)
+            ? "user_id"
+            : "id";
       const { data, error } = await client
         .from(table)
         .select("*")
@@ -50,6 +58,29 @@ export const handler = endpoint(async (req) => {
           return safe;
         }),
       );
+      if (!data || data.length < 500) break;
+    }
+    result[table] = rows;
+  }
+  const scoped = createClient(env("SUPABASE_URL"), env("SUPABASE_ANON_KEY"), {
+    global: { headers: { Authorization: req.headers.get("authorization")! } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  for (const table of [
+    "workspaces",
+    "workspace_members",
+    "workspace_subscriptions",
+  ]) {
+    const rows: unknown[] = [];
+    for (let start = 0; ; start += 500) {
+      const { data, error } = await scoped
+        .from(table)
+        .select("*")
+        .order(table === "workspace_members" ? "user_id" : "id")
+        .range(start, start + 499);
+      if (error)
+        throw new HttpError(500, "Could not export shared workspace data.");
+      rows.push(...(data || []));
       if (!data || data.length < 500) break;
     }
     result[table] = rows;

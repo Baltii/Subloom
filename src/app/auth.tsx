@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { router } from "expo-router";
 import { Mail, ShieldCheck } from "lucide-react-native";
 import { z } from "zod";
+import { signInSocial } from "../services/oauth";
 import { supabase } from "../services/supabase";
 import { useTheme } from "../theme/useTheme";
 import {
@@ -77,6 +78,24 @@ export default function Auth() {
             <Heading size={21}>
               {sent ? "Check your inbox." : "Sign in with your email."}
             </Heading>
+            {!sent ? (
+              <View style={{ gap: 12 }}>
+                <Button
+                  variant="secondary"
+                  loading={busy}
+                  onPress={() => void run(() => signInSocial("google"))}
+                >
+                  Continue with Google
+                </Button>
+                <Button
+                  variant="secondary"
+                  loading={busy}
+                  onPress={() => void run(() => signInSocial("apple"))}
+                >
+                  Continue with Apple
+                </Button>
+              </View>
+            ) : null}
             <Label color={colors.secondary} size={13}>
               {sent
                 ? "Enter the one-time code from your email. Your guest data stays safe until you choose to import it."

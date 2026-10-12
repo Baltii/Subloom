@@ -14,11 +14,15 @@ export default function Privacy() {
     ],
     [
       "Permissions appear when relevant.",
-      "Notification permission is requested only when you enable push. The photo picker opens only when you choose a screenshot. No bank, card-number, contact, accessibility, or mailbox access is requested.",
+      "Notification permission is requested only when you enable push. The photo picker opens only when you choose a screenshot. Mailbox read access is requested only when you explicitly connect Gmail or Outlook. No bank, card-number, contact, or accessibility access is requested.",
+    ],
+    [
+      "Connected mailboxes.",
+      "Mailbox tokens are encrypted on the backend and are never included in exports. Each scan reads up to 25 recent matching messages without downloading attachments. Message text is processed transiently; only extracted subscription details and minimal evidence metadata remain for your review. Disconnect in Mailboxes to remove stored tokens; Outlook consent can also be revoked in your Microsoft account.",
     ],
     [
       "Local storage and device privacy.",
-      "On native devices, account tokens use SecureStore and tracking data uses app-private SQLite. Device backups and unlocked devices may expose local financial data. The web preview uses browser storage and should be used on a trusted device.",
+      "On iOS and Android, account tokens use SecureStore and tracking data uses app-private SQLite. The Mac app stores tracking data in private files in its sandbox; account sessions use WebKit storage. Device backups and unlocked devices may expose local financial data. The web preview uses browser storage and should be used on a trusted device.",
     ],
     [
       "You can leave at any time.",

@@ -22,12 +22,20 @@ import {
 } from "../../store/app";
 import { moneyInput, parseMoney } from "../../domain/money";
 import { supabase } from "../../services/supabase";
+import { macosBridge } from "../../services/macosBridge";
+import {
+  enableMacReminders,
+  openMacNotificationSettings,
+  sendMacTestNotification,
+  useMacNotifications,
+} from "../../services/macosNotifications";
 import {
   disableDevice,
   registerPush,
   sendTestPush,
 } from "../../services/notifications";
 import { exportData } from "../../services/export";
+import { clearLocalFeatures } from "../../services/featureSettings";
 import { removeSnapshot } from "../../services/storage";
 import { syncNow, resolveConflict } from "../../services/sync";
 import { useTheme, useWide } from "../../theme/useTheme";
@@ -54,6 +62,8 @@ export default function Settings() {
     wide = useWide(),
     state = useApp(),
     p = state.data.preferences;
+  const isMac = Boolean(macosBridge());
+  const mac = useMacNotifications();
   const [timezone, setTimezone] = useState(p.timezone),
     [hour, setHour] = useState(String(p.reminderHour)),
     [quietStart, setQuietStart] = useState(String(p.quietStart)),
@@ -123,6 +133,18 @@ export default function Settings() {
         <View style={{ flex: 1 }}>
           <Card>
             <SectionTitle title="Your account" />
+            <LinkRow
+              icon={UserRound}
+              title="Family workspaces"
+              detail="Shared subscriptions and cost splits"
+              onPress={() => router.push("/workspaces")}
+            />
+            <LinkRow
+              icon={UserRound}
+              title="Team workspaces and SSO"
+              detail="Organization access and shared billing"
+              onPress={() => router.push("/team")}
+            />
             <View
               style={{
                 flexDirection: "row",
@@ -297,6 +319,36 @@ export default function Settings() {
           <Card style={{ marginTop: 24 }}>
             <SectionTitle title="Receipts & discovery" />
             <LinkRow
+              icon={Mail}
+              title="Mailbox discovery"
+              detail="Read-only Gmail and Outlook receipt scans"
+              onPress={() => router.push("/mailboxes")}
+            />
+            <LinkRow
+              icon={ShieldCheck}
+              title="Price history"
+              detail="Recorded price and billing period changes"
+              onPress={() => router.push("/price-history")}
+            />
+            <LinkRow
+              icon={ShieldCheck}
+              title="Cancellation assistant"
+              detail="Deadlines, provider steps and confirmation"
+              onPress={() => router.push("/cancellation")}
+            />
+            <LinkRow
+              icon={ShieldCheck}
+              title="Savings simulator"
+              detail="Explore potential recurring savings"
+              onPress={() => router.push("/savings")}
+            />
+            <LinkRow
+              icon={ShieldCheck}
+              title="Monthly budgets"
+              detail="Category limits and spending alerts"
+              onPress={() => router.push("/budgets")}
+            />
+            <LinkRow
               icon={ReceiptText}
               title="Import a receipt"
               detail="Text receipts and screenshots"
@@ -313,7 +365,77 @@ export default function Settings() {
         <View style={{ flex: 1 }}>
           <Card>
             <SectionTitle title="A heads-up, your way" />
-            {state.identity === "guest" && (
+            {isMac && (
+              <>
+                {toggle(
+                  "Mac notifications",
+                  "Local reminders on this Mac, even without an account.",
+                  mac.enabled,
+                  async (enabled) => {
+                    await enableMacReminders(enabled);
+                  },
+                )}
+                <Label size={12} color={colors.secondary}>
+                  {mac.permission === "denied"
+                    ? "Notifications are blocked in System Settings."
+                    : mac.enabled
+                      ? `${mac.pending} upcoming reminders scheduled on this Mac.`
+                      : "Enable Mac notifications to schedule reminders locally."}
+                </Label>
+                <Label
+                  size={11}
+                  color={colors.secondary}
+                  style={{ marginTop: 8 }}
+                >
+                  Up to 48 upcoming alerts stay scheduled when Subloom is
+                  closed. Open the app periodically to refresh them. Focus can
+                  silence banners.
+                </Label>
+                <View style={{ gap: 10, marginVertical: 16 }}>
+                  {mac.enabled &&
+                    mac.permission === "granted" &&
+                    !mac.alertsEnabled && (
+                      <Label size={12} color={colors.secondary}>
+                        Banners are disabled in System Settings. Alerts may only
+                        appear in Notification Center.
+                      </Label>
+                    )}
+                  {mac.testDelivered && (
+                    <Label size={12} color={colors.secondary}>
+                      Your test notification reached Notification Center.
+                    </Label>
+                  )}
+                  {mac.enabled && mac.permission === "granted" && (
+                    <Button
+                      variant="secondary"
+                      loading={busy}
+                      onPress={() =>
+                        void run(async () => {
+                          await sendMacTestNotification();
+                          notify(
+                            "Test notification scheduled for about five seconds from now.",
+                          );
+                        })
+                      }
+                    >
+                      Send a Mac test notification
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    onPress={() => void run(openMacNotificationSettings)}
+                  >
+                    Open notification settings
+                  </Button>
+                  {mac.error && (
+                    <Label size={12} color={colors.error}>
+                      {mac.error}
+                    </Label>
+                  )}
+                </View>
+              </>
+            )}
+            {state.identity === "guest" && !isMac && (
               <Badge tone="neutral">Connect an account for delivery</Badge>
             )}
             {toggle(
@@ -332,8 +454,7 @@ export default function Settings() {
             )}
             {Platform.OS === "web" ? (
               <Label size={12} color={colors.secondary}>
-                Enable delivery on each iOS or Android device. Mac notifications
-                are not enabled.
+                Enable mobile delivery on each iOS or Android device.
               </Label>
             ) : state.identity !== "guest" && p.pushEnabled ? (
               <View style={{ gap: 10, marginBottom: 16 }}>
@@ -564,6 +685,18 @@ export default function Settings() {
             <SectionTitle title="Your data belongs to you" />
             <LinkRow
               icon={Download}
+              title="Calendar export"
+              detail="Scheduled renewals as an .ics file"
+              onPress={() => router.push("/calendar-export")}
+            />
+            <LinkRow
+              icon={Download}
+              title="CSV import & export"
+              detail="Review spreadsheets and export subscriptions"
+              onPress={() => router.push("/csv")}
+            />
+            <LinkRow
+              icon={Download}
               title="Export my data"
               detail="Download your data as a JSON archive"
               onPress={() => void run(exportData)}
@@ -615,6 +748,7 @@ export default function Settings() {
         danger
         onClose={() => setConfirmReset(false)}
         onConfirm={async () => {
+          await clearLocalFeatures("guest");
           await removeSnapshot("guest");
           await hydrate("guest");
           router.replace("/onboarding");
@@ -633,7 +767,9 @@ export default function Settings() {
             throw new Error(
               "Account deletion did not complete. Try again while connected.",
             );
+          await clearLocalFeatures(state.identity);
           await removeSnapshot(state.identity);
+          await clearLocalFeatures("guest");
           await removeSnapshot("guest");
           await supabase!.auth.signOut({ scope: "local" });
           await hydrate("guest");

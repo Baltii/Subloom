@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { randomUUID } from "node:crypto";
 import {
+  importSubscriptions,
   addCandidate,
   commit,
   dismissCandidate,
@@ -153,4 +154,49 @@ describe("durable guest data and offline operation transactions", () => {
     await hydrate();
     expect(useApp.getState().data.preferences.appearance).toBe("dark");
   });
+});
+
+it("commits a CSV batch with owned records and rejects a changed identity", async () => {
+  const state = useApp.getState();
+  const input = subscription({
+    id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+    name: "CSV service",
+  });
+  await importSubscriptions([input, input], state.identity);
+  expect(
+    useApp
+      .getState()
+      .data.subscriptions.filter((s) => s.name === "CSV service"),
+  ).toHaveLength(1);
+  await expect(
+    importSubscriptions([input], "different-account"),
+  ).rejects.toThrow(/account changed/);
+});
+
+it("keeps a CSV batch atomic when disk persistence fails", async () => {
+  failWrites = true;
+  await expect(importSubscriptions([subscription()], "guest")).rejects.toThrow(
+    /Storage is full/,
+  );
+  expect(useApp.getState().data.subscriptions).toEqual([]);
+});
+it("queues every CSV record for account sync with owned identities", async () => {
+  await hydrate(userA);
+  await importSubscriptions([subscription()], userA);
+  expect(useApp.getState().data.outbox[0]).toMatchObject({
+    entity: "subscription",
+    payload: { subscription: { userId: userA, version: 1 } },
+  });
+});
+
+it("persists price changes in the same snapshot as subscription edits", async () => {
+  await saveSubscription(subscription());
+  await saveSubscription({
+    ...useApp.getState().data.subscriptions[0]!,
+    amountMinor: 1299,
+  });
+  await hydrate("guest");
+  expect(useApp.getState().data.priceHistory.map((p) => p.amountMinor)).toEqual(
+    [1099, 1299],
+  );
 });

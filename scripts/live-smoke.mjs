@@ -119,15 +119,42 @@ async function check(name, action) {
     await action();
     results.push({ name, status: "passed" });
     console.log("PASS " + name);
-  } catch {
-    results.push({ name, status: "failed" });
+  } catch (error) {
+    let reason =
+      error?.message === "Realtime event timeout"
+        ? "Realtime event timeout"
+        : error?.code === "ERR_ASSERTION"
+          ? "Assertion failed"
+          : "Request failed";
+    if (
+      typeof error?.code === "string" &&
+      /^[A-Z0-9_]{4,24}$/.test(error.code) &&
+      error.code !== "ERR_ASSERTION"
+    )
+      reason += " (" + error.code + ")";
+    const source = error?.stack?.matchAll(/live-smoke\.mjs:(\d+):\d+/g);
+    if (source)
+      reason +=
+        " at script lines " +
+        [...source]
+          .slice(0, 2)
+          .map((match) => match[1])
+          .join(", ");
+    results.push({ name, status: "failed", reason });
     throw new Error(
-      "FAIL " + name + " (provider payload and credentials omitted)",
+      "FAIL " +
+        name +
+        ": " +
+        reason +
+        " (provider payload and credentials omitted)",
     );
   }
 }
 function ok(result) {
-  assert.equal(result.error, null);
+  if (result.error)
+    throw Object.assign(new Error("Remote request failed"), {
+      code: result.error.code,
+    });
   return result.data;
 }
 async function account(label) {
@@ -246,6 +273,45 @@ try {
     version: 1,
   };
   const create = op("subscription", id, { subscription });
+  await check(
+    "Feature settings sync, version conflicts and account isolation",
+    async () => {
+      for (const [key, value] of [
+        ["budgets", [{ category: "Other", currency: "USD", limitMinor: 5000 }]],
+        ["cancellation", {}],
+      ]) {
+        const args = {
+          setting_key: key,
+          setting_data: value,
+          expected_version: 0,
+        };
+        assert.equal(ok(await a.client.rpc("save_feature_setting", args)), 1);
+        assert((await a.client.rpc("save_feature_setting", args)).error);
+        const rows = ok(
+          await second
+            .from("feature_settings")
+            .select("data,version")
+            .eq("key", key),
+        );
+        assert.deepEqual(rows[0].data, value);
+        assert.equal(rows[0].version, 1);
+        assert.equal(
+          ok(
+            await b.client
+              .from("feature_settings")
+              .select("data")
+              .eq("user_id", a.id),
+          ).length,
+          0,
+        );
+        assert((await anon.rpc("save_feature_setting", args)).error);
+        assert(
+          (await a.client.from("feature_settings").delete().eq("key", key))
+            .error,
+        );
+      }
+    },
+  );
   await check("Authenticated create and idempotent replay", async () => {
     assert.equal(
       ok(await a.client.rpc("apply_operation", { operation: create })).version,
@@ -353,6 +419,158 @@ try {
       );
       assert.equal(row.version, 2);
       assert.equal(row.data.amountMinor, 2500);
+    },
+  );
+  await check(
+    "Recorded price history is immutable and owner-isolated",
+    async () => {
+      const history = ok(
+        await a.client
+          .from("subscription_price_history")
+          .select("data,subscription_version")
+          .eq("subscription_id", id)
+          .order("subscription_version"),
+      );
+      assert.deepEqual(
+        history.map((row) => row.data.amountMinor),
+        [1234, 2500],
+      );
+      assert.equal(
+        ok(
+          await b.client
+            .from("subscription_price_history")
+            .select("id")
+            .eq("subscription_id", id),
+        ).length,
+        0,
+      );
+      assert(
+        (
+          await a.client
+            .from("subscription_price_history")
+            .delete()
+            .eq("subscription_id", id)
+        ).error,
+      );
+    },
+  );
+  await check(
+    "Family invitation, shared billing and owner-only edits",
+    async () => {
+      const scope = ok(
+        await a.client.rpc("create_workspace", {
+          workspace_name: "Disposable QA family",
+          member_name: "Owner",
+        }),
+      );
+      assert.equal(
+        ok(await b.client.from("workspaces").select("id").eq("id", scope))
+          .length,
+        0,
+      );
+      const invite = ok(await a.client.rpc("invite_workspace", { scope }));
+      assert.equal(
+        ok(
+          await b.client.rpc("join_workspace", {
+            invite_token: invite,
+            member_name: "Member",
+          }),
+        ),
+        scope,
+      );
+      assert(
+        (
+          await b.client.rpc("join_workspace", {
+            invite_token: invite,
+            member_name: "Member",
+          })
+        ).error,
+      );
+      const args = {
+        scope,
+        // Match the shared-copy fields sent by the app's workspace editor.
+        subscription_data: {
+          ...subscription,
+          id: randomUUID(),
+          notes: "",
+          paymentMethod: "",
+          reminders: null,
+        },
+        billing_owner: b.id,
+        cost_shares: [
+          { userId: a.id, amountMinor: 600 },
+          { userId: b.id, amountMinor: 634 },
+        ],
+        expected_version: 0,
+      };
+      assert.equal(
+        ok(await a.client.rpc("save_workspace_subscription", args)),
+        1,
+      );
+      const shared = ok(
+        await b.client
+          .from("workspace_subscriptions")
+          .select("data,shares")
+          .eq("workspace_id", scope),
+      );
+      assert.equal(shared.length, 1);
+      assert.equal(shared[0].data.notes, "");
+      assert.deepEqual(shared[0].shares, args.cost_shares);
+      assert(
+        (
+          await b.client.rpc("save_workspace_subscription", {
+            ...args,
+            expected_version: 1,
+          })
+        ).error,
+      );
+      assert((await a.client.rpc("save_workspace_subscription", args)).error);
+      ok(
+        await a.client.rpc("manage_workspace", {
+          scope,
+          action: "delete_workspace",
+        }),
+      );
+      assert.equal(
+        ok(await b.client.from("workspaces").select("id").eq("id", scope))
+          .length,
+        0,
+      );
+    },
+  );
+  await check(
+    "Team creation requires a real SAML session; private RPCs remain inaccessible",
+    async () => {
+      assert(
+        (
+          await a.client.rpc("create_team_workspace", {
+            workspace_name: "Denied QA team",
+            member_name: "Owner",
+          })
+        ).error,
+      );
+      assert(
+        (
+          await a.client.rpc("manage_workspace_internal", {
+            scope: randomUUID(),
+            action: "delete_workspace",
+          })
+        ).error,
+      );
+    },
+  );
+  await check(
+    "Mailbox token tables and service RPCs are inaccessible to account clients",
+    async () => {
+      assert.equal(
+        ok(await a.client.from("mailbox_connections").select("id")).length,
+        0,
+      );
+      for (const table of ["mailbox_credentials", "mailbox_oauth_states"])
+        assert((await a.client.from(table).select("*")).error);
+      assert(
+        (await a.client.rpc("claim_mailbox_oauth", { hash: "invalid" })).error,
+      );
     },
   );
   await check(
@@ -502,6 +720,7 @@ try {
         "detection-sources",
         "process-detection",
         "test-push",
+        "mailbox-connect",
       ]) {
         assert.equal((await edge(name, null)).status, 401);
         assert.equal((await edge(name, "forged-token")).status, 401);

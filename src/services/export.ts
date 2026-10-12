@@ -2,6 +2,7 @@ import { Platform } from "react-native";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useApp } from "../store/app";
+import { localSetting } from "./featureSettings";
 import { supabase } from "./supabase";
 export async function exportData() {
   const state = useApp.getState();
@@ -10,6 +11,17 @@ export async function exportData() {
     scope:
       "Local subscriptions, receipt candidates, preferences, and cached activity",
     pendingSync: state.data.outbox.length > 0,
+    featureSettings:
+      state.identity === "guest"
+        ? Object.fromEntries(
+            await Promise.all(
+              ["budgets", "cancellation"].map(async (key) => {
+                const value = await localSetting(state.identity, key);
+                return [key, value ? JSON.parse(value) : null];
+              }),
+            ),
+          )
+        : undefined,
     ...state.data,
     outbox: undefined,
   };

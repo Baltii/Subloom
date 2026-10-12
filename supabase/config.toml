@@ -10,7 +10,7 @@ major_version = 17
 [auth]
 enabled = true
 site_url = "http://localhost:8081"
-additional_redirect_urls = ["subloom://**"]
+additional_redirect_urls = ["http://localhost:8081/auth-callback", "subloom://auth-callback"]
 enable_signup = true
 [auth.email]
 enable_signup = true
@@ -34,4 +34,9 @@ verify_jwt = false
 [functions.email-preferences]
 verify_jwt = false
 [functions.test-push]
+verify_jwt = false
+
+[functions.mailbox-connect]
+verify_jwt = false
+[functions.mailbox-callback]
 verify_jwt = false

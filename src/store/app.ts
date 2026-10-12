@@ -14,6 +14,8 @@ import {
   preferencesSchema,
   subscriptionSchema,
 } from "../domain/models";
+import { recordPrice, pricePoint } from "../domain/priceHistory";
+import { uniqueCsvRows } from "../domain/csv";
 import { duplicateCandidate, possibleMatch } from "../domain/detection";
 import { loadSnapshot, saveSnapshot } from "../services/storage";
 import { demoSnapshot } from "../services/demo";
@@ -224,6 +226,7 @@ export async function saveSubscription(
         );
     return {
       ...data,
+      priceHistory: recordPrice(data.priceHistory, previous, subscription),
       subscriptions: [
         subscription,
         ...data.subscriptions.filter((s) => s.id !== subscription.id),
@@ -278,6 +281,7 @@ export async function deleteSubscription(id: string) {
     return {
       ...data,
       subscriptions: data.subscriptions.filter((s) => s.id !== id),
+      priceHistory: data.priceHistory.filter((p) => p.subscriptionId !== id),
       activity: [event, ...data.activity],
       outbox: queue(
         data,
@@ -378,6 +382,10 @@ export async function importGuestData() {
       ...data,
       onboarded: true,
       subscriptions: [...data.subscriptions, ...imported],
+      priceHistory: [
+        ...data.priceHistory,
+        ...imported.map((s) => pricePoint(s)),
+      ],
       candidates: [...data.candidates, ...candidates],
       outbox: [
         ...data.outbox,
@@ -407,4 +415,50 @@ export async function importGuestData() {
     };
   });
   notify("Guest subscriptions imported. Your local copy is preserved.");
+}
+
+export async function importSubscriptions(
+  inputs: Subscription[],
+  identity: string,
+) {
+  if (inputs.length > 500)
+    throw new Error("Import at most 500 subscriptions at once.");
+  const parsed = inputs.map((s) => subscriptionSchema.parse(s));
+  await commit((data) => {
+    if (data.demo) throw new Error("Leave demo mode before importing.");
+    const now = new Date().toISOString();
+    const imported = uniqueCsvRows(parsed, data.subscriptions).map((s) => ({
+      ...s,
+      id: Crypto.randomUUID(),
+      userId: identity,
+      version: 1,
+      createdAt: now,
+      updatedAt: now,
+    }));
+    const events = imported.map((s) =>
+      activity("created", "CSV subscription imported", s.name, s.id),
+    );
+    return {
+      ...data,
+      subscriptions: [...data.subscriptions, ...imported],
+      priceHistory: [
+        ...data.priceHistory,
+        ...imported.map((s) => pricePoint(s)),
+      ],
+      activity: [...events, ...data.activity],
+      outbox:
+        identity === "guest"
+          ? data.outbox
+          : [
+              ...data.outbox,
+              ...imported.map((s, index) =>
+                op("subscription", s.id, {
+                  subscription: s,
+                  activity: events[index],
+                }),
+              ),
+            ],
+    };
+  }, identity);
+  notify("CSV import saved.");
 }

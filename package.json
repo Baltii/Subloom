@@ -19,11 +19,14 @@
     "format": "prettier --write src tests docs *.ts *.json",
     "test:live": "node scripts/live-smoke.mjs",
     "deploy:supabase": "node scripts/deploy-supabase.mjs",
+    "setup:feature": "node scripts/setup-feature.mjs",
     "configure:scheduler": "node scripts/configure-scheduler.mjs",
+    "preview:emails": "node scripts/preview-emails.mjs",
     "eas": "node scripts/eas.mjs",
     "test:macos": "node scripts/test-macos-server.mjs",
     "build:macos": "node scripts/build-macos.mjs",
-    "open:macos": "open build/Subloom.app"
+    "open:macos": "open build/Subloom.app",
+    "test:macos:storage": "node scripts/test-macos-storage.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.4.2",
@@ -54,6 +57,7 @@
     "expo-splash-screen": "~57.0.9",
     "expo-sqlite": "~57.0.4",
     "expo-status-bar": "~57.0.1",
+    "expo-web-browser": "~57.0.3",
     "lucide-react-native": "^1.54.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
