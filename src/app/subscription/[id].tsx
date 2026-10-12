@@ -85,7 +85,7 @@ export default function Details() {
   return (
     <Page
       title={s.name}
-      subtitle="Everything you need, in one place."
+      subtitle="Renewals, reminders and your tracking details."
       back
       right={
         <Button
@@ -347,10 +347,11 @@ export default function Details() {
       </View>
       <Confirm
         visible={confirmation === "delete"}
-        title="Delete this subscription?"
-        body="This removes the subscription and its future Subloom reminders. It won’t cancel billing with the provider."
+        title={"Delete " + s.name + "?"}
+        body="This removes the record, recorded price history and future Subloom reminders. It does not cancel billing with your provider."
         action="Delete subscription"
         danger
+        cancelLabel="Keep subscription"
         onClose={() => setConfirmation(null)}
         onConfirm={async () => {
           await deleteSubscription(id);
@@ -359,9 +360,10 @@ export default function Details() {
       />
       <Confirm
         visible={confirmation === "cancel"}
-        title="Record a cancellation"
+        title={"Record cancellation for " + s.name}
         body="Confirm you have handled billing with the provider. If access remains, enter the date it is paid through."
         action="Record in Subloom"
+        cancelLabel="Not yet"
         onClose={() => setConfirmation(null)}
         onConfirm={async () => {
           await changeStatus(id, "canceled", paidThrough || null);

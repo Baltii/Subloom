@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { useState, type Ref } from "react";
+import { Pressable, TextInput, View } from "react-native";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react-native";
 import { dateSchema } from "../../domain/models";
 import {
@@ -20,6 +20,8 @@ export function DateField({
   onBlur,
   error,
   testID,
+  disabled = false,
+  inputRef,
 }: {
   label: string;
   value: string;
@@ -27,6 +29,8 @@ export function DateField({
   onBlur?: () => void;
   error?: string;
   testID?: string;
+  disabled?: boolean;
+  inputRef?: Ref<TextInput>;
 }) {
   const { colors, isDark } = useTheme();
   const timezone = useApp((s) => s.data.preferences.timezone),
@@ -43,6 +47,8 @@ export function DateField({
   return (
     <>
       <Field
+        inputRef={inputRef}
+        editable={!disabled}
         label={label}
         value={value}
         onChangeText={onChange}
@@ -64,6 +70,7 @@ export function DateField({
         }
         trailing={
           <IconButton
+            disabled={disabled}
             icon={CalendarDays}
             label={"Choose " + label.toLowerCase() + " date"}
             onPress={show}

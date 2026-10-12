@@ -9,6 +9,7 @@ import {
   Plus,
   ShieldCheck,
   ArrowUpRight,
+  Zap,
   type LucideIcon,
 } from "lucide-react-native";
 import { Brand } from "../../components/ui/Brand";
@@ -16,6 +17,7 @@ import { Button, Label } from "../../components/ui/Primitives";
 import { useTheme, useWide } from "../../theme/useTheme";
 import { tokens } from "../../theme/tokens";
 import { useApp } from "../../store/app";
+import { useQuickActions } from "../../hooks/useQuickActions";
 const navigation: {
   path: "/" | "/subscriptions" | "/calendar" | "/activity" | "/settings";
   title: string;
@@ -28,6 +30,7 @@ const navigation: {
   { path: "/settings", title: "Settings", icon: Settings2 },
 ];
 function Sidebar() {
+  const quickActions = useQuickActions();
   const { colors } = useTheme(),
     path = usePathname(),
     email = useApp((s) => s.email),
@@ -109,6 +112,20 @@ function Sidebar() {
           Add subscription
         </Button>
       </View>
+      {quickActions && (
+        <View style={{ marginTop: 10 }}>
+          <Button icon={Zap} variant="secondary" small onPress={quickActions}>
+            Quick actions
+          </Button>
+          <Label
+            size={11}
+            color={colors.secondary}
+            style={{ textAlign: "center", marginTop: 8 }}
+          >
+            Cmd / Ctrl K
+          </Label>
+        </View>
+      )}
       <View style={{ flex: 1 }} />
       <View
         style={{

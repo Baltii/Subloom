@@ -10,8 +10,12 @@ import { ServiceIcon } from "./ServiceIcon";
 export function ServicePicker({
   selected,
   onSelect,
+  presentation = "card",
+  autoFocus = false,
 }: {
   selected: string | null;
+  presentation?: "card" | "sheet";
+  autoFocus?: boolean;
   onSelect: (service: Service | null, customName?: string) => void;
 }) {
   const { colors } = useTheme();
@@ -22,14 +26,20 @@ export function ServicePicker({
     () => searchServices(search, category),
     [search, category],
   );
+  const Container = presentation === "sheet" ? View : Card;
   return (
-    <Card style={{ marginBottom: 22, gap: 16 }}>
-      <Heading size={18}>Find your service.</Heading>
+    <Container
+      style={{ marginBottom: presentation === "card" ? 22 : 0, gap: 16 }}
+    >
+      {presentation === "card" && (
+        <Heading size={18}>Find your service.</Heading>
+      )}
       <Label size={12} color={colors.secondary}>
         {catalog.length} services, or add your own. Your price and billing dates
         are always up to you.
       </Label>
       <Field
+        autoFocus={autoFocus}
         label="Find a service"
         testID="service-search"
         leading={<Search size={17} color={colors.secondary} />}
@@ -112,6 +122,6 @@ export function ServicePicker({
           Use a custom service
         </Button>
       </View>
-    </Card>
+    </Container>
   );
 }

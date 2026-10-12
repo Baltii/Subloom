@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -16,22 +16,31 @@ import {
 } from "react-native";
 import {
   ArrowLeft,
-  ArrowUpRight,
   Check,
   ChevronRight,
   Plus,
   X,
+  Zap,
+  AlertCircle,
   type LucideIcon,
 } from "lucide-react-native";
 import { router } from "expo-router";
 import Animated, {
-  FadeInDown,
+  FadeIn,
+  FadeOut,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
   useReducedMotion,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useTheme, useWide } from "../../theme/useTheme";
 import { tokens } from "../../theme/tokens";
 import { useApp } from "../../store/app";
+import { useQuickActions } from "../../hooks/useQuickActions";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function Label({
   children,
@@ -56,6 +65,7 @@ export function Label({
           fontFamily: bold ? tokens.fonts.bold : tokens.fonts.body,
           color: color || colors.text,
           fontSize: size,
+          fontVariant: ["tabular-nums"],
           lineHeight: size * 1.45,
         },
         style,
@@ -81,7 +91,7 @@ export function Heading({
         fontSize: size,
         lineHeight: size * 1.25,
         color: colors.text,
-        letterSpacing: -0.9,
+        letterSpacing: -size * 0.025,
         flexShrink: 1,
       }}
     >
@@ -110,6 +120,12 @@ export function Button({
 }) {
   const { colors, isDark } = useTheme(),
     reduced = useReducedMotion();
+  const [focused, setFocused] = useState(false),
+    [hovered, setHovered] = useState(false);
+  const scale = useSharedValue(1);
+  const motionStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
   const foreground =
     variant === "primary"
       ? isDark
@@ -119,7 +135,7 @@ export function Button({
         ? colors.error
         : colors.text;
   return (
-    <Pressable
+    <AnimatedPressable
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={children}
@@ -127,33 +143,61 @@ export function Button({
       aria-disabled={disabled || loading}
       aria-busy={loading}
       disabled={disabled || loading}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onHoverIn={() => setHovered(true)}
+      onHoverOut={() => setHovered(false)}
+      onPressIn={() => {
+        scale.set(reduced ? 1 : withTiming(0.985, { duration: 100 }));
+      }}
+      onPressOut={() => {
+        scale.set(
+          reduced ? 1 : withTiming(1, { duration: tokens.motion.fast }),
+        );
+      }}
       onPress={() => {
         if (Platform.OS !== "web")
           void Haptics.selectionAsync().catch(() => {});
         onPress();
       }}
-      style={({ pressed }) => ({
-        minHeight: small ? 44 : 50,
-        paddingHorizontal: small ? 16 : 21,
-        paddingVertical: 11,
-        borderRadius: 12,
-        backgroundColor:
-          variant === "primary"
-            ? colors.primary
-            : variant === "secondary"
-              ? colors.surface
-              : variant === "danger"
-                ? colors.errorBg
-                : "transparent",
-        borderWidth: variant === "secondary" ? 1 : 0,
-        borderColor: colors.border,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 9,
-        opacity: disabled || loading ? 0.55 : pressed ? 0.8 : 1,
-        transform: [{ scale: pressed && !reduced ? 0.985 : 1 }],
-      })}
+      style={[
+        {
+          minHeight: small ? 44 : 50,
+          paddingHorizontal: small ? 16 : 21,
+          paddingVertical: 11,
+          borderRadius: 12,
+          backgroundColor:
+            variant === "primary"
+              ? hovered
+                ? colors.pressed
+                : colors.primary
+              : variant === "secondary"
+                ? hovered
+                  ? colors.mint
+                  : colors.surface
+                : variant === "danger"
+                  ? colors.errorBg
+                  : hovered
+                    ? colors.mint
+                    : "transparent",
+          borderWidth: variant === "secondary" ? 1 : 0,
+          borderColor: focused ? colors.primary : colors.border,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 9,
+          opacity: disabled || loading ? 0.6 : 1,
+          ...(Platform.OS === "web" && focused
+            ? {
+                outlineStyle: "solid",
+                outlineWidth: 2,
+                outlineOffset: 3,
+                outlineColor: colors.primary,
+              }
+            : {}),
+        } as ViewStyle,
+        motionStyle,
+      ]}
     >
       {loading ? (
         <ActivityIndicator color={foreground} />
@@ -167,23 +211,33 @@ export function Button({
       >
         {children}
       </Label>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 export function IconButton({
   icon: Icon,
   label,
   onPress,
+  disabled = false,
 }: {
   icon: LucideIcon;
   label: string;
   onPress: () => void;
+  disabled?: boolean;
 }) {
   const { colors } = useTheme();
+  const [focused, setFocused] = useState(false),
+    [hovered, setHovered] = useState(false);
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onHoverIn={() => setHovered(true)}
+      onHoverOut={() => setHovered(false)}
       onPress={onPress}
       style={({ pressed }) => ({
         width: 44,
@@ -191,9 +245,18 @@ export function IconButton({
         alignItems: "center",
         justifyContent: "center",
         borderRadius: 12,
-        backgroundColor: pressed ? colors.mint : colors.surface,
+        backgroundColor: pressed || hovered ? colors.mint : colors.surface,
         borderWidth: 1,
-        borderColor: colors.border,
+        borderColor: focused ? colors.primary : colors.border,
+        opacity: disabled ? 0.5 : 1,
+        ...(Platform.OS === "web" && focused
+          ? {
+              outlineStyle: "solid",
+              outlineWidth: 2,
+              outlineOffset: 2,
+              outlineColor: colors.primary,
+            }
+          : {}),
       })}
     >
       <Icon size={19} color={colors.text} />
@@ -215,7 +278,7 @@ export function Card({
           backgroundColor: colors.surface,
           borderWidth: 1,
           borderColor: colors.border,
-          borderRadius: 20,
+          borderRadius: tokens.radius.md,
           padding: 24,
         },
         style,
@@ -314,6 +377,7 @@ export function Field({
   hint,
   leading,
   trailing,
+  inputRef,
   ...props
 }: TextInputProps & {
   label: string;
@@ -321,6 +385,7 @@ export function Field({
   hint?: string;
   leading?: ReactNode;
   trailing?: ReactNode;
+  inputRef?: Ref<TextInput>;
 }) {
   const { colors } = useTheme();
   const [focused, setFocused] = useState(false);
@@ -349,6 +414,7 @@ export function Field({
       >
         {leading}
         <TextInput
+          ref={inputRef}
           accessibilityLabel={label}
           accessibilityHint={error || hint}
           {...(Platform.OS === "web" ? { "aria-invalid": Boolean(error) } : {})}
@@ -370,7 +436,7 @@ export function Field({
               minHeight: 50,
               paddingVertical: focused ? 11 : 12,
               fontFamily: tokens.fonts.body,
-              fontSize: 15,
+              fontSize: 16,
               color: colors.text,
               ...(Platform.OS === "web"
                 ? ({ outlineStyle: "none" } as object)
@@ -399,56 +465,69 @@ export function Chips<T extends string>({
   onChange,
   labels,
   disabled = false,
+  wrap = false,
 }: {
   values: readonly T[];
   selected: T;
   onChange: (value: T) => void;
   labels?: Partial<Record<T, string>>;
   disabled?: boolean;
+  wrap?: boolean;
 }) {
   const { colors, isDark } = useTheme();
-  return (
+  const choices = values.map((value) => (
+    <Pressable
+      key={value}
+      accessibilityRole="button"
+      accessibilityState={{ selected: value === selected, disabled }}
+      aria-pressed={value === selected}
+      aria-disabled={disabled}
+      disabled={disabled}
+      onPress={() => onChange(value)}
+      style={{
+        borderWidth: 1,
+        borderColor: value === selected ? colors.primary : colors.border,
+        backgroundColor: value === selected ? colors.primary : colors.surface,
+        borderRadius: 12,
+        opacity: disabled ? 0.5 : 1,
+        minHeight: 44,
+        paddingVertical: 11,
+        paddingHorizontal: 15,
+      }}
+    >
+      <Label
+        size={12}
+        bold
+        color={
+          value === selected
+            ? isDark
+              ? "#102219"
+              : "#FFFFFF"
+            : colors.secondary
+        }
+      >
+        {labels?.[value] || value}
+      </Label>
+    </Pressable>
+  ));
+  return wrap ? (
+    <View
+      style={{
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 8,
+        paddingVertical: 3,
+      }}
+    >
+      {choices}
+    </View>
+  ) : (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ gap: 8, paddingVertical: 3 }}
     >
-      {values.map((value) => (
-        <Pressable
-          key={value}
-          accessibilityRole="button"
-          accessibilityState={{ selected: value === selected, disabled }}
-          aria-pressed={value === selected}
-          aria-disabled={disabled}
-          disabled={disabled}
-          onPress={() => onChange(value)}
-          style={{
-            borderWidth: 1,
-            borderColor: value === selected ? colors.primary : colors.border,
-            backgroundColor:
-              value === selected ? colors.primary : colors.surface,
-            borderRadius: 12,
-            opacity: disabled ? 0.5 : 1,
-            minHeight: 44,
-            paddingVertical: 11,
-            paddingHorizontal: 15,
-          }}
-        >
-          <Label
-            size={12}
-            bold
-            color={
-              value === selected
-                ? isDark
-                  ? "#102219"
-                  : "#FFFFFF"
-                : colors.secondary
-            }
-          >
-            {labels?.[value] || value}
-          </Label>
-        </Pressable>
-      ))}
+      {choices}
     </ScrollView>
   );
 }
@@ -458,12 +537,14 @@ export function Empty({
   body,
   action,
   onPress,
+  actionIcon = Plus,
 }: {
   icon?: LucideIcon;
   title: string;
   body: string;
   action?: string;
   onPress?: () => void;
+  actionIcon?: LucideIcon;
 }) {
   const { colors } = useTheme();
   return (
@@ -497,7 +578,7 @@ export function Empty({
       </Label>
       {action && onPress && (
         <View style={{ marginTop: 8 }}>
-          <Button onPress={onPress} icon={Plus}>
+          <Button onPress={onPress} icon={actionIcon}>
             {action}
           </Button>
         </View>
@@ -518,10 +599,7 @@ export function AnimatedIn({
       entering={
         reduced
           ? undefined
-          : FadeInDown.duration(250)
-              .delay(Math.min(delay, 200))
-              .springify()
-              .damping(22)
+          : FadeIn.duration(tokens.motion.fast).delay(Math.min(delay, 80))
       }
     >
       {children}
@@ -538,6 +616,7 @@ export function Page({
   right,
   onRefresh,
   refreshing = false,
+  footer,
 }: {
   title: string;
   subtitle?: string;
@@ -548,10 +627,13 @@ export function Page({
   right?: ReactNode;
   onRefresh?: () => void;
   refreshing?: boolean;
+  footer?: ReactNode;
 }) {
   const { colors } = useTheme(),
     wide = useWide(),
     demo = useApp((s) => s.data.demo);
+  const quickActions = useQuickActions();
+  const insets = useSafeAreaInsets();
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: colors.background }}
@@ -570,7 +652,7 @@ export function Page({
         }
         contentContainerStyle={{
           padding: wide ? 38 : 22,
-          paddingBottom: 110,
+          paddingBottom: footer ? 28 : 110,
           width: "100%",
           maxWidth: 1280,
           alignSelf: "center",
@@ -624,16 +706,25 @@ export function Page({
               </Label>
             )}
           </View>
-          {right ||
-            (add ? (
-              <Button
-                small
-                icon={Plus}
-                onPress={() => router.push("/subscription/new")}
-              >
-                {wide ? "Add subscription" : "Add"}
-              </Button>
-            ) : null)}
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            {quickActions && !back && (
+              <IconButton
+                icon={Zap}
+                label="Quick actions"
+                onPress={quickActions}
+              />
+            )}
+            {right ||
+              (add ? (
+                <Button
+                  small
+                  icon={Plus}
+                  onPress={() => router.push("/subscription/new")}
+                >
+                  {wide ? "Add subscription" : "Add"}
+                </Button>
+              ) : null)}
+          </View>
         </View>
         {demo && (
           <View
@@ -653,6 +744,20 @@ export function Page({
         )}
         {children}
       </ScrollView>
+      {footer && (
+        <View
+          style={{
+            borderTopWidth: 1,
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+            paddingHorizontal: 22,
+            paddingTop: 12,
+            paddingBottom: Math.max(insets.bottom, 12),
+          }}
+        >
+          {footer}
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -665,6 +770,8 @@ export function Confirm({
   onClose,
   danger = false,
   children,
+  cancelLabel = "Cancel",
+  confirmDisabled = false,
 }: {
   visible: boolean;
   title: string;
@@ -674,20 +781,28 @@ export function Confirm({
   onClose: () => void;
   danger?: boolean;
   children?: ReactNode;
+  cancelLabel?: string;
+  confirmDisabled?: boolean;
 }) {
   const { colors } = useTheme(),
     reduced = useReducedMotion(),
     wide = useWide();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const busyRef = useRef(false);
+  function close() {
+    if (!busyRef.current) {
+      setError(null);
+      onClose();
+    }
+  }
   return (
     <Modal
+      accessibilityLabel={title}
       transparent
       visible={visible}
       animationType={reduced ? "none" : "fade"}
-      onRequestClose={() => {
-        if (!busy) onClose();
-      }}
+      onRequestClose={close}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -699,13 +814,14 @@ export function Confirm({
         <View
           style={{
             backgroundColor: colors.surface,
-            borderRadius: 24,
+            borderRadius: 20,
             width: "90%",
-            maxWidth: 420,
+            maxWidth: 460,
             maxHeight: "85%",
             marginBottom: wide ? 0 : 24,
           }}
           accessibilityViewIsModal
+          accessibilityLabel={title}
         >
           <ScrollView
             keyboardShouldPersistTaps="handled"
@@ -718,18 +834,36 @@ export function Confirm({
               <IconButton
                 icon={X}
                 label="Close dialog"
-                onPress={() => {
-                  if (!busy) onClose();
-                }}
+                disabled={busy}
+                onPress={close}
               />
             </View>
             <Label color={colors.secondary}>{body}</Label>
             {children}
-            {error && <Label color={colors.error}>{error}</Label>}
+            {error && (
+              <View
+                accessibilityRole="alert"
+                style={{
+                  flexDirection: "row",
+                  gap: 10,
+                  padding: 12,
+                  borderRadius: 10,
+                  backgroundColor: colors.errorBg,
+                }}
+              >
+                <AlertCircle color={colors.error} size={18} />
+                <Label color={colors.error} style={{ flex: 1 }}>
+                  {error}
+                </Label>
+              </View>
+            )}
             <Button
               loading={busy}
+              disabled={confirmDisabled}
               variant={danger ? "danger" : "primary"}
               onPress={() => {
+                if (busyRef.current || confirmDisabled) return;
+                busyRef.current = true;
                 setBusy(true);
                 setError(null);
                 void onConfirm()
@@ -739,13 +873,16 @@ export function Confirm({
                       e instanceof Error ? e.message : "Please try again.",
                     ),
                   )
-                  .finally(() => setBusy(false));
+                  .finally(() => {
+                    busyRef.current = false;
+                    setBusy(false);
+                  });
               }}
             >
               {action}
             </Button>
-            <Button variant="ghost" disabled={busy} onPress={onClose}>
-              Keep it
+            <Button variant="ghost" disabled={busy} onPress={close}>
+              {cancelLabel}
             </Button>
           </ScrollView>
         </View>
@@ -797,45 +934,73 @@ export function LinkRow({
           </Label>
         )}
       </View>
-      <ArrowUpRight size={17} color={colors.secondary} />
+      <ChevronRight size={17} color={colors.secondary} />
     </Pressable>
   );
 }
 export function Toast() {
   const toast = useApp((s) => s.toast),
+    tone = useApp((s) => s.toastTone),
+    toastId = useApp((s) => s.toastId),
     { colors } = useTheme();
+  const wide = useWide(),
+    reduced = useReducedMotion();
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => {
-      if (useApp.getState().toast === toast) useApp.setState({ toast: null });
+      if (useApp.getState().toastId === toastId)
+        useApp.setState({ toast: null });
     }, 4500);
     return () => clearTimeout(timer);
-  }, [toast]);
+  }, [toast, toastId]);
   if (!toast) return null;
   return (
-    <Pressable
+    <Animated.View
+      key={toastId}
+      entering={reduced ? undefined : FadeIn.duration(tokens.motion.fast)}
+      exiting={reduced ? undefined : FadeOut.duration(120)}
       accessibilityRole="alert"
-      onPress={() => useApp.setState({ toast: null })}
+      accessibilityLiveRegion="polite"
       style={{
         position: "absolute",
-        bottom: 90,
+        bottom: wide ? 24 : 92,
         alignSelf: "center",
-        maxWidth: "90%",
+        maxWidth: wide ? 520 : "90%",
         flexDirection: "row",
         gap: 10,
         alignItems: "center",
-        backgroundColor: colors.text,
+        backgroundColor: tone === "error" ? colors.errorBg : colors.text,
         borderRadius: 14,
         padding: 16,
         zIndex: 100,
       }}
     >
-      <Check size={18} color={colors.surface} />
-      <Label color={colors.surface} size={13}>
+      {tone === "error" ? (
+        <AlertCircle size={18} color={colors.error} />
+      ) : (
+        <Check size={18} color={colors.surface} />
+      )}
+      <Label
+        color={tone === "error" ? colors.error : colors.surface}
+        size={14}
+        style={{ flexShrink: 1 }}
+      >
         {toast}
       </Label>
-      <X size={15} color={colors.surface} />
-    </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Dismiss notification"
+        onPress={() => useApp.setState({ toast: null })}
+        style={{
+          minWidth: 44,
+          minHeight: 44,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <X size={18} color={tone === "error" ? colors.error : colors.surface} />
+      </Pressable>
+    </Animated.View>
   );
 }
 const styles = StyleSheet.create({

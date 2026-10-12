@@ -27,6 +27,8 @@ type AppState = {
   hydrated: boolean;
   error: string | null;
   toast: string | null;
+  toastTone: "success" | "error";
+  toastId: number;
   syncError: string | null;
   syncing: boolean;
   email: string | null;
@@ -39,6 +41,8 @@ export const useApp = create<AppState>(() => ({
   hydrated: false,
   error: null,
   toast: null,
+  toastTone: "success",
+  toastId: 0,
   syncError: null,
   syncing: false,
   email: null,
@@ -47,8 +51,12 @@ export const useApp = create<AppState>(() => ({
 }));
 let writes: Promise<unknown> = Promise.resolve();
 let hydrationGeneration = 0;
-export function notify(message: string) {
-  useApp.setState({ toast: message });
+export function notify(message: string, tone: "success" | "error" = "success") {
+  useApp.setState((state) => ({
+    toast: message,
+    toastTone: tone,
+    toastId: state.toastId + 1,
+  }));
 }
 export function readableError(error: unknown) {
   return error instanceof Error

@@ -1,5 +1,4 @@
 import { useLocalSearchParams } from "expo-router";
-import { Page } from "../../components/ui/Primitives";
 import { SubscriptionForm } from "../../features/SubscriptionForm";
 import { quickAddDates } from "../../domain/calendarEvents";
 import { dateLabel, today } from "../../domain/renewal";
@@ -10,19 +9,15 @@ export default function NewSubscription() {
   const timezone = useApp((state) => state.data.preferences.timezone);
   const defaults = quickAddDates(date, today(timezone));
   return (
-    <Page
-      title="Add a subscription."
-      subtitle={
-        date
+    <SubscriptionForm
+      key={defaults.nextRenewal}
+      defaultRenewalDate={defaults.nextRenewal}
+      page={{
+        title: "Add subscription",
+        subtitle: date
           ? `Renewal date: ${dateLabel(defaults.nextRenewal, { month: "long", day: "numeric", year: "numeric" })}. Review the details before saving.`
-          : "A few details today. Fewer surprises tomorrow."
-      }
-      back
-    >
-      <SubscriptionForm
-        key={defaults.nextRenewal}
-        defaultRenewalDate={defaults.nextRenewal}
-      />
-    </Page>
+          : "Enter what you pay and when it renews.",
+      }}
+    />
   );
 }
