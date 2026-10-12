@@ -29,9 +29,11 @@ import { BloomArt } from "../../components/ui/Brand";
 import { SubscriptionRow } from "../../components/subscriptions/SubscriptionRow";
 import { ServiceIcon } from "../../components/subscriptions/ServiceIcon";
 import { CategoryChart } from "../../components/ui/CategoryChart";
+import { RenewalChart } from "../../components/ui/RenewalChart";
 import { AnimatedMoney } from "../../components/ui/AnimatedMoney";
 import { syncNow } from "../../services/sync";
 export default function Home() {
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const { colors } = useTheme(),
     wide = useWide(),
@@ -45,7 +47,9 @@ export default function Home() {
     [data.subscriptions, data.preferences.timezone],
   );
   const main =
-      totals.find((t) => t.currency === data.preferences.currency) || totals[0],
+      totals.find((t) => t.currency === selectedCurrency) ||
+      totals.find((t) => t.currency === data.preferences.currency) ||
+      totals[0],
     currency = main?.currency || data.preferences.currency;
   const largest = data.subscriptions
     .filter(
@@ -284,23 +288,58 @@ export default function Home() {
         </View>
       </AnimatedIn>
       {totals.length > 1 && (
-        <Card style={{ marginBottom: 26, gap: 10 }}>
-          <Label size={12} bold>
-            Other currencies · kept separate for accuracy
-          </Label>
-          {totals
-            .filter((t) => t.currency !== currency)
-            .map((t) => (
-              <Label key={t.currency} color={colors.secondary}>
-                {t.currency}: {formatMoney(t.monthly, t.currency)} / month ·{" "}
-                {formatMoney(t.annual, t.currency)} / year
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 8,
+            marginBottom: 24,
+          }}
+        >
+          {totals.map((total) => (
+            <Pressable
+              key={total.currency}
+              accessibilityRole="button"
+              accessibilityLabel={`Show ${total.currency} spending`}
+              accessibilityState={{ selected: total.currency === currency }}
+              onPress={() => setSelectedCurrency(total.currency)}
+              style={({ pressed }) => ({
+                minHeight: 44,
+                justifyContent: "center",
+                paddingHorizontal: 16,
+                borderRadius: 12,
+                backgroundColor:
+                  total.currency === currency || pressed
+                    ? colors.mint
+                    : colors.surface,
+                borderWidth: 1,
+                borderColor:
+                  total.currency === currency ? colors.primary : colors.border,
+              })}
+            >
+              <Label size={12} bold>
+                {total.currency} · {formatMoney(total.monthly, total.currency)}{" "}
+                / month
               </Label>
-            ))}
-          <Label size={11} color={colors.secondary}>
-            No exchange rates are applied.
+            </Pressable>
+          ))}
+          <Label
+            size={11}
+            color={colors.secondary}
+            style={{ alignSelf: "center" }}
+          >
+            Currencies stay separate. No exchange rates applied.
           </Label>
-        </Card>
+        </View>
       )}
+      <Card style={{ marginBottom: 24 }}>
+        <SectionTitle title="Your next six months" />
+        <RenewalChart
+          subscriptions={data.subscriptions}
+          currency={currency}
+          reference={reference}
+        />
+      </Card>
       {pending.length > 0 && (
         <Pressable
           accessibilityRole="button"
@@ -339,7 +378,7 @@ export default function Home() {
               <SectionTitle
                 title="Coming up next"
                 action="See all"
-                onPress={() => router.push("/subscriptions")}
+                onPress={() => router.push("/calendar")}
               />
               {events.length ? (
                 events.slice(0, 5).map((event, i) => (

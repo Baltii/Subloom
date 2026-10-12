@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { View, Pressable } from "react-native";
+import { useRef, useState } from "react";
+import { View } from "react-native";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { router } from "expo-router";
 import * as Crypto from "expo-crypto";
-import { Check, ChevronDown, Search } from "lucide-react-native";
+import { Check, ChevronDown } from "lucide-react-native";
 import {
   categories,
   currencies,
@@ -16,6 +16,7 @@ import {
 } from "../domain/models";
 import { catalog } from "../domain/catalog";
 import { moneyInput, parseMoney } from "../domain/money";
+import { quickAddDates } from "../domain/calendarEvents";
 import { today } from "../domain/renewal";
 import { saveSubscription, readableError, useApp } from "../store/app";
 import {
@@ -24,7 +25,6 @@ import {
   Card,
   Chips,
   Field,
-  Heading,
   Label,
 } from "../components/ui/Primitives";
 import { DateField } from "../components/ui/DateField";
@@ -34,7 +34,7 @@ import {
   categoryOptions,
   intervalOptions,
 } from "../components/ui/pickerOptions";
-import { ServiceIcon } from "../components/subscriptions/ServiceIcon";
+import { ServicePicker } from "../components/subscriptions/ServicePicker";
 import { useTheme, useWide } from "../theme/useTheme";
 const formSchema = z
   .object({
@@ -83,17 +83,23 @@ type Values = z.input<typeof formSchema>;
 export function SubscriptionForm({
   initial,
   candidate,
+  defaultRenewalDate,
 }: {
   initial?: Subscription;
   candidate?: Candidate;
+  defaultRenewalDate?: string;
 }) {
   const { colors } = useTheme(),
     wide = useWide(),
     preferences = useApp((s) => s.data.preferences);
+  const formIdentity = useRef(useApp.getState().identity);
+  const dateDefaults = quickAddDates(
+    defaultRenewalDate,
+    today(preferences.timezone),
+  );
   const [serviceId, setServiceId] = useState(
       initial?.serviceId || candidate?.serviceId || null,
     ),
-    [search, setSearch] = useState(""),
     [error, setError] = useState<string | null>(null),
     [advanced, setAdvanced] = useState(Boolean(initial)),
     [busy, setBusy] = useState(false);
@@ -131,11 +137,11 @@ export function SubscriptionForm({
       nextRenewal:
         initial?.nextRenewal ||
         candidate?.nextRenewal ||
-        (candidate ? "" : today(preferences.timezone)),
+        (candidate ? "" : dateDefaults.nextRenewal),
       startDate:
         initial?.startDate ||
         candidate?.chargeDate ||
-        today(preferences.timezone),
+        (candidate ? today(preferences.timezone) : dateDefaults.startDate),
       trialEnd: initial?.trialEnd || candidate?.trialEnd || "",
       status: initial?.status || (candidate?.trialEnd ? "trial" : "active"),
       paymentMethod: initial?.paymentMethod || "",
@@ -193,6 +199,11 @@ export function SubscriptionForm({
     setBusy(true);
     setError(null);
     try {
+      if (
+        useApp.getState().identity !== formIdentity.current ||
+        !useApp.getState().hydrated
+      )
+        throw new Error("Your account changed. Reopen the form before saving.");
       if (!values.currency || !values.interval)
         throw new Error("Confirm the currency and billing frequency.");
       const now = new Date().toISOString(),
@@ -237,62 +248,18 @@ export function SubscriptionForm({
   return (
     <View style={{ maxWidth: 780, width: "100%", alignSelf: "center" }}>
       {!initial && !candidate && (
-        <Card style={{ marginBottom: 22 }}>
-          <Heading size={18}>Start with a service you know.</Heading>
-          <View style={{ marginTop: 14 }}>
-            <Field
-              label="Find a service"
-              leading={<Search size={17} color={colors.secondary} />}
-              placeholder="Search Netflix, Spotify, iCloud…"
-              value={search}
-              onChangeText={setSearch}
-            />
-          </View>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 9 }}>
-            {catalog
-              .filter((s) =>
-                s.name.toLowerCase().includes(search.toLowerCase()),
-              )
-              .slice(0, search ? 12 : 8)
-              .map((service) => (
-                <Pressable
-                  key={service.id}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: serviceId === service.id }}
-                  onPress={() => {
-                    setServiceId(service.id);
-                    setValue("name", service.name);
-                    setValue("category", service.category);
-                  }}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 8,
-                    borderWidth: 1,
-                    borderColor:
-                      serviceId === service.id ? colors.primary : colors.border,
-                    padding: 9,
-                    paddingRight: 14,
-                    borderRadius: 12,
-                    backgroundColor:
-                      serviceId === service.id
-                        ? colors.mint
-                        : colors.background,
-                  }}
-                >
-                  <ServiceIcon
-                    serviceId={service.id}
-                    name={service.name}
-                    size={27}
-                  />
-                  <Label size={12}>{service.name}</Label>
-                </Pressable>
-              ))}
-          </View>
-          <Label size={11} color={colors.secondary} style={{ marginTop: 17 }}>
-            Prices are personal. Enter the amount you actually pay below.
-          </Label>
-        </Card>
+        <ServicePicker
+          selected={serviceId}
+          onSelect={(service, customName) => {
+            setServiceId(service?.id ?? null);
+            setValue("name", service?.name ?? customName ?? "", {
+              shouldDirty: true,
+            });
+            setValue("category", service?.category ?? "Other", {
+              shouldDirty: true,
+            });
+          }}
+        />
       )}
       <Card style={{ padding: wide ? 30 : 20 }}>
         {candidate && (

@@ -1,0 +1,389 @@
+{
+  "package": "simple-icons",
+  "version": "16.35.0",
+  "repository": "https://github.com/simple-icons/simple-icons",
+  "icons": [
+    {
+      "id": "applemusic",
+      "title": "Apple Music",
+      "slug": "applemusic",
+      "source": "https://www.apple.com/itunes/marketing-on-music/identity-guidelines.html#apple-music-icon"
+    },
+    {
+      "id": "soundcloud",
+      "title": "SoundCloud",
+      "slug": "soundcloud",
+      "source": "https://press.soundcloud.com"
+    },
+    {
+      "id": "tidal",
+      "title": "TIDAL",
+      "slug": "tidal",
+      "source": "https://tidal.com/press"
+    },
+    {
+      "id": "deezer",
+      "title": "Deezer",
+      "slug": "deezer",
+      "source": "https://deezerbrand.com/document/37#/-/logo",
+      "guidelines": "https://deezerbrand.com/document/37#/-/logo"
+    },
+    {
+      "id": "pandora",
+      "title": "Pandora",
+      "slug": "pandora",
+      "source": "https://www.pandoraforbrands.com"
+    },
+    {
+      "id": "appletv",
+      "title": "Apple TV",
+      "slug": "appletv",
+      "source": "https://en.wikipedia.org/wiki/File:Apple_TV_(logo).svg"
+    },
+    {
+      "id": "hbo",
+      "title": "HBO",
+      "slug": "hbo",
+      "source": "https://www.hbo.com"
+    },
+    {
+      "id": "twitch",
+      "title": "Twitch",
+      "slug": "twitch",
+      "source": "https://brand.twitch.tv",
+      "guidelines": "https://brand.twitch.tv"
+    },
+    {
+      "id": "crunchyroll",
+      "title": "Crunchyroll",
+      "slug": "crunchyroll",
+      "source": "https://www.crunchyroll.com"
+    },
+    {
+      "id": "paramountplus",
+      "title": "Paramount+",
+      "slug": "paramountplus",
+      "source": "https://www.paramount.com/brand/paramount-plus"
+    },
+    {
+      "id": "audible",
+      "title": "Audible",
+      "slug": "audible",
+      "source": "https://commons.wikimedia.org/wiki/File:Audible_logo.svg"
+    },
+    {
+      "id": "patreon",
+      "title": "Patreon",
+      "slug": "patreon",
+      "source": "https://www.patreon.com/brand",
+      "guidelines": "https://www.patreon.com/brand"
+    },
+    {
+      "id": "substack",
+      "title": "Substack",
+      "slug": "substack",
+      "source": "https://on.substack.com"
+    },
+    {
+      "id": "dropbox",
+      "title": "Dropbox",
+      "slug": "dropbox",
+      "source": "https://www.dropbox.com/branding"
+    },
+    {
+      "id": "protondrive",
+      "title": "Proton Drive",
+      "slug": "protondrive",
+      "source": "https://proton.me/media/kit"
+    },
+    {
+      "id": "mega",
+      "title": "MEGA",
+      "slug": "mega",
+      "source": "https://mega.io/media"
+    },
+    {
+      "id": "backblaze",
+      "title": "Backblaze",
+      "slug": "backblaze",
+      "source": "https://www.backblaze.com/company/news.html",
+      "guidelines": "https://www.backblaze.com/company/news.html"
+    },
+    {
+      "id": "box",
+      "title": "Box",
+      "slug": "box",
+      "source": "https://www.box.com/en-gb/about-us/press",
+      "guidelines": "https://www.box.com/en-gb/about-us/press"
+    },
+    {
+      "id": "github",
+      "title": "GitHub",
+      "slug": "github",
+      "source": "https://github.com/logos",
+      "guidelines": "https://github.com/logos"
+    },
+    {
+      "id": "gitlab",
+      "title": "GitLab",
+      "slug": "gitlab",
+      "source": "https://about.gitlab.com/press/press-kit/",
+      "guidelines": "https://about.gitlab.com/handbook/marketing/corporate-marketing/brand-activation/trademark-guidelines/"
+    },
+    {
+      "id": "discord",
+      "title": "Discord",
+      "slug": "discord",
+      "source": "https://discord.com/branding",
+      "guidelines": "https://discord.com/branding"
+    },
+    {
+      "id": "zoom",
+      "title": "Zoom",
+      "slug": "zoom",
+      "source": "https://brand.zoom.us/media-library/",
+      "guidelines": "https://brand.zoom.us/usage-legal/"
+    },
+    {
+      "id": "todoist",
+      "title": "Todoist",
+      "slug": "todoist",
+      "source": "https://doist.com/press"
+    },
+    {
+      "id": "trello",
+      "title": "Trello",
+      "slug": "trello",
+      "source": "https://atlassian.design/resources/logo-library",
+      "guidelines": "https://atlassian.design/foundations/logos"
+    },
+    {
+      "id": "asana",
+      "title": "Asana",
+      "slug": "asana",
+      "source": "https://asana.com/brand",
+      "guidelines": "https://asana.com/brand"
+    },
+    {
+      "id": "clickup",
+      "title": "ClickUp",
+      "slug": "clickup",
+      "source": "https://clickup.com/brand"
+    },
+    {
+      "id": "linear",
+      "title": "Linear",
+      "slug": "linear",
+      "source": "https://linear.app"
+    },
+    {
+      "id": "miro",
+      "title": "Miro",
+      "slug": "miro",
+      "source": "https://miro.com"
+    },
+    {
+      "id": "grammarly",
+      "title": "Grammarly",
+      "slug": "grammarly",
+      "source": "https://www.grammarly.com/media-assets"
+    },
+    {
+      "id": "evernote",
+      "title": "Evernote",
+      "slug": "evernote",
+      "source": "https://evernote.com/about-us",
+      "guidelines": "https://evernote.com/about-us"
+    },
+    {
+      "id": "obsidian",
+      "title": "Obsidian",
+      "slug": "obsidian",
+      "source": "https://obsidian.md",
+      "guidelines": "https://obsidian.md/brand"
+    },
+    {
+      "id": "bitwarden",
+      "title": "Bitwarden",
+      "slug": "bitwarden",
+      "source": "https://bitwarden.com/brand",
+      "guidelines": "https://bitwarden.com/brand"
+    },
+    {
+      "id": "1password",
+      "title": "1Password",
+      "slug": "1password",
+      "source": "https://1password.com/press",
+      "guidelines": "https://1password.com/press"
+    },
+    {
+      "id": "readme",
+      "title": "ReadMe",
+      "slug": "readme",
+      "source": "https://readme.com"
+    },
+    {
+      "id": "replit",
+      "title": "Replit",
+      "slug": "replit",
+      "source": "https://repl.it"
+    },
+    {
+      "id": "vercel",
+      "title": "Vercel",
+      "slug": "vercel",
+      "source": "https://vercel.com/geist/brands",
+      "guidelines": "https://vercel.com/geist/brands"
+    },
+    {
+      "id": "netlify",
+      "title": "Netlify",
+      "slug": "netlify",
+      "source": "https://www.netlify.com/press/",
+      "guidelines": "https://www.netlify.com/press/"
+    },
+    {
+      "id": "digitalocean",
+      "title": "DigitalOcean",
+      "slug": "digitalocean",
+      "source": "https://www.digitalocean.com/press/",
+      "guidelines": "https://www.digitalocean.com/press/"
+    },
+    {
+      "id": "webflow",
+      "title": "Webflow",
+      "slug": "webflow",
+      "source": "https://brand-at.webflow.io/resources#logos",
+      "guidelines": "https://brand-at.webflow.io"
+    },
+    {
+      "id": "squarespace",
+      "title": "Squarespace",
+      "slug": "squarespace",
+      "source": "https://www.squarespace.com/logo-guidelines",
+      "guidelines": "https://www.squarespace.com/brand-guidelines"
+    },
+    {
+      "id": "shopify",
+      "title": "Shopify",
+      "slug": "shopify",
+      "source": "https://www.shopify.com/brand-assets",
+      "guidelines": "https://www.shopify.com/brand-assets"
+    },
+    {
+      "id": "framer",
+      "title": "Framer",
+      "slug": "framer",
+      "source": "https://framer.com"
+    },
+    {
+      "id": "protonvpn",
+      "title": "Proton VPN",
+      "slug": "protonvpn",
+      "source": "https://proton.me/media/kit"
+    },
+    {
+      "id": "nordvpn",
+      "title": "NordVPN",
+      "slug": "nordvpn",
+      "source": "https://nordvpn.com/press-area/",
+      "guidelines": "https://nordvpn.com/press-area/"
+    },
+    {
+      "id": "surfshark",
+      "title": "Surfshark",
+      "slug": "surfshark",
+      "source": "https://surfshark.com/press/assets"
+    },
+    {
+      "id": "duolingo",
+      "title": "Duolingo",
+      "slug": "duolingo",
+      "source": "https://design.duolingo.com",
+      "guidelines": "https://design.duolingo.com"
+    },
+    {
+      "id": "coursera",
+      "title": "Coursera",
+      "slug": "coursera",
+      "source": "https://about.coursera.org/press"
+    },
+    {
+      "id": "udemy",
+      "title": "Udemy",
+      "slug": "udemy",
+      "source": "https://udemy.com",
+      "guidelines": "https://support.udemy.com/hc/en-us/articles/8926753692567-Trademark-Usage-Guidelines"
+    },
+    {
+      "id": "skillshare",
+      "title": "Skillshare",
+      "slug": "skillshare",
+      "source": "https://www.skillshare.com"
+    },
+    {
+      "id": "pluralsight",
+      "title": "Pluralsight",
+      "slug": "pluralsight",
+      "source": "https://www.pluralsight.com/newsroom/brand-assets"
+    },
+    {
+      "id": "strava",
+      "title": "Strava",
+      "slug": "strava",
+      "source": "https://itunes.apple.com/us/app/strava-running-and-cycling-gps/id426826309"
+    },
+    {
+      "id": "peloton",
+      "title": "Peloton",
+      "slug": "peloton",
+      "source": "https://press.onepeloton.com/#logos"
+    },
+    {
+      "id": "fitbit",
+      "title": "Fitbit",
+      "slug": "fitbit",
+      "source": "https://www.fitbit.com/uk/home"
+    },
+    {
+      "id": "headspace",
+      "title": "Headspace",
+      "slug": "headspace",
+      "source": "https://www.headspace.com/press-and-media"
+    },
+    {
+      "id": "spotify",
+      "title": "Spotify",
+      "slug": "spotify",
+      "source": "https://developer.spotify.com/documentation/general/design-and-branding/#using-our-logo",
+      "guidelines": "https://developer.spotify.com/documentation/general/design-and-branding/#using-our-logo"
+    },
+    {
+      "id": "youtube",
+      "title": "YouTube",
+      "slug": "youtube",
+      "source": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors",
+      "guidelines": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors"
+    },
+    {
+      "id": "notion",
+      "title": "Notion",
+      "slug": "notion",
+      "source": "https://www.notion.so"
+    },
+    {
+      "id": "figma",
+      "title": "Figma",
+      "slug": "figma",
+      "source": "https://www.figma.com/using-the-figma-brand/",
+      "guidelines": "https://www.figma.com/using-the-figma-brand/"
+    },
+    {
+      "id": "google",
+      "title": "Google",
+      "slug": "google",
+      "source": "https://partnermarketinghub.withgoogle.com",
+      "guidelines": "https://about.google/brand-resource-center/brand-elements/"
+    }
+  ]
+}

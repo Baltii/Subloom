@@ -2,6 +2,7 @@ import { Tabs, Redirect, router, usePathname } from "expo-router";
 import { View, Pressable, Platform } from "react-native";
 import {
   House,
+  CalendarDays,
   Layers2,
   Activity,
   Settings2,
@@ -16,12 +17,13 @@ import { useTheme, useWide } from "../../theme/useTheme";
 import { tokens } from "../../theme/tokens";
 import { useApp } from "../../store/app";
 const navigation: {
-  path: "/" | "/subscriptions" | "/activity" | "/settings";
+  path: "/" | "/subscriptions" | "/calendar" | "/activity" | "/settings";
   title: string;
   icon: LucideIcon;
 }[] = [
   { path: "/", title: "Overview", icon: House },
   { path: "/subscriptions", title: "Subscriptions", icon: Layers2 },
+  { path: "/calendar", title: "Calendar", icon: CalendarDays },
   { path: "/activity", title: "Activity", icon: Activity },
   { path: "/settings", title: "Settings", icon: Settings2 },
 ];
@@ -232,6 +234,15 @@ export default function TabLayout() {
               title: "Subscriptions",
               tabBarIcon: ({ color, size }) => (
                 <Layers2 color={color} size={size - 3} />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="calendar"
+            options={{
+              title: "Calendar",
+              tabBarIcon: ({ color, size }) => (
+                <CalendarDays color={color} size={size - 3} />
               ),
             }}
           />
