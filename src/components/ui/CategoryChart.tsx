@@ -1,18 +1,12 @@
-import { View } from "react-native";
-import Svg, { Circle } from "react-native-svg";
-import { recurringTotals } from "../../domain/money";
+import { useMemo, useState } from "react";
+import { Pressable, View } from "react-native";
 import type { Currency, Subscription } from "../../domain/models";
+import { categorySpending } from "../../domain/insights";
+import { formatMoney } from "../../domain/money";
 import { useTheme } from "../../theme/useTheme";
 import { Label } from "./Primitives";
-const palette = [
-  "#1B7156",
-  "#82B99A",
-  "#C8D9B4",
-  "#E9BE78",
-  "#B4A4CD",
-  "#91C4D7",
-  "#D4DAD3",
-];
+import { ChartBar } from "./ChartBar";
+
 export function CategoryChart({
   subscriptions,
   currency,
@@ -20,97 +14,92 @@ export function CategoryChart({
   subscriptions: Subscription[];
   currency: Currency;
 }) {
-  const { colors } = useTheme(),
-    active = subscriptions.filter(
-      (s) => s.currency === currency && ["active", "trial"].includes(s.status),
-    );
-  const categories = [...new Set(active.map((s) => s.category))].map(
-    (category) => ({
-      category,
-      amount:
-        recurringTotals(active.filter((s) => s.category === category))[0]
-          ?.monthly ?? 0,
-    }),
+  const { colors } = useTheme();
+  const [period, setPeriod] = useState<"monthly" | "annual">("monthly");
+  const categories = useMemo(
+    () => categorySpending(subscriptions, currency, period),
+    [subscriptions, currency, period],
   );
-  const total = categories.reduce((sum, c) => sum + c.amount, 0),
-    circumference = 2 * Math.PI * 54;
-  let offset = 0;
+  const total = categories.reduce((sum, category) => sum + category.amount, 0);
   return (
-    <View>
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          marginVertical: 12,
-        }}
-      >
-        <Svg width={160} height={160} viewBox="0 0 160 160">
-          <Circle
-            cx="80"
-            cy="80"
-            r="54"
-            stroke={colors.border}
-            strokeWidth="19"
-            fill="none"
-          />
-          {categories.map((c, i) => {
-            const fraction = total ? c.amount / total : 0,
-              start = offset;
-            offset += fraction * circumference;
-            return (
-              <Circle
-                key={c.category}
-                cx="80"
-                cy="80"
-                r="54"
-                fill="none"
-                stroke={palette[i % palette.length]}
-                strokeWidth="19"
-                strokeDasharray={
-                  Math.max(0, fraction * circumference - 4) +
-                  " " +
-                  circumference
-                }
-                strokeDashoffset={-start}
-                transform="rotate(-90 80 80)"
-              />
-            );
-          })}
-        </Svg>
-        <View style={{ position: "absolute", alignItems: "center" }}>
-          <Label size={25} bold>
-            {active.length}
-          </Label>
-          <Label size={10} color={colors.secondary}>
-            subscriptions
-          </Label>
-        </View>
-      </View>
-      <View style={{ gap: 13, marginTop: 9 }}>
-        {categories.map((c, i) => (
-          <View
-            key={c.category}
-            style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+    <View style={{ gap: 18 }}>
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        {(["monthly", "annual"] as const).map((value) => (
+          <Pressable
+            key={value}
+            accessibilityRole="button"
+            accessibilityLabel={`${value} category costs`}
+            accessibilityState={{ selected: period === value }}
+            onPress={() => setPeriod(value)}
+            style={({ pressed }) => ({
+              minHeight: 44,
+              paddingHorizontal: 12,
+              justifyContent: "center",
+              borderRadius: 10,
+              backgroundColor:
+                period === value
+                  ? colors.mint
+                  : pressed
+                    ? colors.background
+                    : "transparent",
+            })}
           >
-            <View
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: 3.5,
-                backgroundColor: palette[i % palette.length],
-              }}
-            />
-            <Label size={11} color={colors.secondary} style={{ flex: 1 }}>
-              {c.category}
+            <Label
+              size={12}
+              bold
+              color={period === value ? colors.primary : colors.secondary}
+            >
+              {value === "monthly" ? "Monthly" : "Yearly"}
             </Label>
-            <Label size={11} bold>
-              {total ? Math.round((c.amount / total) * 100) : 0}%
-            </Label>
-          </View>
+          </Pressable>
         ))}
       </View>
-      <Label size={10} color={colors.secondary} style={{ marginTop: 20 }}>
-        Estimated monthly costs in {currency}.
+      {categories.map((category) => (
+        <View key={category.category} style={{ gap: 7 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              gap: 8,
+            }}
+          >
+            <Label size={12} style={{ flex: 1 }}>
+              {category.category}
+            </Label>
+            <Label size={12} bold>
+              {formatMoney(category.amount, currency)}
+            </Label>
+          </View>
+          <View
+            accessible
+            accessibilityLabel={`${category.category}: ${formatMoney(category.amount, currency)} ${currency} per ${period === "monthly" ? "month" : "year"}, ${total ? Math.round((category.amount / total) * 100) : 0} percent`}
+            style={{
+              height: 9,
+              backgroundColor: colors.mint,
+              borderRadius: 5,
+              overflow: "hidden",
+            }}
+          >
+            <ChartBar
+              fraction={total ? category.amount / total : 0}
+              color={colors.primary}
+            />
+          </View>
+          <Label size={11} color={colors.secondary}>
+            {category.count}{" "}
+            {category.count === 1 ? "subscription" : "subscriptions"} ·{" "}
+            {total ? Math.round((category.amount / total) * 100) : 0}%
+          </Label>
+        </View>
+      ))}
+      {!categories.length && (
+        <Label size={12} color={colors.secondary}>
+          No active subscriptions in {currency} yet.
+        </Label>
+      )}
+      <Label size={11} color={colors.secondary}>
+        Estimated {period} costs in {currency}. Active subscriptions and trials;
+        currencies stay separate.
       </Label>
     </View>
   );
