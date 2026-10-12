@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocalSearchParams } from "expo-router";
 import { Linking, Switch, View } from "react-native";
 import { useApp, saveSubscription, readableError } from "../store/app";
 import { useFeatureSetting } from "../hooks/useFeatureSetting";
@@ -207,7 +208,10 @@ function Planner({ s }: { s: Subscription }) {
 }
 export default function Cancellation() {
   const state = useApp();
-  const [id, setId] = useState<string | null>(null);
+  const params = useLocalSearchParams<{ id?: string | string[] }>();
+  const [id, setId] = useState<string | null>(
+    typeof params.id === "string" ? params.id : null,
+  );
   const s = state.data.subscriptions.find((row) => row.id === id);
   return (
     <Page

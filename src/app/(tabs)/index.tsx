@@ -378,7 +378,7 @@ export default function Home() {
               <SectionTitle
                 title="Coming up next"
                 action="See all"
-                onPress={() => router.push("/subscriptions")}
+                onPress={() => router.push("/calendar")}
               />
               {events.length ? (
                 events.slice(0, 5).map((event, i) => (

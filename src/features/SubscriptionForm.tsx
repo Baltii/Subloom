@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { View } from "react-native";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,7 @@ import {
 } from "../domain/models";
 import { catalog } from "../domain/catalog";
 import { moneyInput, parseMoney } from "../domain/money";
+import { quickAddDates } from "../domain/calendarEvents";
 import { today } from "../domain/renewal";
 import { saveSubscription, readableError, useApp } from "../store/app";
 import {
@@ -82,13 +83,20 @@ type Values = z.input<typeof formSchema>;
 export function SubscriptionForm({
   initial,
   candidate,
+  defaultRenewalDate,
 }: {
   initial?: Subscription;
   candidate?: Candidate;
+  defaultRenewalDate?: string;
 }) {
   const { colors } = useTheme(),
     wide = useWide(),
     preferences = useApp((s) => s.data.preferences);
+  const formIdentity = useRef(useApp.getState().identity);
+  const dateDefaults = quickAddDates(
+    defaultRenewalDate,
+    today(preferences.timezone),
+  );
   const [serviceId, setServiceId] = useState(
       initial?.serviceId || candidate?.serviceId || null,
     ),
@@ -129,11 +137,11 @@ export function SubscriptionForm({
       nextRenewal:
         initial?.nextRenewal ||
         candidate?.nextRenewal ||
-        (candidate ? "" : today(preferences.timezone)),
+        (candidate ? "" : dateDefaults.nextRenewal),
       startDate:
         initial?.startDate ||
         candidate?.chargeDate ||
-        today(preferences.timezone),
+        (candidate ? today(preferences.timezone) : dateDefaults.startDate),
       trialEnd: initial?.trialEnd || candidate?.trialEnd || "",
       status: initial?.status || (candidate?.trialEnd ? "trial" : "active"),
       paymentMethod: initial?.paymentMethod || "",
@@ -191,6 +199,11 @@ export function SubscriptionForm({
     setBusy(true);
     setError(null);
     try {
+      if (
+        useApp.getState().identity !== formIdentity.current ||
+        !useApp.getState().hydrated
+      )
+        throw new Error("Your account changed. Reopen the form before saving.");
       if (!values.currency || !values.interval)
         throw new Error("Confirm the currency and billing frequency.");
       const now = new Date().toISOString(),

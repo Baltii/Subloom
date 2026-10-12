@@ -1,0 +1,9 @@
+# Subscription calendar
+
+The Calendar tab offers a Monday-first month grid, previous/next month controls, Today, event filters, currency filters and a selected-day agenda. It combines projected renewals, trial conversions, paid-through/access ends, recorded start dates and saved cancellation target deadlines from the existing owner-scoped feature settings. Paused/expired subscriptions do not generate renewals; confirmed canceled/expired subscriptions do not show obsolete cancellation targets. Sample mode excludes personal cancellation settings.
+
+Use **Add by date**, then click/tap a calendar cell to open the standard subscription form with that renewal date prefilled. Selecting a day normally shows its agenda and an **Add subscription on this date** action. Query dates are validated; invalid/repeated values safely fall back to today in the account timezone. Past dates use the selected date as the initial start date, future dates keep today's start date; both remain editable. The existing durable save/outbox remains responsible for writes, and a form opened under another account cannot save after an account change.
+
+Scheduled charge totals include renewals/trial conversions only and keep currencies separate. They are projections, not transaction history. Cancellation targets are user-selected planning dates, not verified merchant deadlines. Use the agenda to open subscription details or the cancellation planner. Existing ICS export remains available. Event generation is bounded and visible errors prevent misleading partial calendars; failed deadline reads offer retry while renewals stay visible.
+
+No new dependency, schema migration, credentials or deployment required. Existing hosted feature-settings setup is needed for signed-in cancellation deadlines, as before. Stacked after the service catalog, following dashboard insights.
