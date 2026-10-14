@@ -35,6 +35,8 @@ verify_jwt = false
 verify_jwt = false
 [functions.test-push]
 verify_jwt = false
+[functions.refresh-exchange-rates]
+verify_jwt = false
 
 [functions.mailbox-connect]
 verify_jwt = false

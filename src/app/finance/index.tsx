@@ -21,6 +21,7 @@ import {
   Field,
 } from "../../components/ui/Primitives";
 import { FinanceState } from "../../components/finance/FinanceState";
+import { ExchangeEstimate } from "../../components/finance/ExchangeEstimate";
 import { useApp } from "../../store/app";
 
 export default function FinanceHome() {
@@ -129,6 +130,7 @@ export default function FinanceHome() {
           ))}
         </View>
         <SectionTitle title="Recorded spending" />
+        <ExchangeEstimate />
         <Label color={colors.secondary}>
           Settled entries you recorded, grouped by their original currency.
           Upcoming renewals are forecasts and do not appear as transactions.
