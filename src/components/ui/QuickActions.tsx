@@ -55,6 +55,14 @@ export const toolActions: {
     group: "Everyday",
   },
   {
+    title: "Cards & wallets",
+    detail: "Payment sources, linked services and expiry reviews",
+    route: "/payments",
+    icon: Wallet,
+    keywords: "card bank payment billing",
+    group: "Payments",
+  },
+  {
     title: "Monthly budgets",
     detail: "Category limits in each original currency",
     route: "/budgets",

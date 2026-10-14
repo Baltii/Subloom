@@ -18,6 +18,15 @@ describe("feature setting security", () => {
           "utf8",
         ),
       );
+      await db.exec(
+        readFileSync(
+          new URL(
+            "../../supabase/migrations/20261012131814_payment_sources.sql",
+            import.meta.url,
+          ),
+          "utf8",
+        ),
+      );
       await db.query("insert into auth.users values($1),($2)", [userA, userB]);
       await db.exec("set role authenticated");
       await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
@@ -39,6 +48,13 @@ describe("feature setting security", () => {
       await expect(
         db.query("select save_feature_setting('unknown','[]',0)"),
       ).rejects.toThrow();
+      await db.query(
+        "select save_feature_setting('payment_sources',$1::jsonb,0)",
+        [JSON.stringify({ sources: [], links: [] })],
+      );
+      await expect(
+        db.query("select save_feature_setting('payment_sources','{}',0)"),
+      ).rejects.toThrow(/conflict/);
       await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
         userB,
       ]);
