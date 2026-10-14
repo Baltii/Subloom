@@ -1,6 +1,6 @@
 import { useRef, useState, type ComponentType, type ReactNode } from "react";
 import { View } from "react-native";
-import { useApp, readableError } from "../../store/app";
+import { useApp, readableError, notify } from "../../store/app";
 import { Button, Label, Page } from "../ui/Primitives";
 // Remount drafts on account changes, so input from one owner cannot be saved by another.
 export function OwnerFeature({
@@ -18,15 +18,20 @@ export function useFeatureAction() {
   return {
     error,
     busy,
-    run: async (action: () => Promise<unknown>) => {
+    run: async (action: () => Promise<unknown>, successMessage?: string) => {
       if (running.current) return;
       running.current = true;
+      const identity = useApp.getState().identity;
       setError(null);
       setBusy(true);
       try {
         await action();
+        if (successMessage && useApp.getState().identity === identity)
+          notify(successMessage);
       } catch (e) {
-        setError(readableError(e));
+        const message = readableError(e);
+        setError(message);
+        if (useApp.getState().identity === identity) notify(message, "error");
       } finally {
         running.current = false;
         setBusy(false);

@@ -44,7 +44,6 @@ import {
   Badge,
   Button,
   Card,
-  Chips,
   Confirm,
   Field,
   Label,
@@ -54,6 +53,7 @@ import {
   Empty,
 } from "../../components/ui/Primitives";
 import { toolActions } from "../../components/ui/QuickActions";
+import { ThemePicker } from "../../components/ui/ThemePicker";
 import { SelectField } from "../../components/ui/Selection";
 import {
   currencyOptions,
@@ -411,21 +411,19 @@ function Settings() {
             {visibleGroups.includes("Preferences") && (
               <Card style={{ marginTop: 24 }}>
                 <SectionTitle title="Appearance & region" />
-                <Label
-                  size={12}
-                  bold
-                  color={colors.secondary}
-                  style={{ marginBottom: 12 }}
-                >
-                  Appearance
-                </Label>
-                <Chips
-                  values={["system", "light", "dark"] as const}
-                  selected={p.appearance}
-                  labels={{ system: "System", light: "Light", dark: "Dark" }}
+                <ThemePicker
                   disabled={busy}
-                  onChange={(appearance) =>
-                    void run(() => updatePreferences({ appearance }))
+                  onAccent={(accentTheme) =>
+                    void run(async () => {
+                      await updatePreferences({ accentTheme });
+                      notify("Your theme is saved.");
+                    })
+                  }
+                  onAppearance={(appearance) =>
+                    void run(async () => {
+                      await updatePreferences({ appearance });
+                      notify("Appearance saved.");
+                    })
                   }
                 />
                 <View style={{ marginTop: 24 }}>

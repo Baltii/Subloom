@@ -148,7 +148,7 @@ function Plans() {
                 ]);
                 setDirty(false);
                 setResult("");
-              })
+              }, "Control plan saved. This plan does not enforce payments.")
             }
           >
             Save control plan

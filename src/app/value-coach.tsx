@@ -164,7 +164,7 @@ function Coach() {
                   ],
                 });
                 setUses("");
-              })
+              }, "Usage check-in saved.")
             }
           >
             Save usage check-in
@@ -222,7 +222,7 @@ function Coach() {
                 setAnnual("");
                 setReference("");
                 setVerified(false);
-              })
+              }, "Confirmed comparison saved.")
             }
           >
             Save confirmed comparison

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { ActivityIndicator, View, Pressable } from "react-native";
 import { Redirect, router } from "expo-router";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react-native";
-import { Brand, BloomArt } from "../components/ui/Brand";
+import { Brand } from "../components/ui/Brand";
+import { FinancialArt } from "../components/ui/FinancialArt";
 import {
   Button,
   Card,
@@ -95,16 +96,8 @@ export default function Onboarding() {
             overflow: "hidden",
           }}
         >
-          <Label
-            size={10}
-            bold
-            color={colors.heroSecondary}
-            style={{ letterSpacing: 2 }}
-          >
-            LESS SURPRISE. MORE CLARITY.
-          </Label>
           <View style={{ alignItems: "center", marginVertical: 20 }}>
-            <BloomArt size={wide ? 270 : 180} color={colors.heroArt} />
+            <FinancialArt kind="wallet" size={wide ? 310 : 180} />
           </View>
           <View style={{ gap: 14 }}>
             <Heading size={wide ? 41 : 30}>

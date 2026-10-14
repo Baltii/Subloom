@@ -350,7 +350,7 @@ function Autopilot() {
                   },
                 ]);
                 setRuleDirty(false);
-              })
+              }, "Renewal rule saved.")
             }
           >
             Save renewal rule

@@ -117,6 +117,18 @@ export const candidateSchema = z.object({
 });
 export type Candidate = z.infer<typeof candidateSchema>;
 export const preferencesSchema = z.object({
+  accentTheme: z
+    .enum([
+      "green",
+      "blue",
+      "red",
+      "violet",
+      "orange",
+      "yellow",
+      "pink",
+      "mono",
+    ])
+    .default("green"),
   appearance: z.enum(["system", "light", "dark"]),
   currency: z.enum(currencies),
   timezone: z.string().refine((value) => {
@@ -145,6 +157,7 @@ export const preferencesSchema = z.object({
     .default(null),
 });
 export type Preferences = z.infer<typeof preferencesSchema>;
+export type AccentTheme = Preferences["accentTheme"];
 export const activitySchema = z.object({
   id: z.string().uuid(),
   type: z.enum([
@@ -201,6 +214,7 @@ export type Snapshot = {
 export function defaultPreferences(): Preferences {
   return {
     appearance: "system",
+    accentTheme: "green",
     currency: "USD",
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
     pushEnabled: false,
