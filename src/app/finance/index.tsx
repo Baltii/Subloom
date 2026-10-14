@@ -1,7 +1,13 @@
 import { useMemo, useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
-import { CreditCard, Plus, ReceiptText } from "lucide-react-native";
+import {
+  CreditCard,
+  Plus,
+  ReceiptText,
+  Bitcoin,
+  CalendarClock,
+} from "lucide-react-native";
 import { useFeatureSetting } from "../../hooks/useFeatureSetting";
 import {
   financeSchema,
@@ -19,6 +25,7 @@ import {
   Page,
   SectionTitle,
   Field,
+  LinkRow,
 } from "../../components/ui/Primitives";
 import { FinanceState } from "../../components/finance/FinanceState";
 import { ExchangeEstimate } from "../../components/finance/ExchangeEstimate";
@@ -58,6 +65,18 @@ export default function FinanceHome() {
     >
       <View style={{ gap: 24, maxWidth: 960, width: "100%" }}>
         <FinanceState {...setting} />
+        <LinkRow
+          title="Bitcoin wallets & payments"
+          detail="Watch real address activity and review payments in your wallet"
+          icon={Bitcoin}
+          onPress={() => router.push("/finance/crypto")}
+        />
+        <LinkRow
+          title="Renewal controls"
+          detail="Save renewal preferences and check automation availability"
+          icon={CalendarClock}
+          onPress={() => router.push("/finance/renewals")}
+        />
         <View style={{ flexDirection: wide ? "row" : "column", gap: 12 }}>
           <Button
             icon={CreditCard}
