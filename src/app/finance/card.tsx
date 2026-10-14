@@ -1,3 +1,5 @@
+import { FinanceError } from "../../components/finance/FinanceError";
+import { financeError } from "../../components/finance/errors";
 import { useState } from "react";
 import { View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -13,11 +15,11 @@ import {
 import { Button, Field, Label, Page } from "../../components/ui/Primitives";
 import { SelectField } from "../../components/ui/Selection";
 import { FinanceState } from "../../components/finance/FinanceState";
-import { notify, readableError, useApp } from "../../store/app";
+import { notify, useApp } from "../../store/app";
 
 function CardRouteForm() {
   const { id } = useLocalSearchParams<{ id?: string }>(),
-    setting = useFeatureSetting("finance", financeSchema, initialFinance);
+    setting = useFeatureSetting("finance", financeSchema, initialFinance, true);
   const existing = setting.value.wallets.find((w) => w.id === id);
   const [draft, setDraft] = useState<{
     name: string;
@@ -51,7 +53,7 @@ function CardRouteForm() {
       notify("Card or wallet saved for tracking.");
       router.back();
     } catch (e) {
-      setError(readableError(e));
+      setError(financeError(e));
     }
   }
   return (
@@ -60,7 +62,7 @@ function CardRouteForm() {
       subtitle="Keep your payment records organized."
       back
     >
-      <View style={{ gap: 20 }}>
+      <View style={{ gap: 20, maxWidth: 720, width: "100%" }}>
         <FinanceState {...setting} />
         {setting.loaded && id && !existing && (
           <Label>
@@ -110,10 +112,10 @@ function CardRouteForm() {
         )}
         <Label>
           {value.kind === "card"
-            ? "This saves a card label for tracking. Secure card linking will use a payment provider’s hosted form."
+            ? "This records a card label. It does not authorize payments or connect your card to a bank."
             : "This saves a wallet label. A payment provider is required to connect Apple Pay or Google Pay; wallet contents and bank history are not imported."}
         </Label>
-        {error && <Label>{error}</Label>}
+        <FinanceError message={error} />
         <Button
           disabled={!ready || demo}
           loading={setting.busy}

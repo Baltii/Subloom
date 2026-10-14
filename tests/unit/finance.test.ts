@@ -1,3 +1,4 @@
+import { moneyInput, formatMoney } from "../../src/domain/money";
 import { describe, it, expect } from "vitest";
 import {
   financeSchema,
@@ -26,6 +27,11 @@ const transaction = {
   createdAt: "2026-10-14T10:00:00Z",
 };
 describe("financial tracking invariants", () => {
+  it("formats refunds exceeding charges without losing the sign", () => {
+    expect(moneyInput(-799, "USD")).toBe("-7.99");
+    expect(formatMoney(-799, "USD")).toBe("-$7.99");
+    expect(moneyInput(-1, "TND")).toBe("-0.001");
+  });
   it("rejects sensitive fields, full card labels and invalid dates", () => {
     expect(
       walletSchema.safeParse({ ...wallet, number: "4242424242424242" }).success,

@@ -1,4 +1,5 @@
 import { Button, Label } from "../ui/Primitives";
+import { FinanceError } from "./FinanceError";
 export function FinanceState({
   loaded,
   error,
@@ -10,7 +11,7 @@ export function FinanceState({
 }) {
   return error ? (
     <>
-      <Label>{error}</Label>
+      <FinanceError message={error} />
       <Button variant="secondary" onPress={() => void reload()}>
         Reload financial records
       </Button>
