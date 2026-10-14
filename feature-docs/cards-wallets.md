@@ -4,4 +4,4 @@ Open Settings → Subscription tools → Cards & wallets, Quick actions, or a su
 
 Guests use durable existing feature-setting storage. Signed-in users use the existing version-checked, owner-isolated settings RPC; loading and saving requires a connection. Errors keep form input, and reload recovers version conflicts. Demo edits are disabled. Account deletion cascades settings; guest reset and JSON export include payment-source metadata.
 
-Apply the payment_sources migration before signed-in use. No provider credentials or funds are involved. This is PR 1 of 5: cards/wallets → statement radar → cancellation watch → renewal rules → Stripe test virtual cards. The feature stack starts from main; the separate Android build fix PR remains independent.
+Apply the payment_sources migration before signed-in use. No provider credentials or funds are involved. This is PR 1 of 8: Cards & Wallets → Radar → Cancellation Watch → Autopilot → Virtual Card Plans → Reserve → Value Coach → Family Settlements. The feature stack starts from main; the separate Android build fix PR remains independent.
