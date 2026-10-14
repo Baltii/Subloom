@@ -129,8 +129,8 @@ export default function FinanceHome() {
             </Card>
           ))}
         </View>
-        <SectionTitle title="Recorded spending" />
         <ExchangeEstimate />
+        <SectionTitle title="Recorded spending" />
         <Label color={colors.secondary}>
           Settled entries you recorded, grouped by their original currency.
           Upcoming renewals are forecasts and do not appear as transactions.

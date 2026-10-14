@@ -9,3 +9,5 @@ Deploy the exchange_rates migration and refresh-exchange-rates, set the server C
 Verified the live Frankfurter response on 2026-10-14: all nine USD quote currencies returned valid observations, including TND. Unit tests cover cross rates, precision and missing rates; PostgreSQL tests verify read-only grants/latest observations. Deno tests reject partial, duplicate, future, stale and invalid rates.
 
 Merge order: finance-wallet-ledger → finance-exchange-rates → finance-renewal-controls. Base this PR on codex/finance-wallet-ledger; merge cards before rates, then the wallet/crypto feature.
+
+Verification on the finalized currency branch: `npm run check` passed (35 files, 226 tests), `npm run check:backend` passed, and `npm run test:backend` passed (24 tests). The product guidance now explicitly distinguishes dated currency estimates from original recorded prices. Final combined-stack exports are recorded in the third feature document.

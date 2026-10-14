@@ -15,7 +15,7 @@ export async function loadExchangeRates() {
     return {
       rates: cached,
       warning:
-        "Exchange rates will be available after the backend is configured.",
+        "Currency estimates are not available yet. Original amounts are shown.",
     };
   try {
     const { data, error } = await supabase
@@ -27,7 +27,7 @@ export async function loadExchangeRates() {
     if (!rates.length)
       return {
         rates: cached,
-        warning: "The daily rate refresh has not populated the database yet.",
+        warning: "No exchange rates are available yet. Try again later.",
       };
     try {
       await localSetting("public", "exchange_rates", JSON.stringify(rates));
