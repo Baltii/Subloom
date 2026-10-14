@@ -17,7 +17,7 @@ export async function exportData() {
             await Promise.all(
               [
                 "budgets",
-                "cancellation",
+                "cancellation", "finance",
                 "payment_sources",
                 "payment_transactions",
                 "coach",
