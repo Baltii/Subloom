@@ -33,6 +33,13 @@ export const toolActions: {
   group: string;
 }[] = [
   {
+    title: "Renewal Autopilot",
+    detail: "Annual reviews, price changes and renewal limits",
+    route: "/autopilot",
+    icon: ShieldCheck,
+    group: "Planning",
+  },
+  {
     title: "Add subscription",
     detail: "Track a service and its next renewal",
     route: "/subscription/new",

@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { z } from "zod";
+import { useFocusEffect } from "expo-router";
 import { useApp, readableError } from "../store/app";
 import { readSetting, writeSetting } from "../services/featureSettings";
 export function useFeatureSetting<T>(
@@ -43,17 +44,19 @@ export function useFeatureSetting<T>(
         });
     }
   }, [identity, key, schema, initial]);
-  useEffect(() => {
-    const revision = generation;
-    let alive = true;
-    void Promise.resolve().then(() => {
-      if (alive) return reload();
-    });
-    return () => {
-      alive = false;
-      revision.current++;
-    };
-  }, [reload]);
+  useFocusEffect(
+    useCallback(() => {
+      const revision = generation;
+      let alive = true;
+      void Promise.resolve().then(() => {
+        if (alive) return reload();
+      });
+      return () => {
+        alive = false;
+        revision.current++;
+      };
+    }, [reload]),
+  );
   const save = async (value: T) => {
     if (
       demo ||
