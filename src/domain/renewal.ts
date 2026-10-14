@@ -163,3 +163,20 @@ export function intervalLabel(
     yearly: "year",
   }[s.interval];
 }
+
+/** Calendar cadences of one year or longer, including equivalent month/quarter forms. */
+export function hasAnnualCadence(
+  s: Pick<Subscription, "interval" | "intervalCount" | "customUnit">,
+): boolean {
+  if (
+    s.interval === "yearly" ||
+    (s.interval === "custom" && s.customUnit === "year")
+  )
+    return true;
+  if (s.interval === "quarterly") return s.intervalCount >= 4;
+  return (
+    (s.interval === "monthly" ||
+      (s.interval === "custom" && s.customUnit === "month")) &&
+    s.intervalCount >= 12
+  );
+}

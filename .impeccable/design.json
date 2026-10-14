@@ -1,0 +1,3204 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-13T07:14:30.586Z",
+  "title": "Design System: Subloom",
+  "extensions": {
+    "motion": [
+      {
+        "name": "fast",
+        "value": "150ms",
+        "purpose": "Shared fast feedback, button release and entrance fade."
+      },
+      {
+        "name": "normal",
+        "value": "240ms",
+        "purpose": "Shared normal motion token; individual primitives may use explicit durations."
+      },
+      {
+        "name": "button-press",
+        "value": "100ms; scale(0.985)",
+        "purpose": "Button press feedback; scale stays 1 under reduced motion."
+      },
+      {
+        "name": "entrance-delay-cap",
+        "value": "80ms",
+        "purpose": "Maximum AnimatedIn delay; entering animation removed under reduced motion."
+      },
+      {
+        "name": "toast-exit",
+        "value": "120ms",
+        "purpose": "Toast FadeOut, removed under reduced motion."
+      },
+      {
+        "name": "chart-bar",
+        "value": "420ms; ReduceMotion.System",
+        "purpose": "Existing bounded ChartBar transition."
+      },
+      {
+        "name": "toast-success-display",
+        "value": "4500ms",
+        "purpose": "Success notification lifetime, independent of animation."
+      },
+      {
+        "name": "toast-error-display",
+        "value": "8000ms",
+        "purpose": "Error notification lifetime, independent of animation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "900px"
+      }
+    ],
+    "shadows": [],
+    "colorMeta": {
+      "light-background": {
+        "role": "neutral",
+        "displayName": "light background",
+        "canonical": "#F8FAF8",
+        "tonalRamp": [
+          "oklch(15.00% 0.0034 145.55)",
+          "oklch(26.43% 0.0034 145.55)",
+          "oklch(37.86% 0.0034 145.55)",
+          "oklch(49.29% 0.0034 145.55)",
+          "oklch(60.71% 0.0034 145.55)",
+          "oklch(72.14% 0.0034 145.55)",
+          "oklch(83.57% 0.0034 145.55)",
+          "oklch(95.00% 0.0034 145.55)"
+        ]
+      },
+      "light-surface": {
+        "role": "neutral",
+        "displayName": "light surface",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "light-text": {
+        "role": "neutral",
+        "displayName": "light text",
+        "canonical": "#182D25",
+        "tonalRamp": [
+          "oklch(15.00% 0.0311 167.87)",
+          "oklch(26.43% 0.0311 167.87)",
+          "oklch(37.86% 0.0311 167.87)",
+          "oklch(49.29% 0.0311 167.87)",
+          "oklch(60.71% 0.0311 167.87)",
+          "oklch(72.14% 0.0311 167.87)",
+          "oklch(83.57% 0.0311 167.87)",
+          "oklch(95.00% 0.0311 167.87)"
+        ]
+      },
+      "light-secondary": {
+        "role": "neutral",
+        "displayName": "light secondary",
+        "canonical": "#586F61",
+        "tonalRamp": [
+          "oklch(15.00% 0.0350 158.21)",
+          "oklch(26.43% 0.0350 158.21)",
+          "oklch(37.86% 0.0350 158.21)",
+          "oklch(49.29% 0.0350 158.21)",
+          "oklch(60.71% 0.0350 158.21)",
+          "oklch(72.14% 0.0350 158.21)",
+          "oklch(83.57% 0.0350 158.21)",
+          "oklch(95.00% 0.0350 158.21)"
+        ]
+      },
+      "light-faint": {
+        "role": "neutral",
+        "displayName": "light faint",
+        "canonical": "#607266",
+        "tonalRamp": [
+          "oklch(15.00% 0.0284 156.13)",
+          "oklch(26.43% 0.0284 156.13)",
+          "oklch(37.86% 0.0284 156.13)",
+          "oklch(49.29% 0.0284 156.13)",
+          "oklch(60.71% 0.0284 156.13)",
+          "oklch(72.14% 0.0284 156.13)",
+          "oklch(83.57% 0.0284 156.13)",
+          "oklch(95.00% 0.0284 156.13)"
+        ]
+      },
+      "light-border": {
+        "role": "neutral",
+        "displayName": "light border",
+        "canonical": "#E8EEE9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0092 150.69)",
+          "oklch(26.43% 0.0092 150.69)",
+          "oklch(37.86% 0.0092 150.69)",
+          "oklch(49.29% 0.0092 150.69)",
+          "oklch(60.71% 0.0092 150.69)",
+          "oklch(72.14% 0.0092 150.69)",
+          "oklch(83.57% 0.0092 150.69)",
+          "oklch(95.00% 0.0092 150.69)"
+        ]
+      },
+      "light-primary": {
+        "role": "primary",
+        "displayName": "light primary",
+        "canonical": "#087C65",
+        "tonalRamp": [
+          "oklch(15.00% 0.0983 173.45)",
+          "oklch(26.43% 0.0983 173.45)",
+          "oklch(37.86% 0.0983 173.45)",
+          "oklch(49.29% 0.0983 173.45)",
+          "oklch(60.71% 0.0983 173.45)",
+          "oklch(72.14% 0.0983 173.45)",
+          "oklch(83.57% 0.0983 173.45)",
+          "oklch(95.00% 0.0983 173.45)"
+        ]
+      },
+      "light-onPrimary": {
+        "role": "neutral",
+        "displayName": "light on Primary",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "light-success": {
+        "role": "neutral",
+        "displayName": "light success",
+        "canonical": "#147044",
+        "tonalRamp": [
+          "oklch(15.00% 0.1085 156.45)",
+          "oklch(26.43% 0.1085 156.45)",
+          "oklch(37.86% 0.1085 156.45)",
+          "oklch(49.29% 0.1085 156.45)",
+          "oklch(60.71% 0.1085 156.45)",
+          "oklch(72.14% 0.1085 156.45)",
+          "oklch(83.57% 0.1085 156.45)",
+          "oklch(95.00% 0.1085 156.45)"
+        ]
+      },
+      "light-successBg": {
+        "role": "neutral",
+        "displayName": "light success Bg",
+        "canonical": "#EDF8F0",
+        "tonalRamp": [
+          "oklch(15.00% 0.0157 154.47)",
+          "oklch(26.43% 0.0157 154.47)",
+          "oklch(37.86% 0.0157 154.47)",
+          "oklch(49.29% 0.0157 154.47)",
+          "oklch(60.71% 0.0157 154.47)",
+          "oklch(72.14% 0.0157 154.47)",
+          "oklch(83.57% 0.0157 154.47)",
+          "oklch(95.00% 0.0157 154.47)"
+        ]
+      },
+      "light-spotlight": {
+        "role": "neutral",
+        "displayName": "light spotlight",
+        "canonical": "#182D25",
+        "tonalRamp": [
+          "oklch(15.00% 0.0311 167.87)",
+          "oklch(26.43% 0.0311 167.87)",
+          "oklch(37.86% 0.0311 167.87)",
+          "oklch(49.29% 0.0311 167.87)",
+          "oklch(60.71% 0.0311 167.87)",
+          "oklch(72.14% 0.0311 167.87)",
+          "oklch(83.57% 0.0311 167.87)",
+          "oklch(95.00% 0.0311 167.87)"
+        ]
+      },
+      "light-onSpotlight": {
+        "role": "neutral",
+        "displayName": "light on Spotlight",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "light-spotlightSecondary": {
+        "role": "neutral",
+        "displayName": "light spotlight Secondary",
+        "canonical": "#BDCDC3",
+        "tonalRamp": [
+          "oklch(15.00% 0.0222 158.50)",
+          "oklch(26.43% 0.0222 158.50)",
+          "oklch(37.86% 0.0222 158.50)",
+          "oklch(49.29% 0.0222 158.50)",
+          "oklch(60.71% 0.0222 158.50)",
+          "oklch(72.14% 0.0222 158.50)",
+          "oklch(83.57% 0.0222 158.50)",
+          "oklch(95.00% 0.0222 158.50)"
+        ]
+      },
+      "light-accent": {
+        "role": "primary",
+        "displayName": "light accent",
+        "canonical": "#0BB999",
+        "tonalRamp": [
+          "oklch(15.00% 0.1319 174.22)",
+          "oklch(26.43% 0.1319 174.22)",
+          "oklch(37.86% 0.1319 174.22)",
+          "oklch(49.29% 0.1319 174.22)",
+          "oklch(60.71% 0.1319 174.22)",
+          "oklch(72.14% 0.1319 174.22)",
+          "oklch(83.57% 0.1319 174.22)",
+          "oklch(95.00% 0.1319 174.22)"
+        ]
+      },
+      "light-pressed": {
+        "role": "primary",
+        "displayName": "light pressed",
+        "canonical": "#066551",
+        "tonalRamp": [
+          "oklch(15.00% 0.0854 172.62)",
+          "oklch(26.43% 0.0854 172.62)",
+          "oklch(37.86% 0.0854 172.62)",
+          "oklch(49.29% 0.0854 172.62)",
+          "oklch(60.71% 0.0854 172.62)",
+          "oklch(72.14% 0.0854 172.62)",
+          "oklch(83.57% 0.0854 172.62)",
+          "oklch(95.00% 0.0854 172.62)"
+        ]
+      },
+      "light-mint": {
+        "role": "secondary",
+        "displayName": "light mint",
+        "canonical": "#EAF6EE",
+        "tonalRamp": [
+          "oklch(15.00% 0.0165 156.91)",
+          "oklch(26.43% 0.0165 156.91)",
+          "oklch(37.86% 0.0165 156.91)",
+          "oklch(49.29% 0.0165 156.91)",
+          "oklch(60.71% 0.0165 156.91)",
+          "oklch(72.14% 0.0165 156.91)",
+          "oklch(83.57% 0.0165 156.91)",
+          "oklch(95.00% 0.0165 156.91)"
+        ]
+      },
+      "light-mintStrong": {
+        "role": "secondary",
+        "displayName": "light mint Strong",
+        "canonical": "#D8EEDE",
+        "tonalRamp": [
+          "oklch(15.00% 0.0316 154.14)",
+          "oklch(26.43% 0.0316 154.14)",
+          "oklch(37.86% 0.0316 154.14)",
+          "oklch(49.29% 0.0316 154.14)",
+          "oklch(60.71% 0.0316 154.14)",
+          "oklch(72.14% 0.0316 154.14)",
+          "oklch(83.57% 0.0316 154.14)",
+          "oklch(95.00% 0.0316 154.14)"
+        ]
+      },
+      "light-warning": {
+        "role": "neutral",
+        "displayName": "light warning",
+        "canonical": "#9B631D",
+        "tonalRamp": [
+          "oklch(15.00% 0.1089 66.95)",
+          "oklch(26.43% 0.1089 66.95)",
+          "oklch(37.86% 0.1089 66.95)",
+          "oklch(49.29% 0.1089 66.95)",
+          "oklch(60.71% 0.1089 66.95)",
+          "oklch(72.14% 0.1089 66.95)",
+          "oklch(83.57% 0.1089 66.95)",
+          "oklch(95.00% 0.1089 66.95)"
+        ]
+      },
+      "light-warningBg": {
+        "role": "neutral",
+        "displayName": "light warning Bg",
+        "canonical": "#FFF3E0",
+        "tonalRamp": [
+          "oklch(15.00% 0.0282 79.48)",
+          "oklch(26.43% 0.0282 79.48)",
+          "oklch(37.86% 0.0282 79.48)",
+          "oklch(49.29% 0.0282 79.48)",
+          "oklch(60.71% 0.0282 79.48)",
+          "oklch(72.14% 0.0282 79.48)",
+          "oklch(83.57% 0.0282 79.48)",
+          "oklch(95.00% 0.0282 79.48)"
+        ]
+      },
+      "light-error": {
+        "role": "neutral",
+        "displayName": "light error",
+        "canonical": "#BA4343",
+        "tonalRamp": [
+          "oklch(15.00% 0.1541 23.69)",
+          "oklch(26.43% 0.1541 23.69)",
+          "oklch(37.86% 0.1541 23.69)",
+          "oklch(49.29% 0.1541 23.69)",
+          "oklch(60.71% 0.1541 23.69)",
+          "oklch(72.14% 0.1541 23.69)",
+          "oklch(83.57% 0.1541 23.69)",
+          "oklch(95.00% 0.1541 23.69)"
+        ]
+      },
+      "light-errorBg": {
+        "role": "neutral",
+        "displayName": "light error Bg",
+        "canonical": "#FDEEEE",
+        "tonalRamp": [
+          "oklch(15.00% 0.0163 17.44)",
+          "oklch(26.43% 0.0163 17.44)",
+          "oklch(37.86% 0.0163 17.44)",
+          "oklch(49.29% 0.0163 17.44)",
+          "oklch(60.71% 0.0163 17.44)",
+          "oklch(72.14% 0.0163 17.44)",
+          "oklch(83.57% 0.0163 17.44)",
+          "oklch(95.00% 0.0163 17.44)"
+        ]
+      },
+      "light-sidebar": {
+        "role": "neutral",
+        "displayName": "light sidebar",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "light-hero": {
+        "role": "secondary",
+        "displayName": "light hero",
+        "canonical": "#E1F0DE",
+        "tonalRamp": [
+          "oklch(15.00% 0.0287 140.48)",
+          "oklch(26.43% 0.0287 140.48)",
+          "oklch(37.86% 0.0287 140.48)",
+          "oklch(49.29% 0.0287 140.48)",
+          "oklch(60.71% 0.0287 140.48)",
+          "oklch(72.14% 0.0287 140.48)",
+          "oklch(83.57% 0.0287 140.48)",
+          "oklch(95.00% 0.0287 140.48)"
+        ]
+      },
+      "light-heroText": {
+        "role": "secondary",
+        "displayName": "light hero Text",
+        "canonical": "#20432D",
+        "tonalRamp": [
+          "oklch(15.00% 0.0564 154.62)",
+          "oklch(26.43% 0.0564 154.62)",
+          "oklch(37.86% 0.0564 154.62)",
+          "oklch(49.29% 0.0564 154.62)",
+          "oklch(60.71% 0.0564 154.62)",
+          "oklch(72.14% 0.0564 154.62)",
+          "oklch(83.57% 0.0564 154.62)",
+          "oklch(95.00% 0.0564 154.62)"
+        ]
+      },
+      "light-heroSecondary": {
+        "role": "secondary",
+        "displayName": "light hero Secondary",
+        "canonical": "#527259",
+        "tonalRamp": [
+          "oklch(15.00% 0.0539 150.92)",
+          "oklch(26.43% 0.0539 150.92)",
+          "oklch(37.86% 0.0539 150.92)",
+          "oklch(49.29% 0.0539 150.92)",
+          "oklch(60.71% 0.0539 150.92)",
+          "oklch(72.14% 0.0539 150.92)",
+          "oklch(83.57% 0.0539 150.92)",
+          "oklch(95.00% 0.0539 150.92)"
+        ]
+      },
+      "light-heroArt": {
+        "role": "secondary",
+        "displayName": "light hero Art",
+        "canonical": "#A4C694",
+        "tonalRamp": [
+          "oklch(15.00% 0.0780 135.79)",
+          "oklch(26.43% 0.0780 135.79)",
+          "oklch(37.86% 0.0780 135.79)",
+          "oklch(49.29% 0.0780 135.79)",
+          "oklch(60.71% 0.0780 135.79)",
+          "oklch(72.14% 0.0780 135.79)",
+          "oklch(83.57% 0.0780 135.79)",
+          "oklch(95.00% 0.0780 135.79)"
+        ]
+      },
+      "dark-background": {
+        "role": "neutral",
+        "displayName": "dark background",
+        "canonical": "#101A16",
+        "tonalRamp": [
+          "oklch(15.00% 0.0166 168.06)",
+          "oklch(26.43% 0.0166 168.06)",
+          "oklch(37.86% 0.0166 168.06)",
+          "oklch(49.29% 0.0166 168.06)",
+          "oklch(60.71% 0.0166 168.06)",
+          "oklch(72.14% 0.0166 168.06)",
+          "oklch(83.57% 0.0166 168.06)",
+          "oklch(95.00% 0.0166 168.06)"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "dark surface",
+        "canonical": "#18251E",
+        "tonalRamp": [
+          "oklch(15.00% 0.0224 160.69)",
+          "oklch(26.43% 0.0224 160.69)",
+          "oklch(37.86% 0.0224 160.69)",
+          "oklch(49.29% 0.0224 160.69)",
+          "oklch(60.71% 0.0224 160.69)",
+          "oklch(72.14% 0.0224 160.69)",
+          "oklch(83.57% 0.0224 160.69)",
+          "oklch(95.00% 0.0224 160.69)"
+        ]
+      },
+      "dark-text": {
+        "role": "neutral",
+        "displayName": "dark text",
+        "canonical": "#E7F2E9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0167 151.10)",
+          "oklch(26.43% 0.0167 151.10)",
+          "oklch(37.86% 0.0167 151.10)",
+          "oklch(49.29% 0.0167 151.10)",
+          "oklch(60.71% 0.0167 151.10)",
+          "oklch(72.14% 0.0167 151.10)",
+          "oklch(83.57% 0.0167 151.10)",
+          "oklch(95.00% 0.0167 151.10)"
+        ]
+      },
+      "dark-secondary": {
+        "role": "neutral",
+        "displayName": "dark secondary",
+        "canonical": "#A0B4A5",
+        "tonalRamp": [
+          "oklch(15.00% 0.0307 153.16)",
+          "oklch(26.43% 0.0307 153.16)",
+          "oklch(37.86% 0.0307 153.16)",
+          "oklch(49.29% 0.0307 153.16)",
+          "oklch(60.71% 0.0307 153.16)",
+          "oklch(72.14% 0.0307 153.16)",
+          "oklch(83.57% 0.0307 153.16)",
+          "oklch(95.00% 0.0307 153.16)"
+        ]
+      },
+      "dark-faint": {
+        "role": "neutral",
+        "displayName": "dark faint",
+        "canonical": "#879B8C",
+        "tonalRamp": [
+          "oklch(15.00% 0.0315 153.05)",
+          "oklch(26.43% 0.0315 153.05)",
+          "oklch(37.86% 0.0315 153.05)",
+          "oklch(49.29% 0.0315 153.05)",
+          "oklch(60.71% 0.0315 153.05)",
+          "oklch(72.14% 0.0315 153.05)",
+          "oklch(83.57% 0.0315 153.05)",
+          "oklch(95.00% 0.0315 153.05)"
+        ]
+      },
+      "dark-border": {
+        "role": "neutral",
+        "displayName": "dark border",
+        "canonical": "#2A3A30",
+        "tonalRamp": [
+          "oklch(15.00% 0.0274 157.12)",
+          "oklch(26.43% 0.0274 157.12)",
+          "oklch(37.86% 0.0274 157.12)",
+          "oklch(49.29% 0.0274 157.12)",
+          "oklch(60.71% 0.0274 157.12)",
+          "oklch(72.14% 0.0274 157.12)",
+          "oklch(83.57% 0.0274 157.12)",
+          "oklch(95.00% 0.0274 157.12)"
+        ]
+      },
+      "dark-primary": {
+        "role": "primary",
+        "displayName": "dark primary",
+        "canonical": "#70D2AD",
+        "tonalRamp": [
+          "oklch(15.00% 0.1080 166.96)",
+          "oklch(26.43% 0.1080 166.96)",
+          "oklch(37.86% 0.1080 166.96)",
+          "oklch(49.29% 0.1080 166.96)",
+          "oklch(60.71% 0.1080 166.96)",
+          "oklch(72.14% 0.1080 166.96)",
+          "oklch(83.57% 0.1080 166.96)",
+          "oklch(95.00% 0.1080 166.96)"
+        ]
+      },
+      "dark-onPrimary": {
+        "role": "neutral",
+        "displayName": "dark on Primary",
+        "canonical": "#102219",
+        "tonalRamp": [
+          "oklch(15.00% 0.0299 161.11)",
+          "oklch(26.43% 0.0299 161.11)",
+          "oklch(37.86% 0.0299 161.11)",
+          "oklch(49.29% 0.0299 161.11)",
+          "oklch(60.71% 0.0299 161.11)",
+          "oklch(72.14% 0.0299 161.11)",
+          "oklch(83.57% 0.0299 161.11)",
+          "oklch(95.00% 0.0299 161.11)"
+        ]
+      },
+      "dark-success": {
+        "role": "neutral",
+        "displayName": "dark success",
+        "canonical": "#95DDB2",
+        "tonalRamp": [
+          "oklch(15.00% 0.0943 157.42)",
+          "oklch(26.43% 0.0943 157.42)",
+          "oklch(37.86% 0.0943 157.42)",
+          "oklch(49.29% 0.0943 157.42)",
+          "oklch(60.71% 0.0943 157.42)",
+          "oklch(72.14% 0.0943 157.42)",
+          "oklch(83.57% 0.0943 157.42)",
+          "oklch(95.00% 0.0943 157.42)"
+        ]
+      },
+      "dark-successBg": {
+        "role": "neutral",
+        "displayName": "dark success Bg",
+        "canonical": "#1C3527",
+        "tonalRamp": [
+          "oklch(15.00% 0.0405 158.27)",
+          "oklch(26.43% 0.0405 158.27)",
+          "oklch(37.86% 0.0405 158.27)",
+          "oklch(49.29% 0.0405 158.27)",
+          "oklch(60.71% 0.0405 158.27)",
+          "oklch(72.14% 0.0405 158.27)",
+          "oklch(83.57% 0.0405 158.27)",
+          "oklch(95.00% 0.0405 158.27)"
+        ]
+      },
+      "dark-spotlight": {
+        "role": "neutral",
+        "displayName": "dark spotlight",
+        "canonical": "#E7F2E9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0167 151.10)",
+          "oklch(26.43% 0.0167 151.10)",
+          "oklch(37.86% 0.0167 151.10)",
+          "oklch(49.29% 0.0167 151.10)",
+          "oklch(60.71% 0.0167 151.10)",
+          "oklch(72.14% 0.0167 151.10)",
+          "oklch(83.57% 0.0167 151.10)",
+          "oklch(95.00% 0.0167 151.10)"
+        ]
+      },
+      "dark-onSpotlight": {
+        "role": "neutral",
+        "displayName": "dark on Spotlight",
+        "canonical": "#182D25",
+        "tonalRamp": [
+          "oklch(15.00% 0.0311 167.87)",
+          "oklch(26.43% 0.0311 167.87)",
+          "oklch(37.86% 0.0311 167.87)",
+          "oklch(49.29% 0.0311 167.87)",
+          "oklch(60.71% 0.0311 167.87)",
+          "oklch(72.14% 0.0311 167.87)",
+          "oklch(83.57% 0.0311 167.87)",
+          "oklch(95.00% 0.0311 167.87)"
+        ]
+      },
+      "dark-spotlightSecondary": {
+        "role": "neutral",
+        "displayName": "dark spotlight Secondary",
+        "canonical": "#48604F",
+        "tonalRamp": [
+          "oklch(15.00% 0.0398 153.80)",
+          "oklch(26.43% 0.0398 153.80)",
+          "oklch(37.86% 0.0398 153.80)",
+          "oklch(49.29% 0.0398 153.80)",
+          "oklch(60.71% 0.0398 153.80)",
+          "oklch(72.14% 0.0398 153.80)",
+          "oklch(83.57% 0.0398 153.80)",
+          "oklch(95.00% 0.0398 153.80)"
+        ]
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "dark accent",
+        "canonical": "#0BB999",
+        "tonalRamp": [
+          "oklch(15.00% 0.1319 174.22)",
+          "oklch(26.43% 0.1319 174.22)",
+          "oklch(37.86% 0.1319 174.22)",
+          "oklch(49.29% 0.1319 174.22)",
+          "oklch(60.71% 0.1319 174.22)",
+          "oklch(72.14% 0.1319 174.22)",
+          "oklch(83.57% 0.1319 174.22)",
+          "oklch(95.00% 0.1319 174.22)"
+        ]
+      },
+      "dark-pressed": {
+        "role": "primary",
+        "displayName": "dark pressed",
+        "canonical": "#ADE9CC",
+        "tonalRamp": [
+          "oklch(15.00% 0.0730 163.58)",
+          "oklch(26.43% 0.0730 163.58)",
+          "oklch(37.86% 0.0730 163.58)",
+          "oklch(49.29% 0.0730 163.58)",
+          "oklch(60.71% 0.0730 163.58)",
+          "oklch(72.14% 0.0730 163.58)",
+          "oklch(83.57% 0.0730 163.58)",
+          "oklch(95.00% 0.0730 163.58)"
+        ]
+      },
+      "dark-mint": {
+        "role": "secondary",
+        "displayName": "dark mint",
+        "canonical": "#243F30",
+        "tonalRamp": [
+          "oklch(15.00% 0.0426 158.76)",
+          "oklch(26.43% 0.0426 158.76)",
+          "oklch(37.86% 0.0426 158.76)",
+          "oklch(49.29% 0.0426 158.76)",
+          "oklch(60.71% 0.0426 158.76)",
+          "oklch(72.14% 0.0426 158.76)",
+          "oklch(83.57% 0.0426 158.76)",
+          "oklch(95.00% 0.0426 158.76)"
+        ]
+      },
+      "dark-mintStrong": {
+        "role": "secondary",
+        "displayName": "dark mint Strong",
+        "canonical": "#2B4B36",
+        "tonalRamp": [
+          "oklch(15.00% 0.0524 154.39)",
+          "oklch(26.43% 0.0524 154.39)",
+          "oklch(37.86% 0.0524 154.39)",
+          "oklch(49.29% 0.0524 154.39)",
+          "oklch(60.71% 0.0524 154.39)",
+          "oklch(72.14% 0.0524 154.39)",
+          "oklch(83.57% 0.0524 154.39)",
+          "oklch(95.00% 0.0524 154.39)"
+        ]
+      },
+      "dark-warning": {
+        "role": "neutral",
+        "displayName": "dark warning",
+        "canonical": "#EAC187",
+        "tonalRamp": [
+          "oklch(15.00% 0.0881 75.68)",
+          "oklch(26.43% 0.0881 75.68)",
+          "oklch(37.86% 0.0881 75.68)",
+          "oklch(49.29% 0.0881 75.68)",
+          "oklch(60.71% 0.0881 75.68)",
+          "oklch(72.14% 0.0881 75.68)",
+          "oklch(83.57% 0.0881 75.68)",
+          "oklch(95.00% 0.0881 75.68)"
+        ]
+      },
+      "dark-warningBg": {
+        "role": "neutral",
+        "displayName": "dark warning Bg",
+        "canonical": "#3D3020",
+        "tonalRamp": [
+          "oklch(15.00% 0.0325 72.03)",
+          "oklch(26.43% 0.0325 72.03)",
+          "oklch(37.86% 0.0325 72.03)",
+          "oklch(49.29% 0.0325 72.03)",
+          "oklch(60.71% 0.0325 72.03)",
+          "oklch(72.14% 0.0325 72.03)",
+          "oklch(83.57% 0.0325 72.03)",
+          "oklch(95.00% 0.0325 72.03)"
+        ]
+      },
+      "dark-error": {
+        "role": "neutral",
+        "displayName": "dark error",
+        "canonical": "#F4A1A1",
+        "tonalRamp": [
+          "oklch(15.00% 0.0992 19.51)",
+          "oklch(26.43% 0.0992 19.51)",
+          "oklch(37.86% 0.0992 19.51)",
+          "oklch(49.29% 0.0992 19.51)",
+          "oklch(60.71% 0.0992 19.51)",
+          "oklch(72.14% 0.0992 19.51)",
+          "oklch(83.57% 0.0992 19.51)",
+          "oklch(95.00% 0.0992 19.51)"
+        ]
+      },
+      "dark-errorBg": {
+        "role": "neutral",
+        "displayName": "dark error Bg",
+        "canonical": "#3D2424",
+        "tonalRamp": [
+          "oklch(15.00% 0.0384 19.64)",
+          "oklch(26.43% 0.0384 19.64)",
+          "oklch(37.86% 0.0384 19.64)",
+          "oklch(49.29% 0.0384 19.64)",
+          "oklch(60.71% 0.0384 19.64)",
+          "oklch(72.14% 0.0384 19.64)",
+          "oklch(83.57% 0.0384 19.64)",
+          "oklch(95.00% 0.0384 19.64)"
+        ]
+      },
+      "dark-sidebar": {
+        "role": "neutral",
+        "displayName": "dark sidebar",
+        "canonical": "#142019",
+        "tonalRamp": [
+          "oklch(15.00% 0.0217 158.54)",
+          "oklch(26.43% 0.0217 158.54)",
+          "oklch(37.86% 0.0217 158.54)",
+          "oklch(49.29% 0.0217 158.54)",
+          "oklch(60.71% 0.0217 158.54)",
+          "oklch(72.14% 0.0217 158.54)",
+          "oklch(83.57% 0.0217 158.54)",
+          "oklch(95.00% 0.0217 158.54)"
+        ]
+      },
+      "dark-hero": {
+        "role": "secondary",
+        "displayName": "dark hero",
+        "canonical": "#27432F",
+        "tonalRamp": [
+          "oklch(15.00% 0.0488 152.37)",
+          "oklch(26.43% 0.0488 152.37)",
+          "oklch(37.86% 0.0488 152.37)",
+          "oklch(49.29% 0.0488 152.37)",
+          "oklch(60.71% 0.0488 152.37)",
+          "oklch(72.14% 0.0488 152.37)",
+          "oklch(83.57% 0.0488 152.37)",
+          "oklch(95.00% 0.0488 152.37)"
+        ]
+      },
+      "dark-heroText": {
+        "role": "secondary",
+        "displayName": "dark hero Text",
+        "canonical": "#E1F5DB",
+        "tonalRamp": [
+          "oklch(15.00% 0.0404 138.46)",
+          "oklch(26.43% 0.0404 138.46)",
+          "oklch(37.86% 0.0404 138.46)",
+          "oklch(49.29% 0.0404 138.46)",
+          "oklch(60.71% 0.0404 138.46)",
+          "oklch(72.14% 0.0404 138.46)",
+          "oklch(83.57% 0.0404 138.46)",
+          "oklch(95.00% 0.0404 138.46)"
+        ]
+      },
+      "dark-heroSecondary": {
+        "role": "secondary",
+        "displayName": "dark hero Secondary",
+        "canonical": "#B1CEAB",
+        "tonalRamp": [
+          "oklch(15.00% 0.0574 140.29)",
+          "oklch(26.43% 0.0574 140.29)",
+          "oklch(37.86% 0.0574 140.29)",
+          "oklch(49.29% 0.0574 140.29)",
+          "oklch(60.71% 0.0574 140.29)",
+          "oklch(72.14% 0.0574 140.29)",
+          "oklch(83.57% 0.0574 140.29)",
+          "oklch(95.00% 0.0574 140.29)"
+        ]
+      },
+      "dark-heroArt": {
+        "role": "secondary",
+        "displayName": "dark hero Art",
+        "canonical": "#527B43",
+        "tonalRamp": [
+          "oklch(15.00% 0.0949 137.76)",
+          "oklch(26.43% 0.0949 137.76)",
+          "oklch(37.86% 0.0949 137.76)",
+          "oklch(49.29% 0.0949 137.76)",
+          "oklch(60.71% 0.0949 137.76)",
+          "oklch(72.14% 0.0949 137.76)",
+          "oklch(83.57% 0.0949 137.76)",
+          "oklch(95.00% 0.0949 137.76)"
+        ]
+      },
+      "neutral-light-background": {
+        "role": "neutral",
+        "displayName": "neutral light background",
+        "canonical": "#FAFAF9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0013 106.42)",
+          "oklch(26.43% 0.0013 106.42)",
+          "oklch(37.86% 0.0013 106.42)",
+          "oklch(49.29% 0.0013 106.42)",
+          "oklch(60.71% 0.0013 106.42)",
+          "oklch(72.14% 0.0013 106.42)",
+          "oklch(83.57% 0.0013 106.42)",
+          "oklch(95.00% 0.0013 106.42)"
+        ]
+      },
+      "neutral-light-text": {
+        "role": "neutral",
+        "displayName": "neutral light text",
+        "canonical": "#242624",
+        "tonalRamp": [
+          "oklch(15.00% 0.0047 145.44)",
+          "oklch(26.43% 0.0047 145.44)",
+          "oklch(37.86% 0.0047 145.44)",
+          "oklch(49.29% 0.0047 145.44)",
+          "oklch(60.71% 0.0047 145.44)",
+          "oklch(72.14% 0.0047 145.44)",
+          "oklch(83.57% 0.0047 145.44)",
+          "oklch(95.00% 0.0047 145.44)"
+        ]
+      },
+      "neutral-light-secondary": {
+        "role": "neutral",
+        "displayName": "neutral light secondary",
+        "canonical": "#5F655F",
+        "tonalRamp": [
+          "oklch(15.00% 0.0120 145.39)",
+          "oklch(26.43% 0.0120 145.39)",
+          "oklch(37.86% 0.0120 145.39)",
+          "oklch(49.29% 0.0120 145.39)",
+          "oklch(60.71% 0.0120 145.39)",
+          "oklch(72.14% 0.0120 145.39)",
+          "oklch(83.57% 0.0120 145.39)",
+          "oklch(95.00% 0.0120 145.39)"
+        ]
+      },
+      "neutral-light-faint": {
+        "role": "neutral",
+        "displayName": "neutral light faint",
+        "canonical": "#656B65",
+        "tonalRamp": [
+          "oklch(15.00% 0.0118 145.40)",
+          "oklch(26.43% 0.0118 145.40)",
+          "oklch(37.86% 0.0118 145.40)",
+          "oklch(49.29% 0.0118 145.40)",
+          "oklch(60.71% 0.0118 145.40)",
+          "oklch(72.14% 0.0118 145.40)",
+          "oklch(83.57% 0.0118 145.40)",
+          "oklch(95.00% 0.0118 145.40)"
+        ]
+      },
+      "neutral-light-border": {
+        "role": "neutral",
+        "displayName": "neutral light border",
+        "canonical": "#E6E8E4",
+        "tonalRamp": [
+          "oklch(15.00% 0.0057 128.53)",
+          "oklch(26.43% 0.0057 128.53)",
+          "oklch(37.86% 0.0057 128.53)",
+          "oklch(49.29% 0.0057 128.53)",
+          "oklch(60.71% 0.0057 128.53)",
+          "oklch(72.14% 0.0057 128.53)",
+          "oklch(83.57% 0.0057 128.53)",
+          "oklch(95.00% 0.0057 128.53)"
+        ]
+      },
+      "neutral-light-spotlight": {
+        "role": "neutral",
+        "displayName": "neutral light spotlight",
+        "canonical": "#242624",
+        "tonalRamp": [
+          "oklch(15.00% 0.0047 145.44)",
+          "oklch(26.43% 0.0047 145.44)",
+          "oklch(37.86% 0.0047 145.44)",
+          "oklch(49.29% 0.0047 145.44)",
+          "oklch(60.71% 0.0047 145.44)",
+          "oklch(72.14% 0.0047 145.44)",
+          "oklch(83.57% 0.0047 145.44)",
+          "oklch(95.00% 0.0047 145.44)"
+        ]
+      },
+      "neutral-dark-background": {
+        "role": "neutral",
+        "displayName": "neutral dark background",
+        "canonical": "#131513",
+        "tonalRamp": [
+          "oklch(15.00% 0.0051 145.38)",
+          "oklch(26.43% 0.0051 145.38)",
+          "oklch(37.86% 0.0051 145.38)",
+          "oklch(49.29% 0.0051 145.38)",
+          "oklch(60.71% 0.0051 145.38)",
+          "oklch(72.14% 0.0051 145.38)",
+          "oklch(83.57% 0.0051 145.38)",
+          "oklch(95.00% 0.0051 145.38)"
+        ]
+      },
+      "neutral-dark-surface": {
+        "role": "neutral",
+        "displayName": "neutral dark surface",
+        "canonical": "#1E211E",
+        "tonalRamp": [
+          "oklch(15.00% 0.0071 145.35)",
+          "oklch(26.43% 0.0071 145.35)",
+          "oklch(37.86% 0.0071 145.35)",
+          "oklch(49.29% 0.0071 145.35)",
+          "oklch(60.71% 0.0071 145.35)",
+          "oklch(72.14% 0.0071 145.35)",
+          "oklch(83.57% 0.0071 145.35)",
+          "oklch(95.00% 0.0071 145.35)"
+        ]
+      },
+      "neutral-dark-sidebar": {
+        "role": "neutral",
+        "displayName": "neutral dark sidebar",
+        "canonical": "#191C19",
+        "tonalRamp": [
+          "oklch(15.00% 0.0073 145.32)",
+          "oklch(26.43% 0.0073 145.32)",
+          "oklch(37.86% 0.0073 145.32)",
+          "oklch(49.29% 0.0073 145.32)",
+          "oklch(60.71% 0.0073 145.32)",
+          "oklch(72.14% 0.0073 145.32)",
+          "oklch(83.57% 0.0073 145.32)",
+          "oklch(95.00% 0.0073 145.32)"
+        ]
+      },
+      "neutral-dark-text": {
+        "role": "neutral",
+        "displayName": "neutral dark text",
+        "canonical": "#F1F3EF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0057 128.53)",
+          "oklch(26.43% 0.0057 128.53)",
+          "oklch(37.86% 0.0057 128.53)",
+          "oklch(49.29% 0.0057 128.53)",
+          "oklch(60.71% 0.0057 128.53)",
+          "oklch(72.14% 0.0057 128.53)",
+          "oklch(83.57% 0.0057 128.53)",
+          "oklch(95.00% 0.0057 128.53)"
+        ]
+      },
+      "neutral-dark-secondary": {
+        "role": "neutral",
+        "displayName": "neutral dark secondary",
+        "canonical": "#B0B7AB",
+        "tonalRamp": [
+          "oklch(15.00% 0.0185 131.92)",
+          "oklch(26.43% 0.0185 131.92)",
+          "oklch(37.86% 0.0185 131.92)",
+          "oklch(49.29% 0.0185 131.92)",
+          "oklch(60.71% 0.0185 131.92)",
+          "oklch(72.14% 0.0185 131.92)",
+          "oklch(83.57% 0.0185 131.92)",
+          "oklch(95.00% 0.0185 131.92)"
+        ]
+      },
+      "neutral-dark-faint": {
+        "role": "neutral",
+        "displayName": "neutral dark faint",
+        "canonical": "#969F91",
+        "tonalRamp": [
+          "oklch(15.00% 0.0226 134.15)",
+          "oklch(26.43% 0.0226 134.15)",
+          "oklch(37.86% 0.0226 134.15)",
+          "oklch(49.29% 0.0226 134.15)",
+          "oklch(60.71% 0.0226 134.15)",
+          "oklch(72.14% 0.0226 134.15)",
+          "oklch(83.57% 0.0226 134.15)",
+          "oklch(95.00% 0.0226 134.15)"
+        ]
+      },
+      "neutral-dark-border": {
+        "role": "neutral",
+        "displayName": "neutral dark border",
+        "canonical": "#363B34",
+        "tonalRamp": [
+          "oklch(15.00% 0.0137 136.65)",
+          "oklch(26.43% 0.0137 136.65)",
+          "oklch(37.86% 0.0137 136.65)",
+          "oklch(49.29% 0.0137 136.65)",
+          "oklch(60.71% 0.0137 136.65)",
+          "oklch(72.14% 0.0137 136.65)",
+          "oklch(83.57% 0.0137 136.65)",
+          "oklch(95.00% 0.0137 136.65)"
+        ]
+      },
+      "neutral-dark-spotlight": {
+        "role": "neutral",
+        "displayName": "neutral dark spotlight",
+        "canonical": "#F1F3EF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0057 128.53)",
+          "oklch(26.43% 0.0057 128.53)",
+          "oklch(37.86% 0.0057 128.53)",
+          "oklch(49.29% 0.0057 128.53)",
+          "oklch(60.71% 0.0057 128.53)",
+          "oklch(72.14% 0.0057 128.53)",
+          "oklch(83.57% 0.0057 128.53)",
+          "oklch(95.00% 0.0057 128.53)"
+        ]
+      },
+      "neutral-dark-onSpotlight": {
+        "role": "neutral",
+        "displayName": "neutral dark on Spotlight",
+        "canonical": "#242624",
+        "tonalRamp": [
+          "oklch(15.00% 0.0047 145.44)",
+          "oklch(26.43% 0.0047 145.44)",
+          "oklch(37.86% 0.0047 145.44)",
+          "oklch(49.29% 0.0047 145.44)",
+          "oklch(60.71% 0.0047 145.44)",
+          "oklch(72.14% 0.0047 145.44)",
+          "oklch(83.57% 0.0047 145.44)",
+          "oklch(95.00% 0.0047 145.44)"
+        ]
+      },
+      "swatch-green": {
+        "role": "primary",
+        "displayName": "swatch green",
+        "canonical": "#087C65",
+        "tonalRamp": [
+          "oklch(15.00% 0.0983 173.45)",
+          "oklch(26.43% 0.0983 173.45)",
+          "oklch(37.86% 0.0983 173.45)",
+          "oklch(49.29% 0.0983 173.45)",
+          "oklch(60.71% 0.0983 173.45)",
+          "oklch(72.14% 0.0983 173.45)",
+          "oklch(83.57% 0.0983 173.45)",
+          "oklch(95.00% 0.0983 173.45)"
+        ]
+      },
+      "swatch-blue": {
+        "role": "primary",
+        "displayName": "swatch blue",
+        "canonical": "#3478EE",
+        "tonalRamp": [
+          "oklch(15.00% 0.1911 260.61)",
+          "oklch(26.43% 0.1911 260.61)",
+          "oklch(37.86% 0.1911 260.61)",
+          "oklch(49.29% 0.1911 260.61)",
+          "oklch(60.71% 0.1911 260.61)",
+          "oklch(72.14% 0.1911 260.61)",
+          "oklch(83.57% 0.1911 260.61)",
+          "oklch(95.00% 0.1911 260.61)"
+        ]
+      },
+      "blue-light-primary": {
+        "role": "primary",
+        "displayName": "blue light primary",
+        "canonical": "#245CC0",
+        "tonalRamp": [
+          "oklch(15.00% 0.1679 260.97)",
+          "oklch(26.43% 0.1679 260.97)",
+          "oklch(37.86% 0.1679 260.97)",
+          "oklch(49.29% 0.1679 260.97)",
+          "oklch(60.71% 0.1679 260.97)",
+          "oklch(72.14% 0.1679 260.97)",
+          "oklch(83.57% 0.1679 260.97)",
+          "oklch(95.00% 0.1679 260.97)"
+        ]
+      },
+      "blue-light-accent": {
+        "role": "primary",
+        "displayName": "blue light accent",
+        "canonical": "#3478EE",
+        "tonalRamp": [
+          "oklch(15.00% 0.1911 260.61)",
+          "oklch(26.43% 0.1911 260.61)",
+          "oklch(37.86% 0.1911 260.61)",
+          "oklch(49.29% 0.1911 260.61)",
+          "oklch(60.71% 0.1911 260.61)",
+          "oklch(72.14% 0.1911 260.61)",
+          "oklch(83.57% 0.1911 260.61)",
+          "oklch(95.00% 0.1911 260.61)"
+        ]
+      },
+      "blue-light-pressed": {
+        "role": "primary",
+        "displayName": "blue light pressed",
+        "canonical": "#1C4694",
+        "tonalRamp": [
+          "oklch(15.00% 0.1370 261.39)",
+          "oklch(26.43% 0.1370 261.39)",
+          "oklch(37.86% 0.1370 261.39)",
+          "oklch(49.29% 0.1370 261.39)",
+          "oklch(60.71% 0.1370 261.39)",
+          "oklch(72.14% 0.1370 261.39)",
+          "oklch(83.57% 0.1370 261.39)",
+          "oklch(95.00% 0.1370 261.39)"
+        ]
+      },
+      "blue-light-mint": {
+        "role": "secondary",
+        "displayName": "blue light mint",
+        "canonical": "#EDF3FF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0173 264.49)",
+          "oklch(26.43% 0.0173 264.49)",
+          "oklch(37.86% 0.0173 264.49)",
+          "oklch(49.29% 0.0173 264.49)",
+          "oklch(60.71% 0.0173 264.49)",
+          "oklch(72.14% 0.0173 264.49)",
+          "oklch(83.57% 0.0173 264.49)",
+          "oklch(95.00% 0.0173 264.49)"
+        ]
+      },
+      "blue-light-mintStrong": {
+        "role": "secondary",
+        "displayName": "blue light mint Strong",
+        "canonical": "#DBE7FF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0351 264.39)",
+          "oklch(26.43% 0.0351 264.39)",
+          "oklch(37.86% 0.0351 264.39)",
+          "oklch(49.29% 0.0351 264.39)",
+          "oklch(60.71% 0.0351 264.39)",
+          "oklch(72.14% 0.0351 264.39)",
+          "oklch(83.57% 0.0351 264.39)",
+          "oklch(95.00% 0.0351 264.39)"
+        ]
+      },
+      "blue-light-hero": {
+        "role": "secondary",
+        "displayName": "blue light hero",
+        "canonical": "#E5EEFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0249 263.33)",
+          "oklch(26.43% 0.0249 263.33)",
+          "oklch(37.86% 0.0249 263.33)",
+          "oklch(49.29% 0.0249 263.33)",
+          "oklch(60.71% 0.0249 263.33)",
+          "oklch(72.14% 0.0249 263.33)",
+          "oklch(83.57% 0.0249 263.33)",
+          "oklch(95.00% 0.0249 263.33)"
+        ]
+      },
+      "blue-light-heroText": {
+        "role": "secondary",
+        "displayName": "blue light hero Text",
+        "canonical": "#203B6B",
+        "tonalRamp": [
+          "oklch(15.00% 0.0898 261.00)",
+          "oklch(26.43% 0.0898 261.00)",
+          "oklch(37.86% 0.0898 261.00)",
+          "oklch(49.29% 0.0898 261.00)",
+          "oklch(60.71% 0.0898 261.00)",
+          "oklch(72.14% 0.0898 261.00)",
+          "oklch(83.57% 0.0898 261.00)",
+          "oklch(95.00% 0.0898 261.00)"
+        ]
+      },
+      "blue-light-heroSecondary": {
+        "role": "secondary",
+        "displayName": "blue light hero Secondary",
+        "canonical": "#47618A",
+        "tonalRamp": [
+          "oklch(15.00% 0.0733 259.26)",
+          "oklch(26.43% 0.0733 259.26)",
+          "oklch(37.86% 0.0733 259.26)",
+          "oklch(49.29% 0.0733 259.26)",
+          "oklch(60.71% 0.0733 259.26)",
+          "oklch(72.14% 0.0733 259.26)",
+          "oklch(83.57% 0.0733 259.26)",
+          "oklch(95.00% 0.0733 259.26)"
+        ]
+      },
+      "blue-light-heroArt": {
+        "role": "secondary",
+        "displayName": "blue light hero Art",
+        "canonical": "#94B4EB",
+        "tonalRamp": [
+          "oklch(15.00% 0.0869 261.06)",
+          "oklch(26.43% 0.0869 261.06)",
+          "oklch(37.86% 0.0869 261.06)",
+          "oklch(49.29% 0.0869 261.06)",
+          "oklch(60.71% 0.0869 261.06)",
+          "oklch(72.14% 0.0869 261.06)",
+          "oklch(83.57% 0.0869 261.06)",
+          "oklch(95.00% 0.0869 261.06)"
+        ]
+      },
+      "blue-dark-primary": {
+        "role": "primary",
+        "displayName": "blue dark primary",
+        "canonical": "#9AC2FF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0970 258.65)",
+          "oklch(26.43% 0.0970 258.65)",
+          "oklch(37.86% 0.0970 258.65)",
+          "oklch(49.29% 0.0970 258.65)",
+          "oklch(60.71% 0.0970 258.65)",
+          "oklch(72.14% 0.0970 258.65)",
+          "oklch(83.57% 0.0970 258.65)",
+          "oklch(95.00% 0.0970 258.65)"
+        ]
+      },
+      "blue-dark-accent": {
+        "role": "primary",
+        "displayName": "blue dark accent",
+        "canonical": "#3478EE",
+        "tonalRamp": [
+          "oklch(15.00% 0.1911 260.61)",
+          "oklch(26.43% 0.1911 260.61)",
+          "oklch(37.86% 0.1911 260.61)",
+          "oklch(49.29% 0.1911 260.61)",
+          "oklch(60.71% 0.1911 260.61)",
+          "oklch(72.14% 0.1911 260.61)",
+          "oklch(83.57% 0.1911 260.61)",
+          "oklch(95.00% 0.1911 260.61)"
+        ]
+      },
+      "blue-dark-pressed": {
+        "role": "primary",
+        "displayName": "blue dark pressed",
+        "canonical": "#BCD7FF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0628 258.09)",
+          "oklch(26.43% 0.0628 258.09)",
+          "oklch(37.86% 0.0628 258.09)",
+          "oklch(49.29% 0.0628 258.09)",
+          "oklch(60.71% 0.0628 258.09)",
+          "oklch(72.14% 0.0628 258.09)",
+          "oklch(83.57% 0.0628 258.09)",
+          "oklch(95.00% 0.0628 258.09)"
+        ]
+      },
+      "blue-dark-mint": {
+        "role": "secondary",
+        "displayName": "blue dark mint",
+        "canonical": "#21314B",
+        "tonalRamp": [
+          "oklch(15.00% 0.0517 259.79)",
+          "oklch(26.43% 0.0517 259.79)",
+          "oklch(37.86% 0.0517 259.79)",
+          "oklch(49.29% 0.0517 259.79)",
+          "oklch(60.71% 0.0517 259.79)",
+          "oklch(72.14% 0.0517 259.79)",
+          "oklch(83.57% 0.0517 259.79)",
+          "oklch(95.00% 0.0517 259.79)"
+        ]
+      },
+      "blue-dark-mintStrong": {
+        "role": "secondary",
+        "displayName": "blue dark mint Strong",
+        "canonical": "#2D4263",
+        "tonalRamp": [
+          "oklch(15.00% 0.0629 259.16)",
+          "oklch(26.43% 0.0629 259.16)",
+          "oklch(37.86% 0.0629 259.16)",
+          "oklch(49.29% 0.0629 259.16)",
+          "oklch(60.71% 0.0629 259.16)",
+          "oklch(72.14% 0.0629 259.16)",
+          "oklch(83.57% 0.0629 259.16)",
+          "oklch(95.00% 0.0629 259.16)"
+        ]
+      },
+      "blue-dark-hero": {
+        "role": "secondary",
+        "displayName": "blue dark hero",
+        "canonical": "#243958",
+        "tonalRamp": [
+          "oklch(15.00% 0.0611 257.97)",
+          "oklch(26.43% 0.0611 257.97)",
+          "oklch(37.86% 0.0611 257.97)",
+          "oklch(49.29% 0.0611 257.97)",
+          "oklch(60.71% 0.0611 257.97)",
+          "oklch(72.14% 0.0611 257.97)",
+          "oklch(83.57% 0.0611 257.97)",
+          "oklch(95.00% 0.0611 257.97)"
+        ]
+      },
+      "blue-dark-heroText": {
+        "role": "secondary",
+        "displayName": "blue dark hero Text",
+        "canonical": "#EDF4FF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0165 259.42)",
+          "oklch(26.43% 0.0165 259.42)",
+          "oklch(37.86% 0.0165 259.42)",
+          "oklch(49.29% 0.0165 259.42)",
+          "oklch(60.71% 0.0165 259.42)",
+          "oklch(72.14% 0.0165 259.42)",
+          "oklch(83.57% 0.0165 259.42)",
+          "oklch(95.00% 0.0165 259.42)"
+        ]
+      },
+      "blue-dark-heroSecondary": {
+        "role": "secondary",
+        "displayName": "blue dark hero Secondary",
+        "canonical": "#BAD0EC",
+        "tonalRamp": [
+          "oklch(15.00% 0.0459 254.52)",
+          "oklch(26.43% 0.0459 254.52)",
+          "oklch(37.86% 0.0459 254.52)",
+          "oklch(49.29% 0.0459 254.52)",
+          "oklch(60.71% 0.0459 254.52)",
+          "oklch(72.14% 0.0459 254.52)",
+          "oklch(83.57% 0.0459 254.52)",
+          "oklch(95.00% 0.0459 254.52)"
+        ]
+      },
+      "blue-dark-heroArt": {
+        "role": "secondary",
+        "displayName": "blue dark hero Art",
+        "canonical": "#557CA9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0825 252.72)",
+          "oklch(26.43% 0.0825 252.72)",
+          "oklch(37.86% 0.0825 252.72)",
+          "oklch(49.29% 0.0825 252.72)",
+          "oklch(60.71% 0.0825 252.72)",
+          "oklch(72.14% 0.0825 252.72)",
+          "oklch(83.57% 0.0825 252.72)",
+          "oklch(95.00% 0.0825 252.72)"
+        ]
+      },
+      "swatch-red": {
+        "role": "primary",
+        "displayName": "swatch red",
+        "canonical": "#E34D54",
+        "tonalRamp": [
+          "oklch(15.00% 0.1857 21.66)",
+          "oklch(26.43% 0.1857 21.66)",
+          "oklch(37.86% 0.1857 21.66)",
+          "oklch(49.29% 0.1857 21.66)",
+          "oklch(60.71% 0.1857 21.66)",
+          "oklch(72.14% 0.1857 21.66)",
+          "oklch(83.57% 0.1857 21.66)",
+          "oklch(95.00% 0.1857 21.66)"
+        ]
+      },
+      "red-light-primary": {
+        "role": "primary",
+        "displayName": "red light primary",
+        "canonical": "#B8313D",
+        "tonalRamp": [
+          "oklch(15.00% 0.1709 20.75)",
+          "oklch(26.43% 0.1709 20.75)",
+          "oklch(37.86% 0.1709 20.75)",
+          "oklch(49.29% 0.1709 20.75)",
+          "oklch(60.71% 0.1709 20.75)",
+          "oklch(72.14% 0.1709 20.75)",
+          "oklch(83.57% 0.1709 20.75)",
+          "oklch(95.00% 0.1709 20.75)"
+        ]
+      },
+      "red-light-accent": {
+        "role": "primary",
+        "displayName": "red light accent",
+        "canonical": "#E34D54",
+        "tonalRamp": [
+          "oklch(15.00% 0.1857 21.66)",
+          "oklch(26.43% 0.1857 21.66)",
+          "oklch(37.86% 0.1857 21.66)",
+          "oklch(49.29% 0.1857 21.66)",
+          "oklch(60.71% 0.1857 21.66)",
+          "oklch(72.14% 0.1857 21.66)",
+          "oklch(83.57% 0.1857 21.66)",
+          "oklch(95.00% 0.1857 21.66)"
+        ]
+      },
+      "red-light-pressed": {
+        "role": "primary",
+        "displayName": "red light pressed",
+        "canonical": "#942532",
+        "tonalRamp": [
+          "oklch(15.00% 0.1459 19.21)",
+          "oklch(26.43% 0.1459 19.21)",
+          "oklch(37.86% 0.1459 19.21)",
+          "oklch(49.29% 0.1459 19.21)",
+          "oklch(60.71% 0.1459 19.21)",
+          "oklch(72.14% 0.1459 19.21)",
+          "oklch(83.57% 0.1459 19.21)",
+          "oklch(95.00% 0.1459 19.21)"
+        ]
+      },
+      "red-light-mint": {
+        "role": "secondary",
+        "displayName": "red light mint",
+        "canonical": "#FFF0F1",
+        "tonalRamp": [
+          "oklch(15.00% 0.0163 12.78)",
+          "oklch(26.43% 0.0163 12.78)",
+          "oklch(37.86% 0.0163 12.78)",
+          "oklch(49.29% 0.0163 12.78)",
+          "oklch(60.71% 0.0163 12.78)",
+          "oklch(72.14% 0.0163 12.78)",
+          "oklch(83.57% 0.0163 12.78)",
+          "oklch(95.00% 0.0163 12.78)"
+        ]
+      },
+      "red-light-mintStrong": {
+        "role": "secondary",
+        "displayName": "red light mint Strong",
+        "canonical": "#FADCE0",
+        "tonalRamp": [
+          "oklch(15.00% 0.0336 8.64)",
+          "oklch(26.43% 0.0336 8.64)",
+          "oklch(37.86% 0.0336 8.64)",
+          "oklch(49.29% 0.0336 8.64)",
+          "oklch(60.71% 0.0336 8.64)",
+          "oklch(72.14% 0.0336 8.64)",
+          "oklch(83.57% 0.0336 8.64)",
+          "oklch(95.00% 0.0336 8.64)"
+        ]
+      },
+      "red-light-hero": {
+        "role": "secondary",
+        "displayName": "red light hero",
+        "canonical": "#FCE6E8",
+        "tonalRamp": [
+          "oklch(15.00% 0.0242 11.29)",
+          "oklch(26.43% 0.0242 11.29)",
+          "oklch(37.86% 0.0242 11.29)",
+          "oklch(49.29% 0.0242 11.29)",
+          "oklch(60.71% 0.0242 11.29)",
+          "oklch(72.14% 0.0242 11.29)",
+          "oklch(83.57% 0.0242 11.29)",
+          "oklch(95.00% 0.0242 11.29)"
+        ]
+      },
+      "red-light-heroText": {
+        "role": "secondary",
+        "displayName": "red light hero Text",
+        "canonical": "#702B34",
+        "tonalRamp": [
+          "oklch(15.00% 0.0979 14.91)",
+          "oklch(26.43% 0.0979 14.91)",
+          "oklch(37.86% 0.0979 14.91)",
+          "oklch(49.29% 0.0979 14.91)",
+          "oklch(60.71% 0.0979 14.91)",
+          "oklch(72.14% 0.0979 14.91)",
+          "oklch(83.57% 0.0979 14.91)",
+          "oklch(95.00% 0.0979 14.91)"
+        ]
+      },
+      "red-light-heroSecondary": {
+        "role": "secondary",
+        "displayName": "red light hero Secondary",
+        "canonical": "#8B4850",
+        "tonalRamp": [
+          "oklch(15.00% 0.0910 13.48)",
+          "oklch(26.43% 0.0910 13.48)",
+          "oklch(37.86% 0.0910 13.48)",
+          "oklch(49.29% 0.0910 13.48)",
+          "oklch(60.71% 0.0910 13.48)",
+          "oklch(72.14% 0.0910 13.48)",
+          "oklch(83.57% 0.0910 13.48)",
+          "oklch(95.00% 0.0910 13.48)"
+        ]
+      },
+      "red-light-heroArt": {
+        "role": "secondary",
+        "displayName": "red light hero Art",
+        "canonical": "#EAA0A7",
+        "tonalRamp": [
+          "oklch(15.00% 0.0886 13.09)",
+          "oklch(26.43% 0.0886 13.09)",
+          "oklch(37.86% 0.0886 13.09)",
+          "oklch(49.29% 0.0886 13.09)",
+          "oklch(60.71% 0.0886 13.09)",
+          "oklch(72.14% 0.0886 13.09)",
+          "oklch(83.57% 0.0886 13.09)",
+          "oklch(95.00% 0.0886 13.09)"
+        ]
+      },
+      "red-dark-primary": {
+        "role": "primary",
+        "displayName": "red dark primary",
+        "canonical": "#FFA5AC",
+        "tonalRamp": [
+          "oklch(15.00% 0.1069 14.63)",
+          "oklch(26.43% 0.1069 14.63)",
+          "oklch(37.86% 0.1069 14.63)",
+          "oklch(49.29% 0.1069 14.63)",
+          "oklch(60.71% 0.1069 14.63)",
+          "oklch(72.14% 0.1069 14.63)",
+          "oklch(83.57% 0.1069 14.63)",
+          "oklch(95.00% 0.1069 14.63)"
+        ]
+      },
+      "red-dark-accent": {
+        "role": "primary",
+        "displayName": "red dark accent",
+        "canonical": "#E34D54",
+        "tonalRamp": [
+          "oklch(15.00% 0.1857 21.66)",
+          "oklch(26.43% 0.1857 21.66)",
+          "oklch(37.86% 0.1857 21.66)",
+          "oklch(49.29% 0.1857 21.66)",
+          "oklch(60.71% 0.1857 21.66)",
+          "oklch(72.14% 0.1857 21.66)",
+          "oklch(83.57% 0.1857 21.66)",
+          "oklch(95.00% 0.1857 21.66)"
+        ]
+      },
+      "red-dark-pressed": {
+        "role": "primary",
+        "displayName": "red dark pressed",
+        "canonical": "#FFC3C8",
+        "tonalRamp": [
+          "oklch(15.00% 0.0691 13.01)",
+          "oklch(26.43% 0.0691 13.01)",
+          "oklch(37.86% 0.0691 13.01)",
+          "oklch(49.29% 0.0691 13.01)",
+          "oklch(60.71% 0.0691 13.01)",
+          "oklch(72.14% 0.0691 13.01)",
+          "oklch(83.57% 0.0691 13.01)",
+          "oklch(95.00% 0.0691 13.01)"
+        ]
+      },
+      "red-dark-mint": {
+        "role": "secondary",
+        "displayName": "red dark mint",
+        "canonical": "#43272D",
+        "tonalRamp": [
+          "oklch(15.00% 0.0430 5.95)",
+          "oklch(26.43% 0.0430 5.95)",
+          "oklch(37.86% 0.0430 5.95)",
+          "oklch(49.29% 0.0430 5.95)",
+          "oklch(60.71% 0.0430 5.95)",
+          "oklch(72.14% 0.0430 5.95)",
+          "oklch(83.57% 0.0430 5.95)",
+          "oklch(95.00% 0.0430 5.95)"
+        ]
+      },
+      "red-dark-mintStrong": {
+        "role": "secondary",
+        "displayName": "red dark mint Strong",
+        "canonical": "#59343D",
+        "tonalRamp": [
+          "oklch(15.00% 0.0546 4.30)",
+          "oklch(26.43% 0.0546 4.30)",
+          "oklch(37.86% 0.0546 4.30)",
+          "oklch(49.29% 0.0546 4.30)",
+          "oklch(60.71% 0.0546 4.30)",
+          "oklch(72.14% 0.0546 4.30)",
+          "oklch(83.57% 0.0546 4.30)",
+          "oklch(95.00% 0.0546 4.30)"
+        ]
+      },
+      "red-dark-hero": {
+        "role": "secondary",
+        "displayName": "red dark hero",
+        "canonical": "#4D2C34",
+        "tonalRamp": [
+          "oklch(15.00% 0.0499 4.40)",
+          "oklch(26.43% 0.0499 4.40)",
+          "oklch(37.86% 0.0499 4.40)",
+          "oklch(49.29% 0.0499 4.40)",
+          "oklch(60.71% 0.0499 4.40)",
+          "oklch(72.14% 0.0499 4.40)",
+          "oklch(83.57% 0.0499 4.40)",
+          "oklch(95.00% 0.0499 4.40)"
+        ]
+      },
+      "red-dark-heroText": {
+        "role": "secondary",
+        "displayName": "red dark hero Text",
+        "canonical": "#FFF0F1",
+        "tonalRamp": [
+          "oklch(15.00% 0.0163 12.78)",
+          "oklch(26.43% 0.0163 12.78)",
+          "oklch(37.86% 0.0163 12.78)",
+          "oklch(49.29% 0.0163 12.78)",
+          "oklch(60.71% 0.0163 12.78)",
+          "oklch(72.14% 0.0163 12.78)",
+          "oklch(83.57% 0.0163 12.78)",
+          "oklch(95.00% 0.0163 12.78)"
+        ]
+      },
+      "red-dark-heroSecondary": {
+        "role": "secondary",
+        "displayName": "red dark hero Secondary",
+        "canonical": "#EFC0C5",
+        "tonalRamp": [
+          "oklch(15.00% 0.0542 11.11)",
+          "oklch(26.43% 0.0542 11.11)",
+          "oklch(37.86% 0.0542 11.11)",
+          "oklch(49.29% 0.0542 11.11)",
+          "oklch(60.71% 0.0542 11.11)",
+          "oklch(72.14% 0.0542 11.11)",
+          "oklch(83.57% 0.0542 11.11)",
+          "oklch(95.00% 0.0542 11.11)"
+        ]
+      },
+      "red-dark-heroArt": {
+        "role": "secondary",
+        "displayName": "red dark hero Art",
+        "canonical": "#A05C69",
+        "tonalRamp": [
+          "oklch(15.00% 0.0900 8.11)",
+          "oklch(26.43% 0.0900 8.11)",
+          "oklch(37.86% 0.0900 8.11)",
+          "oklch(49.29% 0.0900 8.11)",
+          "oklch(60.71% 0.0900 8.11)",
+          "oklch(72.14% 0.0900 8.11)",
+          "oklch(83.57% 0.0900 8.11)",
+          "oklch(95.00% 0.0900 8.11)"
+        ]
+      },
+      "swatch-violet": {
+        "role": "primary",
+        "displayName": "swatch violet",
+        "canonical": "#8B5CF6",
+        "tonalRamp": [
+          "oklch(15.00% 0.2189 292.72)",
+          "oklch(26.43% 0.2189 292.72)",
+          "oklch(37.86% 0.2189 292.72)",
+          "oklch(49.29% 0.2189 292.72)",
+          "oklch(60.71% 0.2189 292.72)",
+          "oklch(72.14% 0.2189 292.72)",
+          "oklch(83.57% 0.2189 292.72)",
+          "oklch(95.00% 0.2189 292.72)"
+        ]
+      },
+      "violet-light-primary": {
+        "role": "primary",
+        "displayName": "violet light primary",
+        "canonical": "#6D42BC",
+        "tonalRamp": [
+          "oklch(15.00% 0.1822 295.12)",
+          "oklch(26.43% 0.1822 295.12)",
+          "oklch(37.86% 0.1822 295.12)",
+          "oklch(49.29% 0.1822 295.12)",
+          "oklch(60.71% 0.1822 295.12)",
+          "oklch(72.14% 0.1822 295.12)",
+          "oklch(83.57% 0.1822 295.12)",
+          "oklch(95.00% 0.1822 295.12)"
+        ]
+      },
+      "violet-light-accent": {
+        "role": "primary",
+        "displayName": "violet light accent",
+        "canonical": "#8B5CF6",
+        "tonalRamp": [
+          "oklch(15.00% 0.2189 292.72)",
+          "oklch(26.43% 0.2189 292.72)",
+          "oklch(37.86% 0.2189 292.72)",
+          "oklch(49.29% 0.2189 292.72)",
+          "oklch(60.71% 0.2189 292.72)",
+          "oklch(72.14% 0.2189 292.72)",
+          "oklch(83.57% 0.2189 292.72)",
+          "oklch(95.00% 0.2189 292.72)"
+        ]
+      },
+      "violet-light-pressed": {
+        "role": "primary",
+        "displayName": "violet light pressed",
+        "canonical": "#543197",
+        "tonalRamp": [
+          "oklch(15.00% 0.1580 294.22)",
+          "oklch(26.43% 0.1580 294.22)",
+          "oklch(37.86% 0.1580 294.22)",
+          "oklch(49.29% 0.1580 294.22)",
+          "oklch(60.71% 0.1580 294.22)",
+          "oklch(72.14% 0.1580 294.22)",
+          "oklch(83.57% 0.1580 294.22)",
+          "oklch(95.00% 0.1580 294.22)"
+        ]
+      },
+      "violet-light-mint": {
+        "role": "secondary",
+        "displayName": "violet light mint",
+        "canonical": "#F4EFFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0219 300.21)",
+          "oklch(26.43% 0.0219 300.21)",
+          "oklch(37.86% 0.0219 300.21)",
+          "oklch(49.29% 0.0219 300.21)",
+          "oklch(60.71% 0.0219 300.21)",
+          "oklch(72.14% 0.0219 300.21)",
+          "oklch(83.57% 0.0219 300.21)",
+          "oklch(95.00% 0.0219 300.21)"
+        ]
+      },
+      "violet-light-mintStrong": {
+        "role": "secondary",
+        "displayName": "violet light mint Strong",
+        "canonical": "#E9DDFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0474 301.53)",
+          "oklch(26.43% 0.0474 301.53)",
+          "oklch(37.86% 0.0474 301.53)",
+          "oklch(49.29% 0.0474 301.53)",
+          "oklch(60.71% 0.0474 301.53)",
+          "oklch(72.14% 0.0474 301.53)",
+          "oklch(83.57% 0.0474 301.53)",
+          "oklch(95.00% 0.0474 301.53)"
+        ]
+      },
+      "violet-light-hero": {
+        "role": "secondary",
+        "displayName": "violet light hero",
+        "canonical": "#EDE5FC",
+        "tonalRamp": [
+          "oklch(15.00% 0.0319 301.58)",
+          "oklch(26.43% 0.0319 301.58)",
+          "oklch(37.86% 0.0319 301.58)",
+          "oklch(49.29% 0.0319 301.58)",
+          "oklch(60.71% 0.0319 301.58)",
+          "oklch(72.14% 0.0319 301.58)",
+          "oklch(83.57% 0.0319 301.58)",
+          "oklch(95.00% 0.0319 301.58)"
+        ]
+      },
+      "violet-light-heroText": {
+        "role": "secondary",
+        "displayName": "violet light hero Text",
+        "canonical": "#492A76",
+        "tonalRamp": [
+          "oklch(15.00% 0.1249 298.86)",
+          "oklch(26.43% 0.1249 298.86)",
+          "oklch(37.86% 0.1249 298.86)",
+          "oklch(49.29% 0.1249 298.86)",
+          "oklch(60.71% 0.1249 298.86)",
+          "oklch(72.14% 0.1249 298.86)",
+          "oklch(83.57% 0.1249 298.86)",
+          "oklch(95.00% 0.1249 298.86)"
+        ]
+      },
+      "violet-light-heroSecondary": {
+        "role": "secondary",
+        "displayName": "violet light hero Secondary",
+        "canonical": "#6A508B",
+        "tonalRamp": [
+          "oklch(15.00% 0.0962 303.30)",
+          "oklch(26.43% 0.0962 303.30)",
+          "oklch(37.86% 0.0962 303.30)",
+          "oklch(49.29% 0.0962 303.30)",
+          "oklch(60.71% 0.0962 303.30)",
+          "oklch(72.14% 0.0962 303.30)",
+          "oklch(83.57% 0.0962 303.30)",
+          "oklch(95.00% 0.0962 303.30)"
+        ]
+      },
+      "violet-light-heroArt": {
+        "role": "secondary",
+        "displayName": "violet light hero Art",
+        "canonical": "#B69ADE",
+        "tonalRamp": [
+          "oklch(15.00% 0.1006 302.89)",
+          "oklch(26.43% 0.1006 302.89)",
+          "oklch(37.86% 0.1006 302.89)",
+          "oklch(49.29% 0.1006 302.89)",
+          "oklch(60.71% 0.1006 302.89)",
+          "oklch(72.14% 0.1006 302.89)",
+          "oklch(83.57% 0.1006 302.89)",
+          "oklch(95.00% 0.1006 302.89)"
+        ]
+      },
+      "violet-dark-primary": {
+        "role": "primary",
+        "displayName": "violet dark primary",
+        "canonical": "#C5ACFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.1181 297.50)",
+          "oklch(26.43% 0.1181 297.50)",
+          "oklch(37.86% 0.1181 297.50)",
+          "oklch(49.29% 0.1181 297.50)",
+          "oklch(60.71% 0.1181 297.50)",
+          "oklch(72.14% 0.1181 297.50)",
+          "oklch(83.57% 0.1181 297.50)",
+          "oklch(95.00% 0.1181 297.50)"
+        ]
+      },
+      "violet-dark-accent": {
+        "role": "primary",
+        "displayName": "violet dark accent",
+        "canonical": "#8B5CF6",
+        "tonalRamp": [
+          "oklch(15.00% 0.2189 292.72)",
+          "oklch(26.43% 0.2189 292.72)",
+          "oklch(37.86% 0.2189 292.72)",
+          "oklch(49.29% 0.2189 292.72)",
+          "oklch(60.71% 0.2189 292.72)",
+          "oklch(72.14% 0.2189 292.72)",
+          "oklch(83.57% 0.2189 292.72)",
+          "oklch(95.00% 0.2189 292.72)"
+        ]
+      },
+      "violet-dark-pressed": {
+        "role": "primary",
+        "displayName": "violet dark pressed",
+        "canonical": "#DCCEFA",
+        "tonalRamp": [
+          "oklch(15.00% 0.0617 299.67)",
+          "oklch(26.43% 0.0617 299.67)",
+          "oklch(37.86% 0.0617 299.67)",
+          "oklch(49.29% 0.0617 299.67)",
+          "oklch(60.71% 0.0617 299.67)",
+          "oklch(72.14% 0.0617 299.67)",
+          "oklch(83.57% 0.0617 299.67)",
+          "oklch(95.00% 0.0617 299.67)"
+        ]
+      },
+      "violet-dark-mint": {
+        "role": "secondary",
+        "displayName": "violet dark mint",
+        "canonical": "#342943",
+        "tonalRamp": [
+          "oklch(15.00% 0.0479 303.11)",
+          "oklch(26.43% 0.0479 303.11)",
+          "oklch(37.86% 0.0479 303.11)",
+          "oklch(49.29% 0.0479 303.11)",
+          "oklch(60.71% 0.0479 303.11)",
+          "oklch(72.14% 0.0479 303.11)",
+          "oklch(83.57% 0.0479 303.11)",
+          "oklch(95.00% 0.0479 303.11)"
+        ]
+      },
+      "violet-dark-mintStrong": {
+        "role": "secondary",
+        "displayName": "violet dark mint Strong",
+        "canonical": "#49395D",
+        "tonalRamp": [
+          "oklch(15.00% 0.0630 303.97)",
+          "oklch(26.43% 0.0630 303.97)",
+          "oklch(37.86% 0.0630 303.97)",
+          "oklch(49.29% 0.0630 303.97)",
+          "oklch(60.71% 0.0630 303.97)",
+          "oklch(72.14% 0.0630 303.97)",
+          "oklch(83.57% 0.0630 303.97)",
+          "oklch(95.00% 0.0630 303.97)"
+        ]
+      },
+      "violet-dark-hero": {
+        "role": "secondary",
+        "displayName": "violet dark hero",
+        "canonical": "#3D2E52",
+        "tonalRamp": [
+          "oklch(15.00% 0.0642 302.26)",
+          "oklch(26.43% 0.0642 302.26)",
+          "oklch(37.86% 0.0642 302.26)",
+          "oklch(49.29% 0.0642 302.26)",
+          "oklch(60.71% 0.0642 302.26)",
+          "oklch(72.14% 0.0642 302.26)",
+          "oklch(83.57% 0.0642 302.26)",
+          "oklch(95.00% 0.0642 302.26)"
+        ]
+      },
+      "violet-dark-heroText": {
+        "role": "secondary",
+        "displayName": "violet dark hero Text",
+        "canonical": "#F4EFFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0219 300.21)",
+          "oklch(26.43% 0.0219 300.21)",
+          "oklch(37.86% 0.0219 300.21)",
+          "oklch(49.29% 0.0219 300.21)",
+          "oklch(60.71% 0.0219 300.21)",
+          "oklch(72.14% 0.0219 300.21)",
+          "oklch(83.57% 0.0219 300.21)",
+          "oklch(95.00% 0.0219 300.21)"
+        ]
+      },
+      "violet-dark-heroSecondary": {
+        "role": "secondary",
+        "displayName": "violet dark hero Secondary",
+        "canonical": "#D3C1EF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0660 302.83)",
+          "oklch(26.43% 0.0660 302.83)",
+          "oklch(37.86% 0.0660 302.83)",
+          "oklch(49.29% 0.0660 302.83)",
+          "oklch(60.71% 0.0660 302.83)",
+          "oklch(72.14% 0.0660 302.83)",
+          "oklch(83.57% 0.0660 302.83)",
+          "oklch(95.00% 0.0660 302.83)"
+        ]
+      },
+      "violet-dark-heroArt": {
+        "role": "secondary",
+        "displayName": "violet dark hero Art",
+        "canonical": "#8067A8",
+        "tonalRamp": [
+          "oklch(15.00% 0.1014 300.92)",
+          "oklch(26.43% 0.1014 300.92)",
+          "oklch(37.86% 0.1014 300.92)",
+          "oklch(49.29% 0.1014 300.92)",
+          "oklch(60.71% 0.1014 300.92)",
+          "oklch(72.14% 0.1014 300.92)",
+          "oklch(83.57% 0.1014 300.92)",
+          "oklch(95.00% 0.1014 300.92)"
+        ]
+      },
+      "swatch-orange": {
+        "role": "primary",
+        "displayName": "swatch orange",
+        "canonical": "#F58B36",
+        "tonalRamp": [
+          "oklch(15.00% 0.1596 54.97)",
+          "oklch(26.43% 0.1596 54.97)",
+          "oklch(37.86% 0.1596 54.97)",
+          "oklch(49.29% 0.1596 54.97)",
+          "oklch(60.71% 0.1596 54.97)",
+          "oklch(72.14% 0.1596 54.97)",
+          "oklch(83.57% 0.1596 54.97)",
+          "oklch(95.00% 0.1596 54.97)"
+        ]
+      },
+      "orange-light-primary": {
+        "role": "primary",
+        "displayName": "orange light primary",
+        "canonical": "#A84C10",
+        "tonalRamp": [
+          "oklch(15.00% 0.1376 47.26)",
+          "oklch(26.43% 0.1376 47.26)",
+          "oklch(37.86% 0.1376 47.26)",
+          "oklch(49.29% 0.1376 47.26)",
+          "oklch(60.71% 0.1376 47.26)",
+          "oklch(72.14% 0.1376 47.26)",
+          "oklch(83.57% 0.1376 47.26)",
+          "oklch(95.00% 0.1376 47.26)"
+        ]
+      },
+      "orange-light-accent": {
+        "role": "primary",
+        "displayName": "orange light accent",
+        "canonical": "#F58B36",
+        "tonalRamp": [
+          "oklch(15.00% 0.1596 54.97)",
+          "oklch(26.43% 0.1596 54.97)",
+          "oklch(37.86% 0.1596 54.97)",
+          "oklch(49.29% 0.1596 54.97)",
+          "oklch(60.71% 0.1596 54.97)",
+          "oklch(72.14% 0.1596 54.97)",
+          "oklch(83.57% 0.1596 54.97)",
+          "oklch(95.00% 0.1596 54.97)"
+        ]
+      },
+      "orange-light-pressed": {
+        "role": "primary",
+        "displayName": "orange light pressed",
+        "canonical": "#823907",
+        "tonalRamp": [
+          "oklch(15.00% 0.1149 47.70)",
+          "oklch(26.43% 0.1149 47.70)",
+          "oklch(37.86% 0.1149 47.70)",
+          "oklch(49.29% 0.1149 47.70)",
+          "oklch(60.71% 0.1149 47.70)",
+          "oklch(72.14% 0.1149 47.70)",
+          "oklch(83.57% 0.1149 47.70)",
+          "oklch(95.00% 0.1149 47.70)"
+        ]
+      },
+      "orange-light-mint": {
+        "role": "secondary",
+        "displayName": "orange light mint",
+        "canonical": "#FFF3E9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0186 62.46)",
+          "oklch(26.43% 0.0186 62.46)",
+          "oklch(37.86% 0.0186 62.46)",
+          "oklch(49.29% 0.0186 62.46)",
+          "oklch(60.71% 0.0186 62.46)",
+          "oklch(72.14% 0.0186 62.46)",
+          "oklch(83.57% 0.0186 62.46)",
+          "oklch(95.00% 0.0186 62.46)"
+        ]
+      },
+      "orange-light-mintStrong": {
+        "role": "secondary",
+        "displayName": "orange light mint Strong",
+        "canonical": "#FFE3CD",
+        "tonalRamp": [
+          "oklch(15.00% 0.0426 60.41)",
+          "oklch(26.43% 0.0426 60.41)",
+          "oklch(37.86% 0.0426 60.41)",
+          "oklch(49.29% 0.0426 60.41)",
+          "oklch(60.71% 0.0426 60.41)",
+          "oklch(72.14% 0.0426 60.41)",
+          "oklch(83.57% 0.0426 60.41)",
+          "oklch(95.00% 0.0426 60.41)"
+        ]
+      },
+      "orange-light-hero": {
+        "role": "secondary",
+        "displayName": "orange light hero",
+        "canonical": "#FFEBD9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0324 64.44)",
+          "oklch(26.43% 0.0324 64.44)",
+          "oklch(37.86% 0.0324 64.44)",
+          "oklch(49.29% 0.0324 64.44)",
+          "oklch(60.71% 0.0324 64.44)",
+          "oklch(72.14% 0.0324 64.44)",
+          "oklch(83.57% 0.0324 64.44)",
+          "oklch(95.00% 0.0324 64.44)"
+        ]
+      },
+      "orange-light-heroText": {
+        "role": "secondary",
+        "displayName": "orange light hero Text",
+        "canonical": "#743916",
+        "tonalRamp": [
+          "oklch(15.00% 0.0952 48.18)",
+          "oklch(26.43% 0.0952 48.18)",
+          "oklch(37.86% 0.0952 48.18)",
+          "oklch(49.29% 0.0952 48.18)",
+          "oklch(60.71% 0.0952 48.18)",
+          "oklch(72.14% 0.0952 48.18)",
+          "oklch(83.57% 0.0952 48.18)",
+          "oklch(95.00% 0.0952 48.18)"
+        ]
+      },
+      "orange-light-heroSecondary": {
+        "role": "secondary",
+        "displayName": "orange light hero Secondary",
+        "canonical": "#855331",
+        "tonalRamp": [
+          "oklch(15.00% 0.0825 53.79)",
+          "oklch(26.43% 0.0825 53.79)",
+          "oklch(37.86% 0.0825 53.79)",
+          "oklch(49.29% 0.0825 53.79)",
+          "oklch(60.71% 0.0825 53.79)",
+          "oklch(72.14% 0.0825 53.79)",
+          "oklch(83.57% 0.0825 53.79)",
+          "oklch(95.00% 0.0825 53.79)"
+        ]
+      },
+      "orange-light-heroArt": {
+        "role": "secondary",
+        "displayName": "orange light hero Art",
+        "canonical": "#E7AB7B",
+        "tonalRamp": [
+          "oklch(15.00% 0.0948 59.48)",
+          "oklch(26.43% 0.0948 59.48)",
+          "oklch(37.86% 0.0948 59.48)",
+          "oklch(49.29% 0.0948 59.48)",
+          "oklch(60.71% 0.0948 59.48)",
+          "oklch(72.14% 0.0948 59.48)",
+          "oklch(83.57% 0.0948 59.48)",
+          "oklch(95.00% 0.0948 59.48)"
+        ]
+      },
+      "orange-dark-primary": {
+        "role": "primary",
+        "displayName": "orange dark primary",
+        "canonical": "#FFB77E",
+        "tonalRamp": [
+          "oklch(15.00% 0.1111 58.84)",
+          "oklch(26.43% 0.1111 58.84)",
+          "oklch(37.86% 0.1111 58.84)",
+          "oklch(49.29% 0.1111 58.84)",
+          "oklch(60.71% 0.1111 58.84)",
+          "oklch(72.14% 0.1111 58.84)",
+          "oklch(83.57% 0.1111 58.84)",
+          "oklch(95.00% 0.1111 58.84)"
+        ]
+      },
+      "orange-dark-accent": {
+        "role": "primary",
+        "displayName": "orange dark accent",
+        "canonical": "#F58B36",
+        "tonalRamp": [
+          "oklch(15.00% 0.1596 54.97)",
+          "oklch(26.43% 0.1596 54.97)",
+          "oklch(37.86% 0.1596 54.97)",
+          "oklch(49.29% 0.1596 54.97)",
+          "oklch(60.71% 0.1596 54.97)",
+          "oklch(72.14% 0.1596 54.97)",
+          "oklch(83.57% 0.1596 54.97)",
+          "oklch(95.00% 0.1596 54.97)"
+        ]
+      },
+      "orange-dark-pressed": {
+        "role": "primary",
+        "displayName": "orange dark pressed",
+        "canonical": "#FFD0AA",
+        "tonalRamp": [
+          "oklch(15.00% 0.0730 60.62)",
+          "oklch(26.43% 0.0730 60.62)",
+          "oklch(37.86% 0.0730 60.62)",
+          "oklch(49.29% 0.0730 60.62)",
+          "oklch(60.71% 0.0730 60.62)",
+          "oklch(72.14% 0.0730 60.62)",
+          "oklch(83.57% 0.0730 60.62)",
+          "oklch(95.00% 0.0730 60.62)"
+        ]
+      },
+      "orange-dark-mint": {
+        "role": "secondary",
+        "displayName": "orange dark mint",
+        "canonical": "#422E21",
+        "tonalRamp": [
+          "oklch(15.00% 0.0367 54.03)",
+          "oklch(26.43% 0.0367 54.03)",
+          "oklch(37.86% 0.0367 54.03)",
+          "oklch(49.29% 0.0367 54.03)",
+          "oklch(60.71% 0.0367 54.03)",
+          "oklch(72.14% 0.0367 54.03)",
+          "oklch(83.57% 0.0367 54.03)",
+          "oklch(95.00% 0.0367 54.03)"
+        ]
+      },
+      "orange-dark-mintStrong": {
+        "role": "secondary",
+        "displayName": "orange dark mint Strong",
+        "canonical": "#59412D",
+        "tonalRamp": [
+          "oklch(15.00% 0.0458 60.73)",
+          "oklch(26.43% 0.0458 60.73)",
+          "oklch(37.86% 0.0458 60.73)",
+          "oklch(49.29% 0.0458 60.73)",
+          "oklch(60.71% 0.0458 60.73)",
+          "oklch(72.14% 0.0458 60.73)",
+          "oklch(83.57% 0.0458 60.73)",
+          "oklch(95.00% 0.0458 60.73)"
+        ]
+      },
+      "orange-dark-hero": {
+        "role": "secondary",
+        "displayName": "orange dark hero",
+        "canonical": "#4D3525",
+        "tonalRamp": [
+          "oklch(15.00% 0.0434 54.51)",
+          "oklch(26.43% 0.0434 54.51)",
+          "oklch(37.86% 0.0434 54.51)",
+          "oklch(49.29% 0.0434 54.51)",
+          "oklch(60.71% 0.0434 54.51)",
+          "oklch(72.14% 0.0434 54.51)",
+          "oklch(83.57% 0.0434 54.51)",
+          "oklch(95.00% 0.0434 54.51)"
+        ]
+      },
+      "orange-dark-heroText": {
+        "role": "secondary",
+        "displayName": "orange dark hero Text",
+        "canonical": "#FFF3E9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0186 62.46)",
+          "oklch(26.43% 0.0186 62.46)",
+          "oklch(37.86% 0.0186 62.46)",
+          "oklch(49.29% 0.0186 62.46)",
+          "oklch(60.71% 0.0186 62.46)",
+          "oklch(72.14% 0.0186 62.46)",
+          "oklch(83.57% 0.0186 62.46)",
+          "oklch(95.00% 0.0186 62.46)"
+        ]
+      },
+      "orange-dark-heroSecondary": {
+        "role": "secondary",
+        "displayName": "orange dark hero Secondary",
+        "canonical": "#EFCBAF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0555 59.84)",
+          "oklch(26.43% 0.0555 59.84)",
+          "oklch(37.86% 0.0555 59.84)",
+          "oklch(49.29% 0.0555 59.84)",
+          "oklch(60.71% 0.0555 59.84)",
+          "oklch(72.14% 0.0555 59.84)",
+          "oklch(83.57% 0.0555 59.84)",
+          "oklch(95.00% 0.0555 59.84)"
+        ]
+      },
+      "orange-dark-heroArt": {
+        "role": "secondary",
+        "displayName": "orange dark hero Art",
+        "canonical": "#A47854",
+        "tonalRamp": [
+          "oklch(15.00% 0.0747 60.03)",
+          "oklch(26.43% 0.0747 60.03)",
+          "oklch(37.86% 0.0747 60.03)",
+          "oklch(49.29% 0.0747 60.03)",
+          "oklch(60.71% 0.0747 60.03)",
+          "oklch(72.14% 0.0747 60.03)",
+          "oklch(83.57% 0.0747 60.03)",
+          "oklch(95.00% 0.0747 60.03)"
+        ]
+      },
+      "swatch-yellow": {
+        "role": "primary",
+        "displayName": "swatch yellow",
+        "canonical": "#F4D35E",
+        "tonalRamp": [
+          "oklch(15.00% 0.1396 93.54)",
+          "oklch(26.43% 0.1396 93.54)",
+          "oklch(37.86% 0.1396 93.54)",
+          "oklch(49.29% 0.1396 93.54)",
+          "oklch(60.71% 0.1396 93.54)",
+          "oklch(72.14% 0.1396 93.54)",
+          "oklch(83.57% 0.1396 93.54)",
+          "oklch(95.00% 0.1396 93.54)"
+        ]
+      },
+      "yellow-light-primary": {
+        "role": "primary",
+        "displayName": "yellow light primary",
+        "canonical": "#84620C",
+        "tonalRamp": [
+          "oklch(15.00% 0.1023 83.68)",
+          "oklch(26.43% 0.1023 83.68)",
+          "oklch(37.86% 0.1023 83.68)",
+          "oklch(49.29% 0.1023 83.68)",
+          "oklch(60.71% 0.1023 83.68)",
+          "oklch(72.14% 0.1023 83.68)",
+          "oklch(83.57% 0.1023 83.68)",
+          "oklch(95.00% 0.1023 83.68)"
+        ]
+      },
+      "yellow-light-accent": {
+        "role": "primary",
+        "displayName": "yellow light accent",
+        "canonical": "#F4D35E",
+        "tonalRamp": [
+          "oklch(15.00% 0.1396 93.54)",
+          "oklch(26.43% 0.1396 93.54)",
+          "oklch(37.86% 0.1396 93.54)",
+          "oklch(49.29% 0.1396 93.54)",
+          "oklch(60.71% 0.1396 93.54)",
+          "oklch(72.14% 0.1396 93.54)",
+          "oklch(83.57% 0.1396 93.54)",
+          "oklch(95.00% 0.1396 93.54)"
+        ]
+      },
+      "yellow-light-pressed": {
+        "role": "primary",
+        "displayName": "yellow light pressed",
+        "canonical": "#664A04",
+        "tonalRamp": [
+          "oklch(15.00% 0.0861 82.97)",
+          "oklch(26.43% 0.0861 82.97)",
+          "oklch(37.86% 0.0861 82.97)",
+          "oklch(49.29% 0.0861 82.97)",
+          "oklch(60.71% 0.0861 82.97)",
+          "oklch(72.14% 0.0861 82.97)",
+          "oklch(83.57% 0.0861 82.97)",
+          "oklch(95.00% 0.0861 82.97)"
+        ]
+      },
+      "yellow-light-mint": {
+        "role": "secondary",
+        "displayName": "yellow light mint",
+        "canonical": "#FFF9E4",
+        "tonalRamp": [
+          "oklch(15.00% 0.0282 93.74)",
+          "oklch(26.43% 0.0282 93.74)",
+          "oklch(37.86% 0.0282 93.74)",
+          "oklch(49.29% 0.0282 93.74)",
+          "oklch(60.71% 0.0282 93.74)",
+          "oklch(72.14% 0.0282 93.74)",
+          "oklch(83.57% 0.0282 93.74)",
+          "oklch(95.00% 0.0282 93.74)"
+        ]
+      },
+      "yellow-light-mintStrong": {
+        "role": "secondary",
+        "displayName": "yellow light mint Strong",
+        "canonical": "#F6EAB9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0646 95.91)",
+          "oklch(26.43% 0.0646 95.91)",
+          "oklch(37.86% 0.0646 95.91)",
+          "oklch(49.29% 0.0646 95.91)",
+          "oklch(60.71% 0.0646 95.91)",
+          "oklch(72.14% 0.0646 95.91)",
+          "oklch(83.57% 0.0646 95.91)",
+          "oklch(95.00% 0.0646 95.91)"
+        ]
+      },
+      "yellow-light-hero": {
+        "role": "secondary",
+        "displayName": "yellow light hero",
+        "canonical": "#FAF0C9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0518 95.28)",
+          "oklch(26.43% 0.0518 95.28)",
+          "oklch(37.86% 0.0518 95.28)",
+          "oklch(49.29% 0.0518 95.28)",
+          "oklch(60.71% 0.0518 95.28)",
+          "oklch(72.14% 0.0518 95.28)",
+          "oklch(83.57% 0.0518 95.28)",
+          "oklch(95.00% 0.0518 95.28)"
+        ]
+      },
+      "yellow-light-heroText": {
+        "role": "secondary",
+        "displayName": "yellow light hero Text",
+        "canonical": "#5B4615",
+        "tonalRamp": [
+          "oklch(15.00% 0.0708 84.93)",
+          "oklch(26.43% 0.0708 84.93)",
+          "oklch(37.86% 0.0708 84.93)",
+          "oklch(49.29% 0.0708 84.93)",
+          "oklch(60.71% 0.0708 84.93)",
+          "oklch(72.14% 0.0708 84.93)",
+          "oklch(83.57% 0.0708 84.93)",
+          "oklch(95.00% 0.0708 84.93)"
+        ]
+      },
+      "yellow-light-heroSecondary": {
+        "role": "secondary",
+        "displayName": "yellow light hero Secondary",
+        "canonical": "#76602C",
+        "tonalRamp": [
+          "oklch(15.00% 0.0756 86.47)",
+          "oklch(26.43% 0.0756 86.47)",
+          "oklch(37.86% 0.0756 86.47)",
+          "oklch(49.29% 0.0756 86.47)",
+          "oklch(60.71% 0.0756 86.47)",
+          "oklch(72.14% 0.0756 86.47)",
+          "oklch(83.57% 0.0756 86.47)",
+          "oklch(95.00% 0.0756 86.47)"
+        ]
+      },
+      "yellow-light-heroArt": {
+        "role": "secondary",
+        "displayName": "yellow light hero Art",
+        "canonical": "#CCB468",
+        "tonalRamp": [
+          "oklch(15.00% 0.1000 92.38)",
+          "oklch(26.43% 0.1000 92.38)",
+          "oklch(37.86% 0.1000 92.38)",
+          "oklch(49.29% 0.1000 92.38)",
+          "oklch(60.71% 0.1000 92.38)",
+          "oklch(72.14% 0.1000 92.38)",
+          "oklch(83.57% 0.1000 92.38)",
+          "oklch(95.00% 0.1000 92.38)"
+        ]
+      },
+      "yellow-dark-primary": {
+        "role": "primary",
+        "displayName": "yellow dark primary",
+        "canonical": "#F4D35E",
+        "tonalRamp": [
+          "oklch(15.00% 0.1396 93.54)",
+          "oklch(26.43% 0.1396 93.54)",
+          "oklch(37.86% 0.1396 93.54)",
+          "oklch(49.29% 0.1396 93.54)",
+          "oklch(60.71% 0.1396 93.54)",
+          "oklch(72.14% 0.1396 93.54)",
+          "oklch(83.57% 0.1396 93.54)",
+          "oklch(95.00% 0.1396 93.54)"
+        ]
+      },
+      "yellow-dark-accent": {
+        "role": "primary",
+        "displayName": "yellow dark accent",
+        "canonical": "#F4D35E",
+        "tonalRamp": [
+          "oklch(15.00% 0.1396 93.54)",
+          "oklch(26.43% 0.1396 93.54)",
+          "oklch(37.86% 0.1396 93.54)",
+          "oklch(49.29% 0.1396 93.54)",
+          "oklch(60.71% 0.1396 93.54)",
+          "oklch(72.14% 0.1396 93.54)",
+          "oklch(83.57% 0.1396 93.54)",
+          "oklch(95.00% 0.1396 93.54)"
+        ]
+      },
+      "yellow-dark-pressed": {
+        "role": "primary",
+        "displayName": "yellow dark pressed",
+        "canonical": "#FFE59B",
+        "tonalRamp": [
+          "oklch(15.00% 0.0968 90.89)",
+          "oklch(26.43% 0.0968 90.89)",
+          "oklch(37.86% 0.0968 90.89)",
+          "oklch(49.29% 0.0968 90.89)",
+          "oklch(60.71% 0.0968 90.89)",
+          "oklch(72.14% 0.0968 90.89)",
+          "oklch(83.57% 0.0968 90.89)",
+          "oklch(95.00% 0.0968 90.89)"
+        ]
+      },
+      "yellow-dark-mint": {
+        "role": "secondary",
+        "displayName": "yellow dark mint",
+        "canonical": "#3A3320",
+        "tonalRamp": [
+          "oklch(15.00% 0.0326 90.11)",
+          "oklch(26.43% 0.0326 90.11)",
+          "oklch(37.86% 0.0326 90.11)",
+          "oklch(49.29% 0.0326 90.11)",
+          "oklch(60.71% 0.0326 90.11)",
+          "oklch(72.14% 0.0326 90.11)",
+          "oklch(83.57% 0.0326 90.11)",
+          "oklch(95.00% 0.0326 90.11)"
+        ]
+      },
+      "yellow-dark-mintStrong": {
+        "role": "secondary",
+        "displayName": "yellow dark mint Strong",
+        "canonical": "#51482B",
+        "tonalRamp": [
+          "oklch(15.00% 0.0458 92.80)",
+          "oklch(26.43% 0.0458 92.80)",
+          "oklch(37.86% 0.0458 92.80)",
+          "oklch(49.29% 0.0458 92.80)",
+          "oklch(60.71% 0.0458 92.80)",
+          "oklch(72.14% 0.0458 92.80)",
+          "oklch(83.57% 0.0458 92.80)",
+          "oklch(95.00% 0.0458 92.80)"
+        ]
+      },
+      "yellow-dark-hero": {
+        "role": "secondary",
+        "displayName": "yellow dark hero",
+        "canonical": "#453D22",
+        "tonalRamp": [
+          "oklch(15.00% 0.0434 93.45)",
+          "oklch(26.43% 0.0434 93.45)",
+          "oklch(37.86% 0.0434 93.45)",
+          "oklch(49.29% 0.0434 93.45)",
+          "oklch(60.71% 0.0434 93.45)",
+          "oklch(72.14% 0.0434 93.45)",
+          "oklch(83.57% 0.0434 93.45)",
+          "oklch(95.00% 0.0434 93.45)"
+        ]
+      },
+      "yellow-dark-heroText": {
+        "role": "secondary",
+        "displayName": "yellow dark hero Text",
+        "canonical": "#FFF9E4",
+        "tonalRamp": [
+          "oklch(15.00% 0.0282 93.74)",
+          "oklch(26.43% 0.0282 93.74)",
+          "oklch(37.86% 0.0282 93.74)",
+          "oklch(49.29% 0.0282 93.74)",
+          "oklch(60.71% 0.0282 93.74)",
+          "oklch(72.14% 0.0282 93.74)",
+          "oklch(83.57% 0.0282 93.74)",
+          "oklch(95.00% 0.0282 93.74)"
+        ]
+      },
+      "yellow-dark-heroSecondary": {
+        "role": "secondary",
+        "displayName": "yellow dark hero Secondary",
+        "canonical": "#E9D9A4",
+        "tonalRamp": [
+          "oklch(15.00% 0.0710 93.28)",
+          "oklch(26.43% 0.0710 93.28)",
+          "oklch(37.86% 0.0710 93.28)",
+          "oklch(49.29% 0.0710 93.28)",
+          "oklch(60.71% 0.0710 93.28)",
+          "oklch(72.14% 0.0710 93.28)",
+          "oklch(83.57% 0.0710 93.28)",
+          "oklch(95.00% 0.0710 93.28)"
+        ]
+      },
+      "yellow-dark-heroArt": {
+        "role": "secondary",
+        "displayName": "yellow dark hero Art",
+        "canonical": "#968650",
+        "tonalRamp": [
+          "oklch(15.00% 0.0755 93.44)",
+          "oklch(26.43% 0.0755 93.44)",
+          "oklch(37.86% 0.0755 93.44)",
+          "oklch(49.29% 0.0755 93.44)",
+          "oklch(60.71% 0.0755 93.44)",
+          "oklch(72.14% 0.0755 93.44)",
+          "oklch(83.57% 0.0755 93.44)",
+          "oklch(95.00% 0.0755 93.44)"
+        ]
+      },
+      "swatch-pink": {
+        "role": "primary",
+        "displayName": "swatch pink",
+        "canonical": "#E56AA3",
+        "tonalRamp": [
+          "oklch(15.00% 0.1640 353.25)",
+          "oklch(26.43% 0.1640 353.25)",
+          "oklch(37.86% 0.1640 353.25)",
+          "oklch(49.29% 0.1640 353.25)",
+          "oklch(60.71% 0.1640 353.25)",
+          "oklch(72.14% 0.1640 353.25)",
+          "oklch(83.57% 0.1640 353.25)",
+          "oklch(95.00% 0.1640 353.25)"
+        ]
+      },
+      "pink-light-primary": {
+        "role": "primary",
+        "displayName": "pink light primary",
+        "canonical": "#AC386F",
+        "tonalRamp": [
+          "oklch(15.00% 0.1598 354.84)",
+          "oklch(26.43% 0.1598 354.84)",
+          "oklch(37.86% 0.1598 354.84)",
+          "oklch(49.29% 0.1598 354.84)",
+          "oklch(60.71% 0.1598 354.84)",
+          "oklch(72.14% 0.1598 354.84)",
+          "oklch(83.57% 0.1598 354.84)",
+          "oklch(95.00% 0.1598 354.84)"
+        ]
+      },
+      "pink-light-accent": {
+        "role": "primary",
+        "displayName": "pink light accent",
+        "canonical": "#E56AA3",
+        "tonalRamp": [
+          "oklch(15.00% 0.1640 353.25)",
+          "oklch(26.43% 0.1640 353.25)",
+          "oklch(37.86% 0.1640 353.25)",
+          "oklch(49.29% 0.1640 353.25)",
+          "oklch(60.71% 0.1640 353.25)",
+          "oklch(72.14% 0.1640 353.25)",
+          "oklch(83.57% 0.1640 353.25)",
+          "oklch(95.00% 0.1640 353.25)"
+        ]
+      },
+      "pink-light-pressed": {
+        "role": "primary",
+        "displayName": "pink light pressed",
+        "canonical": "#862650",
+        "tonalRamp": [
+          "oklch(15.00% 0.1357 357.70)",
+          "oklch(26.43% 0.1357 357.70)",
+          "oklch(37.86% 0.1357 357.70)",
+          "oklch(49.29% 0.1357 357.70)",
+          "oklch(60.71% 0.1357 357.70)",
+          "oklch(72.14% 0.1357 357.70)",
+          "oklch(83.57% 0.1357 357.70)",
+          "oklch(95.00% 0.1357 357.70)"
+        ]
+      },
+      "pink-light-mint": {
+        "role": "secondary",
+        "displayName": "pink light mint",
+        "canonical": "#FFF0F7",
+        "tonalRamp": [
+          "oklch(15.00% 0.0185 347.42)",
+          "oklch(26.43% 0.0185 347.42)",
+          "oklch(37.86% 0.0185 347.42)",
+          "oklch(49.29% 0.0185 347.42)",
+          "oklch(60.71% 0.0185 347.42)",
+          "oklch(72.14% 0.0185 347.42)",
+          "oklch(83.57% 0.0185 347.42)",
+          "oklch(95.00% 0.0185 347.42)"
+        ]
+      },
+      "pink-light-mintStrong": {
+        "role": "secondary",
+        "displayName": "pink light mint Strong",
+        "canonical": "#FAD9E9",
+        "tonalRamp": [
+          "oklch(15.00% 0.0420 347.11)",
+          "oklch(26.43% 0.0420 347.11)",
+          "oklch(37.86% 0.0420 347.11)",
+          "oklch(49.29% 0.0420 347.11)",
+          "oklch(60.71% 0.0420 347.11)",
+          "oklch(72.14% 0.0420 347.11)",
+          "oklch(83.57% 0.0420 347.11)",
+          "oklch(95.00% 0.0420 347.11)"
+        ]
+      },
+      "pink-light-hero": {
+        "role": "secondary",
+        "displayName": "pink light hero",
+        "canonical": "#FCE6F1",
+        "tonalRamp": [
+          "oklch(15.00% 0.0279 345.90)",
+          "oklch(26.43% 0.0279 345.90)",
+          "oklch(37.86% 0.0279 345.90)",
+          "oklch(49.29% 0.0279 345.90)",
+          "oklch(60.71% 0.0279 345.90)",
+          "oklch(72.14% 0.0279 345.90)",
+          "oklch(83.57% 0.0279 345.90)",
+          "oklch(95.00% 0.0279 345.90)"
+        ]
+      },
+      "pink-light-heroText": {
+        "role": "secondary",
+        "displayName": "pink light hero Text",
+        "canonical": "#732D4E",
+        "tonalRamp": [
+          "oklch(15.00% 0.1057 353.41)",
+          "oklch(26.43% 0.1057 353.41)",
+          "oklch(37.86% 0.1057 353.41)",
+          "oklch(49.29% 0.1057 353.41)",
+          "oklch(60.71% 0.1057 353.41)",
+          "oklch(72.14% 0.1057 353.41)",
+          "oklch(83.57% 0.1057 353.41)",
+          "oklch(95.00% 0.1057 353.41)"
+        ]
+      },
+      "pink-light-heroSecondary": {
+        "role": "secondary",
+        "displayName": "pink light hero Secondary",
+        "canonical": "#8A4A69",
+        "tonalRamp": [
+          "oklch(15.00% 0.0948 350.69)",
+          "oklch(26.43% 0.0948 350.69)",
+          "oklch(37.86% 0.0948 350.69)",
+          "oklch(49.29% 0.0948 350.69)",
+          "oklch(60.71% 0.0948 350.69)",
+          "oklch(72.14% 0.0948 350.69)",
+          "oklch(83.57% 0.0948 350.69)",
+          "oklch(95.00% 0.0948 350.69)"
+        ]
+      },
+      "pink-light-heroArt": {
+        "role": "secondary",
+        "displayName": "pink light hero Art",
+        "canonical": "#E4A0C1",
+        "tonalRamp": [
+          "oklch(15.00% 0.0907 348.79)",
+          "oklch(26.43% 0.0907 348.79)",
+          "oklch(37.86% 0.0907 348.79)",
+          "oklch(49.29% 0.0907 348.79)",
+          "oklch(60.71% 0.0907 348.79)",
+          "oklch(72.14% 0.0907 348.79)",
+          "oklch(83.57% 0.0907 348.79)",
+          "oklch(95.00% 0.0907 348.79)"
+        ]
+      },
+      "pink-dark-primary": {
+        "role": "primary",
+        "displayName": "pink dark primary",
+        "canonical": "#F7AED0",
+        "tonalRamp": [
+          "oklch(15.00% 0.0950 349.86)",
+          "oklch(26.43% 0.0950 349.86)",
+          "oklch(37.86% 0.0950 349.86)",
+          "oklch(49.29% 0.0950 349.86)",
+          "oklch(60.71% 0.0950 349.86)",
+          "oklch(72.14% 0.0950 349.86)",
+          "oklch(83.57% 0.0950 349.86)",
+          "oklch(95.00% 0.0950 349.86)"
+        ]
+      },
+      "pink-dark-accent": {
+        "role": "primary",
+        "displayName": "pink dark accent",
+        "canonical": "#E56AA3",
+        "tonalRamp": [
+          "oklch(15.00% 0.1640 353.25)",
+          "oklch(26.43% 0.1640 353.25)",
+          "oklch(37.86% 0.1640 353.25)",
+          "oklch(49.29% 0.1640 353.25)",
+          "oklch(60.71% 0.1640 353.25)",
+          "oklch(72.14% 0.1640 353.25)",
+          "oklch(83.57% 0.1640 353.25)",
+          "oklch(95.00% 0.1640 353.25)"
+        ]
+      },
+      "pink-dark-pressed": {
+        "role": "primary",
+        "displayName": "pink dark pressed",
+        "canonical": "#FFD0E4",
+        "tonalRamp": [
+          "oklch(15.00% 0.0585 350.90)",
+          "oklch(26.43% 0.0585 350.90)",
+          "oklch(37.86% 0.0585 350.90)",
+          "oklch(49.29% 0.0585 350.90)",
+          "oklch(60.71% 0.0585 350.90)",
+          "oklch(72.14% 0.0585 350.90)",
+          "oklch(83.57% 0.0585 350.90)",
+          "oklch(95.00% 0.0585 350.90)"
+        ]
+      },
+      "pink-dark-mint": {
+        "role": "secondary",
+        "displayName": "pink dark mint",
+        "canonical": "#402A36",
+        "tonalRamp": [
+          "oklch(15.00% 0.0378 345.60)",
+          "oklch(26.43% 0.0378 345.60)",
+          "oklch(37.86% 0.0378 345.60)",
+          "oklch(49.29% 0.0378 345.60)",
+          "oklch(60.71% 0.0378 345.60)",
+          "oklch(72.14% 0.0378 345.60)",
+          "oklch(83.57% 0.0378 345.60)",
+          "oklch(95.00% 0.0378 345.60)"
+        ]
+      },
+      "pink-dark-mintStrong": {
+        "role": "secondary",
+        "displayName": "pink dark mint Strong",
+        "canonical": "#583A4B",
+        "tonalRamp": [
+          "oklch(15.00% 0.0495 344.65)",
+          "oklch(26.43% 0.0495 344.65)",
+          "oklch(37.86% 0.0495 344.65)",
+          "oklch(49.29% 0.0495 344.65)",
+          "oklch(60.71% 0.0495 344.65)",
+          "oklch(72.14% 0.0495 344.65)",
+          "oklch(83.57% 0.0495 344.65)",
+          "oklch(95.00% 0.0495 344.65)"
+        ]
+      },
+      "pink-dark-hero": {
+        "role": "secondary",
+        "displayName": "pink dark hero",
+        "canonical": "#4C3040",
+        "tonalRamp": [
+          "oklch(15.00% 0.0476 344.60)",
+          "oklch(26.43% 0.0476 344.60)",
+          "oklch(37.86% 0.0476 344.60)",
+          "oklch(49.29% 0.0476 344.60)",
+          "oklch(60.71% 0.0476 344.60)",
+          "oklch(72.14% 0.0476 344.60)",
+          "oklch(83.57% 0.0476 344.60)",
+          "oklch(95.00% 0.0476 344.60)"
+        ]
+      },
+      "pink-dark-heroText": {
+        "role": "secondary",
+        "displayName": "pink dark hero Text",
+        "canonical": "#FFF0F7",
+        "tonalRamp": [
+          "oklch(15.00% 0.0185 347.42)",
+          "oklch(26.43% 0.0185 347.42)",
+          "oklch(37.86% 0.0185 347.42)",
+          "oklch(49.29% 0.0185 347.42)",
+          "oklch(60.71% 0.0185 347.42)",
+          "oklch(72.14% 0.0185 347.42)",
+          "oklch(83.57% 0.0185 347.42)",
+          "oklch(95.00% 0.0185 347.42)"
+        ]
+      },
+      "pink-dark-heroSecondary": {
+        "role": "secondary",
+        "displayName": "pink dark hero Secondary",
+        "canonical": "#EBC2D6",
+        "tonalRamp": [
+          "oklch(15.00% 0.0533 347.36)",
+          "oklch(26.43% 0.0533 347.36)",
+          "oklch(37.86% 0.0533 347.36)",
+          "oklch(49.29% 0.0533 347.36)",
+          "oklch(60.71% 0.0533 347.36)",
+          "oklch(72.14% 0.0533 347.36)",
+          "oklch(83.57% 0.0533 347.36)",
+          "oklch(95.00% 0.0533 347.36)"
+        ]
+      },
+      "pink-dark-heroArt": {
+        "role": "secondary",
+        "displayName": "pink dark hero Art",
+        "canonical": "#A36785",
+        "tonalRamp": [
+          "oklch(15.00% 0.0864 348.71)",
+          "oklch(26.43% 0.0864 348.71)",
+          "oklch(37.86% 0.0864 348.71)",
+          "oklch(49.29% 0.0864 348.71)",
+          "oklch(60.71% 0.0864 348.71)",
+          "oklch(72.14% 0.0864 348.71)",
+          "oklch(83.57% 0.0864 348.71)",
+          "oklch(95.00% 0.0864 348.71)"
+        ]
+      },
+      "swatch-mono": {
+        "role": "primary",
+        "displayName": "swatch mono",
+        "canonical": "#252525",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "mono-light-primary": {
+        "role": "primary",
+        "displayName": "mono light primary",
+        "canonical": "#252525",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "mono-light-accent": {
+        "role": "primary",
+        "displayName": "mono light accent",
+        "canonical": "#252525",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "mono-light-pressed": {
+        "role": "primary",
+        "displayName": "mono light pressed",
+        "canonical": "#454545",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "mono-light-mint": {
+        "role": "secondary",
+        "displayName": "mono light mint",
+        "canonical": "#F0F0EF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0013 106.42)",
+          "oklch(26.43% 0.0013 106.42)",
+          "oklch(37.86% 0.0013 106.42)",
+          "oklch(49.29% 0.0013 106.42)",
+          "oklch(60.71% 0.0013 106.42)",
+          "oklch(72.14% 0.0013 106.42)",
+          "oklch(83.57% 0.0013 106.42)",
+          "oklch(95.00% 0.0013 106.42)"
+        ]
+      },
+      "mono-light-mintStrong": {
+        "role": "secondary",
+        "displayName": "mono light mint Strong",
+        "canonical": "#E2E2DF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0040 106.48)",
+          "oklch(26.43% 0.0040 106.48)",
+          "oklch(37.86% 0.0040 106.48)",
+          "oklch(49.29% 0.0040 106.48)",
+          "oklch(60.71% 0.0040 106.48)",
+          "oklch(72.14% 0.0040 106.48)",
+          "oklch(83.57% 0.0040 106.48)",
+          "oklch(95.00% 0.0040 106.48)"
+        ]
+      },
+      "mono-light-hero": {
+        "role": "secondary",
+        "displayName": "mono light hero",
+        "canonical": "#EBEBE8",
+        "tonalRamp": [
+          "oklch(15.00% 0.0040 106.48)",
+          "oklch(26.43% 0.0040 106.48)",
+          "oklch(37.86% 0.0040 106.48)",
+          "oklch(49.29% 0.0040 106.48)",
+          "oklch(60.71% 0.0040 106.48)",
+          "oklch(72.14% 0.0040 106.48)",
+          "oklch(83.57% 0.0040 106.48)",
+          "oklch(95.00% 0.0040 106.48)"
+        ]
+      },
+      "mono-light-heroText": {
+        "role": "secondary",
+        "displayName": "mono light hero Text",
+        "canonical": "#252525",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "mono-light-heroSecondary": {
+        "role": "secondary",
+        "displayName": "mono light hero Secondary",
+        "canonical": "#5C5C58",
+        "tonalRamp": [
+          "oklch(15.00% 0.0063 106.64)",
+          "oklch(26.43% 0.0063 106.64)",
+          "oklch(37.86% 0.0063 106.64)",
+          "oklch(49.29% 0.0063 106.64)",
+          "oklch(60.71% 0.0063 106.64)",
+          "oklch(72.14% 0.0063 106.64)",
+          "oklch(83.57% 0.0063 106.64)",
+          "oklch(95.00% 0.0063 106.64)"
+        ]
+      },
+      "mono-light-heroArt": {
+        "role": "secondary",
+        "displayName": "mono light hero Art",
+        "canonical": "#B9B9B4",
+        "tonalRamp": [
+          "oklch(15.00% 0.0070 106.56)",
+          "oklch(26.43% 0.0070 106.56)",
+          "oklch(37.86% 0.0070 106.56)",
+          "oklch(49.29% 0.0070 106.56)",
+          "oklch(60.71% 0.0070 106.56)",
+          "oklch(72.14% 0.0070 106.56)",
+          "oklch(83.57% 0.0070 106.56)",
+          "oklch(95.00% 0.0070 106.56)"
+        ]
+      },
+      "mono-dark-primary": {
+        "role": "primary",
+        "displayName": "mono dark primary",
+        "canonical": "#F4F4F2",
+        "tonalRamp": [
+          "oklch(15.00% 0.0026 106.45)",
+          "oklch(26.43% 0.0026 106.45)",
+          "oklch(37.86% 0.0026 106.45)",
+          "oklch(49.29% 0.0026 106.45)",
+          "oklch(60.71% 0.0026 106.45)",
+          "oklch(72.14% 0.0026 106.45)",
+          "oklch(83.57% 0.0026 106.45)",
+          "oklch(95.00% 0.0026 106.45)"
+        ]
+      },
+      "mono-dark-accent": {
+        "role": "primary",
+        "displayName": "mono dark accent",
+        "canonical": "#F4F4F2",
+        "tonalRamp": [
+          "oklch(15.00% 0.0026 106.45)",
+          "oklch(26.43% 0.0026 106.45)",
+          "oklch(37.86% 0.0026 106.45)",
+          "oklch(49.29% 0.0026 106.45)",
+          "oklch(60.71% 0.0026 106.45)",
+          "oklch(72.14% 0.0026 106.45)",
+          "oklch(83.57% 0.0026 106.45)",
+          "oklch(95.00% 0.0026 106.45)"
+        ]
+      },
+      "mono-dark-pressed": {
+        "role": "primary",
+        "displayName": "mono dark pressed",
+        "canonical": "#DADAD6",
+        "tonalRamp": [
+          "oklch(15.00% 0.0054 106.51)",
+          "oklch(26.43% 0.0054 106.51)",
+          "oklch(37.86% 0.0054 106.51)",
+          "oklch(49.29% 0.0054 106.51)",
+          "oklch(60.71% 0.0054 106.51)",
+          "oklch(72.14% 0.0054 106.51)",
+          "oklch(83.57% 0.0054 106.51)",
+          "oklch(95.00% 0.0054 106.51)"
+        ]
+      },
+      "mono-dark-mint": {
+        "role": "secondary",
+        "displayName": "mono dark mint",
+        "canonical": "#2C2C2B",
+        "tonalRamp": [
+          "oklch(15.00% 0.0018 106.51)",
+          "oklch(26.43% 0.0018 106.51)",
+          "oklch(37.86% 0.0018 106.51)",
+          "oklch(49.29% 0.0018 106.51)",
+          "oklch(60.71% 0.0018 106.51)",
+          "oklch(72.14% 0.0018 106.51)",
+          "oklch(83.57% 0.0018 106.51)",
+          "oklch(95.00% 0.0018 106.51)"
+        ]
+      },
+      "mono-dark-mintStrong": {
+        "role": "secondary",
+        "displayName": "mono dark mint Strong",
+        "canonical": "#3E3E3C",
+        "tonalRamp": [
+          "oklch(15.00% 0.0034 106.57)",
+          "oklch(26.43% 0.0034 106.57)",
+          "oklch(37.86% 0.0034 106.57)",
+          "oklch(49.29% 0.0034 106.57)",
+          "oklch(60.71% 0.0034 106.57)",
+          "oklch(72.14% 0.0034 106.57)",
+          "oklch(83.57% 0.0034 106.57)",
+          "oklch(95.00% 0.0034 106.57)"
+        ]
+      },
+      "mono-dark-hero": {
+        "role": "secondary",
+        "displayName": "mono dark hero",
+        "canonical": "#343432",
+        "tonalRamp": [
+          "oklch(15.00% 0.0035 106.59)",
+          "oklch(26.43% 0.0035 106.59)",
+          "oklch(37.86% 0.0035 106.59)",
+          "oklch(49.29% 0.0035 106.59)",
+          "oklch(60.71% 0.0035 106.59)",
+          "oklch(72.14% 0.0035 106.59)",
+          "oklch(83.57% 0.0035 106.59)",
+          "oklch(95.00% 0.0035 106.59)"
+        ]
+      },
+      "mono-dark-heroText": {
+        "role": "secondary",
+        "displayName": "mono dark hero Text",
+        "canonical": "#F4F4F2",
+        "tonalRamp": [
+          "oklch(15.00% 0.0026 106.45)",
+          "oklch(26.43% 0.0026 106.45)",
+          "oklch(37.86% 0.0026 106.45)",
+          "oklch(49.29% 0.0026 106.45)",
+          "oklch(60.71% 0.0026 106.45)",
+          "oklch(72.14% 0.0026 106.45)",
+          "oklch(83.57% 0.0026 106.45)",
+          "oklch(95.00% 0.0026 106.45)"
+        ]
+      },
+      "mono-dark-heroSecondary": {
+        "role": "secondary",
+        "displayName": "mono dark hero Secondary",
+        "canonical": "#C6C6C0",
+        "tonalRamp": [
+          "oklch(15.00% 0.0083 106.58)",
+          "oklch(26.43% 0.0083 106.58)",
+          "oklch(37.86% 0.0083 106.58)",
+          "oklch(49.29% 0.0083 106.58)",
+          "oklch(60.71% 0.0083 106.58)",
+          "oklch(72.14% 0.0083 106.58)",
+          "oklch(83.57% 0.0083 106.58)",
+          "oklch(95.00% 0.0083 106.58)"
+        ]
+      },
+      "mono-dark-heroArt": {
+        "role": "secondary",
+        "displayName": "mono dark hero Art",
+        "canonical": "#73736D",
+        "tonalRamp": [
+          "oklch(15.00% 0.0091 106.69)",
+          "oklch(26.43% 0.0091 106.69)",
+          "oklch(37.86% 0.0091 106.69)",
+          "oklch(49.29% 0.0091 106.69)",
+          "oklch(60.71% 0.0091 106.69)",
+          "oklch(72.14% 0.0091 106.69)",
+          "oklch(83.57% 0.0091 106.69)",
+          "oklch(95.00% 0.0091 106.69)"
+        ]
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "description": "Shared primary action; literal light/dark preview of the default Green primitive.",
+      "html": "<button class=\"ds-button-primary\">Save changes</button>",
+      "css": ".ds-button-primary{min-height:50px;padding:11px 21px;border-radius:12px;font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:600;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;background:#087C65;color:#FFFFFF;border:0;}.ds-button-primary:hover{background:#066551}.ds-button-primary:focus-visible{outline:2px solid #087C65;outline-offset:3px;}.ds-button-primary:active{transform:scale(.985);transition:transform 100ms}.ds-button-primary:disabled{opacity:.6;cursor:default}@media(prefers-color-scheme:dark){.ds-button-primary{background:#70D2AD;color:#102219;}.ds-button-primary:hover{background:#ADE9CC}.ds-button-primary:focus-visible{outline-color:#70D2AD}}@media(prefers-reduced-motion:reduce){.ds-button-primary:active{transform:none;transition:none}}",
+      "refersTo": "button-primary-light"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "description": "Shared secondary action; literal light/dark preview of the default Green primitive.",
+      "html": "<button class=\"ds-button-secondary\">Save changes</button>",
+      "css": ".ds-button-secondary{min-height:50px;padding:11px 21px;border-radius:12px;font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:600;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;background:#FFFFFF;color:#182D25;border:1px solid #E8EEE9;}.ds-button-secondary:hover{background:#EAF6EE}.ds-button-secondary:focus-visible{outline:2px solid #087C65;outline-offset:3px;}.ds-button-secondary:active{transform:scale(.985);transition:transform 100ms}.ds-button-secondary:disabled{opacity:.6;cursor:default}@media(prefers-color-scheme:dark){.ds-button-secondary{background:#18251E;color:#E7F2E9;border-color:#2A3A30;}.ds-button-secondary:hover{background:#243F30}.ds-button-secondary:focus-visible{outline-color:#70D2AD}}@media(prefers-reduced-motion:reduce){.ds-button-secondary:active{transform:none;transition:none}}",
+      "refersTo": "button-secondary-light"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "description": "Shared ghost action; literal light/dark preview of the default Green primitive.",
+      "html": "<button class=\"ds-button-ghost\">Save changes</button>",
+      "css": ".ds-button-ghost{min-height:50px;padding:11px 21px;border-radius:12px;font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:600;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;background:transparent;color:#182D25;border:0;}.ds-button-ghost:hover{background:#EAF6EE}.ds-button-ghost:focus-visible{outline:2px solid #087C65;outline-offset:3px;}.ds-button-ghost:active{transform:scale(.985);transition:transform 100ms}.ds-button-ghost:disabled{opacity:.6;cursor:default}@media(prefers-color-scheme:dark){.ds-button-ghost{background:transparent;color:#E7F2E9;}.ds-button-ghost:hover{background:#243F30}.ds-button-ghost:focus-visible{outline-color:#70D2AD}}@media(prefers-reduced-motion:reduce){.ds-button-ghost:active{transform:none;transition:none}}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "description": "Shared danger action; literal light/dark preview of the default Green primitive.",
+      "html": "<button class=\"ds-button-danger\">Delete record</button>",
+      "css": ".ds-button-danger{min-height:50px;padding:11px 21px;border-radius:12px;font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:600;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;background:#FDEEEE;color:#BA4343;border:0;}.ds-button-danger:hover{background:#FDEEEE}.ds-button-danger:focus-visible{outline:2px solid #087C65;outline-offset:3px;}.ds-button-danger:active{transform:scale(.985);transition:transform 100ms}.ds-button-danger:disabled{opacity:.6;cursor:default}@media(prefers-color-scheme:dark){.ds-button-danger{background:#3D2424;color:#F4A1A1;}.ds-button-danger:hover{background:#3D2424}.ds-button-danger:focus-visible{outline-color:#70D2AD}}@media(prefers-reduced-motion:reduce){.ds-button-danger:active{transform:none;transition:none}}",
+      "refersTo": "button-danger-light"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field-light",
+      "description": "Shared label and text field; focus stroke compensates padding.",
+      "html": "<label class=\"ds-field-label\">Reference<input class=\"ds-field\" placeholder=\"Add a reference\"></label>",
+      "css": ".ds-field-label{display:grid;gap:8px;font-family:\"DM Sans\",sans-serif;font-size:12px;font-weight:600;line-height:1.45;color:#586F61}.ds-field{min-height:52px;background:#F8FAF8;color:#182D25;border:1px solid #E8EEE9;border-radius:12px;padding:12px 14px;font-family:\"DM Sans\",sans-serif;font-size:16px}.ds-field::placeholder{color:#586F61}.ds-field:focus{border:2px solid #087C65;padding:11px 13px;outline:none}.ds-field:disabled{opacity:.6}@media(prefers-color-scheme:dark){.ds-field-label{color:#A0B4A5}.ds-field{background:#101A16;color:#E7F2E9;border-color:#2A3A30}.ds-field::placeholder{color:#A0B4A5}.ds-field:focus{border-color:#70D2AD}}"
+    },
+    {
+      "name": "Selected Navigation Row",
+      "kind": "nav",
+      "refersTo": "nav-selected-light",
+      "description": "Wide sidebar selected row with mint ground, primary text and state dot.",
+      "html": "<button class=\"ds-nav\" aria-pressed=\"true\">Subscriptions<span class=\"ds-nav-dot\"></span></button>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;margin-bottom:7px;border:0;border-radius:10px;background:#EAF6EE;color:#087C65;font-family:\"DM Sans\",sans-serif;font-size:13px;font-weight:600;line-height:1.45}.ds-nav-dot{margin-left:auto;width:5px;height:5px;border-radius:3px;background:#087C65}.ds-nav:focus-visible{outline:2px solid #087C65;outline-offset:3px;}@media(prefers-color-scheme:dark){.ds-nav{background:#243F30;color:#70D2AD}.ds-nav-dot{background:#70D2AD}.ds-nav:focus-visible{outline-color:#70D2AD}}"
+    },
+    {
+      "name": "Selected Chip",
+      "kind": "chip",
+      "refersTo": "chip-selected-light",
+      "description": "Selected choice with an accessible pressed state and minimum touch height.",
+      "html": "<button class=\"ds-chip\" aria-pressed=\"true\">Monthly</button>",
+      "css": ".ds-chip{border:1px solid #087C65;background:#087C65;color:#FFFFFF;border-radius:12px;min-height:44px;padding:11px 15px;font-family:\"DM Sans\",sans-serif;font-size:12px;font-weight:600;line-height:1.45}.ds-chip:focus-visible{outline:2px solid #087C65;outline-offset:3px;}.ds-chip:disabled{opacity:.5}@media(prefers-color-scheme:dark){.ds-chip{background:#70D2AD;border-color:#70D2AD;color:#102219}.ds-chip:focus-visible{outline-color:#70D2AD}}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card-light",
+      "description": "Shared flat card with theme surface, thin border and medium radius.",
+      "html": "<div class=\"ds-card\">Your saved plan</div>",
+      "css": ".ds-card{background:#FFFFFF;color:#182D25;border:1px solid #E8EEE9;border-radius:16px;padding:24px;font-family:\"DM Sans\",sans-serif;font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums}@media(prefers-color-scheme:dark){.ds-card{background:#18251E;color:#E7F2E9;border-color:#2A3A30}}"
+    },
+    {
+      "name": "Selected Theme Choice",
+      "kind": "custom",
+      "refersTo": "theme-option-selected-light",
+      "description": "Default Green selected theme choice; native selected and web pressed state are paired with stroke and check.",
+      "html": "<button class=\"ds-theme-choice\" aria-pressed=\"true\"><span class=\"ds-theme-swatch\"></span><span>Green</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m20 6-11 11-5-5\"/></svg></button>",
+      "css": ".ds-theme-choice{display:flex;align-items:center;gap:10px;min-height:76px;padding:12px;border:2px solid #087C65;border-radius:14px;background:#EAF6EE;color:#182D25;font:600 13px \"DM Sans\",sans-serif;cursor:pointer}.ds-theme-swatch{width:30px;height:30px;border-radius:15px;background:#087C65;border:1px solid #586F61}.ds-theme-choice svg{color:#087C65}.ds-theme-choice:hover,.ds-theme-choice:active{background:#EAF6EE}.ds-theme-choice:focus-visible{outline:2px solid #087C65;outline-offset:3px}.ds-theme-choice:disabled{opacity:.6;cursor:default}@media(prefers-color-scheme:dark){.ds-theme-choice{background:#243F30;color:#E7F2E9;border-color:#70D2AD}.ds-theme-swatch{border-color:#A0B4A5}.ds-theme-choice svg{color:#70D2AD}.ds-theme-choice:hover,.ds-theme-choice:active{background:#243F30}.ds-theme-choice:focus-visible{outline-color:#70D2AD}}"
+    },
+    {
+      "name": "Success Alert",
+      "kind": "custom",
+      "refersTo": "alert-success-light",
+      "description": "Dismissible default Green success feedback; error feedback uses the fixed error pair and longer lifetime.",
+      "html": "<div class=\"ds-alert\" role=\"alert\" aria-live=\"polite\"><span class=\"ds-alert-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m20 6-11 11-5-5\"/></svg></span><div><strong>All set</strong><p>Your changes were saved.</p></div><button class=\"ds-alert-dismiss\" aria-label=\"Dismiss notification\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m18 6-12 12M6 6l12 12\"/></svg></button></div>",
+      "css": ".ds-alert{display:flex;align-items:center;gap:10px;max-width:520px;padding:14px;border:1px solid #147044;border-radius:14px;background:#EDF8F0;color:#182D25;font:400 13px \"DM Sans\",sans-serif;line-height:1.45}.ds-alert strong{color:#147044;font-weight:600}.ds-alert p{margin:2px 0 0}.ds-alert-icon{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:34px;height:34px;border-radius:17px;background:#147044;color:#FFFFFF}.ds-alert-dismiss{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin-left:auto;border:0;background:transparent;color:#147044;cursor:pointer}.ds-alert-dismiss:focus-visible{outline:2px solid #087C65;outline-offset:3px}.ds-alert-dismiss:hover,.ds-alert-dismiss:active{background:transparent}@media(prefers-color-scheme:dark){.ds-alert{background:#1C3527;color:#E7F2E9;border-color:#95DDB2}.ds-alert strong,.ds-alert-dismiss{color:#95DDB2}.ds-alert-icon{background:#95DDB2;color:#18251E}.ds-alert-dismiss:focus-visible{outline-color:#70D2AD}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Forest and mint Subloom, made personal",
+    "overview": "Subloom retains its forest/mint default, DM Sans/Manrope, Lucide icons and rounded semantic primitives. The authorized expansion makes the consumer interface more playful through eight predefined accents, financial object illustrations, inviting action cards and explicit success/failure feedback. Readability and clear financial tasks still lead the design.\n\nShared React Native primitives serve Expo native and web surfaces. Tonal fills, contrasting spotlight cards, thin borders and visible focus establish hierarchy. Original tactile 3D wallet, cards, coins and renewal-calendar artwork add depth around onboarding and payment tasks. These objects express the financial subject; they do not introduce a brand mascot.",
+    "keyCharacteristics": [
+      "Forest and mint remain the default; eight accent choices work independently of appearance.",
+      "Manrope headings above DM Sans body text, labels and tabular numbers.",
+      "Rounded tonal controls, thin semantic borders, named Lucide actions and visible focus.",
+      "Tactile financial artwork and contrasting action cards without changing financial meaning.",
+      "Bounded feedback motion with shared system reduced-motion checks."
+    ],
+    "rules": [
+      {
+        "name": "The Theme Pair Rule",
+        "body": "Resolve semantic colors through `useTheme()`; keep foregrounds, grounds and borders in the same resolved theme. Accent and saved light/dark/system appearance are independent preferences. System appearance follows the device scheme.",
+        "section": "colors"
+      },
+      {
+        "name": "The Numeric Reading Rule",
+        "body": "Preserve the shared tabular-number treatment and keep financial labels readable while motion runs; do not move exact money calculations into animation worklets.",
+        "section": "typography"
+      },
+      {
+        "name": "The Restrained Surface Rule",
+        "body": "Extend the incumbent bordered, tonal surfaces; use the committed financial artwork for tactile depth.",
+        "section": "elevation & depth"
+      },
+      {
+        "name": "The Feedback Without Travel Rule",
+        "body": "Preserve state and readable labels when system reduced motion suppresses spatial or entrance animation. Source support is established; native runtime, OS reduced-motion settings and browser reduced-motion emulation were not exercised in the playful UI handoff.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** use the resolved semantic theme pairs, installed fonts, Lucide icons and shared primitives.",
+      "**Do** keep accent and appearance independent, and keep feedback colors stable when accents change.",
+      "**Do** reuse the committed financial object artwork with descriptive text and named actions.",
+      "**Do** preserve visible focus, named actions, selected/busy/disabled semantics and usable compact touch controls.",
+      "**Do** retain bounded feedback and system reduced-motion paths.",
+      "**Do** keep original currencies and date-only financial semantics legible; distinguish recurring estimates from imported payment facts.",
+      "**Do** preserve guest persistence, owner-isolated saves, draft protection and contextual error recovery."
+    ],
+    "donts": [
+      "**Don't** remove the Green default or replace the shared typography and rounded primitive language when extending this system.",
+      "**Don't** substitute a brand mascot for the financial objects requested for this interface.",
+      "**Don't** hide required compact actions behind hover or swiping.",
+      "**Don't** communicate financial or error meaning through color alone.",
+      "**Don't** imply planning records, simulations, reminders or manually recorded cancellation perform merchant billing or money movement.",
+      "**Don't** treat source-level accessibility or native bundle exports as proof of untested device behavior."
+    ]
+  }
+}

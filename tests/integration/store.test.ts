@@ -12,9 +12,11 @@ import {
   useApp,
   changeStatus,
   deleteSubscription,
+  updatePreferences,
+  readableError,
 } from "../../src/store/app";
 import { extractReceipt } from "../../src/domain/detection";
-import { defaultPreferences } from "../../src/domain/models";
+import { dateSchema, defaultPreferences } from "../../src/domain/models";
 import { subscription, userA, userB } from "../fixtures";
 vi.mock("react-native", () => ({ Platform: { OS: "web" } }));
 vi.mock("expo-crypto", () => ({ randomUUID }));
@@ -34,6 +36,14 @@ beforeEach(async () => {
   await hydrate("guest");
 });
 describe("durable guest data and offline operation transactions", () => {
+  it("shows a useful validation message instead of internal schema JSON", () => {
+    const result = dateSchema.safeParse("2026-02-30");
+    if (result.success) throw new Error("Fixture must fail date validation");
+    expect(readableError(result.error)).toBe(
+      "Enter a valid date in YYYY-MM-DD format.",
+    );
+    expect(readableError(new Error("Storage is full"))).toBe("Storage is full");
+  });
   it("persists guest tracking without a cloud outbox", async () => {
     await saveSubscription(subscription());
     await hydrate("guest");
@@ -153,6 +163,36 @@ describe("durable guest data and offline operation transactions", () => {
     }));
     await hydrate();
     expect(useApp.getState().data.preferences.appearance).toBe("dark");
+  });
+  it("persists guest accents and isolates account accents and their queued preferences", async () => {
+    await updatePreferences({ accentTheme: "violet", appearance: "dark" });
+    await hydrate("guest");
+    expect(useApp.getState().data.preferences.accentTheme).toBe("violet");
+    expect(useApp.getState().data.outbox).toHaveLength(0);
+    await hydrate(userA);
+    await updatePreferences({ accentTheme: "blue" });
+    expect(useApp.getState().data.outbox.at(-1)).toMatchObject({
+      entity: "preferences",
+      payload: { accentTheme: "blue" },
+    });
+    await hydrate(userB);
+    expect(useApp.getState().data.preferences.accentTheme).toBe("green");
+    await hydrate(userA);
+    expect(useApp.getState().data.preferences.accentTheme).toBe("blue");
+    await hydrate("guest");
+    expect(useApp.getState().data.preferences).toMatchObject({
+      accentTheme: "violet",
+      appearance: "dark",
+    });
+  });
+  it("keeps the previous theme and outbox after a failed theme save", async () => {
+    await hydrate(userA);
+    failWrites = true;
+    await expect(updatePreferences({ accentTheme: "pink" })).rejects.toThrow(
+      /Storage is full/,
+    );
+    expect(useApp.getState().data.preferences.accentTheme).toBe("green");
+    expect(useApp.getState().data.outbox).toHaveLength(0);
   });
 });
 

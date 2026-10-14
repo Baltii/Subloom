@@ -1,5 +1,7 @@
 # Feature delivery and setup
 
+The new eight-feature recurring-payments stack is documented in [Control center](control-center/README.md), with its current merge order, provider boundaries and validation.
+
 Each feature has its own branch, tested pull request and Markdown document. These are stacked PRs: merge in the following order, then retarget each next PR to `main` after its predecessor merges. Each PR contains only its feature delta relative to the preceding branch.
 
 | Order | Feature                    | Branch                         | PR                                               | Documentation                      |

@@ -14,6 +14,7 @@ export const handler = endpoint(async (req) => {
     "profiles",
     "user_preferences",
     "feature_settings",
+    "finance_journals",
     "subscriptions",
     "subscription_price_history",
     "detected_candidates",
@@ -40,7 +41,7 @@ export const handler = endpoint(async (req) => {
       const order =
         table === "feature_settings"
           ? "key"
-          : ["profiles", "user_entitlements"].includes(table)
+          : ["profiles", "user_entitlements", "finance_journals"].includes(table)
             ? "user_id"
             : "id";
       const { data, error } = await client
@@ -70,6 +71,7 @@ export const handler = endpoint(async (req) => {
     "workspaces",
     "workspace_members",
     "workspace_subscriptions",
+    "workspace_ledger",
   ]) {
     const rows: unknown[] = [];
     for (let start = 0; ; start += 500) {
