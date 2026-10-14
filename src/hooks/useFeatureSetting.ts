@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod";
+import { useFocusEffect } from "expo-router";
 import { useApp, readableError } from "../store/app";
 import { readSetting, writeSetting } from "../services/featureSettings";
 export function useFeatureSetting<T>(
   key: string,
   schema: z.ZodType<T>,
   initial: T,
+  refreshOnFocus = false,
 ) {
   const identity = useApp((s) => s.identity),
     demo = useApp((s) => s.data.demo);
@@ -46,13 +48,21 @@ export function useFeatureSetting<T>(
     const revision = generation;
     let alive = true;
     void Promise.resolve().then(() => {
-      if (alive) return reload();
+      if (alive && !refreshOnFocus) return reload();
     });
     return () => {
       alive = false;
       revision.current++;
     };
-  }, [reload]);
+  }, [reload, refreshOnFocus]);
+  useFocusEffect(
+    useCallback(() => {
+      if (refreshOnFocus) void reload();
+      return () => {
+        if (refreshOnFocus) generation.current++;
+      };
+    }, [reload, refreshOnFocus]),
+  );
   const save = async (value: T) => {
     if (
       demo ||

@@ -1,3 +1,5 @@
+import { FinanceError } from "../../components/finance/FinanceError";
+import { financeError } from "../../components/finance/errors";
 import { useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
@@ -16,10 +18,15 @@ import { Button, Field, Label, Page } from "../../components/ui/Primitives";
 import { SelectField } from "../../components/ui/Selection";
 import { DateField } from "../../components/ui/DateField";
 import { FinanceState } from "../../components/finance/FinanceState";
-import { notify, readableError, useApp } from "../../store/app";
+import { notify, useApp } from "../../store/app";
 
 function TransactionRouteForm() {
-  const setting = useFeatureSetting("finance", financeSchema, initialFinance),
+  const setting = useFeatureSetting(
+      "finance",
+      financeSchema,
+      initialFinance,
+      true,
+    ),
     preferences = useApp((s) => s.data.preferences),
     subscriptions = useApp((s) => s.data.subscriptions),
     demo = useApp((s) => s.data.demo);
@@ -57,7 +64,7 @@ function TransactionRouteForm() {
       notify("Transaction recorded.");
       router.back();
     } catch (e) {
-      setError(readableError(e));
+      setError(financeError(e));
     }
   }
   return (
@@ -66,7 +73,7 @@ function TransactionRouteForm() {
       subtitle="Record a payment or refund you can verify from a receipt or statement."
       back
     >
-      <View style={{ gap: 20 }}>
+      <View style={{ gap: 20, maxWidth: 720, width: "100%" }}>
         <FinanceState {...setting} />
         <Field
           label="Merchant"
@@ -132,7 +139,7 @@ function TransactionRouteForm() {
           Manually recorded entries do not confirm a bank payment. Pending and
           failed entries are excluded from recorded spending.
         </Label>
-        {error && <Label>{error}</Label>}
+        <FinanceError message={error} />
         <Button
           disabled={!setting.loaded || demo}
           loading={setting.busy}

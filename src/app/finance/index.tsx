@@ -24,7 +24,12 @@ import { FinanceState } from "../../components/finance/FinanceState";
 import { useApp } from "../../store/app";
 
 export default function FinanceHome() {
-  const setting = useFeatureSetting("finance", financeSchema, initialFinance),
+  const setting = useFeatureSetting(
+      "finance",
+      financeSchema,
+      initialFinance,
+      true,
+    ),
     { colors } = useTheme(),
     wide = useWide();
   const demo = useApp((s) => s.data.demo);
@@ -50,7 +55,7 @@ export default function FinanceHome() {
       subtitle="Cards, wallets and a clear record of what you paid."
       back
     >
-      <View style={{ gap: 24 }}>
+      <View style={{ gap: 24, maxWidth: 960, width: "100%" }}>
         <FinanceState {...setting} />
         <View style={{ flexDirection: wide ? "row" : "column", gap: 12 }}>
           <Button
@@ -81,14 +86,18 @@ export default function FinanceHome() {
         <View
           style={{
             flexDirection: wide ? "row" : "column",
-            flexWrap: "wrap",
+            flexWrap: wide ? "wrap" : "nowrap",
             gap: 12,
           }}
         >
           {setting.value.wallets.map((wallet) => (
             <Card
               key={wallet.id}
-              style={{ flexGrow: 1, flexBasis: wide ? 260 : undefined }}
+              style={{
+                width: wide ? undefined : "100%",
+                flexGrow: 1,
+                flexBasis: wide ? 260 : undefined,
+              }}
             >
               <View style={{ gap: 12 }}>
                 <CreditCard color={colors.primary} size={24} />
