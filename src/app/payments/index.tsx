@@ -70,6 +70,12 @@ function Hub() {
           >
             Add payment source
           </Button>
+          <Button
+            variant="secondary"
+            onPress={() => router.push("/payments/radar")}
+          >
+            Open Subscription Radar
+          </Button>
         </View>
         {profile.loaded && !rows.length ? (
           <View style={{ paddingVertical: 24, gap: 12 }}>
