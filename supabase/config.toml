@@ -37,6 +37,8 @@ verify_jwt = false
 verify_jwt = false
 [functions.refresh-exchange-rates]
 verify_jwt = false
+[functions.bitcoin-history]
+verify_jwt = false
 
 [functions.mailbox-connect]
 verify_jwt = false

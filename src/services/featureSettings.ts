@@ -49,9 +49,9 @@ export async function readSetting<T>(
     return { value: raw ? schema.parse(JSON.parse(raw)) : initial, version: 0 };
   }
   const client = await accountClient(identity);
-  if (key === "finance") {
+  if (key === "finance" || key === "crypto") {
     const { data, error } = await client
-      .from("finance_journals")
+      .from(key === "finance" ? "finance_journals" : "crypto_journals")
       .select("data,version")
       .eq("user_id", identity)
       .maybeSingle();
@@ -90,8 +90,10 @@ export async function writeSetting<T>(
     return 0;
   }
   const client = await accountClient(identity);
-  if (key === "finance") {
-    const table = client.from("finance_journals");
+  if (key === "finance" || key === "crypto") {
+    const table = client.from(
+      key === "finance" ? "finance_journals" : "crypto_journals",
+    );
     const query =
       version === 0
         ? table.insert({ user_id: identity, data: parsed, version: 1 })
