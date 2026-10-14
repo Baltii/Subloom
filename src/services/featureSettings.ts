@@ -70,6 +70,10 @@ export async function writeSetting<T>(
   version: number,
 ) {
   const parsed = schema.parse(value);
+  if (new TextEncoder().encode(JSON.stringify(parsed)).length > 120000)
+    throw new Error(
+      "These records are full. Export your data and remove older records before saving.",
+    );
   if (identity === "guest") {
     await localSetting(identity, key, JSON.stringify(parsed));
     return 0;
