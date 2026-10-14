@@ -33,6 +33,13 @@ export const toolActions: {
   group: string;
 }[] = [
   {
+    title: "Virtual card plans",
+    detail: "Unenforced per-service caps and control simulations",
+    route: "/virtual-plans",
+    icon: Wallet,
+    group: "Planning",
+  },
+  {
     title: "Renewal Autopilot",
     detail: "Annual reviews, price changes and renewal limits",
     route: "/autopilot",

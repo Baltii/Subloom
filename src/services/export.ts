@@ -20,6 +20,7 @@ export async function exportData() {
                 "cancellation",
                 "payment_sources",
                 "payment_transactions",
+                "virtual_plans",
                 "autopilot",
                 "cancellation_watch",
               ].map(async (key) => {
