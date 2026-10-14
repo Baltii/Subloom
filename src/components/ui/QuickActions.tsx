@@ -55,6 +55,14 @@ export const toolActions: {
     group: "Everyday",
   },
   {
+    title: "Subscription Radar",
+    detail: "Import statements and review recurring charges",
+    route: "/payments/radar",
+    icon: Search,
+    keywords: "bank statement transaction reconciliation",
+    group: "Payments",
+  },
+  {
     title: "Cards & wallets",
     detail: "Payment sources, linked services and expiry reviews",
     route: "/payments",
