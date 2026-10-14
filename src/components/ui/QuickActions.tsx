@@ -55,6 +55,14 @@ export const toolActions: {
     group: "Everyday",
   },
   {
+    title: "Cancellation Watch",
+    detail: "Review charges after recorded cancellation",
+    route: "/payments/watch",
+    icon: ShieldCheck,
+    keywords: "post cancellation refund evidence dispute",
+    group: "Payments",
+  },
+  {
     title: "Subscription Radar",
     detail: "Import statements and review recurring charges",
     route: "/payments/radar",

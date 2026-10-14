@@ -20,6 +20,7 @@ export async function exportData() {
                 "cancellation",
                 "payment_sources",
                 "payment_transactions",
+                "cancellation_watch",
               ].map(async (key) => {
                 const value = await localSetting(state.identity, key);
                 return [key, value ? JSON.parse(value) : null];
