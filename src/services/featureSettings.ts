@@ -49,6 +49,21 @@ export async function readSetting<T>(
     return { value: raw ? schema.parse(JSON.parse(raw)) : initial, version: 0 };
   }
   const client = await accountClient(identity);
+  if (key === "finance") {
+    const { data, error } = await client
+      .from("finance_journals")
+      .select("data,version")
+      .eq("user_id", identity)
+      .maybeSingle();
+    if (error)
+      throw new Error(
+        "Could not load your financial records. Connect and reload.",
+      );
+    return {
+      value: data ? schema.parse(data.data) : initial,
+      version: data?.version ?? 0,
+    };
+  }
   const { data, error } = await client
     .from("feature_settings")
     .select("data,version")
@@ -75,6 +90,22 @@ export async function writeSetting<T>(
     return 0;
   }
   const client = await accountClient(identity);
+  if (key === "finance") {
+    const table = client.from("finance_journals");
+    const query =
+      version === 0
+        ? table.insert({ user_id: identity, data: parsed, version: 1 })
+        : table
+            .update({ data: parsed, version: version + 1 })
+            .eq("user_id", identity)
+            .eq("version", version);
+    const { data, error } = await query.select("version").single();
+    if (error || !data)
+      throw new Error(
+        "Could not save your financial records. Connect and reload before retrying; your input is still here.",
+      );
+    return Number(data.version);
+  }
   const { data, error } = await client.rpc("save_feature_setting", {
     setting_key: key,
     setting_data: parsed,

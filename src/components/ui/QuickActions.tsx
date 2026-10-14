@@ -63,6 +63,13 @@ export const toolActions: {
     group: "Planning",
   },
   {
+    group: "Planning",
+    title: "Cards & transactions",
+    detail: "Manage your cards and recorded payments",
+    route: "/finance",
+    icon: Wallet,
+  },
+  {
     title: "Savings simulator",
     detail: "Compare possible recurring savings",
     route: "/savings",

@@ -15,7 +15,7 @@ export async function exportData() {
       state.identity === "guest"
         ? Object.fromEntries(
             await Promise.all(
-              ["budgets", "cancellation"].map(async (key) => {
+              ["budgets", "cancellation", "finance"].map(async (key) => {
                 const value = await localSetting(state.identity, key);
                 return [key, value ? JSON.parse(value) : null];
               }),
