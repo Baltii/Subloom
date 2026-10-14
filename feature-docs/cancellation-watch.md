@@ -8,4 +8,4 @@ Review metadata uses durable guest storage and owned, version-checked cloud sett
 
 Launch market: Europe and UK. Imported records only; bank-feed partners remain unconfigured.
 
-Validation: npm run check passed (32 test files, 224 tests); Expo web/iOS/Android exports passed. Desktop dark appearance and empty state were inspected in the browser. Device runtime remains untested.
+Validation: npm run check passed (33 test files, 224 tests); Expo web/iOS/Android exports passed. Desktop dark appearance and empty state were inspected in the browser. Device runtime remains untested.

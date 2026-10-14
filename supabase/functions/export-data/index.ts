@@ -70,6 +70,7 @@ export const handler = endpoint(async (req) => {
     "workspaces",
     "workspace_members",
     "workspace_subscriptions",
+    "workspace_ledger",
   ]) {
     const rows: unknown[] = [];
     for (let start = 0; ; start += 500) {

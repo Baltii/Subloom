@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T19:10:04.184991+00:00",
+  "title": "Design System: Subloom",
+  "extensions": {
+    "motion": [
+      {
+        "name": "fast",
+        "value": "150ms",
+        "purpose": "Shared fast feedback, button release and entrance fade."
+      },
+      {
+        "name": "normal",
+        "value": "240ms",
+        "purpose": "Shared normal motion token; individual primitives may use explicit durations."
+      },
+      {
+        "name": "button-press",
+        "value": "100ms; scale(0.985)",
+        "purpose": "Button press feedback; scale stays 1 under reduced motion."
+      },
+      {
+        "name": "entrance-delay-cap",
+        "value": "80ms",
+        "purpose": "Maximum AnimatedIn delay; entering animation removed under reduced motion."
+      },
+      {
+        "name": "toast-exit",
+        "value": "120ms",
+        "purpose": "Toast FadeOut, removed under reduced motion."
+      },
+      {
+        "name": "toast-display",
+        "value": "4500ms",
+        "purpose": "Toast display lifetime, independent of animation."
+      },
+      {
+        "name": "chart-bar",
+        "value": "420ms; ReduceMotion.System",
+        "purpose": "Existing bounded ChartBar transition."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "900px"
+      }
+    ],
+    "shadows": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "description": "Shared primary action; literal light/dark preview of the incumbent primitive.",
+      "html": "<button class=\"ds-button-primary\">Save changes</button>",
+      "css": ".ds-button-primary{min-height:50px;padding:11px 21px;border-radius:12px;font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:600;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;background:#087F68;color:#FFFFFF;border:0;}.ds-button-primary:hover{background:#066551}.ds-button-primary:focus-visible{outline:2px solid #087F68;outline-offset:3px;}.ds-button-primary:active{transform:scale(.985);transition:transform 100ms}.ds-button-primary:disabled{opacity:.6;cursor:default}@media(prefers-color-scheme:dark){.ds-button-primary{background:#70D2AD;color:#102219;}.ds-button-primary:hover{background:#ADE9CC}.ds-button-primary:focus-visible{outline-color:#70D2AD}}@media(prefers-reduced-motion:reduce){.ds-button-primary:active{transform:none;transition:none}}",
+      "refersTo": "button-primary-light"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "description": "Shared secondary action; literal light/dark preview of the incumbent primitive.",
+      "html": "<button class=\"ds-button-secondary\">Save changes</button>",
+      "css": ".ds-button-secondary{min-height:50px;padding:11px 21px;border-radius:12px;font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:600;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;background:#FFFFFF;color:#182D25;border:1px solid #E8EEE9;}.ds-button-secondary:hover{background:#EAF6EE}.ds-button-secondary:focus-visible{outline:2px solid #087F68;outline-offset:3px;}.ds-button-secondary:active{transform:scale(.985);transition:transform 100ms}.ds-button-secondary:disabled{opacity:.6;cursor:default}@media(prefers-color-scheme:dark){.ds-button-secondary{background:#18251E;color:#E7F2E9;border-color:#2A3A30;}.ds-button-secondary:hover{background:#243F30}.ds-button-secondary:focus-visible{outline-color:#70D2AD}}@media(prefers-reduced-motion:reduce){.ds-button-secondary:active{transform:none;transition:none}}",
+      "refersTo": "button-secondary-light"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "description": "Shared ghost action; literal light/dark preview of the incumbent primitive.",
+      "html": "<button class=\"ds-button-ghost\">Save changes</button>",
+      "css": ".ds-button-ghost{min-height:50px;padding:11px 21px;border-radius:12px;font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:600;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;background:transparent;color:#182D25;border:0;}.ds-button-ghost:hover{background:#EAF6EE}.ds-button-ghost:focus-visible{outline:2px solid #087F68;outline-offset:3px;}.ds-button-ghost:active{transform:scale(.985);transition:transform 100ms}.ds-button-ghost:disabled{opacity:.6;cursor:default}@media(prefers-color-scheme:dark){.ds-button-ghost{background:transparent;color:#E7F2E9;}.ds-button-ghost:hover{background:#243F30}.ds-button-ghost:focus-visible{outline-color:#70D2AD}}@media(prefers-reduced-motion:reduce){.ds-button-ghost:active{transform:none;transition:none}}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "description": "Shared danger action; literal light/dark preview of the incumbent primitive.",
+      "html": "<button class=\"ds-button-danger\">Delete record</button>",
+      "css": ".ds-button-danger{min-height:50px;padding:11px 21px;border-radius:12px;font-family:\"DM Sans\",sans-serif;font-size:14px;font-weight:600;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;background:#FDEEEE;color:#BA4343;border:0;}.ds-button-danger:hover{background:#FDEEEE}.ds-button-danger:focus-visible{outline:2px solid #087F68;outline-offset:3px;}.ds-button-danger:active{transform:scale(.985);transition:transform 100ms}.ds-button-danger:disabled{opacity:.6;cursor:default}@media(prefers-color-scheme:dark){.ds-button-danger{background:#3D2424;color:#F4A1A1;}.ds-button-danger:hover{background:#3D2424}.ds-button-danger:focus-visible{outline-color:#70D2AD}}@media(prefers-reduced-motion:reduce){.ds-button-danger:active{transform:none;transition:none}}",
+      "refersTo": "button-danger-light"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field-light",
+      "description": "Shared label and text field; focus stroke compensates padding.",
+      "html": "<label class=\"ds-field-label\">Reference<input class=\"ds-field\" placeholder=\"Add a reference\"></label>",
+      "css": ".ds-field-label{display:grid;gap:8px;font-family:\"DM Sans\",sans-serif;font-size:12px;font-weight:600;line-height:1.45;color:#586F61}.ds-field{min-height:52px;background:#F8FAF8;color:#182D25;border:1px solid #E8EEE9;border-radius:12px;padding:12px 14px;font-family:\"DM Sans\",sans-serif;font-size:16px}.ds-field::placeholder{color:#586F61}.ds-field:focus{border:2px solid #087F68;padding:11px 13px;outline:none}.ds-field:disabled{opacity:.6}@media(prefers-color-scheme:dark){.ds-field-label{color:#A0B4A5}.ds-field{background:#101A16;color:#E7F2E9;border-color:#2A3A30}.ds-field::placeholder{color:#A0B4A5}.ds-field:focus{border-color:#70D2AD}}"
+    },
+    {
+      "name": "Selected Navigation Row",
+      "kind": "nav",
+      "refersTo": "nav-selected-light",
+      "description": "Wide sidebar selected row with mint ground, primary text and state dot.",
+      "html": "<button class=\"ds-nav\" aria-pressed=\"true\">Subscriptions<span class=\"ds-nav-dot\"></span></button>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;margin-bottom:7px;border:0;border-radius:10px;background:#EAF6EE;color:#087F68;font-family:\"DM Sans\",sans-serif;font-size:13px;font-weight:600;line-height:1.45}.ds-nav-dot{margin-left:auto;width:5px;height:5px;border-radius:3px;background:#087F68}.ds-nav:focus-visible{outline:2px solid #087F68;outline-offset:3px;}@media(prefers-color-scheme:dark){.ds-nav{background:#243F30;color:#70D2AD}.ds-nav-dot{background:#70D2AD}.ds-nav:focus-visible{outline-color:#70D2AD}}"
+    },
+    {
+      "name": "Selected Chip",
+      "kind": "chip",
+      "refersTo": "chip-selected-light",
+      "description": "Selected choice with an accessible pressed state and minimum touch height.",
+      "html": "<button class=\"ds-chip\" aria-pressed=\"true\">Monthly</button>",
+      "css": ".ds-chip{border:1px solid #087F68;background:#087F68;color:#FFFFFF;border-radius:12px;min-height:44px;padding:11px 15px;font-family:\"DM Sans\",sans-serif;font-size:12px;font-weight:600;line-height:1.45}.ds-chip:focus-visible{outline:2px solid #087F68;outline-offset:3px;}.ds-chip:disabled{opacity:.5}@media(prefers-color-scheme:dark){.ds-chip{background:#70D2AD;border-color:#70D2AD;color:#102219}.ds-chip:focus-visible{outline-color:#70D2AD}}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card-light",
+      "description": "Shared flat card with theme surface, thin border and medium radius.",
+      "html": "<div class=\"ds-card\">Your saved plan</div>",
+      "css": ".ds-card{background:#FFFFFF;color:#182D25;border:1px solid #E8EEE9;border-radius:16px;padding:24px;font-family:\"DM Sans\",sans-serif;font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums}@media(prefers-color-scheme:dark){.ds-card{background:#18251E;color:#E7F2E9;border-color:#2A3A30}}"
+    },
+    {
+      "name": "Selection Trigger",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Selection control preview; the actual React Native component opens PickerSheet and restores trigger focus.",
+      "html": "<button class=\"ds-select\" aria-expanded=\"false\">Choose an option<svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m6 9 6 6 6-6\"/></svg></button>",
+      "css": ".ds-select{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px;padding:11px 14px;background:#F8FAF8;color:#586F61;border:1px solid #E8EEE9;border-radius:12px;font-family:\"DM Sans\",sans-serif;font-size:14px;line-height:1.45}.ds-select:focus-visible{border:2px solid #087F68;padding:10px 13px;outline:2px solid #087F68;outline-offset:3px;}.ds-select:active{background:#EAF6EE}.ds-select:disabled{opacity:.5}@media(prefers-color-scheme:dark){.ds-select{background:#101A16;color:#A0B4A5;border-color:#2A3A30}.ds-select:focus-visible{border-color:#70D2AD;outline-color:#70D2AD}.ds-select:active{background:#243F30}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Forest and mint Subloom",
+    "overview": "This is a factual extraction of the incumbent interface, preserving the visual direction in `feature-docs/ux-direction.md`: forest/mint colors, DM Sans/Manrope, Lucide icons and restrained bordered surfaces. The interface is calm, readable and task-oriented. Selection, focus and state carry the accent.\n\nThe system uses shared React Native primitives across Expo native and web surfaces. Rounded controls and lightly separated surfaces establish hierarchy without decorative depth. Responsive navigation and protected selection sheets keep the same visual identity on desktop and phones. This document records source facts, not a replacement identity or a new whole-surface review.",
+    "keyCharacteristics": [
+      "Forest text and backgrounds, mint selections and green actions.",
+      "Manrope headings above DM Sans body text, labels and tabular numbers.",
+      "Thin semantic borders, rounded surfaces and visible focus.",
+      "Bounded feedback motion with shared system reduced-motion checks."
+    ],
+    "rules": [
+      {
+        "name": "The Theme Pair Rule",
+        "body": "Resolve semantic colors through `useTheme()`; keep foregrounds, grounds and borders in the same theme. Appearance honors the saved light/dark/system preference through React Native's system color scheme.",
+        "section": "colors"
+      },
+      {
+        "name": "The Numeric Reading Rule",
+        "body": "Preserve the shared tabular-number treatment and keep financial labels readable while motion runs; do not move exact money calculations into animation worklets.",
+        "section": "typography"
+      },
+      {
+        "name": "The Restrained Surface Rule",
+        "body": "Extend the incumbent bordered, tonal surfaces rather than adding an unrelated shadow system.",
+        "section": "elevation & depth"
+      },
+      {
+        "name": "The Feedback Without Travel Rule",
+        "body": "Preserve state and readable labels when system reduced motion suppresses spatial or entrance animation. Source support is established; native runtime and browser reduced-motion emulation were not tested in the control-center handoff.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** use the existing semantic theme pairs, installed fonts, Lucide icons and shared primitives.",
+      "**Do** preserve visible focus, named actions, selected/busy/disabled semantics and usable compact touch controls.",
+      "**Do** retain bounded feedback and system reduced-motion paths.",
+      "**Do** keep original currencies and date-only financial semantics legible; distinguish recurring estimates from imported payment facts.",
+      "**Do** preserve guest persistence, owner-isolated saves, draft protection and contextual error recovery."
+    ],
+    "donts": [
+      "**Don't** replace the established forest/mint identity or introduce an unrelated visual system in a refinement.",
+      "**Don't** hide required compact actions behind hover or swiping.",
+      "**Don't** communicate financial or error meaning through color alone.",
+      "**Don't** imply planning records, simulations, reminders or manually recorded cancellation perform merchant billing or money movement.",
+      "**Don't** treat source-level accessibility or native bundle exports as proof of untested device behavior."
+    ]
+  }
+}
