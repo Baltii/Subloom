@@ -2,6 +2,10 @@
 
 The UI adds a tonal Cards & Wallets CTA and a contrasting Subscription Radar CTA to the overview, plus icon actions for renewal rules, reserves, family balances, receipt import and appearance. Original 3D wallet/cards/coins and recurring-payment calendar illustrations support these tasks. Onboarding and the payment hub's empty state reuse the financial artwork. Existing financial estimates, currencies and renewal dates keep their meaning.
 
+![Desktop overview with synthetic guest data](images/playful-ui-desktop.jpg)
+
+![Phone financial action cards](images/playful-ui-mobile.jpg)
+
 Settings → Preferences offers Green, Blue, Red, Violet, Orange, Yellow, Pink and Black & white. Accent and System/Light/Dark appearance are separate preferences. Semantic success, warning and error colors do not change with the accent. Swatches and appearance controls have explicit selected states on native and pressed states on web, visible checks and keyboard focus.
 
 `accentTheme` defaults to Green when older snapshots or cloud preference records are parsed. It travels through the existing durable preference save/outbox path; guest records remain local and account caches stay isolated. The current JSON preference contract accepts the additive field without a new database migration. Older clients that rewrite an entire preference record can reset the accent to Green; upgrading clients preserves the new field.
