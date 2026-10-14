@@ -21,6 +21,7 @@ import {
   Field,
 } from "../../components/ui/Primitives";
 import { FinanceState } from "../../components/finance/FinanceState";
+import { ExchangeEstimate } from "../../components/finance/ExchangeEstimate";
 import { useApp } from "../../store/app";
 
 export default function FinanceHome() {
@@ -128,6 +129,7 @@ export default function FinanceHome() {
             </Card>
           ))}
         </View>
+        <ExchangeEstimate />
         <SectionTitle title="Recorded spending" />
         <Label color={colors.secondary}>
           Settled entries you recorded, grouped by their original currency.
