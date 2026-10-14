@@ -33,6 +33,13 @@ export const toolActions: {
   group: string;
 }[] = [
   {
+    title: "Subscription Value Coach",
+    detail: "Usage, cost per use, confirmed quotes and rotation plans",
+    route: "/value-coach",
+    icon: ChartNoAxesCombined,
+    group: "Planning",
+  },
+  {
     title: "Renewal Reserve",
     detail: "Annual funding plans and commitments before payday",
     route: "/reserve",
