@@ -1,6 +1,6 @@
 ---
-name: Subloom
-description: The established forest and mint subscription interface.
+name: "Subloom"
+description: "A playful financial interface with eight accents, tactile financial artwork and shared semantic controls."
 colors:
   light-background: "#F8FAF8"
   light-surface: "#FFFFFF"
@@ -8,7 +8,13 @@ colors:
   light-secondary: "#586F61"
   light-faint: "#607266"
   light-border: "#E8EEE9"
-  light-primary: "#087F68"
+  light-primary: "#087C65"
+  light-onPrimary: "#FFFFFF"
+  light-success: "#147044"
+  light-successBg: "#EDF8F0"
+  light-spotlight: "#182D25"
+  light-onSpotlight: "#FFFFFF"
+  light-spotlightSecondary: "#BDCDC3"
   light-accent: "#0BB999"
   light-pressed: "#066551"
   light-mint: "#EAF6EE"
@@ -29,6 +35,12 @@ colors:
   dark-faint: "#879B8C"
   dark-border: "#2A3A30"
   dark-primary: "#70D2AD"
+  dark-onPrimary: "#102219"
+  dark-success: "#95DDB2"
+  dark-successBg: "#1C3527"
+  dark-spotlight: "#E7F2E9"
+  dark-onSpotlight: "#182D25"
+  dark-spotlightSecondary: "#48604F"
   dark-accent: "#0BB999"
   dark-pressed: "#ADE9CC"
   dark-mint: "#243F30"
@@ -42,7 +54,155 @@ colors:
   dark-heroText: "#E1F5DB"
   dark-heroSecondary: "#B1CEAB"
   dark-heroArt: "#527B43"
-  dark-on-primary: "#102219"
+  neutral-light-background: "#FAFAF9"
+  neutral-light-text: "#242624"
+  neutral-light-secondary: "#5F655F"
+  neutral-light-faint: "#656B65"
+  neutral-light-border: "#E6E8E4"
+  neutral-light-spotlight: "#242624"
+  neutral-dark-background: "#131513"
+  neutral-dark-surface: "#1E211E"
+  neutral-dark-sidebar: "#191C19"
+  neutral-dark-text: "#F1F3EF"
+  neutral-dark-secondary: "#B0B7AB"
+  neutral-dark-faint: "#969F91"
+  neutral-dark-border: "#363B34"
+  neutral-dark-spotlight: "#F1F3EF"
+  neutral-dark-onSpotlight: "#242624"
+  swatch-green: "#087C65"
+  swatch-blue: "#3478EE"
+  blue-light-primary: "#245CC0"
+  blue-light-accent: "#3478EE"
+  blue-light-pressed: "#1C4694"
+  blue-light-mint: "#EDF3FF"
+  blue-light-mintStrong: "#DBE7FF"
+  blue-light-hero: "#E5EEFF"
+  blue-light-heroText: "#203B6B"
+  blue-light-heroSecondary: "#47618A"
+  blue-light-heroArt: "#94B4EB"
+  blue-dark-primary: "#9AC2FF"
+  blue-dark-accent: "#3478EE"
+  blue-dark-pressed: "#BCD7FF"
+  blue-dark-mint: "#21314B"
+  blue-dark-mintStrong: "#2D4263"
+  blue-dark-hero: "#243958"
+  blue-dark-heroText: "#EDF4FF"
+  blue-dark-heroSecondary: "#BAD0EC"
+  blue-dark-heroArt: "#557CA9"
+  swatch-red: "#E34D54"
+  red-light-primary: "#B8313D"
+  red-light-accent: "#E34D54"
+  red-light-pressed: "#942532"
+  red-light-mint: "#FFF0F1"
+  red-light-mintStrong: "#FADCE0"
+  red-light-hero: "#FCE6E8"
+  red-light-heroText: "#702B34"
+  red-light-heroSecondary: "#8B4850"
+  red-light-heroArt: "#EAA0A7"
+  red-dark-primary: "#FFA5AC"
+  red-dark-accent: "#E34D54"
+  red-dark-pressed: "#FFC3C8"
+  red-dark-mint: "#43272D"
+  red-dark-mintStrong: "#59343D"
+  red-dark-hero: "#4D2C34"
+  red-dark-heroText: "#FFF0F1"
+  red-dark-heroSecondary: "#EFC0C5"
+  red-dark-heroArt: "#A05C69"
+  swatch-violet: "#8B5CF6"
+  violet-light-primary: "#6D42BC"
+  violet-light-accent: "#8B5CF6"
+  violet-light-pressed: "#543197"
+  violet-light-mint: "#F4EFFF"
+  violet-light-mintStrong: "#E9DDFF"
+  violet-light-hero: "#EDE5FC"
+  violet-light-heroText: "#492A76"
+  violet-light-heroSecondary: "#6A508B"
+  violet-light-heroArt: "#B69ADE"
+  violet-dark-primary: "#C5ACFF"
+  violet-dark-accent: "#8B5CF6"
+  violet-dark-pressed: "#DCCEFA"
+  violet-dark-mint: "#342943"
+  violet-dark-mintStrong: "#49395D"
+  violet-dark-hero: "#3D2E52"
+  violet-dark-heroText: "#F4EFFF"
+  violet-dark-heroSecondary: "#D3C1EF"
+  violet-dark-heroArt: "#8067A8"
+  swatch-orange: "#F58B36"
+  orange-light-primary: "#A84C10"
+  orange-light-accent: "#F58B36"
+  orange-light-pressed: "#823907"
+  orange-light-mint: "#FFF3E9"
+  orange-light-mintStrong: "#FFE3CD"
+  orange-light-hero: "#FFEBD9"
+  orange-light-heroText: "#743916"
+  orange-light-heroSecondary: "#855331"
+  orange-light-heroArt: "#E7AB7B"
+  orange-dark-primary: "#FFB77E"
+  orange-dark-accent: "#F58B36"
+  orange-dark-pressed: "#FFD0AA"
+  orange-dark-mint: "#422E21"
+  orange-dark-mintStrong: "#59412D"
+  orange-dark-hero: "#4D3525"
+  orange-dark-heroText: "#FFF3E9"
+  orange-dark-heroSecondary: "#EFCBAF"
+  orange-dark-heroArt: "#A47854"
+  swatch-yellow: "#F4D35E"
+  yellow-light-primary: "#84620C"
+  yellow-light-accent: "#F4D35E"
+  yellow-light-pressed: "#664A04"
+  yellow-light-mint: "#FFF9E4"
+  yellow-light-mintStrong: "#F6EAB9"
+  yellow-light-hero: "#FAF0C9"
+  yellow-light-heroText: "#5B4615"
+  yellow-light-heroSecondary: "#76602C"
+  yellow-light-heroArt: "#CCB468"
+  yellow-dark-primary: "#F4D35E"
+  yellow-dark-accent: "#F4D35E"
+  yellow-dark-pressed: "#FFE59B"
+  yellow-dark-mint: "#3A3320"
+  yellow-dark-mintStrong: "#51482B"
+  yellow-dark-hero: "#453D22"
+  yellow-dark-heroText: "#FFF9E4"
+  yellow-dark-heroSecondary: "#E9D9A4"
+  yellow-dark-heroArt: "#968650"
+  swatch-pink: "#E56AA3"
+  pink-light-primary: "#AC386F"
+  pink-light-accent: "#E56AA3"
+  pink-light-pressed: "#862650"
+  pink-light-mint: "#FFF0F7"
+  pink-light-mintStrong: "#FAD9E9"
+  pink-light-hero: "#FCE6F1"
+  pink-light-heroText: "#732D4E"
+  pink-light-heroSecondary: "#8A4A69"
+  pink-light-heroArt: "#E4A0C1"
+  pink-dark-primary: "#F7AED0"
+  pink-dark-accent: "#E56AA3"
+  pink-dark-pressed: "#FFD0E4"
+  pink-dark-mint: "#402A36"
+  pink-dark-mintStrong: "#583A4B"
+  pink-dark-hero: "#4C3040"
+  pink-dark-heroText: "#FFF0F7"
+  pink-dark-heroSecondary: "#EBC2D6"
+  pink-dark-heroArt: "#A36785"
+  swatch-mono: "#252525"
+  mono-light-primary: "#252525"
+  mono-light-accent: "#252525"
+  mono-light-pressed: "#454545"
+  mono-light-mint: "#F0F0EF"
+  mono-light-mintStrong: "#E2E2DF"
+  mono-light-hero: "#EBEBE8"
+  mono-light-heroText: "#252525"
+  mono-light-heroSecondary: "#5C5C58"
+  mono-light-heroArt: "#B9B9B4"
+  mono-dark-primary: "#F4F4F2"
+  mono-dark-accent: "#F4F4F2"
+  mono-dark-pressed: "#DADAD6"
+  mono-dark-mint: "#2C2C2B"
+  mono-dark-mintStrong: "#3E3E3C"
+  mono-dark-hero: "#343432"
+  mono-dark-heroText: "#F4F4F2"
+  mono-dark-heroSecondary: "#C6C6C0"
+  mono-dark-heroArt: "#73736D"
 typography:
   heading:
     fontFamily: "Manrope_700Bold"
@@ -93,6 +253,8 @@ rounded:
   control: "12px"
   badge: "7px"
   dialog: "20px"
+  theme-option: "14px"
+  alert: "14px"
 spacing:
   xs: "4px"
   sm: "8px"
@@ -103,13 +265,13 @@ spacing:
 components:
   button-primary-light:
     backgroundColor: "{colors.light-primary}"
-    textColor: "{colors.light-surface}"
+    textColor: "{colors.light-onPrimary}"
     typography: "{typography.body-bold}"
     rounded: "{rounded.control}"
     padding: "11px 21px"
   button-primary-dark:
     backgroundColor: "{colors.dark-primary}"
-    textColor: "{colors.dark-on-primary}"
+    textColor: "{colors.dark-onPrimary}"
     typography: "{typography.body-bold}"
     rounded: "{rounded.control}"
     padding: "11px 21px"
@@ -137,58 +299,91 @@ components:
     rounded: "{rounded.control}"
   chip-selected-light:
     backgroundColor: "{colors.light-primary}"
-    textColor: "{colors.light-surface}"
+    textColor: "{colors.light-onPrimary}"
     rounded: "{rounded.control}"
     padding: "11px 15px"
   nav-selected-light:
     backgroundColor: "{colors.light-mint}"
     textColor: "{colors.light-primary}"
     rounded: "{rounded.sm}"
+  theme-option-selected-light:
+    backgroundColor: "{colors.light-mint}"
+    textColor: "{colors.light-text}"
+    rounded: "{rounded.theme-option}"
+    padding: "12px"
+  appearance-option-selected-light:
+    backgroundColor: "{colors.light-mint}"
+    textColor: "{colors.light-text}"
+    rounded: "{rounded.control}"
+    padding: "12px 14px"
+  dashboard-action-tonal-light:
+    backgroundColor: "{colors.light-hero}"
+    textColor: "{colors.light-heroText}"
+    rounded: "{rounded.md}"
+    padding: "22px"
+  dashboard-action-spotlight-light:
+    backgroundColor: "{colors.light-spotlight}"
+    textColor: "{colors.light-onSpotlight}"
+    rounded: "{rounded.md}"
+    padding: "22px"
+  alert-success-light:
+    backgroundColor: "{colors.light-successBg}"
+    textColor: "{colors.light-success}"
+    rounded: "{rounded.alert}"
+    padding: "14px"
+  alert-error-light:
+    backgroundColor: "{colors.light-errorBg}"
+    textColor: "{colors.light-error}"
+    rounded: "{rounded.alert}"
+    padding: "14px"
 ---
 
 # Design System: Subloom
 
 ## Overview
 
-**Creative North Star: "Forest and mint Subloom"**
+**Creative North Star: "Forest and mint Subloom, made personal"**
 
-This is a factual extraction of the incumbent interface, preserving the visual direction in `feature-docs/ux-direction.md`: forest/mint colors, DM Sans/Manrope, Lucide icons and restrained bordered surfaces. The interface is calm, readable and task-oriented. Selection, focus and state carry the accent.
+Subloom retains its forest/mint default, DM Sans/Manrope, Lucide icons and rounded semantic primitives. The authorized expansion makes the consumer interface more playful through eight predefined accents, financial object illustrations, inviting action cards and explicit success/failure feedback. Readability and clear financial tasks still lead the design.
 
-The system uses shared React Native primitives across Expo native and web surfaces. Rounded controls and lightly separated surfaces establish hierarchy without decorative depth. Responsive navigation and protected selection sheets keep the same visual identity on desktop and phones. This document records source facts, not a replacement identity or a new whole-surface review.
+Shared React Native primitives serve Expo native and web surfaces. Tonal fills, contrasting spotlight cards, thin borders and visible focus establish hierarchy. Original tactile 3D wallet, cards, coins and renewal-calendar artwork add depth around onboarding and payment tasks. These objects express the financial subject; they do not introduce a brand mascot.
 
 **Key Characteristics:**
 
-- Forest text and backgrounds, mint selections and green actions.
+- Forest and mint remain the default; eight accent choices work independently of appearance.
 - Manrope headings above DM Sans body text, labels and tabular numbers.
-- Thin semantic borders, rounded surfaces and visible focus.
+- Rounded tonal controls, thin semantic borders, named Lucide actions and visible focus.
+- Tactile financial artwork and contrasting action cards without changing financial meaning.
 - Bounded feedback motion with shared system reduced-motion checks.
 
 ## Colors
 
-The palette moves from pale green paper and white surfaces in light appearance to forest backgrounds and layered green surfaces in dark appearance. The frontmatter preserves every semantic color in `src/theme/tokens.ts`; `light-` and `dark-` identify the corresponding theme object.
+The default Green palette moves from pale green paper and white surfaces to forest backgrounds and layered green surfaces. Blue, Red, Violet, Orange, Yellow, Pink and Black & white use neutral canvases and reading colors, with their own accent, hover, selection and hero families. The frontmatter records the actual values from `src/theme/tokens.ts` and the resolved overrides from `src/theme/palettes.ts`.
 
 ### Primary
 
-- **Forest action / mint action** (`primary`): primary buttons, selected navigation, field focus and selected choices. Dark primary actions use the separate `dark-on-primary` foreground; light actions use white.
-- **Deeper forest / pale mint feedback** (`pressed`): primary button hover backgrounds. This semantic name is retained from the source; it does not imply every press uses this color.
-- **Bright green accent** (`accent`): the shared accent token, distinct from the theme-specific action color.
-- **Soft mint / forest mint** (`mint`, `mintStrong`): selected and hovered controls, icon grounds, avatars and browser text selection.
-- **Hero greens** (`hero`, `heroText`, `heroSecondary`, `heroArt`): the established illustrated hero color family.
+- **Forest action / mint action** (`primary`): the default primary buttons, selected navigation, field focus and selected choices. Every accent uses `onPrimary` for its paired action foreground.
+- **Accent families**: Green, Blue, Red, Violet, Orange, Yellow, Pink and Black & white. Swatch colors identify choices; each palette's `primary` can differ from its swatch to keep actions and selected controls readable.
+- **Hover feedback** (`pressed`): primary button hover backgrounds. The source name does not imply every press uses this color.
+- **Tonal selection grounds** (`mint`, `mintStrong`): selected and hovered controls, icon grounds, avatars and browser text selection. These semantic names remain stable across all eight hues.
+- **Hero family** (`hero`, `heroText`, `heroSecondary`, `heroArt`): accent-dependent illustrated surfaces and their reading colors.
 
 ### Neutral
 
-- **Green paper / deep forest** (`background`): page canvas, field fill and neutral badges.
-- **White / raised forest** (`surface`): cards, secondary buttons, sheets and dialogs.
-- **Forest ink / pale green ink** (`text`): primary reading text.
-- **Muted green / sage** (`secondary`, `faint`): secondary text and quiet labels, retaining their separate source roles.
-- **Pale green stroke / forest stroke** (`border`): cards, fields, navigation separators and dividers.
-- **Sidebar surface** (`sidebar`): the wide-layout navigation background.
+- **Canvas** (`background`): page backgrounds, field fills and neutral badges; green paper/deep forest for Green, quiet near-white/charcoal for the other accents.
+- **Surface** (`surface`): cards, secondary buttons, sheets and dialogs.
+- **Reading colors** (`text`, `secondary`, `faint`): primary text, secondary text and quiet labels, retaining their separate source roles.
+- **Stroke** (`border`): cards, fields, navigation separators and dividers, including the neutral dark stroke used by the seven non-green accents.
+- **Sidebar** (`sidebar`): the wide-layout navigation background.
+- **Spotlight** (`spotlight`, `onSpotlight`, `spotlightSecondary`): the contrasting financial action card with paired title/action and supporting text.
+
+The token prefixes `light-` and `dark-` record the complete default Green semantic maps; `neutral-light-` and `neutral-dark-` record shared non-green overrides. Hue/appearance prefixes such as `blue-light-` record the palette family overrides. `swatch-` values describe picker samples. Omitted overrides inherit the corresponding default map. Source semantic names, including camel case, are preserved after these prefixes. The sidecar records canonical values and generated eight-step OKLCH preview ramps; the ramps are documentation metadata, not additional runtime palettes.
 
 ### Semantic feedback
 
-Warning and error each have a foreground/background pair (`warning`/`warningBg`, `error`/`errorBg`). Badges and alerts pair color with visible text; error controls retain an error stroke and message. These are feedback roles, not alternative brand accents.
+Success, warning and error each have a foreground/background pair (`success`/`successBg`, `warning`/`warningBg`, `error`/`errorBg`). These pairs remain fixed for a given appearance when the accent changes. Alerts add a check or attention icon, a title, a readable message and a dismiss control; color is one part of the state.
 
-**The Theme Pair Rule.** Resolve semantic colors through `useTheme()`; keep foregrounds, grounds and borders in the same theme. Appearance honors the saved light/dark/system preference through React Native's system color scheme.
+**The Theme Pair Rule.** Resolve semantic colors through `useTheme()`; keep foregrounds, grounds and borders in the same resolved theme. Accent and saved light/dark/system appearance are independent preferences. System appearance follows the device scheme.
 
 ## Typography
 
@@ -221,7 +416,9 @@ Sheets center on wide layouts and attach to the bottom on compact layouts. The s
 
 The shared card, button, field, navigation and sheet primitives declare no shadows. Depth comes from semantic surface fills, thin borders and modal dimming. The selection backdrop is `rgba(8, 22, 16, 0.46)`; the confirmation backdrop is `rgba(10,25,18,0.45)`. This is a source description of these primitives, not a claim that every component in the repository is shadow-free.
 
-**The Restrained Surface Rule.** Extend the incumbent bordered, tonal surfaces rather than adding an unrelated shadow system.
+The financial illustration assets carry their own studio lighting and subtle contact shadows. This raster depth does not add shadows to the shared UI primitives.
+
+**The Restrained Surface Rule.** Extend the incumbent bordered, tonal surfaces; use the committed financial artwork for tactile depth.
 
 ## Shapes
 
@@ -241,11 +438,11 @@ Press feedback scales ordinary buttons to (0.985) over (100 ms), then returns ov
 
 ### Chips and badges
 
-Chips are accessible selected buttons, with selected primary fill and an appropriate theme foreground, a minimum height of (44 px), (11 px) vertical and (15 px) horizontal padding. They use an (8 px) gap; rows scroll horizontally unless wrapping is explicitly requested. Disabled chips block changes and use (0.5) opacity. Badges use (4 px) vertical and (9 px) horizontal padding and semantic text/background pairs.
+Chips are accessible selected buttons, with selected primary fill and the paired `onPrimary` foreground, a minimum height of (44 px), (11 px) vertical and (15 px) horizontal padding. They use an (8 px) gap; rows scroll horizontally unless wrapping is explicitly requested. Disabled chips block changes and use (0.5) opacity. Badges use (4 px) vertical and (9 px) horizontal padding and semantic text/background pairs.
 
 ### Cards / Containers
 
-Cards use the theme surface, a border, the medium radius and large spacing token for padding. Local style overrides are supported. The control-center screens reuse this existing primitive rather than introduce a separate container system.
+Cards use the theme surface, a border, the medium radius and large spacing token for padding. Local style overrides are supported. The control-center screens reuse this existing primitive. Dashboard action cards use the hero or spotlight pair, a (216 px) minimum height, (22 px) padding and (2 px) transparent border that becomes primary on hover or press. Press opacity is (0.88). Their Lucide icon, title, supporting copy and named action keep the entire card understandable as a button. The illustrated card uses a (110 px) wallet image. The two cards sit side by side at the wide threshold and stack on compact layouts. Associated icon actions have a (44 px) minimum height.
 
 ### Inputs / Fields
 
@@ -257,19 +454,27 @@ Select fields use the same minimum height and focus-border pattern, with visible
 
 Wide sidebar rows have a minimum height of (48 px), (14 px) horizontal padding, (12 px) icon/text gap and (7 px) bottom margin. Selected rows use mint fill, primary text/icon, semibold text and a small primary dot. Compact navigation uses theme active/inactive colors and the tab-label role. Quick actions are available from the existing controls and Cmd/Ctrl K.
 
+### Theme picker and financial artwork
+
+The theme picker shows eight named swatches in a wrapping grid: approximately four columns wide and two compact. Each choice has a (76 px) minimum height, (14 px) corners, (12 px) padding and a (2 px) border. Selected state combines primary stroke, tonal fill, bold name and a check icon. Swatches measure (30 × 30 px); Black & white uses a split swatch. Separate System/Light/Dark controls have a (56 px) minimum height, matching icons and selected stroke/fill. Native accessibility exposes selected/disabled state; web also exposes `aria-pressed`. `InteractiveSurface` tracks pointer hover; the shared browser focus-visible rule supplies the keyboard outline. Disabled controls block changes and use (0.6) opacity.
+
+`FinancialArt` renders original transparent WebP artwork with contain sizing and hides decorative images from accessibility. The wallet/cards/coins and recurring-payment calendar assets total about (61 KB), with exact prompts and provenance sidecars in `assets/illustrations/`. No Thiings assets are bundled. Onboarding uses a wallet image sized (310 px) wide or (180 px) compact; the payment hub's empty state uses (130 px). Keep visible text and named actions responsible for meaning.
+
 ### Sheets, confirmations and feedback
 
 The shared `PickerSheet` is the signature protected-selection container for choices, quick actions and subscription actions. Its header uses (20 px) padding, with (16 px) bottom padding; its scroll content uses (20 px) horizontal padding. It exposes modal semantics and supports platform back dismissal. Busy state blocks close controls and backdrop dismissal. Confirmation content uses (26 px) padding and an (18 px) gap; repeated submission is guarded, failures display an alert and retain the dialog for recovery.
 
-Shared motion tokens are fast (150 ms) and normal (240 ms). `AnimatedIn` uses a fast fade with delay capped at (80 ms), removed under reduced motion. Modal fades become `none`; root navigation's `slide_from_right` becomes `none`. Toasts enter over (150 ms), exit over (120 ms), show for (4500 ms), expose a polite alert and include a dismiss control with a (44 × 44 px) minimum target. Charts use their own bounded transition; `ChartBar` uses (420 ms) with `ReduceMotion.System`.
+Shared motion tokens are fast (150 ms) and normal (240 ms). `AnimatedIn` uses a fast fade with delay capped at (80 ms), removed under reduced motion. Modal fades become `none`; root navigation's `slide_from_right` becomes `none`. Success toasts enter over (150 ms), exit over (120 ms) and show for (4500 ms); error toasts show for (8000 ms). Reduced motion removes both fades. They expose a polite alert and include a dismiss control with a (44 × 44 px) minimum target. The surface uses the success/error pair, a (14 px) radius and padding, a semantic border and a (34 px) circular check/attention icon. Titles distinguish “All set” from “Something needs attention”; the message uses reading text. `readableError` extracts the first Zod issue message. Feature-action notifications are guarded by the identity that began the action. Charts use their own bounded transition; `ChartBar` uses (420 ms) with `ReduceMotion.System`.
 
-**The Feedback Without Travel Rule.** Preserve state and readable labels when system reduced motion suppresses spatial or entrance animation. Source support is established; native runtime and browser reduced-motion emulation were not tested in the control-center handoff.
+**The Feedback Without Travel Rule.** Preserve state and readable labels when system reduced motion suppresses spatial or entrance animation. Source support is established; native runtime, OS reduced-motion settings and browser reduced-motion emulation were not exercised in the playful UI handoff.
 
 ## Do's and Don'ts
 
 ### Do:
 
-- **Do** use the existing semantic theme pairs, installed fonts, Lucide icons and shared primitives.
+- **Do** use the resolved semantic theme pairs, installed fonts, Lucide icons and shared primitives.
+- **Do** keep accent and appearance independent, and keep feedback colors stable when accents change.
+- **Do** reuse the committed financial object artwork with descriptive text and named actions.
 - **Do** preserve visible focus, named actions, selected/busy/disabled semantics and usable compact touch controls.
 - **Do** retain bounded feedback and system reduced-motion paths.
 - **Do** keep original currencies and date-only financial semantics legible; distinguish recurring estimates from imported payment facts.
@@ -277,7 +482,8 @@ Shared motion tokens are fast (150 ms) and normal (240 ms). `AnimatedIn` uses a 
 
 ### Don't:
 
-- **Don't** replace the established forest/mint identity or introduce an unrelated visual system in a refinement.
+- **Don't** remove the Green default or replace the shared typography and rounded primitive language when extending this system.
+- **Don't** substitute a brand mascot for the financial objects requested for this interface.
 - **Don't** hide required compact actions behind hover or swiping.
 - **Don't** communicate financial or error meaning through color alone.
 - **Don't** imply planning records, simulations, reminders or manually recorded cancellation perform merchant billing or money movement.
