@@ -77,7 +77,7 @@ const settingsGroups = [
   {
     title: "Tools",
     keywords:
-      "add subscription receipt import scan discovery gmail outlook price history cancellation savings monthly budgets csv calendar forwarding card bank payment wallet statement transaction radar",
+      "add subscription receipt import scan discovery gmail outlook price history cancellation savings monthly budgets csv calendar forwarding card bank payment wallet statement transaction radar watch refund dispute",
   },
   {
     title: "Data & privacy",

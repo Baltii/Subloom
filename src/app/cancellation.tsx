@@ -37,7 +37,7 @@ function Planner({ s }: { s: Subscription }) {
       requested: false,
     }),
     [reference, setReference] = useState(""),
-    [paidThrough, setPaidThrough] = useState(""),
+    [paidThrough, setPaidThrough] = useState(s.paidThrough ?? ""),
     [confirm, setConfirm] = useState(false),
     [error, setError] = useState<string | null>(null);
   const plan = settings.value[s.id],
@@ -172,13 +172,21 @@ function Planner({ s }: { s: Subscription }) {
           onChangeText={setPaidThrough}
         />
         <Button
-          disabled={!reference.trim() || demo || s.status === "canceled"}
+          disabled={!reference.trim() || demo}
           onPress={() => setConfirm(true)}
         >
           Record confirmed cancellation
         </Button>
       </Card>
       {error ? <Label accessibilityRole="alert">{error}</Label> : null}
+      {s.status === "canceled" ? (
+        <Button
+          variant="secondary"
+          onPress={() => router.push("/payments/watch")}
+        >
+          Open Cancellation Watch
+        </Button>
+      ) : null}
       <Confirm
         visible={confirm}
         title="Record provider confirmation?"

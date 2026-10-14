@@ -149,6 +149,12 @@ function Radar() {
         >
           Import a statement
         </Button>
+        <Button
+          variant="secondary"
+          onPress={() => router.push("/payments/watch")}
+        >
+          Open Cancellation Watch
+        </Button>
         {streams.length ? (
           <View style={{ gap: 16 }}>
             <Heading size={23}>Recurring patterns to review</Heading>
