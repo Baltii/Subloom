@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: transparent financial illustration for the Subloom subscription and payments app
+Style/medium: polished tactile 3D product illustration, soft rounded forms, expert material detail, premium matte silicone and ceramic with softly metallic coins, crisp clean silhouette. Financial objects only; no anthropomorphic character or face.
+Composition: centered full object group, three-quarter frontal view, generous clear padding on all sides. Designed to read at 120 pixels in a consumer app; simple recognizable silhouette, not a busy scene.
+Lighting: soft studio lighting with gentle highlights and a very subtle contact shadow beneath the objects. No backdrop, genuinely transparent alpha.
+Constraints: no words, letters, numbers, currency symbols, logo, watermark, brand marks, fake UI screens, plants, flowers, mascot, face, hands, charts promising returns, confetti, or surrounding scene.
+Primary request: one compact deep teal wallet, softly rounded with a neat clasp, two blank rounded payment cards emerging from the top, one ivory and one blue. Two small stacks of warm gold coins sit immediately beside its base. A warm lilac card edge adds a playful accent. Keep every object grounded as a single tidy group, no floating objects.
+Palette: deep teal, ivory, muted sky blue, warm gold, tiny lilac accents. Works on pale tinted and dark surfaces.

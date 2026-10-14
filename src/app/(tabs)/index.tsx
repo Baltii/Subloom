@@ -25,7 +25,8 @@ import {
   Page,
   SectionTitle,
 } from "../../components/ui/Primitives";
-import { BloomArt } from "../../components/ui/Brand";
+import { FinancialArt } from "../../components/ui/FinancialArt";
+import { DashboardActions } from "../../components/ui/DashboardActions";
 import { SubscriptionRow } from "../../components/subscriptions/SubscriptionRow";
 import { ServiceIcon } from "../../components/subscriptions/ServiceIcon";
 import { CategoryChart } from "../../components/ui/CategoryChart";
@@ -69,8 +70,7 @@ export default function Home() {
   return (
     <Page
       title="Your subscriptions, at a glance."
-      subtitle="A little clarity. A lot more peace of mind."
-      eyebrow={dateLabel(reference, {
+      subtitle={dateLabel(reference, {
         weekday: "long",
         month: "long",
         day: "numeric",
@@ -95,7 +95,7 @@ export default function Home() {
           <View
             style={{
               flex: wide ? 1.85 : undefined,
-              minHeight: 250,
+              minHeight: 216,
               padding: 28,
               borderRadius: 22,
               backgroundColor: colors.hero,
@@ -106,14 +106,13 @@ export default function Home() {
             <View
               style={{
                 position: "absolute",
-                right: -14,
-                top: -3,
-                opacity: 0.7,
+                right: 20,
+                top: 12,
               }}
             >
-              <BloomArt size={240} color={colors.heroArt} />
+              {wide ? <FinancialArt kind="renewals" size={140} /> : null}
             </View>
-            <View style={{ gap: 12 }}>
+            <View style={{ gap: 12, paddingRight: wide ? 130 : 0 }}>
               <View
                 style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
               >
@@ -191,7 +190,7 @@ export default function Home() {
               flex: wide ? 1 : undefined,
               padding: 24,
               justifyContent: "space-between",
-              minHeight: 250,
+              minHeight: 216,
             }}
           >
             <View
@@ -332,6 +331,7 @@ export default function Home() {
           </Label>
         </View>
       )}
+      <DashboardActions />
       <Card style={{ marginBottom: 24 }}>
         <SectionTitle title="Your next six months" />
         <RenewalChart

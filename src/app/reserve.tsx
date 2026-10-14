@@ -101,7 +101,7 @@ function Reserve() {
             reservePlan(subscriptions, next, reference);
             await settings.save(next);
             setPayday(null);
-          })
+          }, "Next payday saved.")
         }
       >
         Save next payday
@@ -184,7 +184,7 @@ function Reserve() {
               ],
             });
             setAmount("");
-          })
+          }, "Planned amount saved.")
         }
       >
         Save planned amount

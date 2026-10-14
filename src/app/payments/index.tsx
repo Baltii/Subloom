@@ -29,6 +29,7 @@ import {
 import { formatMoney } from "../../domain/money";
 import { today } from "../../domain/renewal";
 import { PaymentSettingState } from "../../components/payments/PaymentSettingState";
+import { FinancialArt } from "../../components/ui/FinancialArt";
 function Hub() {
   const { colors } = useTheme(),
     wide = useWide();
@@ -79,7 +80,7 @@ function Hub() {
         </View>
         {profile.loaded && !rows.length ? (
           <View style={{ paddingVertical: 24, gap: 12 }}>
-            <Wallet color={colors.primary} size={36} />
+            <FinancialArt kind="wallet" size={130} />
             <Heading size={24}>Give your renewals a home.</Heading>
             <Label color={colors.secondary}>
               Add a card nickname, bank account, or wallet, then link the
