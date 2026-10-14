@@ -33,6 +33,13 @@ export const toolActions: {
   group: string;
 }[] = [
   {
+    title: "Family Settlement Center",
+    detail: "Recorded shared charges, balances, receipts and request drafts",
+    route: "/settlements",
+    icon: Users,
+    group: "Import & sharing",
+  },
+  {
     title: "Subscription Value Coach",
     detail: "Usage, cost per use, confirmed quotes and rotation plans",
     route: "/value-coach",
