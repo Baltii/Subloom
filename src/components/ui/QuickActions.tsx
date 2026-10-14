@@ -33,6 +33,13 @@ export const toolActions: {
   group: string;
 }[] = [
   {
+    title: "Renewal Reserve",
+    detail: "Annual funding plans and commitments before payday",
+    route: "/reserve",
+    icon: Wallet,
+    group: "Planning",
+  },
+  {
     title: "Virtual card plans",
     detail: "Unenforced per-service caps and control simulations",
     route: "/virtual-plans",

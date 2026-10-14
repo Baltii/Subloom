@@ -20,6 +20,7 @@ export async function exportData() {
                 "cancellation",
                 "payment_sources",
                 "payment_transactions",
+                "reserve",
                 "virtual_plans",
                 "autopilot",
                 "cancellation_watch",
