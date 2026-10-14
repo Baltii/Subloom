@@ -6,6 +6,8 @@ Record original-currency payments/refunds, dates, settled/pending/failed status 
 
 Apply the finance_journal migration and deploy export-data before account use. Local PostgreSQL integration tests exercise RLS, version conflicts, invalid payloads and account deletion. No live payment provider is enabled by this PR.
 
-Merge order: 1. codex/finance-wallet-ledger → main; 2. codex/finance-exchange-rates → codex/finance-wallet-ledger; 3. codex/finance-renewal-controls → codex/finance-exchange-rates. This stack is independent of the existing payment/control-center feature branches.
+Merge order: 1. codex/finance-wallet-ledger → release-candidate; 2. codex/finance-exchange-rates → codex/finance-wallet-ledger; 3. codex/finance-renewal-controls → codex/finance-exchange-rates. This stack is independent of the existing payment/control-center feature branches.
 
 Verification on the finalized cards branch: `npm run check` passed (33 files, 223 tests), `npm run check:backend` passed, and `npm run test:backend` passed (22 tests). Initial web/iOS/Android exports passed; final combined-stack exports are recorded in the third feature document. Browser checks exercised guest card and transaction saving, persistence after reload, immediate updates on returning from forms, and compact/desktop layouts. Native device behavior and hosted deployment remain untested.
+
+The stack has been rebased onto release-candidate. PRs are ready for review; keep the predecessor chain when merging.
