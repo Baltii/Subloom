@@ -15,10 +15,12 @@ export async function exportData() {
       state.identity === "guest"
         ? Object.fromEntries(
             await Promise.all(
-              ["budgets", "cancellation"].map(async (key) => {
-                const value = await localSetting(state.identity, key);
-                return [key, value ? JSON.parse(value) : null];
-              }),
+              ["budgets", "cancellation", "payment_sources"].map(
+                async (key) => {
+                  const value = await localSetting(state.identity, key);
+                  return [key, value ? JSON.parse(value) : null];
+                },
+              ),
             ),
           )
         : undefined,

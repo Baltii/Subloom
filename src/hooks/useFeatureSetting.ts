@@ -18,6 +18,7 @@ export function useFeatureSetting<T>(
   }>({ identity, value: initial, version: 0, loaded: false, error: null });
   const [busy, setBusy] = useState(false);
   const generation = useRef(0);
+  const saving = useRef(false);
   const reload = useCallback(async () => {
     const current = ++generation.current;
     setState({
@@ -56,6 +57,7 @@ export function useFeatureSetting<T>(
   const save = async (value: T) => {
     if (
       demo ||
+      saving.current ||
       busy ||
       !state.loaded ||
       state.identity !== identity ||
@@ -65,6 +67,7 @@ export function useFeatureSetting<T>(
         "Reload your settings before saving. Leave demo mode to edit.",
       );
     const current = generation.current;
+    saving.current = true;
     setBusy(true);
     try {
       const version = await writeSetting(
@@ -86,6 +89,7 @@ export function useFeatureSetting<T>(
         setState({ ...state, loaded: false, error: readableError(error) });
       throw error;
     } finally {
+      saving.current = false;
       setBusy(false);
     }
   };
