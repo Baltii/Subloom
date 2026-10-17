@@ -3,19 +3,36 @@ import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useApp } from "../store/app";
 import { localSetting } from "./featureSettings";
-import { supabase } from "./supabase";
+import { exportGuestBitcoinHistory } from "./bitcoin";
+import { accountClient } from "./supabase";
 export async function exportData() {
   const state = useApp.getState();
   let archive: unknown = {
     exportedAt: new Date().toISOString(),
     scope:
       "Local subscriptions, receipt candidates, preferences, and cached activity",
+    cryptoHistory:
+      state.identity === "guest"
+        ? await exportGuestBitcoinHistory()
+        : undefined,
     pendingSync: state.data.outbox.length > 0,
     featureSettings:
       state.identity === "guest"
         ? Object.fromEntries(
             await Promise.all(
-              ["budgets", "cancellation"].map(async (key) => {
+              [
+                "finance",
+                "crypto",
+                "budgets",
+                "cancellation",
+                "payment_sources",
+                "payment_transactions",
+                "coach",
+                "reserve",
+                "virtual_plans",
+                "autopilot",
+                "cancellation_watch",
+              ].map(async (key) => {
                 const value = await localSetting(state.identity, key);
                 return [key, value ? JSON.parse(value) : null];
               }),
@@ -25,18 +42,23 @@ export async function exportData() {
     ...state.data,
     outbox: undefined,
   };
-  if (supabase && state.identity !== "guest") {
+  if (state.identity !== "guest") {
     if (state.data.outbox.length)
       throw new Error(
         "Sync your pending changes first to export your complete account.",
       );
-    const { data, error } = await supabase.functions.invoke("export-data");
+    const client = await accountClient(state.identity);
+    const { data, error } = await client.functions.invoke("export-data");
     if (error)
       throw new Error(
         "Could not export account data. Please try again when connected.",
       );
     archive = data;
   }
+  if (useApp.getState().identity !== state.identity)
+    throw new Error(
+      "Your account changed. Export again from your current workspace.",
+    );
   const json = JSON.stringify(archive, null, 2),
     name = "subloom-export-" + new Date().toISOString().slice(0, 10) + ".json";
   if (Platform.OS === "web") {

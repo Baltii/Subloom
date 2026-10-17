@@ -200,6 +200,13 @@ export default function Details() {
           </Card>
           <Card style={{ marginTop: 20 }}>
             <SectionTitle title="Details" />
+            <Button
+              small
+              variant="ghost"
+              onPress={() => router.push("/payments")}
+            >
+              Manage cards & wallets
+            </Button>
             <Label size={12} color={colors.secondary}>
               Category
             </Label>

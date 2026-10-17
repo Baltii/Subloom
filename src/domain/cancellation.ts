@@ -46,7 +46,10 @@ export function cancellationRecord(
   return {
     ...s,
     status: "canceled",
-    canceledAt: dateSchema.parse(now),
+    canceledAt:
+      s.status === "canceled" && s.canceledAt
+        ? s.canceledAt
+        : dateSchema.parse(now),
     paidThrough: paidThrough ? dateSchema.parse(paidThrough) : null,
     notes: [s.notes, note].filter(Boolean).join("\n"),
   };
