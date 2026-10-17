@@ -28,6 +28,8 @@ npm run export:web
 
 For mobile, use an **Expo development build**, not Expo Go. Configure Supabase, Resend, OCR, APNs/FCM, and EAS for the integrations you enable.
 
+The native Mac **Next subscription** widget shows the nearest renewal or trial end in small/medium sizes. Its WidgetKit extension is implemented; gallery installation requires an Apple-signed Mac build. See [Mac widget setup and validation](feature-docs/macos-widget.md). `npm run build:macos -- --widget` creates a separate ad-hoc test bundle without replacing the existing builds.
+
 The updated standalone Mac test app is `build/Subloom-update.app`. Quit the running Subloom copy, then open this replacement. It keeps the same bundle identifier and storage origin. Rebuild separately with `npm run build:macos -- --update`; it bundles the web interface and runs without Metro. This ad-hoc signed test app requires macOS 14+.
 
 In the Mac app, enable **Settings → Mac notifications**, then use **Send a Mac test notification**. These are local system reminders; no Apple login, paid developer membership, APNs credentials, or Subloom account is needed. macOS permission is required, and Focus or banner settings can suppress visible alerts. Up to 48 upcoming reminders within a year stay scheduled while the app is closed. Opening the app, returning to it, or editing subscriptions refreshes the schedule. Device consent is separate from account-wide mobile push preferences; switching workspaces cancels the previous workspace’s reminders.

@@ -83,6 +83,7 @@ final class BundleServer {
     var webView: WKWebView!
     var server: BundleServer!
     var bridge: MacBridge!
+    var pendingWidgetNavigation: [String: String]?
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
         let menu = NSMenu(), appItem = NSMenuItem(), appMenu = NSMenu()
@@ -108,6 +109,7 @@ final class BundleServer {
         } catch { fail("Local storage could not open. Your existing data has been preserved. Check disk space and reopen Subloom."); return }
         webView = WKWebView(frame: .zero, configuration: config)
         bridge.webView = webView
+        if let pendingWidgetNavigation { bridge.openWidget(pendingWidgetNavigation); self.pendingWidgetNavigation = nil }
         webView.navigationDelegate = self; webView.uiDelegate = self
         window.contentView = webView; window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
         guard let root = Bundle.main.resourceURL?.appendingPathComponent("Web"), FileManager.default.fileExists(atPath: root.appendingPathComponent("index.html").path) else {
@@ -128,6 +130,13 @@ final class BundleServer {
         webView?.evaluateJavaScript("window.dispatchEvent(new Event('focus'))", completionHandler: nil)
     }
     func applicationWillTerminate(_ notification: Notification) { server?.listener?.cancel() }
+    func application(_ application: NSApplication, open urls: [URL]) {
+        guard let url = urls.first else { return }
+        if widgetLaunch(url) { window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
+        guard let navigation = widgetNavigation(url) else { return }
+        if let bridge { bridge.openWidget(navigation) } else { pendingWidgetNavigation = navigation }
+        window?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+    }
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = action.request.url else { decisionHandler(.cancel); return }
         if action.shouldPerformDownload { decisionHandler(.download); return }

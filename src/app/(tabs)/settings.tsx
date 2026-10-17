@@ -31,6 +31,7 @@ import {
   sendMacTestNotification,
   useMacNotifications,
 } from "../../services/macosNotifications";
+import { refreshMacWidget, useMacWidget } from "../../services/macosWidget";
 import {
   disableDevice,
   registerPush,
@@ -73,7 +74,7 @@ const settingsGroups = [
   {
     title: "Reminders",
     keywords:
-      "notification push email trial weekly digest private lock screen time quiet hours renewal threshold mac",
+      "notification push email trial weekly digest private lock screen time quiet hours renewal threshold mac widget desktop",
   },
   {
     title: "Tools",
@@ -137,6 +138,7 @@ function Settings() {
     : [section];
   const isMac = Boolean(macosBridge());
   const mac = useMacNotifications();
+  const widget = useMacWidget();
   const [hour, setHour] = useState(String(p.reminderHour)),
     [quietStart, setQuietStart] = useState(String(p.quietStart)),
     [quietEnd, setQuietEnd] = useState(String(p.quietEnd)),
@@ -470,6 +472,41 @@ function Settings() {
                 <SectionTitle title="Reminder preferences" />
                 {isMac && (
                   <>
+                    <SectionTitle title="Desktop widget" />
+                    <Label size={13} color={colors.secondary}>
+                      {widget.available
+                        ? "Your nearest renewal or trial end. Control-click the desktop, choose Edit Widgets, then find Subloom."
+                        : "Desktop widgets need a signed version of the Mac app. This test build cannot share its dates with the widget gallery."}
+                    </Label>
+                    {widget.available && (
+                      <View style={{ gap: 8, marginVertical: 16 }}>
+                        <Button
+                          variant="secondary"
+                          onPress={() => void refreshMacWidget(true)}
+                        >
+                          Refresh widget
+                        </Button>
+                        <Label size={12} color={colors.secondary}>
+                          {widget.updated
+                            ? "Upcoming dates are ready. macOS controls when the widget refreshes."
+                            : "Open Subloom to refresh upcoming dates."}
+                        </Label>
+                      </View>
+                    )}
+                    {widget.error && (
+                      <Label accessibilityRole="alert" color={colors.error}>
+                        {widget.error}
+                      </Label>
+                    )}
+                    <Label
+                      size={12}
+                      color={colors.secondary}
+                      style={{ marginTop: 8, marginBottom: 20 }}
+                    >
+                      Private content hides service names in the widget. Dates
+                      advance for up to 35 days while the app is closed; open
+                      Subloom again to refresh them.
+                    </Label>
                     {toggle(
                       "Mac notifications",
                       "Local reminders on this Mac, even without an account.",
@@ -659,8 +696,12 @@ function Settings() {
                   },
                 )}
                 {toggle(
-                  "Private lock-screen content",
-                  "Hide merchant names and prices from push alerts.",
+                  isMac
+                    ? "Private reminder & widget content"
+                    : "Private lock-screen content",
+                  isMac
+                    ? "Hide merchant names and prices from alerts, and service names from the Mac widget."
+                    : "Hide merchant names and prices from push alerts.",
                   p.privacyMode,
                   async (privacyMode) => updatePreferences({ privacyMode }),
                 )}

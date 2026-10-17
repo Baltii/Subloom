@@ -11,6 +11,7 @@ import AuthenticationServices
     var notificationWork: Task<Void, Never>?
     var navigation: [String: String]?
     var authSession: ASWebAuthenticationSession?
+    let widget = WidgetPublisher()
 
     static let bootstrap = """
     Object.defineProperty(window, 'subloomMac', { value: Object.freeze({
@@ -39,6 +40,15 @@ import AuthenticationServices
         // Disk writes remain available even while a notification permission prompt is open.
         do {
             switch op {
+            case "widget.clear": try widget.clear(); replyHandler(true, nil); return
+            case "widget.activate":
+                guard let session = body["session"] as? String, let isPrivate = body["isPrivate"] as? Bool else { throw WidgetDataError.invalid }
+                try widget.activate(owner: identity(body), session: session, isPrivate: isPrivate)
+                replyHandler(["available": widget.available], nil); return
+            case "widget.publish":
+                guard let session = body["session"] as? String, let value = body["value"] as? String else { throw WidgetDataError.invalid }
+                try widget.publish(owner: identity(body), session: session, value: value)
+                replyHandler(true, nil); return
             case "auth.open":
                 try openAuth(body, reply: replyHandler); return
             case "wallet.open":
@@ -82,6 +92,10 @@ import AuthenticationServices
             do { replyHandler(try await self.perform(op, body: body), nil) }
             catch { replyHandler(nil, error.localizedDescription) }
         }
+    }
+    func openWidget(_ value: [String: String]) {
+        navigation = value
+        webView?.evaluateJavaScript("window.dispatchEvent(new Event('subloom-notification'))", completionHandler: nil)
     }
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         webView!.window!
