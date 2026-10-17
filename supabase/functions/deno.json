@@ -5,6 +5,5 @@
     "@js-temporal/polyfill": "npm:@js-temporal/polyfill@0.5.1",
     "svix": "npm:svix@1.99.1"
   },
-  "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true },
-  "unstable": ["sloppy-imports"]
+  "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true }
 }

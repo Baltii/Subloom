@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { currencies, dateSchema } from "./models";
+import { currencies, dateSchema } from "./models.ts";
 
 // Labels must never become a second field for full card numbers.
 export const financeLabel = z
