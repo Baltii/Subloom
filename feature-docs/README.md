@@ -1,3 +1,5 @@
+> Current combined release status (2026-10-17): [App readiness](app-readiness.md). This supersedes historical branch/draft/deployment status below for `codex/app-readiness`.
+
 # Feature delivery and setup
 
 The new eight-feature recurring-payments stack is documented in [Control center](control-center/README.md), with its current merge order, provider boundaries and validation.

@@ -24,6 +24,29 @@ import Foundation
             do { try store.write("guest", value: invalid); throw LocalAppError.invalid("Invalid snapshot accepted") }
             catch { try check(try store.read("guest") == data, "Invalid write preserves existing data") }
         }
+        let feature = #"{"wallets":[],"transactions":[]}"#
+        try store.writeFeature("guest", key: "finance", value: feature)
+        try store.writeFeature(a, key: "finance", value: feature)
+        try store.writeFeature("public", key: "exchange_rates", value: "[]")
+        try check(try SnapshotStore(directory: root).readFeature("guest", key: "finance") == feature, "Financial features survive reopening the store")
+        try store.clearFeatures(a)
+        try check(try store.readFeature(a, key: "finance") == nil && store.readFeature("guest", key: "finance") == feature, "Feature clearing is owner isolated")
+        try check(try store.readFeature("public", key: "exchange_rates") == "[]", "Public rates have a separate durable cache")
+        for key in ["../finance", "", "bad/key"] {
+            do { try store.writeFeature("guest", key: key, value: "{}"); throw LocalAppError.invalid("Unsafe key accepted") }
+            catch LocalAppError.invalid(let message) { try check(message == "Invalid feature key.", "Reject unsafe feature key") }
+        }
+        do { try store.writeFeature("guest", key: "finance", value: "not json"); throw LocalAppError.invalid("Invalid feature accepted") }
+        catch { try check(try store.readFeature("guest", key: "finance") == feature, "Malformed feature writes preserve saved finances") }
+        try check(validAuthURL(URL(string: "https://provider.example/authorize")!), "Allow HTTPS sign-in providers")
+        for raw in ["http://provider.example/authorize", "file:///tmp/auth", "https://user:password@provider.example"] {
+            try check(!validAuthURL(URL(string: raw)!), "Reject unsafe sign-in provider URL")
+        }
+        try check(validAuthCallback(URL(string: "subloom://auth-callback?code=fixture")!, redirect: "subloom://auth-callback"), "Accept exact app sign-in callback")
+        try check(validAuthCallback(URL(string: "subloom://mailboxes?status=connected")!, redirect: "subloom://mailboxes"), "Accept exact mailbox callback")
+        for raw in ["subloom://mailboxes?code=wrong", "subloom://auth-callback/wrong?code=x", "subloom://user@auth-callback?code=x", "subloom://auth-callback#access_token=x"] {
+            try check(!validAuthCallback(URL(string: raw)!, redirect: "subloom://auth-callback"), "Reject mismatched sign-in callback")
+        }
         let permissions = try FileManager.default.attributesOfItem(atPath: root.appendingPathComponent("guest.json").path)[.posixPermissions] as? Int
         try check(permissions == 0o600, "Workspace files are owner-readable only")
         try check(trustedBridgeFrame(URL(string: "http://127.0.0.1:48187/settings"), mainFrame: true), "Allow the bundled main frame")

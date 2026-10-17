@@ -4,7 +4,11 @@ import {
   writeSetting,
   clearLocalFeatures,
 } from "../../src/services/featureSettings";
-import { financeSchema, initialFinance } from "../../src/domain/finance";
+import {
+  financeSchema,
+  initialFinance,
+  transactionTotals,
+} from "../../src/domain/finance";
 import { accountClient } from "../../src/services/supabase";
 vi.mock("react-native", () => ({ Platform: { OS: "web" } }));
 vi.mock("../../src/services/supabase", () => ({ accountClient: vi.fn() }));
@@ -91,4 +95,63 @@ it("binds account updates to their owner and expected version and rejects confli
     data: initialFinance,
     version: 5,
   });
+});
+
+it("persists corrected and removed entries without counting pending charges or mixing currencies", async () => {
+  const records = new Map<string, string>();
+  vi.stubGlobal("localStorage", {
+    getItem: (key: string) => records.get(key) ?? null,
+    setItem: (key: string, value: string) => records.set(key, value),
+  });
+  const transaction = {
+    id: "11111111-1111-4111-8111-111111111111",
+    merchant: "Fixture",
+    amountMinor: 12345,
+    currency: "TND" as const,
+    date: "2026-10-17",
+    kind: "charge" as const,
+    status: "pending" as const,
+    walletId: null,
+    subscriptionId: null,
+    source: "manual" as const,
+    createdAt: "2026-10-17T00:00:00.000Z",
+  };
+  await writeSetting(
+    "guest",
+    "finance",
+    financeSchema,
+    { wallets: [], transactions: [transaction] },
+    0,
+  );
+  let saved = (
+    await readSetting("guest", "finance", financeSchema, initialFinance)
+  ).value;
+  expect(transactionTotals(saved.transactions)).toEqual([]);
+  await writeSetting(
+    "guest",
+    "finance",
+    financeSchema,
+    {
+      ...saved,
+      transactions: [{ ...transaction, amountMinor: 9876, status: "settled" }],
+    },
+    0,
+  );
+  saved = (await readSetting("guest", "finance", financeSchema, initialFinance))
+    .value;
+  expect(saved.transactions).toHaveLength(1);
+  expect(transactionTotals(saved.transactions)).toEqual([
+    { currency: "TND", charges: 9876, refunds: 0, net: 9876 },
+  ]);
+  await writeSetting(
+    "guest",
+    "finance",
+    financeSchema,
+    { ...saved, transactions: [] },
+    0,
+  );
+  saved = (await readSetting("guest", "finance", financeSchema, initialFinance))
+    .value;
+  expect(saved.transactions).toEqual([]);
+  expect(transactionTotals(saved.transactions)).toEqual([]);
 });

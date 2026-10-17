@@ -1,14 +1,16 @@
 import AppKit
 import WebKit
 import UserNotifications
+import AuthenticationServices
 
-@MainActor final class MacBridge: NSObject, WKScriptMessageHandlerWithReply, UNUserNotificationCenterDelegate {
+@MainActor final class MacBridge: NSObject, WKScriptMessageHandlerWithReply, UNUserNotificationCenterDelegate, ASWebAuthenticationPresentationContextProviding {
     let store: SnapshotStore
     let center = UNUserNotificationCenter.current()
     weak var webView: WKWebView?
     var workspace: String?
     var notificationWork: Task<Void, Never>?
     var navigation: [String: String]?
+    var authSession: ASWebAuthenticationSession?
 
     static let bootstrap = """
     Object.defineProperty(window, 'subloomMac', { value: Object.freeze({
@@ -37,11 +39,33 @@ import UserNotifications
         // Disk writes remain available even while a notification permission prompt is open.
         do {
             switch op {
+            case "auth.open":
+                try openAuth(body, reply: replyHandler); return
+            case "wallet.open":
+                guard let raw = body["url"] as? String, raw.utf8.count <= 256,
+                      let url = URL(string: raw), url.scheme == "bitcoin", url.host == nil,
+                      !url.path.isEmpty, url.fragment == nil, NSWorkspace.shared.open(url) else {
+                    throw LocalAppError.invalid("No Bitcoin wallet could open this request. Install a wallet that supports bitcoin: links, then retry.")
+                }
+                replyHandler(true, nil); return
             case "snapshot.read": replyHandler(try store.read(identity(body)) ?? NSNull(), nil); return
             case "snapshot.write":
                 guard let value = body["value"] as? String else { throw LocalAppError.invalid("Invalid local data.") }
                 try store.write(identity(body), value: value); replyHandler(true, nil); return
             case "snapshot.remove": try store.remove(identity(body)); replyHandler(true, nil); return
+            case "feature.read", "feature.write":
+                guard let key = body["key"] as? String else { throw LocalAppError.invalid("Invalid feature key.") }
+                let owner = try identity(body)
+                if op == "feature.read" { replyHandler(try store.readFeature(owner, key: key) ?? NSNull(), nil) }
+                else {
+                    guard let value = body["value"] as? String else { throw LocalAppError.invalid("Invalid feature data.") }
+                    try store.writeFeature(owner, key: key, value: value); replyHandler(true, nil)
+                }
+                return
+            case "feature.clear": try store.clearFeatures(identity(body)); replyHandler(true, nil); return
+            case "feature.remove":
+                guard let key = body["key"] as? String else { throw LocalAppError.invalid("Invalid feature key.") }
+                try store.removeFeature(identity(body), key: key); replyHandler(true, nil); return
             case "notification.navigation":
                 let value: Any = navigation ?? NSNull(); navigation = nil; replyHandler(value, nil); return
             case "notification.settings":
@@ -57,6 +81,33 @@ import UserNotifications
             guard let self else { replyHandler(nil, "The app has closed."); return }
             do { replyHandler(try await self.perform(op, body: body), nil) }
             catch { replyHandler(nil, error.localizedDescription) }
+        }
+    }
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        webView!.window!
+    }
+    private func openAuth(_ body: [String: Any], reply: @escaping (Any?, String?) -> Void) throws {
+        guard authSession == nil else { throw LocalAppError.invalid("A sign-in is already in progress.") }
+        guard webView?.window != nil, let raw = body["url"] as? String,
+              let url = URL(string: raw), validAuthURL(url),
+              let redirect = body["redirect"] as? String, validAuthRedirect(redirect) else {
+            throw LocalAppError.invalid("Invalid sign-in request.")
+        }
+        let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "subloom") { [weak self] callback, error in
+            Task { @MainActor in
+                self?.authSession = nil
+                if let callback, validAuthCallback(callback, redirect: redirect) {
+                    reply(callback.absoluteString, nil)
+                } else {
+                    reply(nil, error == nil ? "Unexpected sign-in callback. Try again." : "Sign-in canceled or unavailable. Please try again.")
+                }
+            }
+        }
+        session.presentationContextProvider = self
+        authSession = session
+        if !session.start() {
+            authSession = nil
+            throw LocalAppError.invalid("The sign-in browser could not open. Please try again.")
         }
     }
     private func clear() async {

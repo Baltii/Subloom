@@ -133,11 +133,11 @@ final class BundleServer {
         if action.shouldPerformDownload { decisionHandler(.download); return }
         if url.scheme == "http", url.host == "127.0.0.1", url.port == 48187 { decisionHandler(.allow); return }
         if url.scheme == "blob" || url.absoluteString == "about:blank" { decisionHandler(.allow); return }
-        if ["https", "mailto"].contains(url.scheme ?? "") { NSWorkspace.shared.open(url) }
+        if ["https", "mailto", "bitcoin"].contains(url.scheme ?? "") { NSWorkspace.shared.open(url) }
         decisionHandler(.cancel)
     }
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        if let url = action.request.url, ["https", "mailto"].contains(url.scheme ?? "") { NSWorkspace.shared.open(url) }
+        if let url = action.request.url, ["https", "mailto", "bitcoin"].contains(url.scheme ?? "") { NSWorkspace.shared.open(url) }
         return nil
     }
     func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {

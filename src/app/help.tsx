@@ -18,7 +18,7 @@ export default function Help() {
     ],
     [
       "How do reminders work?",
-      "Connect an account, enable push in a native development build or email, and choose your reminder days/time. Server jobs handle delivery when the app is closed. Guest tracking does not send alerts.",
+      "Connect an account, enable push in a native development build or email, and choose your reminder days/time. Server jobs handle delivery when the app is closed. On Mac, guest workspaces can enable local system reminders in Settings; opening the app refreshes their schedule.",
     ],
     [
       "Why is a receipt missing details?",
@@ -26,7 +26,7 @@ export default function Help() {
     ],
     [
       "What needs configuration?",
-      "Supabase authentication and migrations, deployed Edge Functions, cron/Vault secrets, a verified Resend sending/receiving domain, and EAS APNs/FCM configuration. Screenshot OCR additionally needs the server-side Google Cloud Vision API key. See the repository README and docs/SETUP.md.",
+      "Supabase authentication and migrations, deployed Edge Functions, cron/Vault secrets, a verified Resend sending/receiving domain, and EAS APNs/FCM configuration. Screenshot OCR additionally needs the server-side Google Cloud Vision API key. Setup requirements are documented in the repository’s feature-docs/app-readiness.md.",
     ],
     [
       "Need help with this build?",

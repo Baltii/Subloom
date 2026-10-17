@@ -63,7 +63,6 @@ export function useFeatureSetting<T>(
         if (refreshOnFocus) generation.current++;
       };
     }, [reload, refreshOnFocus]),
-
   );
   const save = async (value: T) => {
     if (
@@ -88,6 +87,10 @@ export function useFeatureSetting<T>(
         value,
         state.version,
       );
+      if (useApp.getState().identity !== identity)
+        throw new Error(
+          "Your workspace changed during the save. Return to the original workspace to review it.",
+        );
       if (current === generation.current)
         setState({
           ...state,

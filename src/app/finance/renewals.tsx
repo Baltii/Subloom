@@ -49,7 +49,11 @@ function RenewalsForm() {
       await setting.save({
         ...setting.value,
         intentions: [
-          ...setting.value.intentions.filter((i) => i.subscriptionId !== id),
+          ...setting.value.intentions.filter(
+            (i) =>
+              i.subscriptionId !== id &&
+              subscriptionNames.has(i.subscriptionId),
+          ),
           intention,
         ],
       });
@@ -140,6 +144,26 @@ function RenewalsForm() {
                   : "Review manually"}{" "}
               · review {i.reviewDate} · Manual action required
             </Label>
+            <Button
+              small
+              variant="ghost"
+              disabled={!setting.loaded || setting.busy || demo}
+              onPress={() =>
+                void setting
+                  .save({
+                    ...setting.value,
+                    intentions: setting.value.intentions.filter(
+                      (entry) =>
+                        entry.subscriptionId !== i.subscriptionId &&
+                        subscriptionNames.has(entry.subscriptionId),
+                    ),
+                  })
+                  .then(() => notify("Renewal preference removed."))
+                  .catch((e) => setError(financeError(e)))
+              }
+            >
+              Remove preference
+            </Button>
           </View>
         ))}
         <Button

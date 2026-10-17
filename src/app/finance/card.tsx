@@ -16,6 +16,7 @@ import { Button, Field, Label, Page } from "../../components/ui/Primitives";
 import { SelectField } from "../../components/ui/Selection";
 import { FinanceState } from "../../components/finance/FinanceState";
 import { notify, useApp } from "../../store/app";
+import { useDraftGuard } from "../../hooks/useDraftGuard";
 
 function CardRouteForm() {
   const { id } = useLocalSearchParams<{ id?: string }>(),
@@ -37,6 +38,7 @@ function CardRouteForm() {
   const [error, setError] = useState<string | null>(null),
     demo = useApp((s) => s.data.demo);
   const ready = setting.loaded && (!id || Boolean(existing));
+  const guard = useDraftGuard(draft !== null, setting.busy);
   async function save() {
     try {
       setError(null);
@@ -50,6 +52,7 @@ function CardRouteForm() {
           ? setting.value.wallets.map((w) => (w.id === wallet.id ? wallet : w))
           : [...setting.value.wallets, wallet],
       });
+      guard.saved();
       notify("Card or wallet saved for tracking.");
       router.back();
     } catch (e) {
@@ -124,6 +127,7 @@ function CardRouteForm() {
           Save card or wallet
         </Button>
       </View>
+      {guard.confirmation}
     </Page>
   );
 }

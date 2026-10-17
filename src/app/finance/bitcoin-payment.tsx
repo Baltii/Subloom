@@ -18,6 +18,7 @@ import {
   Page,
 } from "../../components/ui/Primitives";
 import { useApp } from "../../store/app";
+import { macosBridge, macosRequest } from "../../services/macosBridge";
 export default function BitcoinPaymentRoute() {
   const [address, setAddress] = useState(""),
     [amount, setAmount] = useState(""),
@@ -91,7 +92,9 @@ export default function BitcoinPaymentRoute() {
           onConfirm={async () => {
             if (!review) return;
             try {
-              await Linking.openURL(review.uri);
+              if (macosBridge())
+                await macosRequest("wallet.open", { url: review.uri });
+              else await Linking.openURL(review.uri);
               setReview(null);
             } catch {
               setReview(null);

@@ -12,12 +12,14 @@ import {
 } from "../../domain/bitcoin";
 import {
   Button,
+  Confirm,
   Field,
   Heading,
   Label,
   Page,
   LinkRow,
 } from "../../components/ui/Primitives";
+import { removeLocalSetting } from "../../services/featureSettings";
 import { FinanceState } from "../../components/finance/FinanceState";
 import { Bitcoin, ArrowUpRight } from "lucide-react-native";
 import { notify, useApp } from "../../store/app";
@@ -30,10 +32,12 @@ function CryptoForm() {
       true,
     ),
     demo = useApp((s) => s.data.demo),
+    identity = useApp((s) => s.identity),
     { colors } = useTheme();
   const [name, setName] = useState(""),
     [address, setAddress] = useState(""),
     [error, setError] = useState<string | null>(null);
+  const [remove, setRemove] = useState<string | null>(null);
   async function add() {
     try {
       setError(null);
@@ -102,18 +106,27 @@ function CryptoForm() {
           <Label>No Bitcoin addresses saved yet.</Label>
         )}
         {setting.value.wallets.map((w) => (
-          <LinkRow
-            key={w.id}
-            title={w.name}
-            detail={w.address.slice(0, 12) + "…" + w.address.slice(-8)}
-            icon={Bitcoin}
-            onPress={() =>
-              router.push({
-                pathname: "/finance/bitcoin-history",
-                params: { id: w.id },
-              })
-            }
-          />
+          <View key={w.id} style={{ gap: 8 }}>
+            <LinkRow
+              title={w.name}
+              detail={w.address.slice(0, 12) + "…" + w.address.slice(-8)}
+              icon={Bitcoin}
+              onPress={() =>
+                router.push({
+                  pathname: "/finance/bitcoin-history",
+                  params: { id: w.id },
+                })
+              }
+            />
+            <Button
+              small
+              variant="ghost"
+              disabled={!setting.loaded || setting.busy || demo}
+              onPress={() => setRemove(w.id)}
+            >
+              Remove watch address
+            </Button>
+          </View>
         ))}
         <LinkRow
           title="Pay with a Bitcoin wallet"
@@ -122,6 +135,24 @@ function CryptoForm() {
           onPress={() => router.push("/finance/bitcoin-payment")}
         />
       </View>
+      <Confirm
+        visible={remove !== null}
+        title="Remove watched address?"
+        body="Remove this public address and its saved observations from Subloom. This does not affect your Bitcoin wallet or funds."
+        action="Remove address"
+        onClose={() => setRemove(null)}
+        onConfirm={async () => {
+          if (!remove) return;
+          await setting.save({
+            ...setting.value,
+            wallets: setting.value.wallets.filter((w) => w.id !== remove),
+          });
+          if (identity === "guest")
+            await removeLocalSetting(identity, "crypto_history_" + remove);
+          setRemove(null);
+          notify("Watch address removed. Your wallet is unchanged.");
+        }}
+      />
     </Page>
   );
 }

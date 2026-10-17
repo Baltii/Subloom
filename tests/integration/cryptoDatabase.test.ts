@@ -31,6 +31,7 @@ beforeAll(async () => {
   for (const file of [
     "20261014111959_finance_journal.sql",
     "20261014113152_crypto_wallet_history.sql",
+    "20261017095506_financial_record_cleanup.sql",
   ])
     await db.exec(
       readFileSync(
@@ -98,8 +99,50 @@ it("isolates crypto metadata, protects network observations and verifies subscri
   expect(
     (await asUser(b, "select * from crypto_address_history")).rows,
   ).toHaveLength(0);
+  await asUser(b, "insert into crypto_journals(user_id,data) values($1,$2)", [
+    b,
+    JSON.stringify({ wallets: [wallet], intentions: [] }),
+  ]);
+  await db.query("insert into crypto_address_history values($1,$2,$3,$4)", [
+    b,
+    wallet.id,
+    wallet.address,
+    JSON.stringify({ transactions: [] }),
+  ]);
+  await db.query("delete from subscriptions where id=$1", [sub]);
+  const cleaned = (await asUser(a, "select data,version from crypto_journals"))
+    .rows[0] as { data: { intentions: unknown[] }; version: number };
+  expect(cleaned.data.intentions).toEqual([]);
+  expect(cleaned.version).toBe(2);
+  await expect(
+    asUser(a, "update crypto_journals set version=2"),
+  ).rejects.toThrow(/version conflict/);
+  await asUser(a, "update crypto_journals set data=$1,version=3", [
+    JSON.stringify({ wallets: [], intentions: [] }),
+  ]);
+  expect(
+    (await asUser(a, "select * from crypto_address_history")).rows,
+  ).toHaveLength(0);
+  await expect(
+    db.query("insert into crypto_address_history values($1,$2,$3,$4)", [
+      a,
+      wallet.id,
+      wallet.address,
+      JSON.stringify({ transactions: [] }),
+    ]),
+  ).rejects.toThrow(/unavailable/);
+  await expect(
+    asUser(a, "select private.prune_bitcoin_observations()"),
+  ).rejects.toThrow(/permission denied/);
   await db.query("delete from auth.users where id=$1", [a]);
   expect(
-    (await db.query("select * from crypto_address_history")).rows,
+    (
+      await db.query("select * from crypto_address_history where user_id=$1", [
+        a,
+      ])
+    ).rows,
   ).toHaveLength(0);
+  expect(
+    (await asUser(b, "select * from crypto_address_history")).rows,
+  ).toHaveLength(1);
 });

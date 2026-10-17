@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Platform, Switch, View } from "react-native";
-import * as Linking from "expo-linking";
-import * as WebBrowser from "expo-web-browser";
+import { Switch, View } from "react-native";
+import {
+  openAuthBrowser,
+  usesNativeAuthBrowser,
+  authBrowserRedirect,
+} from "../services/authBrowser";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { accountClient } from "../services/supabase";
@@ -168,18 +171,13 @@ function Mailboxes({ identity }: { identity: string }) {
                               action: "connect",
                               provider,
                               consent: true,
-                              returnKind:
-                                Platform.OS === "web" ? "web" : "native",
+                              returnKind: usesNativeAuthBrowser()
+                                ? "native"
+                                : "web",
                             });
-                            if (Platform.OS === "web") {
-                              window.location.assign(result.url);
-                              return;
-                            }
-                            await WebBrowser.openAuthSessionAsync(
+                            await openAuthBrowser(
                               result.url,
-                              Linking.createURL("mailboxes", {
-                                scheme: "subloom",
-                              }),
+                              authBrowserRedirect("mailboxes"),
                             );
                           })
                         }

@@ -7,6 +7,7 @@ import {
   ReceiptText,
   Bitcoin,
   CalendarClock,
+  Wallet,
 } from "lucide-react-native";
 import { useFeatureSetting } from "../../hooks/useFeatureSetting";
 import {
@@ -65,6 +66,12 @@ export default function FinanceHome() {
     >
       <View style={{ gap: 24, maxWidth: 960, width: "100%" }}>
         <FinanceState {...setting} />
+        <LinkRow
+          title="Cards & wallets hub"
+          detail="Link payment sources to subscriptions and review imported statements"
+          icon={Wallet}
+          onPress={() => router.push("/payments")}
+        />
         <LinkRow
           title="Bitcoin wallets & payments"
           detail="Watch real address activity and review payments in your wallet"
@@ -213,6 +220,19 @@ export default function FinanceHome() {
                   setting.value.wallets.find((w) => w.id === t.walletId)?.name
                 : ""}
             </Label>
+            <Button
+              small
+              variant="ghost"
+              disabled={!setting.loaded || demo}
+              onPress={() =>
+                router.push({
+                  pathname: "/finance/transaction",
+                  params: { id: t.id },
+                })
+              }
+            >
+              Edit transaction
+            </Button>
           </View>
         ))}
         {transactions.length > 50 && (

@@ -1,13 +1,9 @@
-import { Platform } from "react-native";
-import * as Linking from "expo-linking";
-import * as WebBrowser from "expo-web-browser";
+import { openAuthBrowser, authBrowserRedirect } from "./authBrowser";
 import { supabase } from "./supabase";
 import { organizationDomain } from "../domain/sso";
 import { callbackCode } from "../domain/oauth";
 export function authRedirect() {
-  return Platform.OS === "web"
-    ? window.location.origin + "/auth-callback"
-    : Linking.createURL("auth-callback", { scheme: "subloom" });
+  return authBrowserRedirect("auth-callback");
 }
 let finishing: { code: string; promise: Promise<void> } | null = null;
 export async function finishSignIn(url: string) {
@@ -32,16 +28,8 @@ export async function finishSignIn(url: string) {
 }
 let starting = false;
 export async function openSignIn(url: string) {
-  if (Platform.OS === "web") {
-    window.location.assign(url);
-    return;
-  }
-  const result = await WebBrowser.openAuthSessionAsync(url, authRedirect());
-  if (result.type === "success") await finishSignIn(result.url);
-  else if (result.type === "cancel" || result.type === "dismiss")
-    throw new Error(
-      "Sign-in canceled. You can try again whenever you’re ready.",
-    );
+  const callback = await openAuthBrowser(url, authRedirect());
+  if (callback) await finishSignIn(callback);
 }
 export async function signInSocial(provider: "google" | "apple") {
   if (!supabase)

@@ -1,6 +1,7 @@
 import { Platform } from "react-native";
 import { accountClient } from "./supabase";
 import { z } from "zod";
+import { macosBridge, macosRequest } from "./macosBridge";
 let db: Promise<import("expo-sqlite").SQLiteDatabase> | undefined;
 async function database() {
   db ??= import("expo-sqlite").then(async (sqlite) => {
@@ -18,6 +19,23 @@ export async function localSetting(
   value?: string,
 ): Promise<string | null> {
   const id = "subloom:features:v1:" + identity + ":" + key;
+  if (macosBridge()) {
+    if (value !== undefined) {
+      await macosRequest("feature.write", { identity, key, value });
+      return value;
+    }
+    const stored = await macosRequest<string | null>("feature.read", {
+      identity,
+      key,
+    });
+    if (stored !== null) return stored;
+    const legacy = globalThis.localStorage.getItem(id);
+    if (legacy !== null) {
+      JSON.parse(legacy);
+      await macosRequest("feature.write", { identity, key, value: legacy });
+    }
+    return legacy;
+  }
   if (Platform.OS === "web") {
     if (value !== undefined) globalThis.localStorage.setItem(id, value);
     return globalThis.localStorage.getItem(id);
@@ -123,12 +141,20 @@ export async function writeSetting<T>(
     );
   return Number(data);
 }
+export async function removeLocalSetting(identity: string, key: string) {
+  const id = "subloom:features:v1:" + identity + ":" + key;
+  if (Platform.OS === "web") globalThis.localStorage.removeItem(id);
+  else
+    await (await database()).runAsync("DELETE FROM settings WHERE id = ?", id);
+  if (macosBridge()) await macosRequest("feature.remove", { identity, key });
+}
 export async function clearLocalFeatures(identity: string) {
   const prefix = "subloom:features:v1:" + identity + ":";
   if (Platform.OS === "web") {
     Object.keys(globalThis.localStorage)
       .filter((key) => key.startsWith(prefix))
       .forEach((key) => globalThis.localStorage.removeItem(key));
+    if (macosBridge()) await macosRequest("feature.clear", { identity });
   } else
     await (
       await database()

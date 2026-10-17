@@ -7,6 +7,8 @@ import {
   Wallet,
   Plus,
   ArrowUpRight,
+  ReceiptText,
+  Bitcoin,
 } from "lucide-react-native";
 import {
   Button,
@@ -16,6 +18,7 @@ import {
   Page,
   Badge,
   Confirm,
+  LinkRow,
 } from "../../components/ui/Primitives";
 import { useTheme, useWide } from "../../theme/useTheme";
 import { useApp, notify } from "../../store/app";
@@ -58,6 +61,18 @@ function Hub() {
       back
     >
       <View style={{ gap: 24 }}>
+        <LinkRow
+          title="Transaction journal & currency estimates"
+          detail="Record, correct and review payments and refunds in their original currencies"
+          icon={ReceiptText}
+          onPress={() => router.push("/finance")}
+        />
+        <LinkRow
+          title="Bitcoin watch addresses & payments"
+          detail="Review address history and open your wallet to authorize a payment"
+          icon={Bitcoin}
+          onPress={() => router.push("/finance/crypto")}
+        />
         <PaymentSettingState
           loaded={profile.loaded}
           error={profile.error}

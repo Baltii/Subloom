@@ -2,25 +2,32 @@ import { FinanceError } from "../../components/finance/FinanceError";
 import { financeError } from "../../components/finance/errors";
 import { useState } from "react";
 import { View } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import * as Crypto from "expo-crypto";
 import { useFeatureSetting } from "../../hooks/useFeatureSetting";
 import {
   financeSchema,
   initialFinance,
   transactionSchema,
-  type Transaction,
 } from "../../domain/finance";
-import { currencies, type Currency } from "../../domain/models";
-import { parseMoney } from "../../domain/money";
+import { currencies } from "../../domain/models";
+import { parseMoney, moneyInput } from "../../domain/money";
 import { Temporal } from "@js-temporal/polyfill";
-import { Button, Field, Label, Page } from "../../components/ui/Primitives";
+import {
+  Button,
+  Confirm,
+  Field,
+  Label,
+  Page,
+} from "../../components/ui/Primitives";
 import { SelectField } from "../../components/ui/Selection";
 import { DateField } from "../../components/ui/DateField";
 import { FinanceState } from "../../components/finance/FinanceState";
+import { useDraftGuard } from "../../hooks/useDraftGuard";
 import { notify, useApp } from "../../store/app";
 
 function TransactionRouteForm() {
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const setting = useFeatureSetting(
       "finance",
       financeSchema,
@@ -30,22 +37,47 @@ function TransactionRouteForm() {
     preferences = useApp((s) => s.data.preferences),
     subscriptions = useApp((s) => s.data.subscriptions),
     demo = useApp((s) => s.data.demo);
-  const [merchant, setMerchant] = useState(""),
-    [amount, setAmount] = useState(""),
-    [currency, setCurrency] = useState<Currency>(preferences.currency),
-    [date, setDate] = useState(
+  const existing = setting.value.transactions.find((t) => t.id === id);
+  const [newId] = useState(() => Crypto.randomUUID());
+  const initial = {
+    merchant: existing?.merchant ?? "",
+    amount: existing ? moneyInput(existing.amountMinor, existing.currency) : "",
+    currency: existing?.currency ?? preferences.currency,
+    date:
+      existing?.date ??
       Temporal.Now.plainDateISO(preferences.timezone).toString(),
-    );
-  const [wallet, setWallet] = useState("none"),
-    [subscription, setSubscription] = useState("none"),
-    [kind, setKind] = useState<Transaction["kind"]>("charge"),
-    [status, setStatus] = useState<Transaction["status"]>("settled"),
-    [error, setError] = useState<string | null>(null);
+    wallet: existing?.walletId ?? "none",
+    subscription: existing?.subscriptionId ?? "none",
+    kind: existing?.kind ?? "charge",
+    status: existing?.status ?? "settled",
+  };
+  const [draft, setDraft] = useState<typeof initial | null>(null);
+  const value = draft ?? initial;
+  const {
+    merchant,
+    amount,
+    currency,
+    date,
+    wallet,
+    subscription,
+    kind,
+    status,
+  } = value;
+  function change<K extends keyof typeof initial>(
+    key: K,
+    next: (typeof initial)[K],
+  ) {
+    setDraft({ ...value, [key]: next });
+  }
+  const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const ready = setting.loaded && (!id || Boolean(existing));
+  const guard = useDraftGuard(draft !== null, setting.busy);
   async function save() {
     try {
       setError(null);
       const transaction = transactionSchema.parse({
-        id: Crypto.randomUUID(),
+        id: existing?.id ?? newId,
         merchant,
         amountMinor: parseMoney(amount, currency),
         currency,
@@ -55,13 +87,18 @@ function TransactionRouteForm() {
         walletId: wallet === "none" ? null : wallet,
         subscriptionId: subscription === "none" ? null : subscription,
         source: "manual",
-        createdAt: new Date().toISOString(),
+        createdAt: existing?.createdAt ?? new Date().toISOString(),
       });
       await setting.save({
         ...setting.value,
-        transactions: [...setting.value.transactions, transaction],
+        transactions: existing
+          ? setting.value.transactions.map((t) =>
+              t.id === existing.id ? transaction : t,
+            )
+          : [...setting.value.transactions, transaction],
       });
-      notify("Transaction recorded.");
+      guard.saved();
+      notify(existing ? "Transaction updated." : "Transaction recorded.");
       router.back();
     } catch (e) {
       setError(financeError(e));
@@ -69,23 +106,29 @@ function TransactionRouteForm() {
   }
   return (
     <Page
-      title="Record transaction"
+      title={id ? "Edit transaction" : "Record transaction"}
       subtitle="Record a payment or refund you can verify from a receipt or statement."
       back
     >
       <View style={{ gap: 20, maxWidth: 720, width: "100%" }}>
         <FinanceState {...setting} />
+        {setting.loaded && id && !existing && (
+          <Label>
+            This transaction is unavailable. Return to your finances and choose
+            another entry.
+          </Label>
+        )}
         <Field
           label="Merchant"
           value={merchant}
-          onChangeText={setMerchant}
+          onChangeText={(next) => change("merchant", next)}
           maxLength={80}
           placeholder="Service or merchant name"
         />
         <Field
           label="Amount"
           value={amount}
-          onChangeText={setAmount}
+          onChangeText={(next) => change("amount", next)}
           keyboardType="decimal-pad"
           placeholder="0.00"
         />
@@ -93,9 +136,13 @@ function TransactionRouteForm() {
           label="Original currency"
           value={currency}
           options={currencies.map((value) => ({ value, label: value }))}
-          onChange={setCurrency}
+          onChange={(next) => change("currency", next)}
         />
-        <DateField label="Transaction date" value={date} onChange={setDate} />
+        <DateField
+          label="Transaction date"
+          value={date}
+          onChange={(next) => change("date", next)}
+        />
         <SelectField
           label="Type"
           value={kind}
@@ -103,7 +150,7 @@ function TransactionRouteForm() {
             { value: "charge", label: "Payment" },
             { value: "refund", label: "Refund" },
           ]}
-          onChange={setKind}
+          onChange={(next) => change("kind", next)}
         />
         <SelectField
           label="Status"
@@ -113,7 +160,7 @@ function TransactionRouteForm() {
             { value: "pending", label: "Pending" },
             { value: "failed", label: "Failed" },
           ]}
-          onChange={setStatus}
+          onChange={(next) => change("status", next)}
         />
         <SelectField
           label="Card or wallet"
@@ -121,10 +168,10 @@ function TransactionRouteForm() {
           options={[
             { value: "none", label: "No card selected" },
             ...setting.value.wallets
-              .filter((w) => !w.archived)
+              .filter((w) => !w.archived || w.id === wallet)
               .map((w) => ({ value: w.id, label: w.name })),
           ]}
-          onChange={setWallet}
+          onChange={(next) => change("wallet", next)}
         />
         <SelectField
           label="Subscription (optional)"
@@ -132,8 +179,17 @@ function TransactionRouteForm() {
           options={[
             { value: "none", label: "No subscription selected" },
             ...subscriptions.map((s) => ({ value: s.id, label: s.name })),
+            ...(subscription !== "none" &&
+            !subscriptions.some((s) => s.id === subscription)
+              ? [
+                  {
+                    value: subscription,
+                    label: "Previously linked subscription (removed)",
+                  },
+                ]
+              : []),
           ]}
-          onChange={setSubscription}
+          onChange={(next) => change("subscription", next)}
         />
         <Label>
           Manually recorded entries do not confirm a bank payment. Pending and
@@ -141,13 +197,42 @@ function TransactionRouteForm() {
         </Label>
         <FinanceError message={error} />
         <Button
-          disabled={!setting.loaded || demo}
+          disabled={!ready || demo}
           loading={setting.busy}
           onPress={() => void save()}
         >
-          Save transaction
+          {existing ? "Save changes" : "Save transaction"}
         </Button>
+        {existing && (
+          <Button
+            variant="danger"
+            disabled={!ready || setting.busy || demo}
+            onPress={() => setConfirmDelete(true)}
+          >
+            Delete recorded transaction
+          </Button>
+        )}
       </View>
+      {guard.confirmation}
+      <Confirm
+        visible={confirmDelete}
+        title="Delete this transaction?"
+        body="Remove this manually recorded entry from your history and spending totals. This does not reverse a payment or change your subscription."
+        action="Delete transaction"
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={async () => {
+          if (!existing) return;
+          await setting.save({
+            ...setting.value,
+            transactions: setting.value.transactions.filter(
+              (t) => t.id !== existing.id,
+            ),
+          });
+          guard.saved();
+          notify("Recorded transaction deleted.");
+          router.back();
+        }}
+      />
     </Page>
   );
 }

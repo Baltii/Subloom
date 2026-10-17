@@ -1,6 +1,6 @@
 # Google and Apple sign-in
 
-**Hosted setup, 2026-10-11:** Local browser/native callback allowlist configured. Both live providers remain disabled pending credentials. Mac callback transport remains pending; use the localhost browser for initial OAuth testing. See [setup progress](setup-progress.md).
+**Current verification, 2026-10-17:** Google is enabled in hosted Auth settings; Apple is disabled. The integration branch adds ASWebAuthenticationSession callback transport for Mac. Live provider consent/callback tests remain pending. See [current app readiness](app-readiness.md) and the [historical setup progress](setup-progress.md).
 
 The account screen offers Google/Apple alongside existing email OTP. Supabase’s PKCE flow exchanges authorization codes using a locally stored verifier. Web uses a full-page provider redirect; native uses Expo’s system browser authentication session and registered `subloom` scheme. The callback validates the exact expected origin/path, rejects token fragments and provider errors, and coalesces duplicate native callback exchanges. Cancellation, unavailable providers and expired codes have visible recovery. Existing session hydration/sync continues to isolate account snapshots; guest import stays explicit.
 

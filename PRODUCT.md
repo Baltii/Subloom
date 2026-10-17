@@ -28,7 +28,7 @@ Existing Expo Router, React, React Native, Reanimated, React Hook Form, Zod, Zus
 - Stored subscription prices, transactions and recorded spending preserve their original currencies. Finance shows separately labelled currency estimates using dated reference rates; these are not bank settlement prices.
 - Pausing tracking, deleting records and recording cancellation do not stop merchant billing.
 - Email, push, receipt processing and mailbox access respect the existing consent and provider setup requirements.
-- Google/Apple, Gmail/Outlook and SAML integrations require external configuration. Mac OAuth callback transport is pending.
+- Google/Apple, Gmail/Outlook and SAML integrations require external configuration. The Mac authentication browser returns callbacks to the app; live provider verification still needs credentials.
 - Destructive actions explain their scope and require deliberate confirmation. Failed saves preserve input and show recovery.
 - Keyboard navigation, clear focus, sufficient contrast, usable touch targets, light/dark appearance and reduced motion must remain supported.
 
