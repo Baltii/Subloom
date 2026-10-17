@@ -138,7 +138,7 @@ export function maintainMacReminders(navigate: (path: string) => void) {
       navigate(path);
     else if (path)
       notify(
-        "This reminder belongs to another workspace. Open that account to view it.",
+        "This item belongs to another workspace. Open that account to view it.",
       );
   };
   const handleNavigation = () => {

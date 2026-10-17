@@ -9,6 +9,7 @@ export function safeNotificationPath(path: unknown): string | null {
   return typeof path === "string" &&
     (path === "/settings" ||
       path === "/" ||
+      path === "/calendar" ||
       /^\/(subscription|detection)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
         path,
       ))
