@@ -173,8 +173,8 @@ export default function Details() {
                 },
                 {
                   icon: CreditCard,
-                  label: "Payment nickname",
-                  value: s.paymentMethod || "Not provided",
+                  label: "Billing note",
+                  value: s.paymentMethod || "No billing note",
                 },
               ].map((row) => (
                 <View
@@ -203,9 +203,9 @@ export default function Details() {
             <Button
               small
               variant="ghost"
-              onPress={() => router.push("/payments")}
+              onPress={() => router.push("/transactions")}
             >
-              Manage cards & wallets
+              Review imported transactions
             </Button>
             <Label size={12} color={colors.secondary}>
               Category

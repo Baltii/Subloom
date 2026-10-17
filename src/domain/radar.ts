@@ -6,7 +6,7 @@ import {
   type Subscription,
 } from "./models";
 import { parseCsv } from "./csv";
-import { parseMoney } from "./money";
+import { parseMoney, moneyInput } from "./money";
 import { daysBetween } from "./renewal";
 export const transactionSchema = z
   .object({
@@ -42,6 +42,28 @@ export const ledgerSchema = z
       });
   });
 export const emptyLedger: PaymentTransaction[] = [];
+export function exportStatement(rows: PaymentTransaction[]) {
+  const quote = (value: string) => {
+    const safe = /^[\s]*[=+@-]/.test(value) ? "'" + value : value;
+    return '"' + safe.replace(/"/g, '""') + '"';
+  };
+  return (
+    "Date,Merchant,Amount,Currency,Reference\r\n" +
+    rows
+      .map((row) =>
+        [
+          quote(row.date),
+          quote(row.merchant),
+          (row.direction === "debit" ? "-" : "") +
+            moneyInput(row.amountMinor, row.currency),
+          quote(row.currency),
+          quote(row.reference),
+        ].join(","),
+      )
+      .join("\r\n") +
+    "\r\n"
+  );
+}
 export type StatementMapping = {
   date: number;
   merchant: number;
@@ -55,8 +77,50 @@ export type StatementRow = Omit<
 >;
 export const statementExample =
   "Date,Merchant,Amount,Currency,Reference\n2026-07-20,GitHub,-12.34,USD,jul-github\n2026-08-20,GitHub,-12.34,USD,aug-github\n2026-09-20,GitHub,-14.99,USD,sep-github\n";
+function statementCsv(input: string) {
+  const candidates = ([",", ";", "\t"] as const).flatMap((delimiter) => {
+    try {
+      const rows = parseCsv(input, delimiter);
+      return [{ rows, columns: rows[0]?.length ?? 0 }];
+    } catch {
+      return [];
+    }
+  });
+  const best = candidates.sort((a, b) => b.columns - a.columns)[0];
+  if (!best)
+    throw new Error("Check the CSV quotes and separators, then try again.");
+  return best.rows;
+}
+export type StatementFormat = {
+  date: "iso" | "day-first";
+  decimal: "dot" | "comma";
+};
+export const defaultStatementFormat: StatementFormat = {
+  date: "iso",
+  decimal: "dot",
+};
+function statementDate(value: string, format: StatementFormat["date"]) {
+  if (format === "iso") return dateSchema.parse(value.trim());
+  const match = /^(\d{2})([/.])(\d{2})\2(\d{4})$/.exec(value.trim());
+  if (!match)
+    throw new Error("Use DD/MM/YYYY or DD.MM.YYYY dates for this format.");
+  return dateSchema.parse(`${match[4]}-${match[3]}-${match[1]}`);
+}
+function statementAmount(value: string, format: StatementFormat["decimal"]) {
+  if (format === "dot") return value.trim();
+  const input = value.trim();
+  if (
+    !/^[+-]?(?:\d+|\d{1,3}(?:\.\d{3})+|\d{1,3}(?:[ \u00a0\u202f]\d{3})+)(?:,\d+)?$/.test(
+      input,
+    )
+  )
+    throw new Error(
+      "Use comma-decimal amounts, for example 12,99 or 1.234,56.",
+    );
+  return input.replace(/[. \u00a0\u202f]/g, "").replace(",", ".");
+}
 export function statementHeaders(input: string) {
-  const header = parseCsv(input)[0];
+  const header = statementCsv(input)[0];
   if (
     !header?.length ||
     header.length > 30 ||
@@ -74,13 +138,32 @@ export function defaultMapping(headers: string[]): StatementMapping {
     return index >= 0 ? index : null;
   };
   return {
-    date: find(["date", "posted date", "transaction date"]) ?? 0,
+    date:
+      find([
+        "date",
+        "posted date",
+        "transaction date",
+        "booking date",
+        "date opération",
+        "date d'opération",
+        "buchungstag",
+        "datum",
+      ]) ?? 0,
     merchant:
-      find(["merchant", "description", "payee"]) ??
-      Math.min(1, headers.length - 1),
-    amount: find(["amount", "value"]) ?? Math.min(2, headers.length - 1),
-    currency: find(["currency"]),
-    reference: find(["reference", "transaction id", "id"]),
+      find([
+        "merchant",
+        "description",
+        "payee",
+        "libellé",
+        "libelle",
+        "verwendungszweck",
+        "begünstigter/zahlungspflichtiger",
+      ]) ?? Math.min(1, headers.length - 1),
+    amount:
+      find(["amount", "value", "montant", "betrag"]) ??
+      Math.min(2, headers.length - 1),
+    currency: find(["currency", "devise", "währung", "waehrung"]),
+    reference: find(["reference", "référence", "transaction id", "id"]),
   };
 }
 export function normalizeMerchant(value: string) {
@@ -95,9 +178,10 @@ export function parseStatement(
   currency: Currency,
   negativeDebits: boolean,
   sourceId: string | null,
+  format: StatementFormat = defaultStatementFormat,
 ): StatementRow[] {
   const headers = statementHeaders(input),
-    rows = parseCsv(input).slice(1);
+    rows = statementCsv(input).slice(1);
   const indices = Object.values(mapping).filter((i): i is number => i !== null);
   if (
     indices.some((i) => !Number.isInteger(i) || i < 0 || i >= headers.length) ||
@@ -111,7 +195,7 @@ export function parseStatement(
       if (row.length !== headers.length)
         throw new Error("Column count does not match the header.");
       const merchant = row[mapping.merchant]!.trim(),
-        date = dateSchema.parse(row[mapping.date]!.trim());
+        date = statementDate(row[mapping.date]!, format.date);
       if (
         !merchant ||
         merchant.length > 80 ||
@@ -129,7 +213,7 @@ export function parseStatement(
             ? currency
             : row[mapping.currency]!.trim().toUpperCase(),
         );
-      const signed = row[mapping.amount]!.trim(),
+      const signed = statementAmount(row[mapping.amount]!, format.decimal),
         negative = signed.startsWith("-");
       const amountMinor = parseMoney(
         negative
@@ -163,9 +247,14 @@ export function parseStatement(
         reference,
       };
     } catch (error) {
-      throw new Error(
-        `Row ${index + 2}: ${error instanceof Error ? error.message : "Invalid transaction."}`,
-      );
+      const message =
+        error instanceof z.ZodError
+          ? (error.issues.find((issue) => issue.code === "custom")?.message ??
+            "Choose a supported currency and check the mapped columns.")
+          : error instanceof Error
+            ? error.message
+            : "Invalid transaction.";
+      throw new Error(`Row ${index + 2}: ${message}`);
     }
   });
 }

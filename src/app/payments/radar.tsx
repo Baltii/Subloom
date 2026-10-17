@@ -26,6 +26,7 @@ import {
   recurringStreams,
   suggestSubscriptions,
   matchedDifference,
+  exportStatement,
   type PaymentTransaction,
 } from "../../domain/radar";
 import {
@@ -36,6 +37,7 @@ import { subscriptionSchema, type Subscription } from "../../domain/models";
 import { formatMoney } from "../../domain/money";
 import { advanceRenewal, nextEvent, today } from "../../domain/renewal";
 import { PaymentSettingState } from "../../components/payments/PaymentSettingState";
+import { shareText } from "../../services/files";
 function Radar() {
   const ledger = useFeatureSetting(
       "payment_transactions",
@@ -53,14 +55,24 @@ function Radar() {
     demo = useApp((s) => s.data.demo);
   const [filter, setFilter] = useState<
       "All" | "Unmatched" | "Matched" | "Ignored"
-    >("Unmatched"),
+    >("All"),
     [query, setQuery] = useState(""),
     [visible, setVisible] = useState(30),
     [selected, setSelected] = useState<PaymentTransaction | null>(null),
     [match, setMatch] = useState(""),
     [track, setTrack] = useState<Subscription | null>(null),
+    [remove, setRemove] = useState<PaymentTransaction | null>(null),
+    [exporting, setExporting] = useState(false),
     [error, setError] = useState<string | null>(null);
-  const streams = useMemo(() => recurringStreams(ledger.value), [ledger.value]);
+  const streams = useMemo(
+    () =>
+      recurringStreams(ledger.value).filter(
+        (stream) =>
+          !stream.confirmed &&
+          !suggestSubscriptions(stream.latest, subscriptions).length,
+      ),
+    [ledger.value, subscriptions],
+  );
   const rows = useMemo(
     () =>
       ledger.value.filter(
@@ -116,7 +128,7 @@ function Radar() {
       paymentMethod:
         profile.value.sources.find((s) => s.id === last.sourceId)?.name ?? "",
       notes:
-        "Created after reviewing recurring transactions imported into Subscription Radar.",
+        "Created after reviewing recurring transactions from an imported bank statement.",
       source: "manual",
       reminders: null,
       createdAt: now,
@@ -128,9 +140,8 @@ function Radar() {
   }
   return (
     <Page
-      title="Subscription Radar"
-      subtitle="Discover recurring payments and compare imported charges with your tracked subscriptions."
-      back
+      title="Transactions"
+      subtitle="Review imported bank charges and find recurring subscriptions."
     >
       <View style={{ gap: 24 }}>
         <PaymentSettingState
@@ -143,18 +154,33 @@ function Radar() {
           error={profile.error}
           reload={profile.reload}
         />
-        <Button
-          disabled={demo}
-          onPress={() => router.push("/payments/statement")}
-        >
-          Import a statement
-        </Button>
-        <Button
-          variant="secondary"
-          onPress={() => router.push("/payments/watch")}
-        >
-          Open Cancellation Watch
-        </Button>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+          <Button
+            disabled={demo}
+            onPress={() => router.push("/payments/statement")}
+          >
+            Import a statement
+          </Button>
+          {ledger.value.length > 0 && (
+            <Button
+              variant="secondary"
+              loading={exporting}
+              onPress={() => {
+                setExporting(true);
+                setError(null);
+                void shareText(
+                  exportStatement(ledger.value),
+                  "subloom-transactions.csv",
+                  "text/csv",
+                )
+                  .catch((e) => setError(readableError(e)))
+                  .finally(() => setExporting(false));
+              }}
+            >
+              Export transactions
+            </Button>
+          )}
+        </View>
         {streams.length ? (
           <View style={{ gap: 16 }}>
             <Heading size={23}>Recurring patterns to review</Heading>
@@ -235,9 +261,12 @@ function Radar() {
                   {formatMoney(t.amountMinor, t.currency)} {t.currency}
                 </Label>
                 <Label size={12}>
-                  Imported statement ·{" "}
+                  Imported statement
                   {profile.value.sources.find((s) => s.id === t.sourceId)
-                    ?.name ?? "Unassigned source"}
+                    ? " · " +
+                      profile.value.sources.find((s) => s.id === t.sourceId)!
+                        .name
+                    : ""}
                   {t.reference ? " · " + t.reference : ""}
                 </Label>
                 <Label>
@@ -288,6 +317,14 @@ function Radar() {
                       ? "Restore to review"
                       : "Ignore this transaction"}
                   </Button>
+                  <Button
+                    small
+                    variant="ghost"
+                    disabled={ledger.busy || demo}
+                    onPress={() => setRemove(t)}
+                  >
+                    Remove record
+                  </Button>
                 </View>
               </View>
             </Card>
@@ -305,6 +342,19 @@ function Radar() {
         </Label>
         {error ? <Label accessibilityRole="alert">{error}</Label> : null}
       </View>
+      <Confirm
+        visible={remove !== null}
+        title="Remove this imported record?"
+        body="Only this transaction record will be removed. Your subscription and merchant billing will stay unchanged. Export your transactions first if you need a copy."
+        action="Remove record"
+        danger
+        onClose={() => setRemove(null)}
+        onConfirm={async () => {
+          if (!remove) return;
+          await ledger.save(ledger.value.filter((row) => row.id !== remove.id));
+          notify("Imported transaction removed.");
+        }}
+      />
       <Confirm
         visible={selected !== null}
         title="Match this transaction"
@@ -346,7 +396,7 @@ function Radar() {
         onConfirm={async () => {
           if (!track) return;
           if (useApp.getState().identity !== identity)
-            throw new Error("Your account changed. Reopen Radar.");
+            throw new Error("Your account changed. Reopen Transactions.");
           await saveSubscription(track);
           notify(
             "Reviewed subscription added. Match its transactions when ready.",

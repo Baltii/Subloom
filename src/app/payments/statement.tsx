@@ -24,6 +24,8 @@ import {
   mergeStatement,
   type StatementMapping,
   type PaymentTransaction,
+  type StatementFormat,
+  defaultStatementFormat,
 } from "../../domain/radar";
 import {
   emptyPaymentProfile,
@@ -54,6 +56,7 @@ function Importer() {
     [mapping, setMapping] = useState<StatementMapping | null>(null),
     [currency, setCurrency] = useState<Currency>(preferences.currency),
     [sign, setSign] = useState<"negative" | "positive">("negative"),
+    [format, setFormat] = useState<StatementFormat>(defaultStatementFormat),
     [source, setSource] = useState(""),
     [preview, setPreview] = useState<PaymentTransaction[] | null>(null),
     [error, setError] = useState<string | null>(null),
@@ -106,6 +109,7 @@ function Importer() {
       currency,
       sign === "negative",
       source || null,
+      format,
     );
     const now = new Date().toISOString();
     const values = await Promise.all(
@@ -146,7 +150,7 @@ function Importer() {
                 notify(
                   `${result.added} transactions imported; ${result.skipped} exact repeats skipped.`,
                 );
-                router.replace("/payments/radar");
+                router.replace("/transactions");
               })
             }
           >
@@ -204,8 +208,9 @@ function Importer() {
           onChangeText={updateText}
         />
         <Label size={13}>
-          Use ISO dates (YYYY-MM-DD) and plain decimal amounts. Only mapped
-          transaction details are saved; the original file stays on your device.
+          Comma, semicolon and tab-separated files are supported. Choose the
+          date and number formats used by your bank. The original file stays on
+          your device.
         </Label>
         <Button disabled={!text.trim() || busy} onPress={columns}>
           Map columns
@@ -257,6 +262,35 @@ function Importer() {
           </View>
         ) : null}
         <SelectField
+          label="Statement date format"
+          value={format.date}
+          options={[
+            { value: "iso", label: "Year first · 2026-10-17" },
+            {
+              value: "day-first",
+              label: "Day first · 17/10/2026 or 17.10.2026",
+            },
+          ]}
+          onChange={(date) => {
+            setFormat({ ...format, date });
+            setPreview(null);
+          }}
+          disabled={busy}
+        />
+        <SelectField
+          label="Statement number format"
+          value={format.decimal}
+          options={[
+            { value: "dot", label: "Decimal point · 12.99" },
+            { value: "comma", label: "Decimal comma · 12,99" },
+          ]}
+          onChange={(decimal) => {
+            setFormat({ ...format, decimal });
+            setPreview(null);
+          }}
+          disabled={busy}
+        />
+        <SelectField
           label="Default currency"
           value={currency}
           options={currencyOptions}
@@ -287,22 +321,24 @@ function Importer() {
           }}
           disabled={busy}
         />
-        <SelectField
-          label="Payment source for this statement"
-          value={source || "none"}
-          options={[
-            { value: "none", label: "Unassigned" },
-            ...profile.value.sources.map((s) => ({
-              value: s.id,
-              label: s.name,
-            })),
-          ]}
-          onChange={(value) => {
-            setSource(value === "none" ? "" : value);
-            setPreview(null);
-          }}
-          disabled={!profile.loaded || busy}
-        />
+        {profile.value.sources.length > 0 ? (
+          <SelectField
+            label="Existing statement label (optional)"
+            value={source || "none"}
+            options={[
+              { value: "none", label: "Unassigned" },
+              ...profile.value.sources.map((s) => ({
+                value: s.id,
+                label: s.name,
+              })),
+            ]}
+            onChange={(value) => {
+              setSource(value === "none" ? "" : value);
+              setPreview(null);
+            }}
+            disabled={!profile.loaded || busy}
+          />
+        ) : null}
         {mapping ? (
           <Button
             loading={busy}
@@ -344,9 +380,9 @@ function Importer() {
           </View>
         ) : null}
         <Label size={13}>
-          Up to 300 saved transactions, across all imports. Matching and
-          recurring detection are suggestions based on imported statements; no
-          bank is connected.
+          Up to 300 saved transactions. Importing a statement does not connect
+          your bank or verify a card. Only reviewed transaction details are
+          saved.
         </Label>
         {error ? <Label accessibilityRole="alert">{error}</Label> : null}
       </View>
