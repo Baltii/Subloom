@@ -512,9 +512,6 @@ export function SubscriptionForm({
               field("intervalCount", "Billing interval count", {
                 keyboardType: "number-pad",
               })}
-            {field("paymentMethod", "Payment nickname (optional)", {
-              placeholder: "e.g. Personal card — never a full card number",
-            })}
             {field("notes", "Notes (optional)", {
               multiline: true,
               numberOfLines: 3,

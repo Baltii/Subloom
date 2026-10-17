@@ -1,17 +1,13 @@
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { parseEnv } from "node:util";
+import { publicExpoEnvironment } from "./expo-env.mts";
 
 // EAS config evaluation does not automatically load the app's local Expo variables.
-if (existsSync(".env.local")) process.loadEnvFile(".env.local");
-const env = { ...process.env };
-for (const name of Object.keys(env)) {
-  if (
-    /^(RESEND_|EMAIL_|INBOUND_DOMAIN$|APP_LINK_BASE$|CRON_SECRET$|GOOGLE_VISION_API_KEY$|SUPABASE_SERVICE_ROLE_KEY$|SUPABASE_SECRET_KEY$)/.test(
-      name,
-    )
-  )
-    delete env[name];
-}
+const files = existsSync(".env.local")
+  ? [parseEnv(readFileSync(".env.local", "utf8"))]
+  : [];
+const env = publicExpoEnvironment(process.env, files, true);
 execFileSync("npx", ["--yes", "eas-cli@24.12.1", ...process.argv.slice(2)], {
   env,
   stdio: "inherit",

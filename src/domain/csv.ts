@@ -49,7 +49,10 @@ export function exportCsv(subscriptions: Subscription[]) {
     "\r\n"
   );
 }
-export function parseCsv(input: string): string[][] {
+export function parseCsv(
+  input: string,
+  delimiter: "," | ";" | "\t" = ",",
+): string[][] {
   if (input.length > 2_000_000)
     throw new Error("CSV is limited to 2 MB and 500 subscriptions.");
   const rows: string[][] = [];
@@ -77,11 +80,11 @@ export function parseCsv(input: string): string[][] {
       quoted = true;
       continue;
     }
-    if (c === "," || c === "\r" || c === "\n") {
+    if (c === delimiter || c === "\r" || c === "\n") {
       row.push(cell);
       cell = "";
       closed = false;
-      if (c !== ",") {
+      if (c !== delimiter) {
         if (c === "\r" && source[i + 1] === "\n") i++;
         if (row.some((v) => v.length)) rows.push(row);
         row = [];
