@@ -6,7 +6,7 @@ GitHub CI checks pull requests, produces Mac test builds, and tests native stora
 
 Production web: [subloom.baltii.tn](https://subloom.baltii.tn). GitHub `main` builds through the existing Vercel project; see [web deployment](feature-docs/web-deployment.md) for build settings, callbacks and live verification.
 
-The focused tracker change is documented in [Focused subscription tracker](feature-docs/focused-subscription-tracker.md). It removes speculative finance, card-control and collaboration screens, and makes reviewed statement transactions a main section. It needs review and release before these changes appear on the production domain.
+The focused tracker scope is documented in [Focused subscription tracker](feature-docs/focused-subscription-tracker.md). It removes speculative finance, card-control and collaboration screens, and makes reviewed statement transactions a main section. The production domain publishes the version on `main` after its Vercel deployment succeeds.
 
 ## Run the app
 
