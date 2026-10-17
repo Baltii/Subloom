@@ -1,5 +1,7 @@
 # Combined app readiness — 2026-10-17
 
+> Historical feature-stack report. The subsequent [focused tracker change](focused-subscription-tracker.md) removes speculative payment, finance and collaboration screens. Use that report for the app scope and current validation.
+
 > This is the initial review handoff. The owner subsequently authorized deployment: the combined backend is deployed and all 27 hosted smoke checks pass. See [production web deployment](web-deployment.md) for current hosting, callback and backend setup.
 
 ## Current disposition

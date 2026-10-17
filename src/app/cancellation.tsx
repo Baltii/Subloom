@@ -182,9 +182,9 @@ function Planner({ s }: { s: Subscription }) {
       {s.status === "canceled" ? (
         <Button
           variant="secondary"
-          onPress={() => router.push("/payments/watch")}
+          onPress={() => router.push("/transactions")}
         >
-          Open Cancellation Watch
+          Review imported charges
         </Button>
       ) : null}
       <Confirm

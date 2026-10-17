@@ -1,4 +1,4 @@
-> Current combined release status (2026-10-17): [App readiness](app-readiness.md). This supersedes historical branch/draft/deployment status below for `codex/app-readiness`.
+> Current focused scope (2026-10-17): [Focused subscription tracker](focused-subscription-tracker.md). The feature stacks below are historical delivery records, including tools retired from the focused app. Production follows `main` after a successful Vercel deployment.
 
 # Feature delivery and setup
 

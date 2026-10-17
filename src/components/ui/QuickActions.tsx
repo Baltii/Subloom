@@ -4,17 +4,13 @@ import { router, type Href } from "expo-router";
 import {
   ArrowRight,
   CalendarDays,
-  ChartNoAxesCombined,
   Download,
-  History,
   Import,
   Mail,
   Plus,
   ReceiptText,
   Search,
   Settings2,
-  ShieldCheck,
-  Users,
   Wallet,
   type LucideIcon,
 } from "lucide-react-native";
@@ -33,53 +29,10 @@ export const toolActions: {
   group: string;
 }[] = [
   {
-    title: "Family Settlement Center",
-    detail: "Recorded shared charges, balances, receipts and request drafts",
-    route: "/settlements",
-    icon: Users,
-    group: "Import & sharing",
-  },
-  {
-    title: "Subscription Value Coach",
-    detail: "Usage, cost per use, confirmed quotes and rotation plans",
-    route: "/value-coach",
-    icon: ChartNoAxesCombined,
-    group: "Planning",
-  },
-  {
-    title: "Renewal Reserve",
-    detail: "Annual funding plans and commitments before payday",
-    route: "/reserve",
-    icon: Wallet,
-    group: "Planning",
-  },
-  {
-    title: "Virtual card plans",
-    detail: "Unenforced per-service caps and control simulations",
-    route: "/virtual-plans",
-    icon: Wallet,
-    group: "Planning",
-  },
-  {
-    title: "Renewal Autopilot",
-    detail: "Annual reviews, price changes and renewal limits",
-    route: "/autopilot",
-    icon: ShieldCheck,
-    group: "Planning",
-  },
-  {
     title: "Add subscription",
     detail: "Track a service and its next renewal",
     route: "/subscription/new",
     icon: Plus,
-    group: "Everyday",
-  },
-  {
-    title: "Import a receipt",
-    detail: "Review details from text or a screenshot",
-    route: "/import",
-    icon: ReceiptText,
-    keywords: "scan detection",
     group: "Everyday",
   },
   {
@@ -90,110 +43,58 @@ export const toolActions: {
     group: "Everyday",
   },
   {
-    title: "Cancellation Watch",
-    detail: "Review charges after recorded cancellation",
-    route: "/payments/watch",
-    icon: ShieldCheck,
-    keywords: "post cancellation refund evidence dispute",
-    group: "Payments",
+    title: "Transactions",
+    detail: "Import bank statements and review recurring charges",
+    route: "/transactions",
+    icon: ReceiptText,
+    keywords: "bank statement payments charges",
+    group: "Everyday",
   },
   {
-    title: "Subscription Radar",
-    detail: "Import statements and review recurring charges",
-    route: "/payments/radar",
-    icon: Search,
-    keywords: "bank statement transaction reconciliation",
-    group: "Payments",
-  },
-  {
-    title: "Cards & wallets",
-    detail: "Payment sources, linked services and expiry reviews",
-    route: "/payments",
-    icon: Wallet,
-    keywords: "card bank payment billing",
-    group: "Payments",
-  },
-  {
-    title: "Monthly budgets",
-    detail: "Category limits in each original currency",
-    route: "/budgets",
-    icon: Wallet,
-    keywords: "spending limits",
-    group: "Planning",
-  },
-  {
-    group: "Planning",
-    title: "Cards & transactions",
-    detail: "Manage your cards and recorded payments",
-    route: "/finance",
-    icon: Wallet,
-  },
-  {
-    title: "Savings simulator",
-    detail: "Compare possible recurring savings",
-    route: "/savings",
-    icon: ChartNoAxesCombined,
-    group: "Planning",
-  },
-  {
-    title: "Price history",
-    detail: "Review recorded price and billing changes",
-    route: "/price-history",
-    icon: History,
-    group: "Planning",
-  },
-  {
-    title: "Cancellation assistant",
-    detail: "Plan provider steps and record confirmation",
-    route: "/cancellation",
-    icon: ShieldCheck,
-    keywords: "cancel",
-    group: "Planning",
+    title: "Import a receipt",
+    detail: "Review subscription details from a receipt",
+    route: "/import",
+    icon: ReceiptText,
+    keywords: "scan detection",
+    group: "Import",
   },
   {
     title: "CSV import & export",
-    detail: "Review a spreadsheet or export subscriptions",
+    detail: "Move your subscription list between apps",
     route: "/csv",
     icon: Import,
     keywords: "spreadsheet file download",
-    group: "Import & sharing",
-  },
-  {
-    title: "Calendar export",
-    detail: "Save renewal dates to an .ics file",
-    route: "/calendar-export",
-    icon: CalendarDays,
-    group: "Import & sharing",
-  },
-  {
-    title: "Family workspaces",
-    detail: "Shared records and cost splits · account required",
-    route: "/workspaces",
-    icon: Users,
-    group: "Import & sharing",
-  },
-  {
-    title: "Team workspaces and SSO",
-    detail: "Organization access · provider setup required",
-    route: "/team",
-    icon: Users,
-    keywords: "saml enterprise",
-    group: "Import & sharing",
+    group: "Import",
   },
   {
     title: "Mailbox discovery",
-    detail: "Read-only scans · account and provider setup required",
+    detail: "Find subscription receipts in Gmail or Outlook",
     route: "/mailboxes",
     icon: Mail,
     keywords: "gmail outlook email",
-    group: "Connections",
+    group: "Import",
   },
   {
     title: "Receipt forwarding",
-    detail: "Your private address and source permissions",
+    detail: "Manage your private receipt address",
     route: "/sources",
     icon: Mail,
-    group: "Connections",
+    group: "Import",
+  },
+  {
+    title: "Monthly budgets",
+    detail: "Set subscription spending limits by category",
+    route: "/budgets",
+    icon: Wallet,
+    keywords: "spending limits",
+    group: "Manage",
+  },
+  {
+    title: "Calendar export",
+    detail: "Save renewal dates to your calendar",
+    route: "/calendar-export",
+    icon: CalendarDays,
+    group: "Manage",
   },
   {
     title: "Settings",
@@ -201,35 +102,35 @@ export const toolActions: {
     route: "/settings",
     icon: Settings2,
     keywords: "preferences timezone notifications",
-    group: "Everyday",
+    group: "Manage",
   },
   {
     title: "Data & privacy",
-    detail: "Export, permissions and account controls",
+    detail: "Export your data and manage permissions",
     route: { pathname: "/settings", params: { section: "Data & privacy" } },
     icon: Download,
-    group: "Connections",
+    group: "Manage",
   },
 ];
 
 export function matchingActions(query: string) {
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   return toolActions
-    .filter((action) =>
-      words.every((word) =>
-        `${action.title} ${action.detail} ${action.keywords || ""}`
-          .toLowerCase()
-          .includes(word),
-      ),
+    .filter(
+      (action) =>
+        (words.length > 0 ||
+          action.group === "Everyday" ||
+          ["Import a receipt", "Settings"].includes(action.title)) &&
+        words.every((word) =>
+          `${action.title} ${action.detail} ${action.keywords || ""}`
+            .toLowerCase()
+            .includes(word),
+        ),
     )
     .sort(
       (a, b) =>
-        ["Everyday", "Planning", "Import & sharing", "Connections"].indexOf(
-          a.group,
-        ) -
-        ["Everyday", "Planning", "Import & sharing", "Connections"].indexOf(
-          b.group,
-        ),
+        ["Everyday", "Import", "Manage"].indexOf(a.group) -
+        ["Everyday", "Import", "Manage"].indexOf(b.group),
     );
 }
 
@@ -266,7 +167,7 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
       <PickerSheet
         visible={open}
         title="Quick actions"
-        description="Find a tool or jump to your next task."
+        description="Jump to a subscription, import, or setting."
         onClose={() => setOpen(false)}
         onDismiss={() => {
           if (pendingRoute.current) {

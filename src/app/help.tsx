@@ -25,12 +25,12 @@ export default function Help() {
       "Receipt formats vary. Dates must be clear, prices need a supported currency, and recurring wording needs to be present. Suggestions never replace your judgment. Review uncertain details before confirming.",
     ],
     [
-      "What needs configuration?",
-      "Supabase authentication and migrations, deployed Edge Functions, cron/Vault secrets, a verified Resend sending/receiving domain, and EAS APNs/FCM configuration. Screenshot OCR additionally needs the server-side Google Cloud Vision API key. Setup requirements are documented in the repository’s feature-docs/app-readiness.md.",
+      "Can I connect or verify a card?",
+      "Subloom tracks subscriptions and transaction records. Import a bank statement to review charges. A statement import does not verify a card, connect a bank, or give Subloom permission to make payments. Your bank and each subscription provider handle payment authorization.",
     ],
     [
-      "Need help with this build?",
-      "This is a self-hosted application. Contact the operator of your Subloom deployment. A support address should be configured by the operator before store publication.",
+      "How are imported charges used?",
+      "Review statement rows before importing. Repeated charges can suggest a subscription, but you confirm the match and any new subscription. Your recorded renewal price does not change automatically. Currencies stay separate, and refunds stay separate from charges.",
     ],
   ];
   return (

@@ -27,8 +27,8 @@ jobs:
       - run: npm run test:backend
       - name: Export web and native JavaScript bundles
         run: |
-          npx expo export --platform all --output-dir build/ci-bundles
-          npx expo config --type public --json > build/expo-config.json
+          node scripts/expo.mjs export --platform all --output-dir build/ci-bundles
+          node scripts/expo.mjs config --type public --json > build/expo-config.json
           node -e 'const assert = require("node:assert/strict"); assert.equal(require("./build/expo-config.json").version, require("./package.json").version)'
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}

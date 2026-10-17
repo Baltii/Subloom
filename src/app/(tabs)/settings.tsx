@@ -12,7 +12,7 @@ import {
   LogOut,
   Search,
   X,
-  CreditCard,
+  Activity,
 } from "lucide-react-native";
 import {
   useApp,
@@ -64,7 +64,7 @@ import {
 const settingsGroups = [
   {
     title: "Account",
-    keywords: "login sign in sync family workspaces team sso import guest",
+    keywords: "login sign in sync import guest",
   },
   {
     title: "Preferences",
@@ -78,7 +78,7 @@ const settingsGroups = [
   {
     title: "Tools",
     keywords:
-      "add subscription receipt import scan discovery gmail outlook price history cancellation savings monthly budgets csv calendar forwarding card bank payment wallet statement transaction radar watch refund dispute",
+      "subscription receipt import discovery gmail outlook monthly budgets csv calendar forwarding bank statement transactions",
   },
   {
     title: "Data & privacy",
@@ -281,18 +281,12 @@ function Settings() {
             )}
             {visibleGroups.includes("Account") && (
               <Card>
-                <SectionTitle title="Account & shared spaces" />
+                <SectionTitle title="Account" />
                 <LinkRow
-                  icon={UserRound}
-                  title="Family workspaces"
-                  detail="Shared subscriptions and cost splits"
-                  onPress={() => router.push("/workspaces")}
-                />
-                <LinkRow
-                  icon={UserRound}
-                  title="Team workspaces and SSO"
-                  detail="Organization access and shared billing"
-                  onPress={() => router.push("/team")}
+                  icon={Activity}
+                  title="Recent activity"
+                  detail="Subscription changes and reminders"
+                  onPress={() => router.push("/activity")}
                 />
                 <View
                   style={{
@@ -801,18 +795,12 @@ function Settings() {
             {visibleGroups.includes("Tools") && (
               <Card>
                 <SectionTitle title="Subscription tools" />
-                <LinkRow
-                  title="Cards & transactions"
-                  detail="Your payment sources and recorded transaction history"
-                  icon={CreditCard}
-                  onPress={() => router.push("/finance")}
-                />
                 <Label
                   color={colors.secondary}
                   size={13}
                   style={{ marginBottom: 14 }}
                 >
-                  Import, plan and review your subscriptions.
+                  Import records and manage your subscriptions.
                 </Label>
                 {tools
                   .filter((action) =>

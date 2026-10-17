@@ -6,6 +6,8 @@ GitHub CI checks pull requests, produces Mac test builds, and tests native stora
 
 Production web: [subloom.baltii.tn](https://subloom.baltii.tn). GitHub `main` builds through the existing Vercel project; see [web deployment](feature-docs/web-deployment.md) for build settings, callbacks and live verification.
 
+The focused tracker scope is documented in [Focused subscription tracker](feature-docs/focused-subscription-tracker.md). It removes speculative finance, card-control and collaboration screens, and makes reviewed statement transactions a main section. The production domain publishes the version on `main` after its Vercel deployment succeeds.
+
 ## Run the app
 
 Use Node 22.13+ and npm. No provider credentials are needed for guest tracking or pasted-text detection.
@@ -44,7 +46,7 @@ Guest subscriptions, receipt candidates, settings, and activity are saved automa
 
 ## Verification and release status
 
-**2026-10-17 integration:** `codex/app-readiness` combines the payment/control-center/theme stack with the finance, exchange-rate and Bitcoin stack. It adds transaction correction/removal, durable Mac feature files and native authentication callback transport. The updated Mac app is `build/Subloom-update.app`. The combined hosted deployment is awaiting explicit approval; it is not yet a credentials-only handoff. See [app readiness and credential checklist](feature-docs/app-readiness.md) for current checks, deployment scope, limits and remaining setup. Earlier verification below describes its historical branch, not this integrated release.
+**2026-10-17:** The combined release was deployed to the production domain. The subsequent `codex/focused-subscription-tracker` change simplifies that release and removes misleading payment setup; see its [scope, verification and remaining setup](feature-docs/focused-subscription-tracker.md). The older [combined readiness report](feature-docs/app-readiness.md) and verification below describe the preceding feature stack.
 
 The ten-feature stack and preserved email templates are integrated on the rebased Mac branch. On 2026-10-11, all five feature migrations and twelve Edge Functions were deployed to the existing test project. The combined branch passes 195 application/Postgres tests and 22 backend tests. Three hosted scheduler/retention jobs remain active. See [setup progress](feature-docs/setup-progress.md) for live verification and the remaining Google/Apple, mailbox and SAML credentials.
 

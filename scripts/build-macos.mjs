@@ -16,8 +16,8 @@ if (process.platform !== "darwin")
   throw new Error("The Mac test app requires macOS and Xcode.");
 if (!existsSync(env.DEVELOPER_DIR))
   throw new Error("Open Xcode and complete its setup first.");
-run("npx", [
-  "expo",
+run(process.execPath, [
+  "scripts/expo.mjs",
   "export",
   "--platform",
   "web",

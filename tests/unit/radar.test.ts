@@ -8,6 +8,7 @@ import {
   recurringStreams,
   suggestSubscriptions,
   type PaymentTransaction,
+  exportStatement,
 } from "../../src/domain/radar";
 import { subscription } from "../fixtures";
 const mapping = defaultMapping(statementHeaders(statementExample));
@@ -34,6 +35,94 @@ function transaction(
 }
 const id = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 describe("statement radar", () => {
+  it("exports exact original-currency charges and credits while protecting spreadsheet formulas", () => {
+    const debit = transaction("2026-10-17", id, {
+      currency: "EUR",
+      amountMinor: 123456,
+      reference: "=unsafe()",
+    });
+    const credit = transaction(
+      "2026-10-18",
+      "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      { direction: "credit", currency: "GBP", amountMinor: 1299 },
+    );
+    const csv = exportStatement([debit, credit]);
+    expect(csv).toContain('"\'=unsafe()"');
+    const rows = parseStatement(
+      csv,
+      defaultMapping(statementHeaders(csv)),
+      "EUR",
+      true,
+      null,
+    );
+    expect(rows).toMatchObject([
+      { direction: "debit", currency: "EUR", amountMinor: 123456 },
+      { direction: "credit", currency: "GBP", amountMinor: 1299 },
+    ]);
+  });
+  it("imports European semicolon statements with explicit day-first dates and decimal commas", () => {
+    const csv =
+      "Date;Libellé;Montant;Devise;Référence\n17/10/2026;Music;-1.234,56;EUR;oct-music\n18.10.2026;Refund;12,99;EUR;refund";
+    const columns = defaultMapping(statementHeaders(csv));
+    const rows = parseStatement(csv, columns, "USD", true, null, {
+      date: "day-first",
+      decimal: "comma",
+    });
+    expect(rows).toMatchObject([
+      {
+        date: "2026-10-17",
+        merchant: "Music",
+        amountMinor: 123456,
+        currency: "EUR",
+        direction: "debit",
+      },
+      {
+        date: "2026-10-18",
+        merchant: "Refund",
+        amountMinor: 1299,
+        currency: "EUR",
+        direction: "credit",
+      },
+    ]);
+  });
+  it("never guesses ambiguous European dates or rounds invalid minor units", () => {
+    const csv = "Date;Merchant;Amount;Currency\n03/04/2026;Music;-12,345;EUR";
+    const columns = defaultMapping(statementHeaders(csv));
+    expect(() => parseStatement(csv, columns, "EUR", true, null)).toThrow();
+    expect(() =>
+      parseStatement(csv, columns, "EUR", true, null, {
+        date: "day-first",
+        decimal: "comma",
+      }),
+    ).toThrow();
+    expect(() =>
+      parseStatement(
+        csv.replace("03/04/2026", "31/02/2026"),
+        columns,
+        "EUR",
+        true,
+        null,
+        { date: "day-first", decimal: "comma" },
+      ),
+    ).toThrow();
+  });
+  it("reads tab-separated bank exports without changing merchant punctuation", () => {
+    const csv =
+      "Date\tMerchant\tAmount\tCurrency\n2026-10-17\tMusic, Ltd\t-12.99\tGBP";
+    expect(
+      parseStatement(
+        csv,
+        defaultMapping(statementHeaders(csv)),
+        "EUR",
+        true,
+        null,
+      )[0],
+    ).toMatchObject({
+      merchant: "Music, Ltd",
+      amountMinor: 1299,
+      currency: "GBP",
+    });
+  });
   it("requires explicit sign convention and exact currency minor units", () => {
     const rows = parseStatement(statementExample, mapping, "USD", true, null);
     expect(rows[0]?.direction).toBe("debit");
