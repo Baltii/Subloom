@@ -71,7 +71,7 @@ Never paste private credentials into source code, chat, `EXPO_PUBLIC_*`, screens
 | Team SAML | Organization domain, eligible Supabase SAML setup and IdP metadata/test users are required. Live SAML configuration was not reverified in this pass. No plan upgrade is authorized. |
 | Exchange rates / Bitcoin watch | No API keys are required for the implemented Frankfurter/public-explorer adapters. Account use requires deployment. A self-hosted HTTPS explorer is optional. An installed Bitcoin wallet is required to authorize payment requests. |
 
-Provider callbacks for Google/Apple: `https://fdjsmpmgrwzmqovzundx.supabase.co/auth/v1/callback`. App return allowlist: `subloom://auth-callback` and the exact browser `/auth-callback` URL. Production HTTPS hosting and exact production redirect/mailbox URLs remain operator configuration; no public site or store release was published.
+Provider callbacks for Google/Apple: `https://fdjsmpmgrwzmqovzundx.supabase.co/auth/v1/callback`. App return allowlist: `subloom://auth-callback` and the exact browser `/auth-callback` URL. Production HTTPS hosting and exact production redirect/mailbox URLs remain operator configuration; no production hosting configuration or store release was changed. The repository’s existing Vercel integration generated a preview after the review PR was opened; that does not deploy the pending Supabase changes.
 
 ## Release limits
 
