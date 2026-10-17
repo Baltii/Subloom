@@ -12,6 +12,7 @@ import {
   LogOut,
   Search,
   X,
+  CreditCard,
 } from "lucide-react-native";
 import {
   useApp,
@@ -800,6 +801,12 @@ function Settings() {
             {visibleGroups.includes("Tools") && (
               <Card>
                 <SectionTitle title="Subscription tools" />
+                <LinkRow
+                  title="Cards & transactions"
+                  detail="Your payment sources and recorded transaction history"
+                  icon={CreditCard}
+                  onPress={() => router.push("/finance")}
+                />
                 <Label
                   color={colors.secondary}
                   size={13}

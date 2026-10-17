@@ -28,8 +28,9 @@ export function parseMoney(input: string, currency: Currency): number {
 export function moneyInput(minor: number, currency: Currency): string {
   const digits = currencyDigits(currency),
     scale = 10n ** BigInt(digits),
-    amount = BigInt(minor);
+    amount = BigInt(Math.abs(minor));
   return (
+    (minor < 0 ? "-" : "") +
     (amount / scale).toString() +
     (digits ? "." + (amount % scale).toString().padStart(digits, "0") : "")
   );

@@ -3,6 +3,7 @@ import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useApp } from "../store/app";
 import { localSetting } from "./featureSettings";
+import { exportGuestBitcoinHistory } from "./bitcoin";
 import { supabase } from "./supabase";
 export async function exportData() {
   const state = useApp.getState();
@@ -10,12 +11,18 @@ export async function exportData() {
     exportedAt: new Date().toISOString(),
     scope:
       "Local subscriptions, receipt candidates, preferences, and cached activity",
+    cryptoHistory:
+      state.identity === "guest"
+        ? await exportGuestBitcoinHistory()
+        : undefined,
     pendingSync: state.data.outbox.length > 0,
     featureSettings:
       state.identity === "guest"
         ? Object.fromEntries(
             await Promise.all(
               [
+                "finance",
+                "crypto",
                 "budgets",
                 "cancellation",
                 "payment_sources",
@@ -29,6 +36,7 @@ export async function exportData() {
                 const value = await localSetting(state.identity, key);
                 return [key, value ? JSON.parse(value) : null];
               }),
+
             ),
           )
         : undefined,
