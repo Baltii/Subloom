@@ -4,6 +4,8 @@ GitHub CI checks pull requests, produces Mac test builds, and tests native stora
 
 **Take control of your subscriptions.** An Expo React Native app for iOS and Android, with a responsive web preview, durable offline tracking, precise recurring-cost estimates, editable receipt detections, and a Supabase reminder backend.
 
+Production web: [subloom.baltii.tn](https://subloom.baltii.tn). GitHub `main` builds through the existing Vercel project; see [web deployment](feature-docs/web-deployment.md) for build settings, callbacks and live verification.
+
 ## Run the app
 
 Use Node 22.13+ and npm. No provider credentials are needed for guest tracking or pasted-text detection.

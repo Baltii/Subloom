@@ -1,5 +1,7 @@
 # Combined app readiness — 2026-10-17
 
+> This is the initial review handoff. The owner subsequently authorized deployment: the combined backend is deployed and all 27 hosted smoke checks pass. See [production web deployment](web-deployment.md) for current hosting, callback and backend setup.
+
 ## Current disposition
 
 `codex/app-readiness` integrates both existing feature stacks from `release-candidate`: payment sources, statement Radar, Cancellation Watch, renewal rules, virtual plans, Reserve, Value Coach, family settlements and accent themes, plus the finance journal, dated currency estimates, Bitcoin observations/payment requests and renewal preferences.
