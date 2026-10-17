@@ -136,11 +136,22 @@ it("protects family snapshots, receipt authority, history and versioned correcti
       await as(userB, "select workspace_ledger_history($1) as history", [scope])
     ).rows[0]!.history as unknown[];
     expect(full).toHaveLength(2);
-    await as(
-      userA,
-      "insert into workspace_ledger(id,workspace_id,kind,payer,payee,currency,amount_minor,event_date,note) select gen_random_uuid(),$1,'request',$2,$3,'EUR',1,'2026-10-12','Limit QA' from generate_series(1,1998)",
-      [scope, userB, userA],
+    // Admission, permissions and corrections were exercised above. Seed the
+    // remaining capacity without 1,998 repeated admission/count scans in WASM;
+    // re-enable the trigger before testing that a real insert hits the limit.
+    await db.exec(
+      "alter table workspace_ledger disable trigger validate_family_ledger",
     );
+    try {
+      await db.query(
+        "insert into workspace_ledger(id,workspace_id,recorded_by,kind,payer,payee,currency,amount_minor,event_date,note) select gen_random_uuid(),$1,$3,'request',$2,$3,'EUR',1,'2026-10-12','Limit QA' from generate_series(1,1998)",
+        [scope, userB, userA],
+      );
+    } finally {
+      await db.exec(
+        "alter table workspace_ledger enable trigger validate_family_ledger",
+      );
+    }
     await expect(
       as(userA, receipt, [randomUUID(), scope, userB, userA]),
     ).rejects.toThrow(/history is full/);
