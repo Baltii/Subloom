@@ -12,6 +12,7 @@ import {
   LogOut,
   Search,
   X,
+  CreditCard,
 } from "lucide-react-native";
 import {
   useApp,
@@ -44,7 +45,6 @@ import {
   Badge,
   Button,
   Card,
-  Chips,
   Confirm,
   Field,
   Label,
@@ -54,6 +54,7 @@ import {
   Empty,
 } from "../../components/ui/Primitives";
 import { toolActions } from "../../components/ui/QuickActions";
+import { ThemePicker } from "../../components/ui/ThemePicker";
 import { SelectField } from "../../components/ui/Selection";
 import {
   currencyOptions,
@@ -77,7 +78,7 @@ const settingsGroups = [
   {
     title: "Tools",
     keywords:
-      "add subscription receipt import scan discovery gmail outlook price history cancellation savings monthly budgets csv calendar forwarding",
+      "add subscription receipt import scan discovery gmail outlook price history cancellation savings monthly budgets csv calendar forwarding card bank payment wallet statement transaction radar watch refund dispute",
   },
   {
     title: "Data & privacy",
@@ -411,21 +412,19 @@ function Settings() {
             {visibleGroups.includes("Preferences") && (
               <Card style={{ marginTop: 24 }}>
                 <SectionTitle title="Appearance & region" />
-                <Label
-                  size={12}
-                  bold
-                  color={colors.secondary}
-                  style={{ marginBottom: 12 }}
-                >
-                  Appearance
-                </Label>
-                <Chips
-                  values={["system", "light", "dark"] as const}
-                  selected={p.appearance}
-                  labels={{ system: "System", light: "Light", dark: "Dark" }}
+                <ThemePicker
                   disabled={busy}
-                  onChange={(appearance) =>
-                    void run(() => updatePreferences({ appearance }))
+                  onAccent={(accentTheme) =>
+                    void run(async () => {
+                      await updatePreferences({ accentTheme });
+                      notify("Your theme is saved.");
+                    })
+                  }
+                  onAppearance={(appearance) =>
+                    void run(async () => {
+                      await updatePreferences({ appearance });
+                      notify("Appearance saved.");
+                    })
                   }
                 />
                 <View style={{ marginTop: 24 }}>
@@ -802,6 +801,12 @@ function Settings() {
             {visibleGroups.includes("Tools") && (
               <Card>
                 <SectionTitle title="Subscription tools" />
+                <LinkRow
+                  title="Cards & transactions"
+                  detail="Your payment sources and recorded transaction history"
+                  icon={CreditCard}
+                  onPress={() => router.push("/finance")}
+                />
                 <Label
                   color={colors.secondary}
                   size={13}

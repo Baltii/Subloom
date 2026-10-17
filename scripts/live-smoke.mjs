@@ -279,6 +279,13 @@ try {
       for (const [key, value] of [
         ["budgets", [{ category: "Other", currency: "USD", limitMinor: 5000 }]],
         ["cancellation", {}],
+        ["payment_sources", { sources: [], links: [] }],
+        ["payment_transactions", []],
+        ["cancellation_watch", []],
+        ["autopilot", []],
+        ["virtual_plans", []],
+        ["reserve", { payday: null, buckets: [] }],
+        ["coach", { checkins: [], quotes: [] }],
       ]) {
         const args = {
           setting_key: key,
@@ -312,6 +319,71 @@ try {
       }
     },
   );
+  await check(
+    "Finance journals preserve original-currency corrections and isolate accounts",
+    async () => {
+      const transaction = {
+        id: randomUUID(),
+        merchant: "Disposable QA charge",
+        amountMinor: 12345,
+        currency: "TND",
+        date: "2026-10-17",
+        kind: "charge",
+        status: "pending",
+        walletId: null,
+        subscriptionId: null,
+        source: "manual",
+        createdAt: now,
+      };
+      ok(
+        await a.client.from("finance_journals").insert({
+          user_id: a.id,
+          data: { wallets: [], transactions: [transaction] },
+          version: 1,
+        }),
+      );
+      assert.equal(
+        ok(await b.client.from("finance_journals").select("user_id")).length,
+        0,
+      );
+      assert((await anon.from("finance_journals").select("user_id")).error);
+      ok(
+        await a.client
+          .from("finance_journals")
+          .update({
+            data: {
+              wallets: [],
+              transactions: [{ ...transaction, status: "settled" }],
+            },
+            version: 2,
+          })
+          .eq("user_id", a.id)
+          .eq("version", 1),
+      );
+      const [row] = ok(
+        await second.from("finance_journals").select("data,version"),
+      );
+      assert.equal(row.data.transactions[0].amountMinor, 12345);
+      assert.equal(row.data.transactions[0].currency, "TND");
+      assert.equal(row.data.transactions[0].status, "settled");
+      assert.equal(row.version, 2);
+      assert(
+        (
+          await a.client
+            .from("finance_journals")
+            .update({ version: 2 })
+            .eq("user_id", a.id)
+        ).error,
+      );
+      ok(
+        await a.client
+          .from("finance_journals")
+          .update({ data: { wallets: [], transactions: [] }, version: 3 })
+          .eq("user_id", a.id)
+          .eq("version", 2),
+      );
+    },
+  );
   await check("Authenticated create and idempotent replay", async () => {
     assert.equal(
       ok(await a.client.rpc("apply_operation", { operation: create })).version,
@@ -326,6 +398,43 @@ try {
       1,
     );
   });
+  await check(
+    "Bitcoin journals validate owned subscriptions and isolate watch records",
+    async () => {
+      const data = {
+        wallets: [],
+        intentions: [
+          { subscriptionId: id, mode: "cancel", reviewDate: "2026-10-17" },
+        ],
+      };
+      ok(
+        await a.client
+          .from("crypto_journals")
+          .insert({ user_id: a.id, data, version: 1 }),
+      );
+      assert.equal(
+        ok(await b.client.from("crypto_journals").select("user_id")).length,
+        0,
+      );
+      assert(
+        (
+          await b.client
+            .from("crypto_journals")
+            .insert({ user_id: b.id, data, version: 1 })
+        ).error,
+      );
+      assert(
+        (
+          await a.client.from("crypto_address_history").insert({
+            user_id: a.id,
+            wallet_id: randomUUID(),
+            address: "fixture",
+            data: { transactions: [] },
+          })
+        ).error,
+      );
+    },
+  );
   await check(
     "Second device receives create signal and reads the same account data",
     async () => {
@@ -510,7 +619,7 @@ try {
       const shared = ok(
         await b.client
           .from("workspace_subscriptions")
-          .select("data,shares")
+          .select("id,data,shares")
           .eq("workspace_id", scope),
       );
       assert.equal(shared.length, 1);
@@ -525,6 +634,39 @@ try {
         ).error,
       );
       assert((await a.client.rpc("save_workspace_subscription", args)).error);
+      const entry = {
+        id: randomUUID(),
+        workspace_id: scope,
+        recorded_by: a.id,
+        kind: "charge",
+        payer: b.id,
+        payee: null,
+        currency: "USD",
+        amount_minor: 1234,
+        event_date: "2050-01-31",
+        subscription_id: shared[0].id,
+        shares: args.cost_shares,
+        note: "Disposable recorded charge",
+        due_date: null,
+      };
+      ok(await a.client.from("workspace_ledger").insert(entry));
+      const history = ok(
+        await b.client.rpc("workspace_ledger_history", { scope }),
+      );
+      assert.equal(history.length, 1);
+      assert.equal(history[0].amount_minor, 1234);
+      assert((await anon.from("workspace_ledger").select("id")).error);
+      ok(
+        await a.client
+          .from("workspace_ledger")
+          .update({ voided: true })
+          .eq("id", entry.id)
+          .eq("version", 1),
+      );
+      assert.equal(
+        ok(await b.client.rpc("workspace_ledger_history", { scope }))[0].voided,
+        true,
+      );
       ok(
         await a.client.rpc("manage_workspace", {
           scope,
@@ -709,6 +851,14 @@ try {
       assert.equal(data.subscriptions[0].user_id, a.id);
       assert(!Object.hasOwn(data, "push_devices"));
       assert(!Object.hasOwn(data, "access_token"));
+      assert.equal(data.finance_journals.length, 1);
+      assert.equal(data.crypto_journals.length, 1);
+      assert(Array.isArray(data.workspace_ledger));
+      assert(
+        data.feature_settings.some(
+          (setting) => setting.key === "payment_sources",
+        ),
+      );
     },
   );
   await check(
@@ -721,6 +871,7 @@ try {
         "process-detection",
         "test-push",
         "mailbox-connect",
+        "bitcoin-history",
       ]) {
         assert.equal((await edge(name, null)).status, 401);
         assert.equal((await edge(name, "forged-token")).status, 401);
@@ -754,6 +905,11 @@ try {
         0,
       );
       assert.equal(foreignEvents.length, 0);
+      const [journal] = ok(
+        await a.client.from("crypto_journals").select("data,version"),
+      );
+      assert.deepEqual(journal.data.intentions, []);
+      assert.equal(journal.version, 2);
     },
   );
   await check("Session logout revokes refresh-token use", async () => {

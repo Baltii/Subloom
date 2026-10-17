@@ -1,5 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { describe, it, expect } from "vitest";
 import { userA, userB } from "../fixtures";
 describe("feature setting security", () => {
@@ -18,6 +18,15 @@ describe("feature setting security", () => {
           "utf8",
         ),
       );
+      const directory = new URL("../../supabase/migrations/", import.meta.url);
+      for (const file of readdirSync(directory)
+        .sort()
+        .filter((name) =>
+          /_(payment_sources|subscription_radar|cancellation_watch|renewal_autopilot|virtual_card_plans|renewal_reserve|value_coach)\.sql$/.test(
+            name,
+          ),
+        ))
+        await db.exec(readFileSync(new URL(file, directory), "utf8"));
       await db.query("insert into auth.users values($1),($2)", [userA, userB]);
       await db.exec("set role authenticated");
       await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
@@ -39,6 +48,38 @@ describe("feature setting security", () => {
       await expect(
         db.query("select save_feature_setting('unknown','[]',0)"),
       ).rejects.toThrow();
+      await db.query(
+        "select save_feature_setting('payment_sources',$1::jsonb,0)",
+        [JSON.stringify({ sources: [], links: [] })],
+      );
+      await expect(
+        db.query("select save_feature_setting('payment_sources','{}',0)"),
+      ).rejects.toThrow(/conflict/);
+      await db.query(
+        "select save_feature_setting('payment_transactions','[]',0)",
+      );
+      await expect(
+        db.query("select save_feature_setting('payment_transactions','[]',0)"),
+      ).rejects.toThrow(/conflict/);
+      await db.query(
+        "select save_feature_setting('cancellation_watch','[]',0)",
+      );
+      const constraint = (
+        await db.query<{ definition: string }>(
+          "select pg_get_constraintdef(oid) as definition from pg_constraint where conname='feature_settings_key_check'",
+        )
+      ).rows[0]!.definition;
+      for (const key of [
+        "autopilot",
+        "virtual_plans",
+        "reserve",
+        "coach",
+      ].filter((key) => constraint.includes("'" + key + "'"))) {
+        await db.query("select save_feature_setting($1,'{}',0)", [key]);
+        await expect(
+          db.query("select save_feature_setting($1,'{}',0)", [key]),
+        ).rejects.toThrow(/conflict/);
+      }
       await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
         userB,
       ]);

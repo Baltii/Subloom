@@ -118,7 +118,7 @@ export function Button({
   small?: boolean;
   testID?: string;
 }) {
-  const { colors, isDark } = useTheme(),
+  const { colors } = useTheme(),
     reduced = useReducedMotion();
   const [focused, setFocused] = useState(false),
     [hovered, setHovered] = useState(false);
@@ -128,9 +128,7 @@ export function Button({
   }));
   const foreground =
     variant === "primary"
-      ? isDark
-        ? "#102219"
-        : "#FFFFFF"
+      ? colors.onPrimary
       : variant === "danger"
         ? colors.error
         : colors.text;
@@ -474,7 +472,7 @@ export function Chips<T extends string>({
   disabled?: boolean;
   wrap?: boolean;
 }) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const choices = values.map((value) => (
     <Pressable
       key={value}
@@ -498,13 +496,7 @@ export function Chips<T extends string>({
       <Label
         size={12}
         bold
-        color={
-          value === selected
-            ? isDark
-              ? "#102219"
-              : "#FFFFFF"
-            : colors.secondary
-        }
+        color={value === selected ? colors.onPrimary : colors.secondary}
       >
         {labels?.[value] || value}
       </Label>
@@ -947,12 +939,15 @@ export function Toast() {
     reduced = useReducedMotion();
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => {
-      if (useApp.getState().toastId === toastId)
-        useApp.setState({ toast: null });
-    }, 4500);
+    const timer = setTimeout(
+      () => {
+        if (useApp.getState().toastId === toastId)
+          useApp.setState({ toast: null });
+      },
+      tone === "error" ? 8000 : 4500,
+    );
     return () => clearTimeout(timer);
-  }, [toast, toastId]);
+  }, [toast, toastId, tone]);
   if (!toast) return null;
   return (
     <Animated.View
@@ -969,24 +964,42 @@ export function Toast() {
         flexDirection: "row",
         gap: 10,
         alignItems: "center",
-        backgroundColor: tone === "error" ? colors.errorBg : colors.text,
+        backgroundColor: tone === "error" ? colors.errorBg : colors.successBg,
+        borderWidth: 1,
+        borderColor: tone === "error" ? colors.error : colors.success,
         borderRadius: 14,
-        padding: 16,
+        padding: 14,
         zIndex: 100,
       }}
     >
-      {tone === "error" ? (
-        <AlertCircle size={18} color={colors.error} />
-      ) : (
-        <Check size={18} color={colors.surface} />
-      )}
-      <Label
-        color={tone === "error" ? colors.error : colors.surface}
-        size={14}
-        style={{ flexShrink: 1 }}
+      <View
+        style={{
+          width: 34,
+          height: 34,
+          borderRadius: 17,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: tone === "error" ? colors.error : colors.success,
+        }}
       >
-        {toast}
-      </Label>
+        {tone === "error" ? (
+          <AlertCircle size={20} color={colors.surface} />
+        ) : (
+          <Check size={20} color={colors.surface} />
+        )}
+      </View>
+      <View style={{ flexShrink: 1, gap: 2 }}>
+        <Label
+          bold
+          size={13}
+          color={tone === "error" ? colors.error : colors.success}
+        >
+          {tone === "error" ? "Something needs attention" : "All set"}
+        </Label>
+        <Label color={colors.text} size={13}>
+          {toast}
+        </Label>
+      </View>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Dismiss notification"
@@ -998,7 +1011,7 @@ export function Toast() {
           justifyContent: "center",
         }}
       >
-        <X size={18} color={tone === "error" ? colors.error : colors.surface} />
+        <X size={18} color={tone === "error" ? colors.error : colors.success} />
       </Pressable>
     </Animated.View>
   );

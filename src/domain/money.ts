@@ -28,8 +28,9 @@ export function parseMoney(input: string, currency: Currency): number {
 export function moneyInput(minor: number, currency: Currency): string {
   const digits = currencyDigits(currency),
     scale = 10n ** BigInt(digits),
-    amount = BigInt(minor);
+    amount = BigInt(Math.abs(minor));
   return (
+    (minor < 0 ? "-" : "") +
     (amount / scale).toString() +
     (digits ? "." + (amount % scale).toString().padStart(digits, "0") : "")
   );
@@ -118,4 +119,30 @@ export function recurringTotals(
 }
 export function annualCost(s: Subscription): number {
   return round(annualFraction(s));
+}
+
+// Integer/rational scaling for planning and cost-per-use calculations.
+export function ratioMinor(
+  amount: number,
+  numerator: number,
+  denominator: number,
+  rounding: "nearest" | "up" = "nearest",
+) {
+  if (
+    ![amount, numerator, denominator].every(
+      (v) => Number.isSafeInteger(v) && v >= 0,
+    ) ||
+    !denominator
+  )
+    throw new Error("Use valid integer amounts and a positive denominator.");
+  const value = BigInt(amount) * BigInt(numerator),
+    divisor = BigInt(denominator);
+  const result = Number(
+    rounding === "up"
+      ? (value + divisor - 1n) / divisor
+      : (value * 2n + divisor) / (divisor * 2n),
+  );
+  if (!Number.isSafeInteger(result))
+    throw new Error("This financial estimate is too large.");
+  return result;
 }

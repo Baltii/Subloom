@@ -29,6 +29,18 @@ const steps = {
   social: "202610110003",
   mailbox: "202610110004",
   sso: "202610110005",
+  payments: "20261012131814",
+  radar: "20261012132927",
+  "cancellation-watch": "20261012151054",
+  autopilot: "20261012160133",
+  "virtual-plans": "20261012160549",
+  reserve: "20261012160847",
+  coach: "20261012161235",
+  settlements: "20261012183830",
+  finance: "20261014111959",
+  "exchange-rates": "20261014112614",
+  bitcoin: "20261014113152",
+  readiness: "20261017095506",
 };
 const args = process.argv.slice(2);
 const step = args[0];

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { router } from "expo-router";
 import { View } from "react-native";
 import * as Crypto from "expo-crypto";
 import * as Clipboard from "expo-clipboard";
@@ -229,6 +230,14 @@ export function WorkspaceManager({
       back
     >
       <View style={{ gap: 18 }}>
+        {kind === "family" ? (
+          <Button
+            variant="secondary"
+            onPress={() => router.push("/settlements")}
+          >
+            Open Family Settlement Center
+          </Button>
+        ) : null}
         {identity === "guest" || demo ? (
           <Label>
             Sign in with your own account to create or join a shared space.

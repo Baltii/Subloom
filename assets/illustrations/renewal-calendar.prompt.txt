@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: transparent financial illustration for the Subloom subscription and payments app
+Style/medium: polished tactile 3D product illustration, soft rounded forms, expert material detail, premium matte silicone and ceramic with softly metallic coins, crisp clean silhouette. Financial objects only; no anthropomorphic character or face.
+Composition: centered full object group, three-quarter frontal view, generous clear padding on all sides. Designed to read at 120 pixels in a consumer app; simple recognizable silhouette, not a busy scene.
+Lighting: soft studio lighting with gentle highlights and a very subtle contact shadow beneath the objects. No backdrop, genuinely transparent alpha.
+Constraints: no words, letters, numbers, currency symbols, logo, watermark, brand marks, fake UI screens, plants, flowers, mascot, face, hands, charts promising returns, confetti, or surrounding scene.
+Primary request: a small thick ivory standing desk calendar with rounded violet binding loops, a subtle 3-by-3 grid of indented squares with one teal checkmark, and a single curved circular renewal arrow on a muted violet disc tucked beside it. A tiny stack of two gold coins rests at the base. One coherent simple group conveying recurring payments and renewal planning.
+Palette: ivory, muted violet, deep teal, warm gold. Works on pale tinted and dark surfaces.

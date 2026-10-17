@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { ZodError } from "zod";
 import * as Crypto from "expo-crypto";
 import type {
   Activity,
@@ -59,6 +60,8 @@ export function notify(message: string, tone: "success" | "error" = "success") {
   }));
 }
 export function readableError(error: unknown) {
+  if (error instanceof ZodError)
+    return error.issues[0]?.message || "Check the details and try again.";
   return error instanceof Error
     ? error.message
     : "Something went wrong. Please try again.";

@@ -14,6 +14,9 @@ export const handler = endpoint(async (req) => {
     "profiles",
     "user_preferences",
     "feature_settings",
+    "finance_journals",
+    "crypto_journals",
+    "crypto_address_history",
     "subscriptions",
     "subscription_price_history",
     "detected_candidates",
@@ -40,9 +43,17 @@ export const handler = endpoint(async (req) => {
       const order =
         table === "feature_settings"
           ? "key"
-          : ["profiles", "user_entitlements"].includes(table)
-            ? "user_id"
-            : "id";
+          : table === "crypto_address_history"
+            ? "wallet_id"
+            : [
+                  "profiles",
+                  "user_entitlements",
+                  "finance_journals",
+                  "crypto_journals",
+                  "crypto_address_history",
+                ].includes(table)
+              ? "user_id"
+              : "id";
       const { data, error } = await client
         .from(table)
         .select("*")
@@ -70,6 +81,7 @@ export const handler = endpoint(async (req) => {
     "workspaces",
     "workspace_members",
     "workspace_subscriptions",
+    "workspace_ledger",
   ]) {
     const rows: unknown[] = [];
     for (let start = 0; ; start += 500) {
