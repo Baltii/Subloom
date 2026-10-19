@@ -367,12 +367,13 @@ const guides: Record<string, CancellationInstructions> = {
   ),
   trello: guide(
     "https://trello.com",
-    "https://support.atlassian.com/trello/docs/changing-the-admins-of-a-workspace-or-board/",
+    "https://support.atlassian.com/trello/docs/change-or-cancel-your-trello-plan/",
     [
       "Sign in as an administrator of the Trello Workspace whose paid plan you want to end.",
       "Open that Workspace’s billing page and find the cancellation link for Standard or Premium.",
       "Complete the cancellation prompts and check the effective date. If you cannot access billing, contact the administrator or Trello support.",
     ],
+    "Use Trello in a web browser. If your Workspace uses Atlassian’s centralized billing, follow that route in the official guide.",
   ),
   asana: guide(
     "https://app.asana.com",
