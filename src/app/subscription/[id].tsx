@@ -3,6 +3,7 @@ import { View, Linking, Switch } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ExternalLink,
+  CircleHelp,
   Pencil,
   Pause,
   Play,
@@ -27,7 +28,7 @@ import {
   nextEvent,
   today,
 } from "../../domain/renewal";
-import { serviceFor } from "../../domain/catalog";
+import { cancellationInstructions } from "../../domain/cancellationInstructions";
 import { useTheme, useWide } from "../../theme/useTheme";
 import {
   Badge,
@@ -63,7 +64,7 @@ export default function Details() {
         />
       </Page>
     );
-  const service = serviceFor(s.serviceId),
+  const instructions = cancellationInstructions(s.serviceId),
     detection = data.candidates.find(
       (c) => c.state === "confirmed" && c.matchedSubscriptionId === s.id,
     ),
@@ -286,17 +287,29 @@ export default function Details() {
           </Card>
           <Card style={{ marginTop: 20, gap: 14 }}>
             <Heading size={18}>Make it work for you.</Heading>
-            {service?.managementUrl && (
+            <Button
+              variant="secondary"
+              icon={CircleHelp}
+              onPress={() =>
+                router.push({
+                  pathname: "/subscription/cancel",
+                  params: { id },
+                })
+              }
+            >
+              How to cancel
+            </Button>
+            {instructions.websiteUrl && (
               <Button
                 variant="secondary"
                 icon={ExternalLink}
                 onPress={() =>
-                  void Linking.openURL(service.managementUrl!).catch(() =>
+                  void Linking.openURL(instructions.websiteUrl!).catch(() =>
                     setError("Could not open the provider link."),
                   )
                 }
               >
-                Manage with provider
+                Visit website
               </Button>
             )}
             <Label size={11} color={colors.secondary}>

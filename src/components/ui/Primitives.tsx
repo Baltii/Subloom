@@ -108,6 +108,7 @@ export function Button({
   disabled = false,
   small = false,
   testID,
+  accessibilityLabel,
 }: {
   children: string;
   onPress: () => void;
@@ -117,6 +118,7 @@ export function Button({
   disabled?: boolean;
   small?: boolean;
   testID?: string;
+  accessibilityLabel?: string;
 }) {
   const { colors } = useTheme(),
     reduced = useReducedMotion();
@@ -136,7 +138,7 @@ export function Button({
     <AnimatedPressable
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={children}
+      accessibilityLabel={accessibilityLabel ?? children}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       aria-disabled={disabled || loading}
       aria-busy={loading}

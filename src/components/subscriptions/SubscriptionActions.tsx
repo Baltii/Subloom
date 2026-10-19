@@ -3,6 +3,7 @@ import { Platform, View } from "react-native";
 import { router, type Href } from "expo-router";
 import {
   Ellipsis,
+  CircleHelp,
   History,
   Pause,
   Pencil,
@@ -178,6 +179,17 @@ export function SubscriptionActions({
                 navigate({
                   pathname: "/price-history",
                   params: { subscriptionId: s.id },
+                })
+              }
+            />
+            <LinkRow
+              icon={CircleHelp}
+              title="How to cancel"
+              detail="Instructions and the service’s official website"
+              onPress={() =>
+                navigate({
+                  pathname: "/subscription/cancel",
+                  params: { id: s.id },
                 })
               }
             />
