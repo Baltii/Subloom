@@ -40,6 +40,54 @@ beforeEach(async () => {
   await hydrate("guest");
 });
 describe("durable guest data and offline operation transactions", () => {
+  it("finishes first run durably with the selected theme and region, without sample data", async () => {
+    expect(useApp.getState().data.onboarded).toBe(false);
+    await updatePreferences({ accentTheme: "blue", appearance: "dark" });
+    expect(useApp.getState().data.onboarded).toBe(false);
+    await finishOnboarding({
+      ...useApp.getState().data.preferences,
+      currency: "EUR",
+      timezone: "Africa/Tunis",
+    });
+    await hydrate("guest");
+    expect(useApp.getState().data).toMatchObject({
+      onboarded: true,
+      demo: false,
+      subscriptions: [],
+      outbox: [],
+      preferences: {
+        accentTheme: "blue",
+        appearance: "dark",
+        currency: "EUR",
+        timezone: "Africa/Tunis",
+      },
+    });
+    await hydrate(userA);
+    expect(useApp.getState().data.onboarded).toBe(false);
+    await hydrate("guest");
+    expect(useApp.getState().data.onboarded).toBe(true);
+  });
+  it("does not complete first run after a failed save and allows retry", async () => {
+    failWrites = true;
+    await expect(finishOnboarding(defaultPreferences())).rejects.toThrow(
+      "Storage is full",
+    );
+    expect(useApp.getState().data.onboarded).toBe(false);
+    failWrites = false;
+    await hydrate("guest");
+    expect(useApp.getState().data.onboarded).toBe(false);
+    await finishOnboarding(defaultPreferences());
+    await hydrate("guest");
+    expect(useApp.getState().data.onboarded).toBe(true);
+  });
+  it("keeps existing subscription data when finishing a replayed welcome tour", async () => {
+    await saveSubscription(subscription());
+    const before = useApp.getState().data.subscriptions;
+    await finishOnboarding(useApp.getState().data.preferences);
+    expect(useApp.getState().data.subscriptions).toEqual(before);
+    await hydrate("guest");
+    expect(useApp.getState().data.subscriptions).toEqual(before);
+  });
   it("persists billing assignments atomically with subscription edits and the owner’s sync outbox", async () => {
     const reference = billingReference("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
     await saveSubscription(subscription({ paymentMethod: reference }));

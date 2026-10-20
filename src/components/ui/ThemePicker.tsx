@@ -8,10 +8,12 @@ import { useApp } from "../../store/app";
 import { Label } from "./Primitives";
 
 export function ThemePicker({
+  compact = false,
   disabled,
   onAccent,
   onAppearance,
 }: {
+  compact?: boolean;
   disabled: boolean;
   onAccent: (accent: AccentTheme) => void;
   onAppearance: (appearance: Preferences["appearance"]) => void;
@@ -44,7 +46,7 @@ export function ThemePicker({
               disabled={disabled}
               onPress={() => onAccent(id)}
               style={({ pressed, hovered }) => ({
-                width: wide ? "22%" : "46%",
+                width: wide && !compact ? "22%" : "46%",
                 flexGrow: 1,
                 minHeight: 76,
                 flexDirection: "row",

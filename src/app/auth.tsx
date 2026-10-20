@@ -59,11 +59,8 @@ export default function Auth() {
             >
               Import my guest subscriptions
             </Button>
-            <Button
-              variant="secondary"
-              onPress={() => router.replace("/settings")}
-            >
-              Back to Settings
+            <Button variant="secondary" onPress={() => router.replace("/")}>
+              Open Subloom
             </Button>
           </>
         ) : !supabase ? (
