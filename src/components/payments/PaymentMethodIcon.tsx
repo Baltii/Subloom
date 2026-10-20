@@ -1,4 +1,5 @@
 import { Blocks, CreditCard, Landmark, WalletCards } from "lucide-react-native";
+import { Platform } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { paymentBrandPaths } from "../../assets/paymentBrandPaths";
 import type { PaymentSource } from "../../domain/payments";
@@ -13,6 +14,11 @@ const networks: Readonly<Record<string, string>> = {
   "Diners Club": "dinersclub",
 };
 type Identity = Pick<PaymentSource, "kind" | "cardBrand" | "walletProvider">;
+// Native accessibility props are forwarded unchanged to <svg> on web.
+const decorativeIconProps =
+  Platform.OS === "web"
+    ? ({ "aria-hidden": true, focusable: false } as const)
+    : ({ accessible: false, accessibilityElementsHidden: true } as const);
 
 export function PaymentMethodIcon({
   source,
@@ -47,8 +53,7 @@ export function PaymentMethodIcon({
         width={size}
         height={size}
         viewBox="0 0 24 24"
-        accessible={false}
-        accessibilityElementsHidden
+        {...decorativeIconProps}
       >
         <Path d={path} fill={ink} />
       </Svg>
@@ -62,13 +67,7 @@ export function PaymentMethodIcon({
           ? Blocks
           : WalletCards;
   return (
-    <Icon
-      size={size}
-      color={ink}
-      strokeWidth={1.7}
-      accessible={false}
-      accessibilityElementsHidden
-    />
+    <Icon size={size} color={ink} strokeWidth={1.7} {...decorativeIconProps} />
   );
 }
 
@@ -83,16 +82,15 @@ export function CardNetworkMark({
   const key = brand && Object.hasOwn(networks, brand) ? networks[brand] : null;
   const path = key && paymentBrandPaths[key];
   return path ? (
-    <Svg
-      width={64}
-      height={38}
-      viewBox="0 0 24 24"
-      accessible={false}
-      accessibilityElementsHidden
-    >
+    <Svg width={64} height={38} viewBox="0 0 24 24" {...decorativeIconProps}>
       <Path d={path} fill={color} />
     </Svg>
   ) : (
-    <CreditCard size={30} color={color} strokeWidth={1.5} accessible={false} />
+    <CreditCard
+      size={30}
+      color={color}
+      strokeWidth={1.5}
+      {...decorativeIconProps}
+    />
   );
 }

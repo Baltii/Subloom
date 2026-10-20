@@ -23,11 +23,12 @@ Taste direction: **Pastel consumer**, seed **35175425**, with the existing palet
 
 Validation:
 
-- `npm run check`: passed, **53 test files / 312 tests**, including type checking and linting.
-- Web, iOS and Android JavaScript exports: passed.
+- `npm run check`: passed, **54 test files / 318 tests**, including type checking and linting.
+- Web, iOS and Android JavaScript exports: passed for the card-face refinement; web export passed again after the SVG warning fix.
 - Tests cover exact four-digit validation, leading zeroes, provider/type consistency, stable IDs with identical card digits, legacy notes/links, clearing assignments, removed-method fallback, card/wallet/specific filters, the 50-method limit, durable guest saves, failed disk writes, atomic subscription/outbox persistence, account isolation, guest import ordering/retry and identity changes. Existing PostgreSQL/RLS tests round-trip the extended profile and deny other-owner reads.
 - Browser checks of the functional implementation at commit `67bb37c`, before the card-face/icon refinement: card and wallet creation; full-number rejection; inline wallet creation with an intact subscription draft; create/edit assignment and reload; saved-card edit propagating to its linked subscription; all-card, all-wallet and exact-method filters; keyboard activation/selection; compact and wide navigation; light/dark appearance; initial empty state. Layouts inspected at **390 × 844**, **768 × 1024**, and **1440 × 1000**. Earlier review evidence is local in `.impeccable/review/billing-methods/`; those captures do not show the new card faces.
 - The card-face/icon refinement has not been visually verified in a browser: automatic approval review blocked local preview access because its usage limit was reached. No alternate browser surface was used to bypass that rejection.
+- Web SVG fix: decorative payment icons use `aria-hidden`/`focusable` on web and preserve native accessibility props on iOS/Android. Six React DOM boundary regression cases cover logo and fallback paths in method icons and card-face marks, asserting hidden/non-focusable markup and no React warnings. SVG/Lucide components are replaced with DOM SVG elements in these isolated tests; they do not constitute a browser review.
 - Taste source lint for the refined components: **0 FAIL / 0 WARN**. Earlier functional browser checks used CUA; the skill’s separate CDP inspector was not run.
 - Not exercised: native device runtime, live signed-in account UI, OS/browser reduced-motion emulation, forced account-network errors and the 50-record UI. Automated tests cover persistence/error/limit behavior; native exports do not prove native interaction behavior.
 
