@@ -86,13 +86,13 @@ function BankCardFace({
   const { colors } = useTheme();
   const [focused, setFocused] = useState(false),
     [hovered, setHovered] = useState(false);
-  const pale =
+  const accented =
     source.cardBrand === "Mastercard" ||
     source.cardBrand === "Discover" ||
     source.cardBrand === "JCB";
-  const background = pale ? colors.hero : colors.spotlight,
-    ink = pale ? colors.heroText : colors.onSpotlight,
-    muted = pale ? colors.heroSecondary : colors.spotlightSecondary;
+  const background = accented ? colors.hero : colors.surface,
+    ink = accented ? colors.heroText : colors.text,
+    muted = accented ? colors.heroSecondary : colors.secondary;
   return (
     <Pressable
       accessibilityRole="button"
