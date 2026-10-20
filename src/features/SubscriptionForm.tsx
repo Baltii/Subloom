@@ -50,6 +50,7 @@ import { ServicePicker } from "../components/subscriptions/ServicePicker";
 import { useTheme, useWide } from "../theme/useTheme";
 import { useBillingMethods } from "../hooks/useBillingMethods";
 import { BillingMethodEditor } from "../components/payments/BillingMethodEditor";
+import { PaymentMethodIcon } from "../components/payments/PaymentMethodIcon";
 import {
   billingMethodLabel,
   billingReference,
@@ -466,6 +467,7 @@ export function SubscriptionForm({
                 ...billingMethods.value.sources.map((source) => ({
                   value: billingReference(source.id),
                   label: billingMethodLabel(source),
+                  icon: <PaymentMethodIcon source={source} size={24} />,
                 })),
               ];
               if (!options.some((option) => option.value === f.value))

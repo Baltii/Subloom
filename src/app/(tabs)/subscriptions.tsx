@@ -21,6 +21,7 @@ import { SwipeRow } from "../../components/subscriptions/SwipeRow";
 import { SelectField } from "../../components/ui/Selection";
 import { useQuickActions } from "../../hooks/useQuickActions";
 import { useBillingMethods } from "../../hooks/useBillingMethods";
+import { PaymentMethodIcon } from "../../components/payments/PaymentMethodIcon";
 import {
   billingMethodLabel,
   billingReference,
@@ -87,6 +88,7 @@ function Subscriptions() {
     ...billingMethods.value.sources.map((source) => ({
       value: billingReference(source.id),
       label: billingMethodLabel(source),
+      icon: <PaymentMethodIcon source={source} size={24} />,
     })),
   ];
   if (!billingOptions.some((option) => option.value === billing))

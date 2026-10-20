@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
-import { CreditCard, Pencil, Plus, Trash2 } from "lucide-react-native";
+import { CreditCard, Plus } from "lucide-react-native";
 import { useApp, notify, readableError } from "../store/app";
 import { useBillingMethods } from "../hooks/useBillingMethods";
 import {
@@ -10,16 +10,15 @@ import {
   billingSource,
 } from "../domain/billingMethods";
 import { removePaymentSource, type PaymentSource } from "../domain/payments";
+import { SavedBillingMethods } from "../components/payments/SavedBillingMethods";
 import { BillingMethodEditor } from "../components/payments/BillingMethodEditor";
 import {
   Button,
   Card,
   Confirm,
   Empty,
-  IconButton,
   Label,
   Page,
-  SectionTitle,
 } from "../components/ui/Primitives";
 import { useTheme, useWide } from "../theme/useTheme";
 
@@ -103,94 +102,21 @@ function BillingMethods() {
             body="Add a card or wallet, then choose it on a subscription. Only simple labels are saved."
           />
         )}
-        {methods.loaded &&
-          (["card", "wallet", "bank"] as const).map((kind) => {
-            const sources = methods.value.sources.filter(
-              (source) => source.kind === kind,
-            );
-            if (!sources.length) return null;
-            return (
-              <Card key={kind} style={{ padding: 20 }}>
-                <SectionTitle
-                  title={
-                    kind === "card"
-                      ? "Cards"
-                      : kind === "wallet"
-                        ? "Wallets"
-                        : "Other saved methods"
-                  }
-                />
-                {sources.map((source) => {
-                  const count = counts.get(source.id) || 0;
-                  return (
-                    <View
-                      key={source.id}
-                      style={{
-                        paddingVertical: 10,
-                        gap: 8,
-                        flexDirection: wide ? "row" : "column",
-                        alignItems: wide ? "center" : undefined,
-                      }}
-                    >
-                      <Label
-                        bold
-                        size={16}
-                        style={wide ? { flex: 1 } : undefined}
-                      >
-                        {billingMethodLabel(source)}
-                      </Label>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          gap: 8,
-                          width: wide ? 300 : undefined,
-                        }}
-                      >
-                        <View style={{ flex: 1, alignItems: "flex-start" }}>
-                          <Button
-                            small
-                            variant="ghost"
-                            accessibilityLabel={
-                              "View subscriptions billed to " +
-                              billingMethodLabel(source)
-                            }
-                            onPress={() =>
-                              router.push({
-                                pathname: "/subscriptions",
-                                params: {
-                                  billing: billingReference(source.id),
-                                },
-                              })
-                            }
-                          >
-                            {count +
-                              (count === 1
-                                ? " subscription"
-                                : " subscriptions")}
-                          </Button>
-                        </View>
-                        {source.kind !== "bank" && (
-                          <IconButton
-                            icon={Pencil}
-                            disabled={disabled}
-                            label={"Edit " + billingMethodLabel(source)}
-                            onPress={() => setEditing(source)}
-                          />
-                        )}
-                        <IconButton
-                          icon={Trash2}
-                          disabled={disabled}
-                          label={"Remove " + billingMethodLabel(source)}
-                          onPress={() => setRemoving(source)}
-                        />
-                      </View>
-                    </View>
-                  );
-                })}
-              </Card>
-            );
-          })}
+        {methods.loaded && (
+          <SavedBillingMethods
+            sources={methods.value.sources}
+            counts={counts}
+            disabled={disabled}
+            onEdit={setEditing}
+            onRemove={setRemoving}
+            onView={(source) =>
+              router.push({
+                pathname: "/subscriptions",
+                params: { billing: billingReference(source.id) },
+              })
+            }
+          />
+        )}
         {methods.value.sources.length >= 50 && (
           <Label size={13} color={colors.secondary}>
             You can save up to 50 billing methods. Edit or remove an existing

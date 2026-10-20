@@ -1,0 +1,40 @@
+{
+  "project": "Simple Icons",
+  "revision": "c71c69e3a27e4436936b831c72643e6513b9f49b",
+  "license": "CC0-1.0",
+  "icons": {
+    "visa": {
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/visa.svg"
+    },
+    "mastercard": {
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/mastercard.svg"
+    },
+    "americanexpress": {
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/americanexpress.svg"
+    },
+    "discover": {
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/discover.svg"
+    },
+    "jcb": {
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/jcb.svg"
+    },
+    "dinersclub": {
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/dinersclub.svg"
+    },
+    "apple": {
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/apple.svg"
+    },
+    "google": {
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/google.svg"
+    },
+    "paypal": {
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/paypal.svg"
+    }
+  },
+  "fallbacks": {
+    "UnionPay": "Lucide CreditCard (generic card identity)",
+    "Google Wallet": "Simple Icons Google identity mark",
+    "RedotPay": "Lucide WalletCards (generic wallet/card identity)",
+    "Crypto wallet": "Lucide Blocks (network-neutral crypto identity)"
+  }
+}

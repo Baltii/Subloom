@@ -45,7 +45,11 @@ import {
 import { ServiceIcon } from "../../components/subscriptions/ServiceIcon";
 import { DateField } from "../../components/ui/DateField";
 import { useBillingMethods } from "../../hooks/useBillingMethods";
-import { subscriptionBillingLabel } from "../../domain/billingMethods";
+import {
+  billingSource,
+  subscriptionBillingLabel,
+} from "../../domain/billingMethods";
+import { PaymentMethodIcon } from "../../components/payments/PaymentMethodIcon";
 export default function Details() {
   const billingMethods = useBillingMethods();
   const { id } = useLocalSearchParams<{ id: string }>(),
@@ -68,6 +72,9 @@ export default function Details() {
       </Page>
     );
   const instructions = cancellationInstructions(s.serviceId),
+    paymentSource = billingMethods.loaded
+      ? billingSource(s, billingMethods.value)
+      : undefined,
     detection = data.candidates.find(
       (c) => c.state === "confirmed" && c.matchedSubscriptionId === s.id,
     ),
@@ -193,7 +200,15 @@ export default function Details() {
                     alignItems: "center",
                   }}
                 >
-                  <row.icon size={19} color={colors.secondary} />
+                  {row.label === "Billing method" && paymentSource ? (
+                    <PaymentMethodIcon
+                      source={paymentSource}
+                      size={22}
+                      color={colors.secondary}
+                    />
+                  ) : (
+                    <row.icon size={19} color={colors.secondary} />
+                  )}
                   <View style={{ flex: 1 }}>
                     <Label size={11} color={colors.secondary}>
                       {row.label}

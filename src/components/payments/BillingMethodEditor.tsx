@@ -16,6 +16,7 @@ import { readableError } from "../../store/app";
 import { useTheme } from "../../theme/useTheme";
 import { Button, Chips, Field, Label } from "../ui/Primitives";
 import { PickerSheet, SelectField } from "../ui/Selection";
+import { PaymentMethodIcon } from "./PaymentMethodIcon";
 
 export function BillingMethodEditor({
   initial,
@@ -117,7 +118,16 @@ export function BillingMethodEditor({
               value={draft.cardBrand}
               onChange={(value) => change("cardBrand", value)}
               disabled={busy}
-              options={cardBrands.map((value) => ({ value, label: value }))}
+              options={cardBrands.map((value) => ({
+                value,
+                label: value,
+                icon: (
+                  <PaymentMethodIcon
+                    size={24}
+                    source={{ kind: "card", cardBrand: value }}
+                  />
+                ),
+              }))}
             />
             <Field
               label="Last four digits"
@@ -138,7 +148,16 @@ export function BillingMethodEditor({
             value={draft.walletProvider}
             onChange={(value) => change("walletProvider", value)}
             disabled={busy}
-            options={walletProviders.map((value) => ({ value, label: value }))}
+            options={walletProviders.map((value) => ({
+              value,
+              label: value,
+              icon: (
+                <PaymentMethodIcon
+                  size={24}
+                  source={{ kind: "wallet", walletProvider: value }}
+                />
+              ),
+            }))}
           />
         )}
         <Field
