@@ -44,7 +44,10 @@ import {
 } from "../../components/ui/Primitives";
 import { ServiceIcon } from "../../components/subscriptions/ServiceIcon";
 import { DateField } from "../../components/ui/DateField";
+import { useBillingMethods } from "../../hooks/useBillingMethods";
+import { subscriptionBillingLabel } from "../../domain/billingMethods";
 export default function Details() {
+  const billingMethods = useBillingMethods();
   const { id } = useLocalSearchParams<{ id: string }>(),
     { colors } = useTheme(),
     wide = useWide(),
@@ -174,8 +177,12 @@ export default function Details() {
                 },
                 {
                   icon: CreditCard,
-                  label: "Billing note",
-                  value: s.paymentMethod || "No billing note",
+                  label: "Billing method",
+                  value: billingMethods.loaded
+                    ? subscriptionBillingLabel(s, billingMethods.value)
+                    : billingMethods.error
+                      ? "Could not load billing method"
+                      : "Loading…",
                 },
               ].map((row) => (
                 <View
@@ -201,6 +208,23 @@ export default function Details() {
           </Card>
           <Card style={{ marginTop: 20 }}>
             <SectionTitle title="Details" />
+            <Button
+              small
+              variant="ghost"
+              icon={CreditCard}
+              onPress={() => router.push("/billing-methods")}
+            >
+              Manage cards & wallets
+            </Button>
+            {billingMethods.error && (
+              <Button
+                small
+                variant="secondary"
+                onPress={() => void billingMethods.reload()}
+              >
+                Reload billing method
+              </Button>
+            )}
             <Button
               small
               variant="ghost"

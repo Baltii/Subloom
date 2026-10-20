@@ -3,6 +3,25 @@ import { currencies, type Subscription } from "./models";
 import { recurringTotals } from "./money";
 import { nextEvent } from "./renewal";
 
+export const cardBrands = [
+  "Visa",
+  "Mastercard",
+  "American Express",
+  "Discover",
+  "UnionPay",
+  "JCB",
+  "Diners Club",
+  "Other card",
+] as const;
+export const walletProviders = [
+  "Apple Wallet",
+  "Google Wallet",
+  "RedotPay",
+  "Crypto wallet",
+  "PayPal",
+  "Other wallet",
+] as const;
+
 export const paymentSourceSchema = z
   .object({
     id: z.string().uuid(),
@@ -20,12 +39,22 @@ export const paymentSourceSchema = z
       .string()
       .regex(/^\d{4}$/)
       .nullable(),
+    cardBrand: z.enum(cardBrands).nullable().optional(),
+    walletProvider: z.enum(walletProviders).nullable().optional(),
     expiryMonth: z.number().int().min(1).max(12).nullable(),
     expiryYear: z.number().int().min(2020).max(2100).nullable(),
     updatedAt: z.string().datetime(),
   })
   .strict()
   .superRefine((value, ctx) => {
+    if (
+      (value.cardBrand && value.kind !== "card") ||
+      (value.walletProvider && value.kind !== "wallet")
+    )
+      ctx.addIssue({
+        code: "custom",
+        message: "Choose a type that matches this billing method.",
+      });
     if ((value.expiryMonth === null) !== (value.expiryYear === null))
       ctx.addIssue({
         code: "custom",

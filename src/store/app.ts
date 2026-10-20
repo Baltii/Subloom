@@ -376,7 +376,9 @@ export async function dismissCandidate(id: string) {
   });
   notify("Receipt dismissed.");
 }
-export async function importGuestData() {
+export async function importGuestData(
+  expectedIdentity = useApp.getState().identity,
+) {
   const guest = await loadSnapshot("guest");
   if (guest.demo)
     throw new Error(
@@ -424,7 +426,7 @@ export async function importGuestData() {
         ),
       ],
     };
-  });
+  }, expectedIdentity);
   notify("Guest subscriptions imported. Your local copy is preserved.");
 }
 

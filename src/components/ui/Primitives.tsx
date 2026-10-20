@@ -611,6 +611,7 @@ export function Page({
   onRefresh,
   refreshing = false,
   footer,
+  contentMaxWidth = 1280,
 }: {
   title: string;
   subtitle?: string;
@@ -622,6 +623,7 @@ export function Page({
   onRefresh?: () => void;
   refreshing?: boolean;
   footer?: ReactNode;
+  contentMaxWidth?: number;
 }) {
   const { colors } = useTheme(),
     wide = useWide(),
@@ -648,7 +650,7 @@ export function Page({
           padding: wide ? 38 : 22,
           paddingBottom: footer ? 28 : 110,
           width: "100%",
-          maxWidth: 1280,
+          maxWidth: contentMaxWidth,
           alignSelf: "center",
         }}
         keyboardShouldPersistTaps="handled"

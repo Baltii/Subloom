@@ -14,7 +14,8 @@ import {
   Label,
   Page,
 } from "../components/ui/Primitives";
-import { importGuestData, readableError, useApp } from "../store/app";
+import { readableError, useApp } from "../store/app";
+import { importGuestBillingWorkspace } from "../services/guestBillingImport";
 export default function Auth() {
   const { colors } = useTheme(),
     identity = useApp((s) => s.identity);
@@ -49,9 +50,13 @@ export default function Auth() {
             <Heading size={21}>You’re connected.</Heading>
             <Label color={colors.secondary}>
               Your guest workspace is still saved on this device. Import it to
-              this account when you’re ready.
+              this account, including saved cards and wallets, when you’re
+              ready.
             </Label>
-            <Button loading={busy} onPress={() => void run(importGuestData)}>
+            <Button
+              loading={busy}
+              onPress={() => void run(importGuestBillingWorkspace)}
+            >
               Import my guest subscriptions
             </Button>
             <Button

@@ -4,6 +4,7 @@ import { router, type Href } from "expo-router";
 import {
   ArrowRight,
   CalendarDays,
+  CreditCard,
   Download,
   Import,
   Mail,
@@ -80,6 +81,14 @@ export const toolActions: {
     route: "/sources",
     icon: Mail,
     group: "Import",
+  },
+  {
+    title: "Cards & wallets",
+    detail: "Manage billing methods for your subscriptions",
+    route: "/billing-methods",
+    icon: CreditCard,
+    keywords: "billing payment visa mastercard paypal crypto wallet",
+    group: "Manage",
   },
   {
     title: "Monthly budgets",

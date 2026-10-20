@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { FlatList, TextInput, View } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Plus, Search, Zap, X } from "lucide-react-native";
 import { useApp } from "../../store/app";
 import { categories } from "../../domain/models";
@@ -20,8 +20,25 @@ import { SubscriptionRow } from "../../components/subscriptions/SubscriptionRow"
 import { SwipeRow } from "../../components/subscriptions/SwipeRow";
 import { SelectField } from "../../components/ui/Selection";
 import { useQuickActions } from "../../hooks/useQuickActions";
-export default function Subscriptions() {
+import { useBillingMethods } from "../../hooks/useBillingMethods";
+import {
+  billingMethodLabel,
+  billingReference,
+  matchesBillingFilter,
+  subscriptionBillingLabel,
+} from "../../domain/billingMethods";
+export default function SubscriptionsRoute() {
+  const identity = useApp((state) => state.identity);
+  return <Subscriptions key={identity} />;
+}
+function Subscriptions() {
   const quickActions = useQuickActions();
+  const billingMethods = useBillingMethods();
+  const params = useLocalSearchParams<{ billing?: string | string[] }>();
+  const billing = typeof params.billing === "string" ? params.billing : "all";
+  function setBilling(value: string) {
+    router.setParams({ billing: value });
+  }
   const { colors } = useTheme(),
     wide = useWide(),
     data = useApp((s) => s.data);
@@ -36,7 +53,10 @@ export default function Subscriptions() {
       (s) =>
         s.name.toLowerCase().includes(query.trim().toLowerCase()) &&
         (status === "All" || s.status === status.toLowerCase()) &&
-        (category === "All categories" || s.category === category),
+        (category === "All categories" || s.category === category) &&
+        (billing === "all" ||
+          (billingMethods.loaded &&
+            matchesBillingFilter(s, billingMethods.value, billing))),
     );
     return list.sort((a, b) =>
       sort === "Name"
@@ -48,7 +68,32 @@ export default function Subscriptions() {
               nextEvent(b, reference)?.date || "9999",
             ),
     );
-  }, [data.subscriptions, query, status, category, sort, reference]);
+  }, [
+    data.subscriptions,
+    query,
+    status,
+    category,
+    sort,
+    reference,
+    billing,
+    billingMethods.loaded,
+    billingMethods.value,
+  ]);
+  const billingOptions = [
+    { value: "all", label: "All billing methods" },
+    { value: "cards", label: "All cards" },
+    { value: "wallets", label: "All wallets" },
+    { value: "unassigned", label: "Not assigned / unavailable" },
+    ...billingMethods.value.sources.map((source) => ({
+      value: billingReference(source.id),
+      label: billingMethodLabel(source),
+    })),
+  ];
+  if (!billingOptions.some((option) => option.value === billing))
+    billingOptions.push({
+      value: billing,
+      label: "Unavailable billing method",
+    });
   const rows = timeline
     ? upcoming(filtered, data.preferences.timezone).map((e) => e.subscription)
     : filtered;
@@ -155,7 +200,6 @@ export default function Subscriptions() {
               )}
             </View>
             <Chips
-              wrap
               values={[
                 "All",
                 "Active",
@@ -202,6 +246,57 @@ export default function Subscriptions() {
                 />
               </View>
             </View>
+            <View
+              style={{
+                flexDirection: "row",
+                gap: 10,
+                marginBottom: 12,
+                alignItems: "center",
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <SelectField
+                  compact
+                  label="Filter billing method"
+                  testID="subscriptions-billing-filter"
+                  value={billing}
+                  options={billingOptions}
+                  onChange={setBilling}
+                  searchable
+                  disabled={!billingMethods.loaded}
+                />
+              </View>
+              <Button
+                small
+                variant="ghost"
+                onPress={() => router.push("/billing-methods")}
+              >
+                Cards & wallets
+              </Button>
+            </View>
+            {billingMethods.error && (
+              <View style={{ marginBottom: 12, gap: 8 }}>
+                <Label size={12} color={colors.error} accessibilityRole="alert">
+                  {billingMethods.error}
+                </Label>
+                <Button
+                  small
+                  variant="secondary"
+                  onPress={() => void billingMethods.reload()}
+                >
+                  Reload billing methods
+                </Button>
+                {billing !== "all" && (
+                  <Button
+                    small
+                    variant="ghost"
+                    onPress={() => setBilling("all")}
+                  >
+                    Show all billing methods
+                  </Button>
+                )}
+              </View>
+            )}
             <View
               style={{
                 flexDirection: "row",
@@ -280,6 +375,11 @@ export default function Subscriptions() {
                     subscription={item}
                     reference={reference}
                     showActions
+                    billingLabel={
+                      billingMethods.loaded
+                        ? subscriptionBillingLabel(item, billingMethods.value)
+                        : undefined
+                    }
                   />
                 </SwipeRow>
                 {item.status !== "active" && (
@@ -296,31 +396,40 @@ export default function Subscriptions() {
           );
         }}
         ListEmptyComponent={
-          <Empty
-            icon={Search}
-            actionIcon={data.subscriptions.length ? X : Plus}
-            title={
-              data.subscriptions.length
-                ? "Nothing matches just yet."
-                : "A fresh start."
-            }
-            body={
-              data.subscriptions.length
-                ? "Try another search or clear your filters."
-                : "Add your first subscription to start seeing your recurring costs clearly."
-            }
-            action={
-              data.subscriptions.length ? "Clear filters" : "Add subscription"
-            }
-            onPress={() => {
-              if (data.subscriptions.length) {
-                setQuery("");
-                setStatus("All");
-                setCategory("All categories");
-                setTimeline(false);
-              } else router.push("/subscription/new");
-            }}
-          />
+          billing !== "all" && !billingMethods.loaded ? (
+            <Label color={colors.secondary}>
+              {billingMethods.error
+                ? "Reload billing methods to use this filter."
+                : "Loading billing methods…"}
+            </Label>
+          ) : (
+            <Empty
+              icon={Search}
+              actionIcon={data.subscriptions.length ? X : Plus}
+              title={
+                data.subscriptions.length
+                  ? "Nothing matches just yet."
+                  : "A fresh start."
+              }
+              body={
+                data.subscriptions.length
+                  ? "Try another search or clear your filters."
+                  : "Add your first subscription to start seeing your recurring costs clearly."
+              }
+              action={
+                data.subscriptions.length ? "Clear filters" : "Add subscription"
+              }
+              onPress={() => {
+                if (data.subscriptions.length) {
+                  setQuery("");
+                  setStatus("All");
+                  setCategory("All categories");
+                  setBilling("all");
+                  setTimeline(false);
+                } else router.push("/subscription/new");
+              }}
+            />
+          )
         }
       />
     </View>

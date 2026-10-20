@@ -18,6 +18,10 @@ import {
 import { extractReceipt } from "../../src/domain/detection";
 import { dateSchema, defaultPreferences } from "../../src/domain/models";
 import { subscription, userA, userB } from "../fixtures";
+import {
+  billingReference,
+  unassignedBillingMethod,
+} from "../../src/domain/billingMethods";
 vi.mock("react-native", () => ({ Platform: { OS: "web" } }));
 vi.mock("expo-crypto", () => ({ randomUUID }));
 const disk = new Map<string, string>();
@@ -36,6 +40,34 @@ beforeEach(async () => {
   await hydrate("guest");
 });
 describe("durable guest data and offline operation transactions", () => {
+  it("persists billing assignments atomically with subscription edits and the owner’s sync outbox", async () => {
+    const reference = billingReference("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
+    await saveSubscription(subscription({ paymentMethod: reference }));
+    await hydrate("guest");
+    expect(useApp.getState().data.subscriptions[0]?.paymentMethod).toBe(
+      reference,
+    );
+    await hydrate(userA);
+    await saveSubscription(subscription({ paymentMethod: reference }));
+    const before = useApp.getState().data;
+    failWrites = true;
+    await expect(
+      saveSubscription(
+        subscription({ paymentMethod: unassignedBillingMethod }),
+      ),
+    ).rejects.toThrow(/Storage is full/);
+    expect(useApp.getState().data).toBe(before);
+    failWrites = false;
+    await hydrate(userB);
+    expect(useApp.getState().data.subscriptions).toEqual([]);
+    await hydrate(userA);
+    expect(useApp.getState().data.subscriptions[0]?.paymentMethod).toBe(
+      reference,
+    );
+    expect(useApp.getState().data.outbox[0]).toMatchObject({
+      payload: { subscription: { paymentMethod: reference, userId: userA } },
+    });
+  });
   it("shows a useful validation message instead of internal schema JSON", () => {
     const result = dateSchema.safeParse("2026-02-30");
     if (result.success) throw new Error("Fixture must fail date validation");
