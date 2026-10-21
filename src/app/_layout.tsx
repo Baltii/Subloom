@@ -24,6 +24,7 @@ import { useReducedMotion } from "react-native-reanimated";
 import { useApp, hydrate, readableError } from "../store/app";
 import { supabase, startSessionRefresh } from "../services/supabase";
 import { syncNow, watchAccountChanges } from "../services/sync";
+import { tokens } from "../theme/tokens";
 import { useTheme } from "../theme/useTheme";
 import { Brand } from "../components/ui/Brand";
 import { Button, Label, Toast } from "../components/ui/Primitives";
@@ -169,19 +170,32 @@ function Shell() {
               headerShown: false,
               contentStyle: { backgroundColor: colors.background },
               animation: reduced ? "none" : "slide_from_right",
+              animationDuration: tokens.motion.normal,
             }}
           >
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="onboarding" />
             <Stack.Screen
               name="subscription/new"
-              options={{ presentation: "modal" }}
+              options={{
+                presentation: "modal",
+                animation: reduced ? "none" : "slide_from_bottom",
+              }}
             />
             <Stack.Screen
               name="subscription/edit"
-              options={{ presentation: "modal" }}
+              options={{
+                presentation: "modal",
+                animation: reduced ? "none" : "slide_from_bottom",
+              }}
             />
-            <Stack.Screen name="import" options={{ presentation: "modal" }} />
+            <Stack.Screen
+              name="import"
+              options={{
+                presentation: "modal",
+                animation: reduced ? "none" : "slide_from_bottom",
+              }}
+            />
           </Stack>
           <Toast />
         </QuickActionsProvider>
