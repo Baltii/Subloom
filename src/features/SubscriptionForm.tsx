@@ -24,7 +24,7 @@ import {
   type Candidate,
   type Subscription,
 } from "../domain/models";
-import { catalog } from "../domain/catalog";
+import { catalog, serviceFor, type Service } from "../domain/catalog";
 import { moneyInput, parseMoney } from "../domain/money";
 import { quickAddDates } from "../domain/calendarEvents";
 import { today } from "../domain/renewal";
@@ -46,6 +46,7 @@ import {
   categoryOptions,
   intervalOptions,
 } from "../components/ui/pickerOptions";
+import { ServiceNameField } from "../components/subscriptions/ServiceNameField";
 import { ServicePicker } from "../components/subscriptions/ServicePicker";
 import { useTheme, useWide } from "../theme/useTheme";
 import { useBillingMethods } from "../hooks/useBillingMethods";
@@ -219,6 +220,17 @@ export function SubscriptionForm({
   const interval = useWatch({ control, name: "interval" }),
     status = useWatch({ control, name: "status" }),
     chosenCurrency = useWatch({ control, name: "currency" });
+  function chooseService(service: Service | null, customName?: string) {
+    setServiceId(service?.id ?? null);
+    setValue("name", service?.name ?? customName ?? "", {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setValue("category", service?.category ?? "Other", { shouldDirty: true });
+    setChoosingService(false);
+    requestAnimationFrame(() => setFocus("amount"));
+  }
+
   function field(
     name: keyof Values,
     label: string,
@@ -401,12 +413,28 @@ export function SubscriptionForm({
             )}
           </View>
         )}
-        {field("name", "Subscription name", {
-          placeholder: "e.g. Spotify Premium",
-          autoFocus: Boolean(initial),
-          returnKeyType: "next",
-          onSubmitEditing: () => setFocus("amount"),
-        })}
+        <Controller
+          control={control}
+          name="name"
+          render={({ field: f }) => (
+            <ServiceNameField
+              value={f.value}
+              onChangeText={(value) => {
+                f.onChange(value);
+                if (value !== serviceFor(serviceId)?.name) setServiceId(null);
+              }}
+              onBlur={f.onBlur}
+              inputRef={f.ref}
+              error={errors.name?.message}
+              disabled={busy}
+              onSelect={chooseService}
+              placeholder="e.g. Spotify Premium"
+              autoFocus={Boolean(initial)}
+              returnKeyType="next"
+              onSubmitEditing={() => setFocus("amount")}
+            />
+          )}
+        />
         <View style={{ flexDirection: "row", gap: 16 }}>
           <View style={{ flex: 1 }}>
             {field(
@@ -656,18 +684,7 @@ export function SubscriptionForm({
             selected={serviceId}
             presentation="sheet"
             autoFocus
-            onSelect={(service, customName) => {
-              setServiceId(service?.id ?? null);
-              setValue("name", service?.name ?? customName ?? "", {
-                shouldDirty: true,
-                shouldValidate: true,
-              });
-              setValue("category", service?.category ?? "Other", {
-                shouldDirty: true,
-              });
-              setChoosingService(false);
-              requestAnimationFrame(() => setFocus("amount"));
-            }}
+            onSelect={chooseService}
           />
         )}
       </PickerSheet>

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { catalog, searchServices, serviceFor } from "../../src/domain/catalog";
+import {
+  catalog,
+  searchServices,
+  serviceFor,
+  suggestServices,
+} from "../../src/domain/catalog";
 import { categories } from "../../src/domain/models";
 import { serviceLogos } from "../../src/assets/serviceLogos";
 
@@ -62,5 +67,23 @@ describe("service catalog", () => {
     expect(
       Object.hasOwn(serviceLogos, "https://example.com/untrusted.svg"),
     ).toBe(false);
+  });
+});
+
+describe("inline service name suggestions", () => {
+  it("matches case-insensitive name prefixes and excludes substring/category matches", () => {
+    expect(suggestServices("  SPÓT ").map((s) => s.id)).toContain("spotify");
+    expect(suggestServices("flix")).toEqual([]);
+    expect(suggestServices("entertainment")).toEqual([]);
+  });
+  it("matches known aliases, bounds results and keeps identifiers unique", () => {
+    expect(suggestServices("one pass").map((s) => s.id)).toContain("1password");
+    const matches = suggestServices("a");
+    expect(matches.length).toBeLessThanOrEqual(6);
+    expect(new Set(matches.map((s) => s.id)).size).toBe(matches.length);
+  });
+  it("keeps blank, punctuation-only and custom names free of suggestions", () => {
+    for (const value of ["", "  ", "+++", "My local community subscription"])
+      expect(suggestServices(value)).toEqual([]);
   });
 });
