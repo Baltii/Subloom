@@ -1,8 +1,9 @@
 import { View } from "react-native";
 import Svg, { Circle, G, Path, Rect } from "react-native-svg";
 import { useTheme } from "../../theme/useTheme";
+import { brandIdentity } from "../../brand/identity";
 
-/** Original decorative artwork. Every fill follows the current theme. */
+/** Decorative artwork follows the theme; the Subloom mark keeps its fixed brand colors. */
 export function OnboardingArt({
   step,
   size = 360,
@@ -10,9 +11,10 @@ export function OnboardingArt({
   step: number;
   size?: number;
 }) {
-  const { colors: c } = useTheme();
-  const flower =
-    "M0 0C-30 2-27-28-12-22C-3-18 0-8 0 0ZM0 0C-2-30 28-27 22-12C18-3 8 0 0 0ZM0 0C30-2 27 28 12 22C3 18 0 8 0 0ZM0 0C2 30-28 27-22 12C-18 3-8 0 0 0Z";
+  const { colors: c, isDark } = useTheme();
+  const brandFill = isDark
+    ? brandIdentity.colors.mint
+    : brandIdentity.colors.green;
   return (
     <View
       accessibilityElementsHidden
@@ -98,11 +100,9 @@ export function OnboardingArt({
               d="M65 166h222l-14 67a20 20 0 0 1-20 16H85a20 20 0 0 1-20-20z"
               fill={c.mintStrong}
             />
-            <Path
-              d={flower}
-              transform="translate(174 207) scale(.65)"
-              fill={c.primary}
-            />
+            <G transform="translate(150 183) scale(.75)" fill={brandFill}>
+              <Path d={brandIdentity.markPath} />
+            </G>
             <Path
               d="M279 60v20m-10-10h20"
               stroke={c.heroArt}
@@ -211,11 +211,9 @@ export function OnboardingArt({
               strokeLinecap="round"
               fill="none"
             />
-            <Path
-              d={flower}
-              transform="translate(107 125) scale(.65)"
-              fill={c.primary}
-            />
+            <G transform="translate(83 101) scale(.75)" fill={brandFill}>
+              <Path d={brandIdentity.markPath} />
+            </G>
             <Path
               d="M148 111h83m-83 17h59m-59 17h71"
               stroke={c.secondary}

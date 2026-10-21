@@ -2,6 +2,9 @@
 name: "Subloom"
 description: "A playful financial interface with eight accents, tactile financial artwork and shared semantic controls."
 colors:
+  brand-green: "#087C65"
+  brand-forest: "#182D25"
+  brand-mint: "#E1F0DE"
   light-background: "#F8FAF8"
   light-surface: "#FFFFFF"
   light-text: "#182D25"
@@ -263,6 +266,12 @@ spacing:
   xl: "32px"
   xxl: "48px"
 components:
+  brand-mark-light:
+    textColor: "{colors.brand-green}"
+  brand-wordmark-light:
+    textColor: "{colors.brand-forest}"
+  brand-inverse:
+    textColor: "{colors.brand-mint}"
   button-primary-light:
     backgroundColor: "{colors.light-primary}"
     textColor: "{colors.light-onPrimary}"
@@ -346,10 +355,13 @@ components:
 
 Subloom retains its forest/mint default, DM Sans/Manrope, Lucide icons and rounded semantic primitives. The authorized expansion makes the consumer interface more playful through eight predefined accents, financial object illustrations, inviting action cards and explicit success/failure feedback. Readability and clear financial tasks still lead the design.
 
-Shared React Native primitives serve Expo native and web surfaces. Tonal fills, contrasting spotlight cards, thin borders and visible focus establish hierarchy. Original tactile 3D wallet, cards, coins and renewal-calendar artwork add depth around onboarding and payment tasks. These objects express the financial subject; they do not introduce a brand mascot.
+Shared React Native primitives serve Expo native and web surfaces. Tonal fills, contrasting spotlight cards, thin borders and visible focus establish hierarchy. Original tactile 3D wallet, cards, coins and renewal-calendar artwork add depth around financial tasks in the earlier UI handoff. These objects express the financial subject; they do not introduce a brand mascot.
+
+Fourfold Bloom is the fixed brand identity: four matching rounded petals from the original native mark, with one outlined wordmark with an uppercase S and no trailing period. `brand/source/identity.json` owns the geometry and fixed palette; `brand/GUIDE.md` governs applications. The app and website consume generated data from that same master. This brand commitment leaves the existing accent preferences and financial behavior intact.
 
 **Key Characteristics:**
 
+- Fixed Fourfold Bloom geometry and outlined wordmark across app and website.
 - Forest and mint remain the default; eight accent choices work independently of appearance.
 - Manrope headings above DM Sans body text, labels and tabular numbers.
 - Rounded tonal controls, thin semantic borders, named Lucide actions and visible focus.
@@ -361,6 +373,8 @@ Shared React Native primitives serve Expo native and web surfaces. Tonal fills, 
 The default Green palette moves from pale green paper and white surfaces to forest backgrounds and layered green surfaces. Blue, Red, Violet, Orange, Yellow, Pink and Black & white use neutral canvases and reading colors, with their own accent, hover, selection and hero families. The frontmatter records the actual values from `src/theme/tokens.ts` and the resolved overrides from `src/theme/palettes.ts`.
 
 ### Primary
+
+- **Fixed brand colors** (`brand-green`, `brand-forest`, `brand-mint`): the logo palette, independently owned by `brand/source/identity.json`. These are not personal accent tokens.
 
 - **Forest action / mint action** (`primary`): the default primary buttons, selected navigation, field focus and selected choices. Every accent uses `onPrimary` for its paired action foreground.
 - **Accent families**: Green, Blue, Red, Violet, Orange, Yellow, Pink and Black & white. Swatch colors identify choices; each palette's `primary` can differ from its swatch to keep actions and selected controls readable.
@@ -385,12 +399,16 @@ Success, warning and error each have a foreground/background pair (`success`/`su
 
 **The Theme Pair Rule.** Resolve semantic colors through `useTheme()`; keep foregrounds, grounds and borders in the same resolved theme. Accent and saved light/dark/system appearance are independent preferences. System appearance follows the device scheme.
 
+**The Fixed Logo Color Rule.** Personal accents never recolor the logo. Use brand Green for the mark and Forest for the outlined wordmark on light surfaces; use Bloom Mint for both on dark surfaces. Resolve interface controls through the existing theme independently.
+
 ## Typography
 
 **Display Font:** Manrope, installed as `Manrope_600SemiBold` and `Manrope_700Bold`.
 **Body Font:** DM Sans, installed as `DMSans_400Regular`, `DMSans_500Medium` and `DMSans_600SemiBold`.
 
 The root layout loads these five faces through `expo-font`. No custom fallback stack or mono family is declared by the shared primitives. `tokens.fonts.display` points to Manrope 600 and `displayBold` to 700; `body`, `medium` and `bold` point to DM Sans 400, 500 and 600.
+
+**The Outlined Wordmark Rule.** Render the supplied outlined Manrope 700 wordmark, `Subloom` with an uppercase S, without a trailing period. Keep Manrope and DM Sans interface text independent of the fixed logo geometry.
 
 ### Hierarchy
 
@@ -428,6 +446,19 @@ Cards, fields, secondary buttons and navigation separators generally use a (1 px
 
 ## Components
 
+**The One Master Rule.** The Fourfold Bloom mark and outlined wordmark with an uppercase S form one fixed identity across app and website. Read `brand/GUIDE.md` before any brand change; edit `brand/source/identity.json` deliberately and regenerate, never redraw or retype a local logo.
+
+### Fixed brand identity
+
+`src/components/ui/Brand.tsx` consumes `src/brand/identity.ts`; the website counterpart is `landing/components/brand.tsx` with generated `landing/components/brand-identity.ts`. The full app lockup is (173.184 × 32 px); compact app use renders the symbol in a (32 px) box. Both use the master paths and expose the Subloom name accessibly. The logo remains flat vector artwork.
+
+The symbol has a (64 × 64 unit) design box with four matching petals. Reserve at least (16 units) of clear space outside the SVG view box, one quarter of its height. Minimum symbol size is (16 px); minimum complete lockup width is (140 px). Preserve the complete geometry, proportions and wordmark offset. A logo used as a control still needs at least a (44 × 44 px) hit area.
+
+`OnboardingArt` is a decorative vector sequence for subscription records, renewals and device continuity. Its folder and desktop scenes reuse `brandIdentity.markPath` directly. Surrounding artwork follows the selected semantic palette; these embedded marks stay brand Green in light appearance and Bloom Mint in dark appearance. Keep the decorative artwork hidden from accessibility and let visible copy convey the product meaning.
+
+Regenerate from the repository root with `node scripts/build-brand.mjs`, then run `node scripts/build-brand.mjs --check`. Generated constants, SVGs and rasters must change together; read the master and guide rather than copying path data into new local components.
+
+
 ### Buttons
 
 Rounded, readable actions with explicit state feedback. Normal buttons have a minimum height of (50 px); small buttons have a minimum height of (44 px), horizontal padding of (16 px) and the same (11 px) vertical padding. Icon buttons measure (44 × 44 px) with (19 px) Lucide icons; button icons use (18 px).
@@ -458,7 +489,7 @@ Wide sidebar rows have a minimum height of (48 px), (14 px) horizontal padding, 
 
 The theme picker shows eight named swatches in a wrapping grid: approximately four columns wide and two compact. Each choice has a (76 px) minimum height, (14 px) corners, (12 px) padding and a (2 px) border. Selected state combines primary stroke, tonal fill, bold name and a check icon. Swatches measure (30 × 30 px); Black & white uses a split swatch. Separate System/Light/Dark controls have a (56 px) minimum height, matching icons and selected stroke/fill. Native accessibility exposes selected/disabled state; web also exposes `aria-pressed`. `InteractiveSurface` tracks pointer hover; the shared browser focus-visible rule supplies the keyboard outline. Disabled controls block changes and use (0.6) opacity.
 
-`FinancialArt` renders original transparent WebP artwork with contain sizing and hides decorative images from accessibility. The wallet/cards/coins and recurring-payment calendar assets total about (61 KB), with exact prompts and provenance sidecars in `assets/illustrations/`. No Thiings assets are bundled. Onboarding uses a wallet image sized (310 px) wide or (180 px) compact; the payment hub's empty state uses (130 px). Keep visible text and named actions responsible for meaning.
+`FinancialArt` renders original transparent WebP artwork with contain sizing and hides decorative images from accessibility. The wallet/cards/coins and recurring-payment calendar assets total about (61 KB), with exact prompts and provenance sidecars in `assets/illustrations/`. No Thiings assets are bundled. The earlier UI handoff recorded an onboarding wallet image sized (310 px) wide or (180 px) compact; current vector onboarding and its fixed mark are documented under Fixed brand identity. That historical inventory also recorded the payment hub's empty state at (130 px). Keep visible text and named actions responsible for meaning.
 
 ### Sheets, confirmations and feedback
 
@@ -472,6 +503,8 @@ Shared motion tokens are fast (150 ms) and normal (240 ms). `AnimatedIn` uses a 
 
 ### Do:
 
+- **Do** reuse the generated Fourfold Bloom mark and outlined wordmark; regenerate and run the brand drift check after a deliberate master change.
+
 - **Do** use the resolved semantic theme pairs, installed fonts, Lucide icons and shared primitives.
 - **Do** keep accent and appearance independent, and keep feedback colors stable when accents change.
 - **Do** reuse the committed financial object artwork with descriptive text and named actions.
@@ -481,6 +514,9 @@ Shared motion tokens are fast (150 ms) and normal (240 ms). `AnimatedIn` uses a 
 - **Do** preserve guest persistence, owner-isolated saves, draft protection and contextual error recovery.
 
 ### Don't:
+
+- **Don't** recolor the logo with a personal accent, retype the wordmark, add a trailing period, redraw the petals or introduce a sprout, paired leaf or eight-petal alternate.
+- **Don't** stretch, crop, rotate, shadow or independently animate the petals; preserve the master geometry and clear space.
 
 - **Don't** remove the Green default or replace the shared typography and rounded primitive language when extending this system.
 - **Don't** substitute a brand mascot for the financial objects requested for this interface.

@@ -23,8 +23,9 @@ const config: ExpoConfig = {
         ? "./google-services.json"
         : undefined),
     adaptiveIcon: {
-      foregroundImage: "./assets/icon.png",
-      backgroundColor: "#E1F3EA",
+      foregroundImage: "./assets/adaptive-icon.png",
+      monochromeImage: "./assets/monochrome-icon.png",
+      backgroundColor: "#087C65",
     },
   },
   web: {
@@ -46,10 +47,13 @@ const config: ExpoConfig = {
     [
       "expo-splash-screen",
       {
-        image: "./assets/icon.png",
+        image: "./assets/splash-mark.png",
         imageWidth: 120,
         backgroundColor: "#F8FAF8",
-        dark: { backgroundColor: "#101A16" },
+        dark: {
+          image: "./assets/splash-mark-dark.png",
+          backgroundColor: "#101A16",
+        },
       },
     ],
     "expo-image",
@@ -64,6 +68,6 @@ const config: ExpoConfig = {
       },
     ],
   ],
-  extra: { eas: { projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID } },
+  extra: { eas: { projectId: "5fb4e136-7628-472b-8345-8d194255754d" } },
 };
 export default config;

@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-21T11:37:39.461234+00:00",
+  "title": "Design System: Subloom brand kit",
+  "extensions": {
+    "colorMeta": {
+      "green": {
+        "role": "primary",
+        "displayName": "Subloom Green",
+        "canonical": "#087C65",
+        "tonalRamp": [
+          "oklch(15.00% 0.0983 173.45)",
+          "oklch(26.43% 0.0983 173.45)",
+          "oklch(37.86% 0.0983 173.45)",
+          "oklch(49.29% 0.0983 173.45)",
+          "oklch(60.71% 0.0983 173.45)",
+          "oklch(72.14% 0.0983 173.45)",
+          "oklch(83.57% 0.0983 173.45)",
+          "oklch(95.00% 0.0983 173.45)"
+        ]
+      },
+      "forest": {
+        "role": "neutral",
+        "displayName": "Forest",
+        "canonical": "#182D25",
+        "tonalRamp": [
+          "oklch(15.00% 0.0311 167.87)",
+          "oklch(26.43% 0.0311 167.87)",
+          "oklch(37.86% 0.0311 167.87)",
+          "oklch(49.29% 0.0311 167.87)",
+          "oklch(60.71% 0.0311 167.87)",
+          "oklch(72.14% 0.0311 167.87)",
+          "oklch(83.57% 0.0311 167.87)",
+          "oklch(95.00% 0.0311 167.87)"
+        ]
+      },
+      "mint": {
+        "role": "primary",
+        "displayName": "Bloom Mint",
+        "canonical": "#E1F0DE",
+        "tonalRamp": [
+          "oklch(15.00% 0.0287 140.48)",
+          "oklch(26.43% 0.0287 140.48)",
+          "oklch(37.86% 0.0287 140.48)",
+          "oklch(49.29% 0.0287 140.48)",
+          "oklch(60.71% 0.0287 140.48)",
+          "oklch(72.14% 0.0287 140.48)",
+          "oklch(83.57% 0.0287 140.48)",
+          "oklch(95.00% 0.0287 140.48)"
+        ]
+      },
+      "cloud": {
+        "role": "neutral",
+        "displayName": "Cloud",
+        "canonical": "#F8FAF8",
+        "tonalRamp": [
+          "oklch(15.00% 0.0034 145.55)",
+          "oklch(26.43% 0.0034 145.55)",
+          "oklch(37.86% 0.0034 145.55)",
+          "oklch(49.29% 0.0034 145.55)",
+          "oklch(60.71% 0.0034 145.55)",
+          "oklch(72.14% 0.0034 145.55)",
+          "oklch(83.57% 0.0034 145.55)",
+          "oklch(95.00% 0.0034 145.55)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
+        ]
+      },
+      "secondary": {
+        "role": "neutral",
+        "displayName": "Leaf",
+        "canonical": "#586F61",
+        "tonalRamp": [
+          "oklch(15.00% 0.0350 158.21)",
+          "oklch(26.43% 0.0350 158.21)",
+          "oklch(37.86% 0.0350 158.21)",
+          "oklch(49.29% 0.0350 158.21)",
+          "oklch(60.71% 0.0350 158.21)",
+          "oklch(72.14% 0.0350 158.21)",
+          "oklch(83.57% 0.0350 158.21)",
+          "oklch(95.00% 0.0350 158.21)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Guide display",
+        "purpose": "Main guide heading; independent of the outlined wordmark."
+      },
+      "body": {
+        "displayName": "Guide reading text",
+        "purpose": "Readable usage rules and supporting explanations."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "guide-feedback",
+        "value": "200ms ease",
+        "purpose": "Button hover lift and proof-field background transitions; disabled under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary download action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Forest pill with an inline SVG affordance and explicit keyboard focus.",
+      "html": "<a class=\"ds-guide-action\" href=\"#downloads\">Read the brand guide <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 4v16m-6-6 6 6 6-6\"/></svg></a>",
+      "css": ".ds-guide-action{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:54px;padding:16px 24px;border-radius:999px;background:#182D25;color:#FFFFFF;text-decoration:none;font:600 14px \"DM Sans\",sans-serif;transition:transform .2s ease,background .2s ease}.ds-guide-action:hover{background:#087C65;transform:translateY(-2px)}.ds-guide-action:focus-visible{outline:3px solid #087C65;outline-offset:5px}@media(prefers-reduced-motion:reduce){.ds-guide-action{transition:none!important;transform:none!important}}"
+    },
+    {
+      "name": "Guide navigation",
+      "kind": "nav",
+      "description": "Readable section links with generous hit height.",
+      "html": "<nav class=\"ds-guide-nav\" aria-label=\"Guide sections\"><a href=\"#logo\">Logo</a><a href=\"#colors\">Colors</a><a href=\"#type\">Type</a></nav>",
+      "css": ".ds-guide-nav{display:flex;gap:25px;font:400 14px \"DM Sans\",sans-serif;color:#182D25}.ds-guide-nav a{display:flex;align-items:center;min-height:44px;color:inherit;text-decoration:none}.ds-guide-nav a:hover{color:#087C65}.ds-guide-nav a:focus-visible{outline:3px solid #087C65;outline-offset:5px}"
+    },
+    {
+      "name": "Selected proof tone",
+      "kind": "chip",
+      "refersTo": "tone-option-selected",
+      "description": "Explicit pressed state identifies an approved logo proof background.",
+      "html": "<div class=\"ds-guide-tones\" role=\"group\" aria-label=\"Logo preview background\"><button type=\"button\" aria-pressed=\"true\">Light</button><button type=\"button\" aria-pressed=\"false\">Mint</button><button type=\"button\" aria-pressed=\"false\">Forest</button></div>",
+      "css": ".ds-guide-tones{display:flex;gap:8px;flex-wrap:wrap}.ds-guide-tones button{border:0;min-height:44px;padding:12px 20px;border-radius:999px;background:#F8FAF8;color:#182D25;font:400 14px \"DM Sans\",sans-serif;cursor:pointer}.ds-guide-tones button[aria-pressed=true]{background:#087C65;color:#FFFFFF}.ds-guide-tones button:focus-visible{outline:3px solid #087C65;outline-offset:5px}"
+    },
+    {
+      "name": "Download row",
+      "kind": "card",
+      "refersTo": "download",
+      "description": "File name and format metadata in a tonal link container.",
+      "html": "<a class=\"ds-guide-download\" href=\"#downloads\"><span><strong>Primary logo</strong><small>Outlined SVG</small></span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 4v16m-6-6 6 6 6-6\"/></svg></a>",
+      "css": ".ds-guide-download{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:68px;background:#FFFFFF;color:#182D25;border-radius:16px;padding:18px 20px;text-decoration:none;font:400 16px \"DM Sans\",sans-serif}.ds-guide-download span{display:grid;gap:5px}.ds-guide-download strong{font-weight:600}.ds-guide-download small{font-size:12px;color:#586F61}.ds-guide-download:hover{background:#E1F0DE}.ds-guide-download:focus-visible{outline:3px solid #087C65;outline-offset:5px}"
+    },
+    {
+      "name": "Brand color tile",
+      "kind": "card",
+      "description": "A flat palette specimen pairs the color with its name, value and application.",
+      "html": "<div class=\"ds-guide-swatch\"><strong>Forest</strong><span>#182D25</span><small>Wordmark + main ink</small></div>",
+      "css": ".ds-guide-swatch{display:flex;flex-direction:column;gap:8px;min-height:200px;border-radius:20px;padding:24px;background:#182D25;color:#E1F0DE;font:400 16px \"DM Sans\",sans-serif}.ds-guide-swatch strong{font:700 20px Manrope,sans-serif;letter-spacing:-.02em}.ds-guide-swatch small{margin-top:auto;font-size:13px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Fourfold Bloom",
+    "overview": "Subloom has one calm, friendly identity across its app and website. Four matching rounded petals repeat around one center, preserving the familiar native mark. The supplied outlined wordmark with an uppercase S completes the lockup without a trailing period. This fixed identity coexists with personal interface accents.\n\nThis standalone guide at `index.html` presents the existing identity with generous forest/mint fields, clear typography and inspectable light, mint and dark logo proofs. It documents the durable identity rather than defining a new product interface. Product claims remain governed by `../PRODUCT.md`; `GUIDE.md` supplies detailed usage and voice guidance.",
+    "keyCharacteristics": [
+      "One four-petal master and outlined wordmark with an uppercase S across every application.",
+      "Fixed Green/Forest primary logo and Bloom Mint inverse, independent of personal accents.",
+      "Manrope headings, DM Sans reading text and generous tonal stages.",
+      "Flat vector logos, tactile supporting financial artwork and bounded interface feedback."
+    ],
+    "rules": [
+      {
+        "name": "The Fixed Logo Color Rule",
+        "body": "Personal accents never recolor the logo. Use brand Green for the mark and Forest for the outlined wordmark on light surfaces; use Bloom Mint for both on dark surfaces. Approved monochrome exports serve strict single-ink applications; they do not introduce alternate brand hues.",
+        "section": "colors"
+      },
+      {
+        "name": "The Outlined Wordmark Rule",
+        "body": "Render the supplied outlined Manrope 700 wordmark, `Subloom` with an uppercase S, without a trailing period. Interface text resizing and font rendering must not alter its geometry. Use Subloom in prose and application names.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Master Rule",
+        "body": "Read `GUIDE.md` before changing a logo or brand application. `source/identity.json` is the canonical master; `source/subloom-master.svg` is its portable vector proof. Generated assets and constants are outputs, never independent logo sources.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do reuse the canonical Fourfold Bloom paths and outlined wordmark through generated assets or shared components.",
+      "Do keep logo colors fixed while preserving personal interface accents and semantic status colors.",
+      "Do preserve outside clear space, proportions, minimum size and accessible hit areas.",
+      "Do regenerate all brand outputs together and run the drift check after a deliberate master change.",
+      "Do preserve original currencies, date-only renewals, guest persistence and owner-isolated sync; follow PRODUCT.md for product truth."
+    ],
+    "donts": [
+      "Don't redraw the mark, retype the wordmark, add a trailing period or introduce an alternate botanical symbol.",
+      "Don't stretch, crop, rotate, shadow, apply arbitrary colors or independently animate the petals.",
+      "Don't turn the logo into a progress indicator or scatter it as decorative confetti.",
+      "Don't promote this guide's page composition or control sizes into app-wide requirements.",
+      "Don't claim bank access, automatic cancellation, guaranteed savings or financial capabilities beyond PRODUCT.md."
+    ]
+  }
+}

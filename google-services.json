@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "902327833118",
+    "project_id": "subloom-36be9",
+    "storage_bucket": "subloom-36be9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902327833118:android:32a4f1613fb4800bd8d40f",
+        "android_client_info": {
+          "package_name": "com.subloom.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSSjkKqNvv8Z9LsxGOGTERp8UKi1QhiGA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
