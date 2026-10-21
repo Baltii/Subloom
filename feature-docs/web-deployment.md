@@ -1,6 +1,6 @@
 # Production web deployment
 
-Subloom is hosted at **https://subloom.baltii.tn** on the existing `baltiis-projects/subloom` Vercel project, connected to `Baltii/Subloom`. The production branch is `main`. Features are reviewed on `release-candidate` before promotion to `main`.
+Subloom is hosted at **https://subloom.baltii.tn** on the existing `baltiis-projects/subloom` Vercel project, connected to `Baltii/Subloom`. The production/default branch is `release-candidate`. Features are reviewed through PRs targeting that branch; `main` is retired from production.
 
 ## Build and routing
 
@@ -38,7 +38,7 @@ The preceding combined release passed TypeScript, lint, **291 app/Postgres tests
 
 ## Verification after a production deployment
 
-1. Confirm the production deployment's Git commit matches `main`.
+1. Confirm the production deployment's Git commit matches `release-candidate`.
 2. Open the custom domain, complete a guest first run, add/edit a synthetic subscription and reload to verify persistence.
 3. Open Subscriptions, Calendar, Transactions and Settings. Import/review synthetic charges, test a compact viewport and keyboard navigation, and verify retired links recover cleanly.
 4. Request a nested route directly and reload it. Verify the root HTML's JavaScript, font and illustration URLs return their actual asset types rather than fallback HTML.

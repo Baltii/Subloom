@@ -2,19 +2,19 @@ name: Version and release
 
 on:
   push:
-    branches: [main]
+    branches: [release-candidate]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-main
+  group: release-production
   cancel-in-progress: false
 
 jobs:
   verify:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/release-candidate'
     uses: ./.github/workflows/verify.yml
 
   version:
@@ -42,11 +42,11 @@ jobs:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
-          target-branch: main
+          target-branch: release-candidate
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-  publish-macos:
+  publish-artifacts:
     needs: [verify, version]
     if: needs.version.outputs.released == 'true'
     runs-on: ubuntu-24.04
@@ -69,9 +69,11 @@ jobs:
       - name: Download this run's verified Mac artifacts
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --pattern 'macos-*' --dir artifacts
-      - name: Attach Mac test apps and checksums to release
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --pattern 'macos-*' --dir artifacts
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name android-apk --dir artifacts/android
+      - name: Attach verified Mac apps, Android test APK and checksums to release
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.version.outputs.tag }}
-        run: gh release upload "$RELEASE_TAG" artifacts/macos-*/* --repo "$GITHUB_REPOSITORY" --clobber
+        run: gh release upload "$RELEASE_TAG" artifacts/macos-*/* artifacts/android/* --repo "$GITHUB_REPOSITORY" --clobber
