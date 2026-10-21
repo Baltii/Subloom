@@ -1,5 +1,5 @@
 import { Tabs, Redirect, router, usePathname } from "expo-router";
-import { View, Pressable, Platform } from "react-native";
+import { View, Pressable } from "react-native";
 import {
   House,
   CalendarDays,
@@ -15,6 +15,8 @@ import {
 import { Brand } from "../../components/ui/Brand";
 import { Button, Label } from "../../components/ui/Primitives";
 import { useTheme, useWide } from "../../theme/useTheme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { bottomTabLayout } from "../../theme/navigation";
 import { tokens } from "../../theme/tokens";
 import { useApp } from "../../store/app";
 import { useQuickActions } from "../../hooks/useQuickActions";
@@ -205,6 +207,7 @@ function Sidebar() {
   );
 }
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme(),
     wide = useWide(),
     onboarded = useApp((s) => s.data.onboarded);
@@ -222,15 +225,14 @@ export default function TabLayout() {
         <Tabs
           screenOptions={{
             headerShown: false,
+            tabBarHideOnKeyboard: true,
             tabBarActiveTintColor: colors.primary,
             tabBarInactiveTintColor: colors.secondary,
             tabBarStyle: {
               display: wide ? "none" : "flex",
               backgroundColor: colors.surface,
               borderTopColor: colors.border,
-              height: Platform.OS === "ios" ? 84 : 72,
-              paddingTop: 9,
-              paddingBottom: Platform.OS === "ios" ? 26 : 12,
+              ...bottomTabLayout(insets.bottom),
             },
             tabBarLabelStyle: { fontFamily: tokens.fonts.medium, fontSize: 10 },
             sceneStyle: { backgroundColor: colors.background },
