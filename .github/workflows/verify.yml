@@ -2,6 +2,10 @@ name: Verify app, website and installable artifacts
 
 on:
   workflow_call:
+    secrets:
+      GOOGLE_SERVICES_JSON:
+        description: Firebase Android client configuration
+        required: false
 
 permissions:
   contents: read
@@ -109,3 +113,5 @@ jobs:
     name: Android APK
     needs: app
     uses: ./.github/workflows/android-apk.yml
+    secrets:
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}

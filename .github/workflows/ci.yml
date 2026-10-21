@@ -14,3 +14,5 @@ concurrency:
 jobs:
   verify:
     uses: ./.github/workflows/verify.yml
+    secrets:
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
