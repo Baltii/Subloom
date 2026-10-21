@@ -24,3 +24,10 @@ build/
 
 # Local review evidence; feature documentation is tracked separately.
 .impeccable/review/
+
+# Firebase client configuration is supplied locally or as a build secret.
+/google-services.json
+/serviceAccountKey*.json
+/credentials.json
+*.jks
+*.keystore

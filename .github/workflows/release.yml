@@ -16,6 +16,8 @@ jobs:
   verify:
     if: github.ref == 'refs/heads/release-candidate'
     uses: ./.github/workflows/verify.yml
+    secrets:
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
   version:
     needs: verify

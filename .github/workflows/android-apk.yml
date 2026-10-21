@@ -2,6 +2,10 @@ name: Build Android test APK
 
 on:
   workflow_call:
+    secrets:
+      GOOGLE_SERVICES_JSON:
+        description: Firebase Android client configuration
+        required: false
   workflow_dispatch:
 
 permissions:
@@ -10,6 +14,8 @@ permissions:
 jobs:
   apk:
     name: Standalone Android APK
+    # Fork PRs never receive build credentials; shared bundle/tests still run.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
@@ -34,8 +40,17 @@ jobs:
         run: |
           test -n "$EXPO_PUBLIC_SUPABASE_URL"
           test -n "$EXPO_PUBLIC_SUPABASE_ANON_KEY"
-          test -f google-services.json
       - run: npm ci
+      - name: Restore Firebase Android configuration
+        env:
+          FIREBASE_CONFIG: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          test -n "$FIREBASE_CONFIG" || { echo 'Set the GOOGLE_SERVICES_JSON repository secret before building Android.' >&2; exit 1; }
+          export GOOGLE_SERVICES_JSON="$RUNNER_TEMP/google-services.json"
+          echo "GOOGLE_SERVICES_JSON=$GOOGLE_SERVICES_JSON" >> "$GITHUB_ENV"
+          umask 077
+          printf '%s' "$FIREBASE_CONFIG" > "$GOOGLE_SERVICES_JSON"
+          node -e 'const fs=require("node:fs"); const c=JSON.parse(fs.readFileSync(process.env.GOOGLE_SERVICES_JSON,"utf8")); if (!c.client?.some(x => x.client_info?.android_client_info?.package_name === "com.subloom.app")) throw new Error("Firebase Android package does not match Subloom");'
       - name: Generate Android project from Expo configuration
         run: node scripts/expo.mjs prebuild --platform android --no-install
       - name: Build bundled, test-signed APK
@@ -55,6 +70,9 @@ jobs:
             echo 'Standalone bundled app for arm64 phones and x86_64 emulators; no Metro server or Expo token needed.'
             echo 'Uses the Expo test signing key. It cannot update an EAS/store-signed installation; use a spare device/emulator or export guest data before uninstalling an existing copy.'
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove temporary Firebase configuration
+        if: always()
+        run: rm -f "$RUNNER_TEMP/google-services.json"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: android-apk
