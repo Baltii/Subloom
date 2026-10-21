@@ -47,10 +47,15 @@ jobs:
           target-branch: release-candidate
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      - name: Explain artifacts deferred for a historical release
+        if: steps.release.outputs.release_created == 'true' && steps.release.outputs.sha != github.sha
+        run: |
+          echo '::notice::The released tag points to an earlier commit. This run verified a newer commit, so its binaries will not be attached to that historical tag.'
+          echo 'Historical release: artifact publishing skipped because its commit differs from the verified build. Build that tag separately if artifacts are needed.' >> "$GITHUB_STEP_SUMMARY"
 
   publish-artifacts:
     needs: [verify, version]
-    if: needs.version.outputs.released == 'true'
+    if: needs.version.outputs.released == 'true' && needs.version.outputs.sha == github.sha
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
