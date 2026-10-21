@@ -7,3 +7,20 @@ For React Native / Expo UI work in this repository, read `.agents/skills/subloom
 `release-candidate` is the only production/default branch. CI, deployment and version automation must target it; `main` is retired from production.
 
 Requested feature stacks start from `release-candidate`: the first feature PR targets `release-candidate`, and each following feature has its own branch and PR against its predecessor. Open PRs ready for review, not as drafts. Keep unrelated local work out of those commits and state the merge order in each PR. Run the checks appropriate to the changed code and record their real results.
+
+## Branch and commit naming
+
+Name new working branches `<type>/<short-kebab-case-description>`. Use lowercase words separated by hyphens, and choose the prefix by purpose:
+
+- `feat/`: new functionality.
+- `fix/`: bug fixes.
+- `refactor/`: internal changes that preserve behavior.
+- `chore/`: maintenance, dependencies, tooling, or CI.
+- `hotfix/`: urgent production fixes.
+- `doc/`: documentation changes.
+
+Never prefix branches or commit messages with agent, assistant, or tool names, including `codex/`. Examples: `feat/service-suggestions`, `fix/android-safe-area`, `doc/branch-and-commit-conventions`.
+
+Use Conventional Commit messages: `<type>(<optional-scope>): <imperative summary>`. Omit the parentheses when there is no scope. Commit types are `feat`, `fix`, `refactor`, `chore`, and `docs`; use `docs` for `doc/` branches and `fix` for `hotfix/` branches so release automation recognizes them. Examples: `feat(subscriptions): suggest matching services`, `fix(android): respect the bottom safe area`, `docs: define branch and commit conventions`. Keep each commit focused on one coherent change. Mark actual breaking changes with `!` and a `BREAKING CHANGE:` explanation.
+
+These rules apply to new contributor and agent work. Preserve existing history and branch names unless explicitly asked to rename them. GitHub-generated merge commits and service-managed branches/commits, such as Dependabot and release automation, retain their generated naming.
