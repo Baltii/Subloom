@@ -1,5 +1,6 @@
 import { Tabs, Redirect, router, usePathname } from "expo-router";
-import { View, Pressable } from "react-native";
+import { View, Pressable, Easing } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
 import {
   House,
   CalendarDays,
@@ -67,7 +68,7 @@ function Sidebar() {
             key={destination}
             accessibilityRole="button"
             accessibilityState={{ selected }}
-            onPress={() => router.push(destination)}
+            onPress={() => router.navigate(destination)}
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -208,6 +209,7 @@ function Sidebar() {
 }
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const reduced = useReducedMotion();
   const { colors } = useTheme(),
     wide = useWide(),
     onboarded = useApp((s) => s.data.onboarded);
@@ -225,6 +227,14 @@ export default function TabLayout() {
         <Tabs
           screenOptions={{
             headerShown: false,
+            animation: reduced ? "none" : "shift",
+            transitionSpec: {
+              animation: "timing",
+              config: {
+                duration: reduced ? 0 : tokens.motion.normal,
+                easing: Easing.out(Easing.cubic),
+              },
+            },
             tabBarHideOnKeyboard: true,
             tabBarActiveTintColor: colors.primary,
             tabBarInactiveTintColor: colors.secondary,
