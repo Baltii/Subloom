@@ -1,0 +1,14 @@
+# Upload only the independent landing project and its public assets.
+*
+!app
+!app/**
+!components
+!components/**
+!public
+!public/**
+!next.config.ts
+!next-env.d.ts
+!package.json
+!package-lock.json
+!tsconfig.json
+!vercel.json

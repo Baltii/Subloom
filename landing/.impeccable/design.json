@@ -1,0 +1,899 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-21T20:28:43.212715+00:00",
+  "title": "Design System: Subloom landing",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "displayName": "Ground",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.01062 112.37)",
+          "oklch(26.4% 0.01062 112.37)",
+          "oklch(37.9% 0.01062 112.37)",
+          "oklch(49.3% 0.01062 112.37)",
+          "oklch(60.7% 0.01062 112.37)",
+          "oklch(72.1% 0.01062 112.37)",
+          "oklch(83.6% 0.01062 112.37)",
+          "oklch(95.0% 0.01062 112.37)"
+        ]
+      },
+      "paper": {
+        "displayName": "Paper",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.00000 89.88)",
+          "oklch(26.4% 0.00000 89.88)",
+          "oklch(37.9% 0.00000 89.88)",
+          "oklch(49.3% 0.00000 89.88)",
+          "oklch(60.7% 0.00000 89.88)",
+          "oklch(72.1% 0.00000 89.88)",
+          "oklch(83.6% 0.00000 89.88)",
+          "oklch(95.0% 0.00000 89.88)"
+        ]
+      },
+      "ink": {
+        "displayName": "Ink",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.03109 167.87)",
+          "oklch(26.4% 0.03109 167.87)",
+          "oklch(37.9% 0.03109 167.87)",
+          "oklch(49.3% 0.03109 167.87)",
+          "oklch(60.7% 0.03109 167.87)",
+          "oklch(72.1% 0.03109 167.87)",
+          "oklch(83.6% 0.03109 167.87)",
+          "oklch(95.0% 0.03109 167.87)"
+        ]
+      },
+      "secondary": {
+        "displayName": "Secondary",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.03500 158.21)",
+          "oklch(26.4% 0.03500 158.21)",
+          "oklch(37.9% 0.03500 158.21)",
+          "oklch(49.3% 0.03500 158.21)",
+          "oklch(60.7% 0.03500 158.21)",
+          "oklch(72.1% 0.03500 158.21)",
+          "oklch(83.6% 0.03500 158.21)",
+          "oklch(95.0% 0.03500 158.21)"
+        ]
+      },
+      "green": {
+        "displayName": "Green",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.09834 173.45)",
+          "oklch(26.4% 0.09834 173.45)",
+          "oklch(37.9% 0.09834 173.45)",
+          "oklch(49.3% 0.09834 173.45)",
+          "oklch(60.7% 0.09834 173.45)",
+          "oklch(72.1% 0.09834 173.45)",
+          "oklch(83.6% 0.09834 173.45)",
+          "oklch(95.0% 0.09834 173.45)"
+        ]
+      },
+      "pressed": {
+        "displayName": "Pressed",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.08540 172.62)",
+          "oklch(26.4% 0.08540 172.62)",
+          "oklch(37.9% 0.08540 172.62)",
+          "oklch(49.3% 0.08540 172.62)",
+          "oklch(60.7% 0.08540 172.62)",
+          "oklch(72.1% 0.08540 172.62)",
+          "oklch(83.6% 0.08540 172.62)",
+          "oklch(95.0% 0.08540 172.62)"
+        ]
+      },
+      "mint": {
+        "displayName": "Mint",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.02873 140.48)",
+          "oklch(26.4% 0.02873 140.48)",
+          "oklch(37.9% 0.02873 140.48)",
+          "oklch(49.3% 0.02873 140.48)",
+          "oklch(60.7% 0.02873 140.48)",
+          "oklch(72.1% 0.02873 140.48)",
+          "oklch(83.6% 0.02873 140.48)",
+          "oklch(95.0% 0.02873 140.48)"
+        ]
+      },
+      "mint-deep": {
+        "displayName": "Mint Deep",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.04512 137.01)",
+          "oklch(26.4% 0.04512 137.01)",
+          "oklch(37.9% 0.04512 137.01)",
+          "oklch(49.3% 0.04512 137.01)",
+          "oklch(60.7% 0.04512 137.01)",
+          "oklch(72.1% 0.04512 137.01)",
+          "oklch(83.6% 0.04512 137.01)",
+          "oklch(95.0% 0.04512 137.01)"
+        ]
+      },
+      "mint-light": {
+        "displayName": "Mint Light",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.01650 156.91)",
+          "oklch(26.4% 0.01650 156.91)",
+          "oklch(37.9% 0.01650 156.91)",
+          "oklch(49.3% 0.01650 156.91)",
+          "oklch(60.7% 0.01650 156.91)",
+          "oklch(72.1% 0.01650 156.91)",
+          "oklch(83.6% 0.01650 156.91)",
+          "oklch(95.0% 0.01650 156.91)"
+        ]
+      },
+      "lilac": {
+        "displayName": "Lilac (retained source token)",
+        "role": "secondary",
+        "tonalRamp": [
+          "oklch(15.0% 0.01563 306.40)",
+          "oklch(26.4% 0.01563 306.40)",
+          "oklch(37.9% 0.01563 306.40)",
+          "oklch(49.3% 0.01563 306.40)",
+          "oklch(60.7% 0.01563 306.40)",
+          "oklch(72.1% 0.01563 306.40)",
+          "oklch(83.6% 0.01563 306.40)",
+          "oklch(95.0% 0.01563 306.40)"
+        ]
+      },
+      "blue": {
+        "displayName": "Blue",
+        "role": "secondary",
+        "tonalRamp": [
+          "oklch(15.0% 0.01090 234.82)",
+          "oklch(26.4% 0.01090 234.82)",
+          "oklch(37.9% 0.01090 234.82)",
+          "oklch(49.3% 0.01090 234.82)",
+          "oklch(60.7% 0.01090 234.82)",
+          "oklch(72.1% 0.01090 234.82)",
+          "oklch(83.6% 0.01090 234.82)",
+          "oklch(95.0% 0.01090 234.82)"
+        ]
+      },
+      "line": {
+        "displayName": "Line",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.00921 150.69)",
+          "oklch(26.4% 0.00921 150.69)",
+          "oklch(37.9% 0.00921 150.69)",
+          "oklch(49.3% 0.00921 150.69)",
+          "oklch(60.7% 0.00921 150.69)",
+          "oklch(72.1% 0.00921 150.69)",
+          "oklch(83.6% 0.00921 150.69)",
+          "oklch(95.0% 0.00921 150.69)"
+        ]
+      },
+      "spotlight": {
+        "displayName": "Spotlight",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.03109 167.87)",
+          "oklch(26.4% 0.03109 167.87)",
+          "oklch(37.9% 0.03109 167.87)",
+          "oklch(49.3% 0.03109 167.87)",
+          "oklch(60.7% 0.03109 167.87)",
+          "oklch(72.1% 0.03109 167.87)",
+          "oklch(83.6% 0.03109 167.87)",
+          "oklch(95.0% 0.03109 167.87)"
+        ]
+      },
+      "on-spotlight": {
+        "displayName": "On Spotlight",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.00000 89.88)",
+          "oklch(26.4% 0.00000 89.88)",
+          "oklch(37.9% 0.00000 89.88)",
+          "oklch(49.3% 0.00000 89.88)",
+          "oklch(60.7% 0.00000 89.88)",
+          "oklch(72.1% 0.00000 89.88)",
+          "oklch(83.6% 0.00000 89.88)",
+          "oklch(95.0% 0.00000 89.88)"
+        ]
+      },
+      "spotlight-detail": {
+        "displayName": "Spotlight Detail",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.04512 137.01)",
+          "oklch(26.4% 0.04512 137.01)",
+          "oklch(37.9% 0.04512 137.01)",
+          "oklch(49.3% 0.04512 137.01)",
+          "oklch(60.7% 0.04512 137.01)",
+          "oklch(72.1% 0.04512 137.01)",
+          "oklch(83.6% 0.04512 137.01)",
+          "oklch(95.0% 0.04512 137.01)"
+        ]
+      },
+      "action": {
+        "displayName": "Action",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.03109 167.87)",
+          "oklch(26.4% 0.03109 167.87)",
+          "oklch(37.9% 0.03109 167.87)",
+          "oklch(49.3% 0.03109 167.87)",
+          "oklch(60.7% 0.03109 167.87)",
+          "oklch(72.1% 0.03109 167.87)",
+          "oklch(83.6% 0.03109 167.87)",
+          "oklch(95.0% 0.03109 167.87)"
+        ]
+      },
+      "on-action": {
+        "displayName": "On Action",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.00000 89.88)",
+          "oklch(26.4% 0.00000 89.88)",
+          "oklch(37.9% 0.00000 89.88)",
+          "oklch(49.3% 0.00000 89.88)",
+          "oklch(60.7% 0.00000 89.88)",
+          "oklch(72.1% 0.00000 89.88)",
+          "oklch(83.6% 0.00000 89.88)",
+          "oklch(95.0% 0.00000 89.88)"
+        ]
+      },
+      "action-hover": {
+        "displayName": "Action Hover",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.08540 172.62)",
+          "oklch(26.4% 0.08540 172.62)",
+          "oklch(37.9% 0.08540 172.62)",
+          "oklch(49.3% 0.08540 172.62)",
+          "oklch(60.7% 0.08540 172.62)",
+          "oklch(72.1% 0.08540 172.62)",
+          "oklch(83.6% 0.08540 172.62)",
+          "oklch(95.0% 0.08540 172.62)"
+        ]
+      },
+      "frame": {
+        "displayName": "Frame",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.03109 167.87)",
+          "oklch(26.4% 0.03109 167.87)",
+          "oklch(37.9% 0.03109 167.87)",
+          "oklch(49.3% 0.03109 167.87)",
+          "oklch(60.7% 0.03109 167.87)",
+          "oklch(72.1% 0.03109 167.87)",
+          "oklch(83.6% 0.03109 167.87)",
+          "oklch(95.0% 0.03109 167.87)"
+        ]
+      },
+      "logo-mark": {
+        "displayName": "Logo Mark",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.09834 173.45)",
+          "oklch(26.4% 0.09834 173.45)",
+          "oklch(37.9% 0.09834 173.45)",
+          "oklch(49.3% 0.09834 173.45)",
+          "oklch(60.7% 0.09834 173.45)",
+          "oklch(72.1% 0.09834 173.45)",
+          "oklch(83.6% 0.09834 173.45)",
+          "oklch(95.0% 0.09834 173.45)"
+        ]
+      },
+      "logo-wordmark": {
+        "displayName": "Logo Wordmark",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.03109 167.87)",
+          "oklch(26.4% 0.03109 167.87)",
+          "oklch(37.9% 0.03109 167.87)",
+          "oklch(49.3% 0.03109 167.87)",
+          "oklch(60.7% 0.03109 167.87)",
+          "oklch(72.1% 0.03109 167.87)",
+          "oklch(83.6% 0.03109 167.87)",
+          "oklch(95.0% 0.03109 167.87)"
+        ]
+      },
+      "logo-inverse": {
+        "displayName": "Logo Inverse",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.02873 140.48)",
+          "oklch(26.4% 0.02873 140.48)",
+          "oklch(37.9% 0.02873 140.48)",
+          "oklch(49.3% 0.02873 140.48)",
+          "oklch(60.7% 0.02873 140.48)",
+          "oklch(72.1% 0.02873 140.48)",
+          "oklch(83.6% 0.02873 140.48)",
+          "oklch(95.0% 0.02873 140.48)"
+        ]
+      },
+      "light-action": {
+        "displayName": "Light Action",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.02873 140.48)",
+          "oklch(26.4% 0.02873 140.48)",
+          "oklch(37.9% 0.02873 140.48)",
+          "oklch(49.3% 0.02873 140.48)",
+          "oklch(60.7% 0.02873 140.48)",
+          "oklch(72.1% 0.02873 140.48)",
+          "oklch(83.6% 0.02873 140.48)",
+          "oklch(95.0% 0.02873 140.48)"
+        ]
+      },
+      "on-light-action": {
+        "displayName": "On Light Action",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.03109 167.87)",
+          "oklch(26.4% 0.03109 167.87)",
+          "oklch(37.9% 0.03109 167.87)",
+          "oklch(49.3% 0.03109 167.87)",
+          "oklch(60.7% 0.03109 167.87)",
+          "oklch(72.1% 0.03109 167.87)",
+          "oklch(83.6% 0.03109 167.87)",
+          "oklch(95.0% 0.03109 167.87)"
+        ]
+      },
+      "privacy-highlight": {
+        "displayName": "Privacy Highlight",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.08128 160.14)",
+          "oklch(26.4% 0.08128 160.14)",
+          "oklch(37.9% 0.08128 160.14)",
+          "oklch(49.3% 0.08128 160.14)",
+          "oklch(60.7% 0.08128 160.14)",
+          "oklch(72.1% 0.08128 160.14)",
+          "oklch(83.6% 0.08128 160.14)",
+          "oklch(95.0% 0.08128 160.14)"
+        ]
+      },
+      "dark-ground": {
+        "displayName": "Dark Ground",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.01663 168.06)",
+          "oklch(26.4% 0.01663 168.06)",
+          "oklch(37.9% 0.01663 168.06)",
+          "oklch(49.3% 0.01663 168.06)",
+          "oklch(60.7% 0.01663 168.06)",
+          "oklch(72.1% 0.01663 168.06)",
+          "oklch(83.6% 0.01663 168.06)",
+          "oklch(95.0% 0.01663 168.06)"
+        ]
+      },
+      "dark-paper": {
+        "displayName": "Dark Paper",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.02241 160.69)",
+          "oklch(26.4% 0.02241 160.69)",
+          "oklch(37.9% 0.02241 160.69)",
+          "oklch(49.3% 0.02241 160.69)",
+          "oklch(60.7% 0.02241 160.69)",
+          "oklch(72.1% 0.02241 160.69)",
+          "oklch(83.6% 0.02241 160.69)",
+          "oklch(95.0% 0.02241 160.69)"
+        ]
+      },
+      "dark-ink": {
+        "displayName": "Dark Ink",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.01667 151.10)",
+          "oklch(26.4% 0.01667 151.10)",
+          "oklch(37.9% 0.01667 151.10)",
+          "oklch(49.3% 0.01667 151.10)",
+          "oklch(60.7% 0.01667 151.10)",
+          "oklch(72.1% 0.01667 151.10)",
+          "oklch(83.6% 0.01667 151.10)",
+          "oklch(95.0% 0.01667 151.10)"
+        ]
+      },
+      "dark-secondary": {
+        "displayName": "Dark Secondary",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.03028 153.21)",
+          "oklch(26.4% 0.03028 153.21)",
+          "oklch(37.9% 0.03028 153.21)",
+          "oklch(49.3% 0.03028 153.21)",
+          "oklch(60.7% 0.03028 153.21)",
+          "oklch(72.1% 0.03028 153.21)",
+          "oklch(83.6% 0.03028 153.21)",
+          "oklch(95.0% 0.03028 153.21)"
+        ]
+      },
+      "dark-green": {
+        "displayName": "Dark Green",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.10798 166.96)",
+          "oklch(26.4% 0.10798 166.96)",
+          "oklch(37.9% 0.10798 166.96)",
+          "oklch(49.3% 0.10798 166.96)",
+          "oklch(60.7% 0.10798 166.96)",
+          "oklch(72.1% 0.10798 166.96)",
+          "oklch(83.6% 0.10798 166.96)",
+          "oklch(95.0% 0.10798 166.96)"
+        ]
+      },
+      "dark-pressed": {
+        "displayName": "Dark Pressed",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.08276 166.23)",
+          "oklch(26.4% 0.08276 166.23)",
+          "oklch(37.9% 0.08276 166.23)",
+          "oklch(49.3% 0.08276 166.23)",
+          "oklch(60.7% 0.08276 166.23)",
+          "oklch(72.1% 0.08276 166.23)",
+          "oklch(83.6% 0.08276 166.23)",
+          "oklch(95.0% 0.08276 166.23)"
+        ]
+      },
+      "dark-mint": {
+        "displayName": "Dark Mint",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.04290 156.24)",
+          "oklch(26.4% 0.04290 156.24)",
+          "oklch(37.9% 0.04290 156.24)",
+          "oklch(49.3% 0.04290 156.24)",
+          "oklch(60.7% 0.04290 156.24)",
+          "oklch(72.1% 0.04290 156.24)",
+          "oklch(83.6% 0.04290 156.24)",
+          "oklch(95.0% 0.04290 156.24)"
+        ]
+      },
+      "dark-mint-deep": {
+        "displayName": "Dark Mint Deep",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.05477 153.09)",
+          "oklch(26.4% 0.05477 153.09)",
+          "oklch(37.9% 0.05477 153.09)",
+          "oklch(49.3% 0.05477 153.09)",
+          "oklch(60.7% 0.05477 153.09)",
+          "oklch(72.1% 0.05477 153.09)",
+          "oklch(83.6% 0.05477 153.09)",
+          "oklch(95.0% 0.05477 153.09)"
+        ]
+      },
+      "dark-mint-light": {
+        "displayName": "Dark Mint Light",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.03222 158.11)",
+          "oklch(26.4% 0.03222 158.11)",
+          "oklch(37.9% 0.03222 158.11)",
+          "oklch(49.3% 0.03222 158.11)",
+          "oklch(60.7% 0.03222 158.11)",
+          "oklch(72.1% 0.03222 158.11)",
+          "oklch(83.6% 0.03222 158.11)",
+          "oklch(95.0% 0.03222 158.11)"
+        ]
+      },
+      "dark-lilac": {
+        "displayName": "Dark Lilac (retained source token)",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.02924 298.95)",
+          "oklch(26.4% 0.02924 298.95)",
+          "oklch(37.9% 0.02924 298.95)",
+          "oklch(49.3% 0.02924 298.95)",
+          "oklch(60.7% 0.02924 298.95)",
+          "oklch(72.1% 0.02924 298.95)",
+          "oklch(83.6% 0.02924 298.95)",
+          "oklch(95.0% 0.02924 298.95)"
+        ]
+      },
+      "dark-line": {
+        "displayName": "Dark Line",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.04631 156.39)",
+          "oklch(26.4% 0.04631 156.39)",
+          "oklch(37.9% 0.04631 156.39)",
+          "oklch(49.3% 0.04631 156.39)",
+          "oklch(60.7% 0.04631 156.39)",
+          "oklch(72.1% 0.04631 156.39)",
+          "oklch(83.6% 0.04631 156.39)",
+          "oklch(95.0% 0.04631 156.39)"
+        ]
+      },
+      "dark-spotlight": {
+        "displayName": "Dark Spotlight",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.04363 159.33)",
+          "oklch(26.4% 0.04363 159.33)",
+          "oklch(37.9% 0.04363 159.33)",
+          "oklch(49.3% 0.04363 159.33)",
+          "oklch(60.7% 0.04363 159.33)",
+          "oklch(72.1% 0.04363 159.33)",
+          "oklch(83.6% 0.04363 159.33)",
+          "oklch(95.0% 0.04363 159.33)"
+        ]
+      },
+      "dark-on-spotlight": {
+        "displayName": "Dark On Spotlight",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.01667 151.10)",
+          "oklch(26.4% 0.01667 151.10)",
+          "oklch(37.9% 0.01667 151.10)",
+          "oklch(49.3% 0.01667 151.10)",
+          "oklch(60.7% 0.01667 151.10)",
+          "oklch(72.1% 0.01667 151.10)",
+          "oklch(83.6% 0.01667 151.10)",
+          "oklch(95.0% 0.01667 151.10)"
+        ]
+      },
+      "dark-spotlight-detail": {
+        "displayName": "Dark Spotlight Detail",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.03119 152.82)",
+          "oklch(26.4% 0.03119 152.82)",
+          "oklch(37.9% 0.03119 152.82)",
+          "oklch(49.3% 0.03119 152.82)",
+          "oklch(60.7% 0.03119 152.82)",
+          "oklch(72.1% 0.03119 152.82)",
+          "oklch(83.6% 0.03119 152.82)",
+          "oklch(95.0% 0.03119 152.82)"
+        ]
+      },
+      "dark-action": {
+        "displayName": "Dark Action",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.02873 140.48)",
+          "oklch(26.4% 0.02873 140.48)",
+          "oklch(37.9% 0.02873 140.48)",
+          "oklch(49.3% 0.02873 140.48)",
+          "oklch(60.7% 0.02873 140.48)",
+          "oklch(72.1% 0.02873 140.48)",
+          "oklch(83.6% 0.02873 140.48)",
+          "oklch(95.0% 0.02873 140.48)"
+        ]
+      },
+      "dark-on-action": {
+        "displayName": "Dark On Action",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.03109 167.87)",
+          "oklch(26.4% 0.03109 167.87)",
+          "oklch(37.9% 0.03109 167.87)",
+          "oklch(49.3% 0.03109 167.87)",
+          "oklch(60.7% 0.03109 167.87)",
+          "oklch(72.1% 0.03109 167.87)",
+          "oklch(83.6% 0.03109 167.87)",
+          "oklch(95.0% 0.03109 167.87)"
+        ]
+      },
+      "dark-action-hover": {
+        "displayName": "Dark Action Hover",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15.0% 0.08276 166.23)",
+          "oklch(26.4% 0.08276 166.23)",
+          "oklch(37.9% 0.08276 166.23)",
+          "oklch(49.3% 0.08276 166.23)",
+          "oklch(60.7% 0.08276 166.23)",
+          "oklch(72.1% 0.08276 166.23)",
+          "oklch(83.6% 0.08276 166.23)",
+          "oklch(95.0% 0.08276 166.23)"
+        ]
+      },
+      "dark-frame": {
+        "displayName": "Dark Frame",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.05477 153.09)",
+          "oklch(26.4% 0.05477 153.09)",
+          "oklch(37.9% 0.05477 153.09)",
+          "oklch(49.3% 0.05477 153.09)",
+          "oklch(60.7% 0.05477 153.09)",
+          "oklch(72.1% 0.05477 153.09)",
+          "oklch(83.6% 0.05477 153.09)",
+          "oklch(95.0% 0.05477 153.09)"
+        ]
+      },
+      "dark-logo-mark": {
+        "displayName": "Dark Logo Mark",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.02873 140.48)",
+          "oklch(26.4% 0.02873 140.48)",
+          "oklch(37.9% 0.02873 140.48)",
+          "oklch(49.3% 0.02873 140.48)",
+          "oklch(60.7% 0.02873 140.48)",
+          "oklch(72.1% 0.02873 140.48)",
+          "oklch(83.6% 0.02873 140.48)",
+          "oklch(95.0% 0.02873 140.48)"
+        ]
+      },
+      "dark-logo-wordmark": {
+        "displayName": "Dark Logo Wordmark",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15.0% 0.02873 140.48)",
+          "oklch(26.4% 0.02873 140.48)",
+          "oklch(37.9% 0.02873 140.48)",
+          "oklch(49.3% 0.02873 140.48)",
+          "oklch(60.7% 0.02873 140.48)",
+          "oklch(72.1% 0.02873 140.48)",
+          "oklch(83.6% 0.02873 140.48)",
+          "oklch(95.0% 0.02873 140.48)"
+        ]
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "settle",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Existing --ease for settling, spatial feedback and clip reveals; no new primitive."
+      },
+      {
+        "name": "hero-once",
+        "value": "stage 1000ms; headline 850ms 90ms; copy 700ms; overview 1100ms; reminder 1200ms; wallet 1350ms; records 650ms",
+        "purpose": "One initial hero sequence; action/reassurance delays 100/160ms and record delays 120/220/320ms. Logo stays static."
+      },
+      {
+        "name": "intersection-reveals",
+        "value": "picture 1000ms; panel/surface 850ms; threshold 0.12",
+        "purpose": "One-time intersection reveals, with content visible before enhancement."
+      },
+      {
+        "name": "illustration-loops",
+        "value": "overview 8s; wallet 6s; bell 7s; organizer 8s; closing 7s; confirmation 7s",
+        "purpose": "CSS transform loops. All use ease-in-out except confirmation, which uses the settling curve. Run only with data-motion=on and intersecting scene; pause offscreen, in hidden documents, by user choice or reduced motion. Fine-pointer hover pauses feature/closing illustration loops. The organizer uses organizer-breathe in the retained stage wrapper, replacing the retired calendar sway."
+      },
+      {
+        "name": "pointer-depth",
+        "value": "x ±8px; y ±6px; settle 450–500ms",
+        "purpose": "Fine mouse pointers only, one pending requestAnimationFrame per active visible scene, no React renders; layer depth factors differ and pointer leave resets depth. Paused/reduced motion disables handlers."
+      },
+      {
+        "name": "action-feedback",
+        "value": "lift 260ms; background 220ms; sweep 420ms; arrow 320ms; round-arrow 350ms",
+        "purpose": "Bounded hover/focus feedback; 3px lift, 3px diagonal arrow and 4px downward round arrow. Reduced motion suppresses interactive transforms."
+      },
+      {
+        "name": "navigation-feedback",
+        "value": "underline 300ms; color 180ms",
+        "purpose": "Header/footer section links reveal a left-origin underline on hover or keyboard focus; brand artwork remains still."
+      },
+      {
+        "name": "sample-state",
+        "value": "period pill 350ms; label color 250ms; exact total 420ms",
+        "purpose": "Slide selection, then present the exact final amount with a 7px settle; polite atomic final-value announcement, no intermediate counted money."
+      },
+      {
+        "name": "selection-feedback",
+        "value": "row fill 240ms; active scale 300ms; service-icon 350ms; check 240ms",
+        "purpose": "Native checkbox meaning remains explicit; trace/retract check strokes and preserve full-opacity excluded reading colors."
+      },
+      {
+        "name": "faq-continuity",
+        "value": "grid rows 420ms; opacity 250ms; panel fill 300ms; indicator 350ms; vertical stroke 180ms",
+        "purpose": "Accessible controlled FAQ after hydration; native details fallback before JavaScript. Closed answer regions inert and hidden; reduced motion applies state immediately."
+      },
+      {
+        "name": "feature-feedback",
+        "value": "symbol 350ms; calendar check trace 650ms",
+        "purpose": "Feature-hover icon lift/rotation and check trace, with reduced-motion override."
+      },
+      {
+        "name": "motion-preference",
+        "value": "prefers-reduced-motion: reduce; document visibility; scene intersection; Pause/Play",
+        "purpose": "System reduced motion removes animations/transitions/smooth scrolling, zeros depth and suppresses transforms. Inline hero control appears after readiness unless reduced motion is enabled. Hover/reduced OS/hidden-tab behavior has not been fully exercised at runtime; no measured frame-rate claim."
+      },
+      {
+        "name": "bento-feedback",
+        "value": "preview translate 400ms; month marker scale 450ms, color 300ms, per-marker delay 18ms",
+        "purpose": "Existing settling curve; reviewed-record previews lift 4px and monthly markers scaleY(1.65) on card hover. Reuse 850ms panel reveals. Local reduced-motion rules suppress transforms, shared rules suppress transitions; These hover responses coexist with separately gated decorative illustration loops."
+      },
+      {
+        "name": "bento-illustration-loops",
+        "value": "cost coins 7s; bell 8s; statement papers 9s; receipt 9s; scan 9s; currency coins 10s; ease-in-out",
+        "purpose": "Decorative transparent assets start paused; root motion on and card in-view are required to play. Shared pause/hidden-document/reduced-motion gates apply. Reduced motion removes image/scan animation and hides the scan. Bell and scan have deliberate rest/invisible phases; short runtime samples did not verify complete cycles."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "600px"
+      },
+      {
+        "name": "tablet",
+        "value": "800px"
+      },
+      {
+        "name": "medium",
+        "value": "1100px"
+      },
+      {
+        "name": "narrow",
+        "value": "360px"
+      },
+      {
+        "name": "bento-two-column",
+        "value": "1000px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "App action with resolved action/on-action colors, swept hover fill, lift and directional arrow.",
+      "html": "<a class=\"ds-action\" href=\"https://subloom.baltii.tn\">Open Subloom <svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></a>",
+      "css": ".ds-action{display:inline-flex;align-items:center;justify-content:center;gap:24px;min-height:56px;padding:16px 26px;border-radius:999px;background:var(--action);color:var(--on-action);font:600 15px var(--font-body),sans-serif;text-decoration:none;isolation:isolate;position:relative;overflow:hidden;transition:transform 260ms cubic-bezier(.16,1,.3,1),background 220ms ease}.ds-action::before{content:\"\";position:absolute;inset:0;z-index:-1;background:var(--action-hover);transform:scaleX(0);transform-origin:left;border-radius:inherit;transition:transform 420ms cubic-bezier(.16,1,.3,1)}.ds-action:is(:hover,:focus-visible)::before{transform:scaleX(1)}.ds-action:hover{transform:translateY(-3px)}.ds-action:active{transform:translateY(0) scale(.98)}.ds-action svg{transition:transform 320ms cubic-bezier(.16,1,.3,1)}.ds-action:is(:hover,:focus-visible) svg{transform:translate(3px,-3px)}.ds-action:focus-visible{outline:3px solid var(--green);outline-offset:5px}@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}.ds-action:hover,.ds-action:active,.ds-action svg,.ds-light:hover,.ds-light:active,.ds-light svg,.ds-row:active{transform:none!important}}"
+    },
+    {
+      "name": "Light action",
+      "kind": "button",
+      "refersTo": "button-light",
+      "description": "App action with swept paper fill on forest.",
+      "html": "<a class=\"ds-light\" href=\"https://subloom.baltii.tn\">Open Subloom <svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></a>",
+      "css": ".ds-light{display:inline-flex;align-items:center;justify-content:center;gap:24px;min-height:56px;padding:16px 26px;border-radius:999px;background:#e1f0de;color:#182d25;font:600 15px var(--font-body),sans-serif;text-decoration:none;isolation:isolate;position:relative;overflow:hidden;transition:transform 260ms cubic-bezier(.16,1,.3,1),background 220ms ease}.ds-light::before{content:\"\";position:absolute;inset:0;z-index:-1;background:#fff;transform:scaleX(0);transform-origin:left;border-radius:inherit;transition:transform 420ms cubic-bezier(.16,1,.3,1)}.ds-light:is(:hover,:focus-visible)::before{transform:scaleX(1)}.ds-light:hover{transform:translateY(-3px)}.ds-light:active{transform:translateY(0) scale(.98)}.ds-light svg{transition:transform 320ms cubic-bezier(.16,1,.3,1)}.ds-light:is(:hover,:focus-visible) svg{transform:translate(3px,-3px)}.ds-light:focus-visible{outline:3px solid var(--green);outline-offset:5px}@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}.ds-action:hover,.ds-action:active,.ds-action svg,.ds-light:hover,.ds-light:active,.ds-light svg,.ds-row:active{transform:none!important}}"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "description": "Section anchors with green feedback and a drawn underline on hover or keyboard focus.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Page sections\"><a href=\"#features\">Why Subloom</a><a href=\"#preview\">Take a look</a></nav>",
+      "css": ".ds-nav{display:flex;gap:35px;font-size:14px;color:var(--ink);font-family:var(--font-body),sans-serif}.ds-nav a{color:inherit;text-decoration:none;position:relative;width:fit-content;transition:color 180ms ease}.ds-nav a::after{content:\"\";position:absolute;bottom:-5px;left:0;width:100%;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform 300ms cubic-bezier(.16,1,.3,1)}.ds-nav a:is(:hover,:focus-visible)::after{transform:scaleX(1)}.ds-nav a:hover{color:var(--green)}.ds-nav a:focus-visible{outline:3px solid var(--green);outline-offset:5px}@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}.ds-action:hover,.ds-action:active,.ds-action svg,.ds-light:hover,.ds-light:active,.ds-light svg,.ds-row:active{transform:none!important}}"
+    },
+    {
+      "name": "Period segment",
+      "kind": "button",
+      "description": "Equal monthly/yearly columns with a sliding Forest pill and explicit pressed state.",
+      "html": "<div class=\"ds-segment\" data-period=\"monthly\" aria-label=\"Cost period\"><button aria-pressed=\"true\">Monthly</button><button aria-pressed=\"false\">Yearly</button></div>",
+      "css": ".ds-segment{display:grid;grid-template-columns:1fr 1fr;position:relative;isolation:isolate;padding:4px;border-radius:999px;background:var(--ground);font-family:var(--font-body),sans-serif}.ds-segment::before{content:\"\";position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/2);background:var(--ink);border-radius:inherit;transition:transform 350ms cubic-bezier(.16,1,.3,1);z-index:-1}.ds-segment[data-period=yearly]::before{transform:translateX(100%)}.ds-segment button{position:relative;border:0;padding:8px 11px;border-radius:999px;font:inherit;font-size:11px;color:var(--ink);background:transparent;cursor:pointer;transition:color 250ms ease}.ds-segment button[aria-pressed=true]{color:var(--paper)}.ds-segment button:focus-visible{outline:3px solid var(--green);outline-offset:5px}@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}.ds-action:hover,.ds-action:active,.ds-action svg,.ds-light:hover,.ds-light:active,.ds-light svg,.ds-row:active{transform:none!important}}"
+    },
+    {
+      "name": "Subscription selection",
+      "kind": "input",
+      "refersTo": "subscription-row",
+      "description": "Native checkbox, visible custom check, stroke feedback and readable excluded state.",
+      "html": "<label class=\"ds-row\"><span>Sample subscription</span><input type=\"checkbox\" checked aria-label=\"Include sample subscription\"><span class=\"ds-check\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m5 12 4 4L19 6\"/></svg></span></label>",
+      "css": ".ds-row{display:flex;gap:13px;align-items:center;position:relative;min-height:70px;padding:13px 11px;border-radius:14px;background:var(--ground);color:var(--ink);font-size:13px;cursor:pointer;font-family:var(--font-body),sans-serif;;transition:background 240ms ease,transform 300ms cubic-bezier(.16,1,.3,1)}.ds-row:active{transform:scale(.985)}.ds-row>span:first-child{margin-right:auto}.ds-row input{position:absolute;right:10px;width:24px;height:24px;opacity:0}.ds-check{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--green);color:var(--paper)}.ds-row:hover{background:var(--mint-light)}.ds-row input:focus-visible+.ds-check{outline:3px solid var(--green);outline-offset:4px}.ds-row input:not(:checked)+.ds-check{background:var(--mint-deep);color:transparent}.ds-check{transition:background 240ms ease,color 240ms ease}.ds-check svg{stroke-dasharray:24;stroke-dashoffset:0;transition:stroke-dashoffset 240ms cubic-bezier(.16,1,.3,1),transform 240ms cubic-bezier(.16,1,.3,1)}.ds-row input:not(:checked)+.ds-check svg{stroke-dashoffset:24;transform:scale(.7)}@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}.ds-action:hover,.ds-action:active,.ds-action svg,.ds-light:hover,.ds-light:active,.ds-light svg,.ds-row:active{transform:none!important}}"
+    },
+    {
+      "name": "Sample card",
+      "kind": "card",
+      "refersTo": "demo-card",
+      "description": "Flat white container for the interactive sample.",
+      "html": "<section class=\"ds-card\"><h3>Your subscriptions</h3><p>Sample prices only.</p></section>",
+      "css": ".ds-card{padding:30px;background:var(--paper);color:var(--ink);border-radius:24px;font-family:var(--font-body),sans-serif;}.ds-card h3{font-family:var(--font-display),sans-serif;font-size:20px}.ds-card p{font-size:13px;line-height:1.65;color:var(--secondary)}@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}"
+    },
+    {
+      "name": "Illustrative recurring-cost lead",
+      "kind": "card",
+      "description": "Arithmetic portion of the spotlight cost card; the live card also pairs its heading with decorative cost-coins.webp and a gated 7s loop. Cost examples are not guaranteed savings.",
+      "html": "<article class=\"ds-bento-cost\"><h3>Small charges.<br>Real money.</h3><figure aria-label=\"An illustrative subscription costing 9.99 euros monthly totals 119.88 euros over twelve payments\"><div class=\"ds-cost-comparison\"><div><span>One unused subscription</span><strong>€9.99<small>/ month</small></strong></div><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M5 12h14m-6-6 6 6-6 6\"/></svg><div><span>Twelve monthly payments</span><strong>€119.88<small>/ year</small></strong></div></div><div class=\"ds-repeat-months\" aria-hidden=\"true\"><span><i style=\"transition-delay:0ms\"></i>Jan</span><span><i style=\"transition-delay:18ms\"></i>Feb</span><span><i style=\"transition-delay:36ms\"></i>Mar</span><span><i style=\"transition-delay:54ms\"></i>Apr</span><span><i style=\"transition-delay:72ms\"></i>May</span><span><i style=\"transition-delay:90ms\"></i>Jun</span><span><i style=\"transition-delay:108ms\"></i>Jul</span><span><i style=\"transition-delay:126ms\"></i>Aug</span><span><i style=\"transition-delay:144ms\"></i>Sep</span><span><i style=\"transition-delay:162ms\"></i>Oct</span><span><i style=\"transition-delay:180ms\"></i>Nov</span><span><i style=\"transition-delay:198ms\"></i>Dec</span></div><figcaption>Illustrative cost. You choose what to cancel with the provider.</figcaption></figure></article>",
+      "css": ".ds-bento-cost{min-width:0;border-radius:32px;background:var(--spotlight);color:var(--on-spotlight);padding:40px;font-family:var(--font-body),sans-serif}.ds-bento-cost h3{font:700 37px/1.2 var(--font-display),sans-serif;letter-spacing:-.03em;margin:0 0 32px}.ds-bento-cost figure{margin:0}.ds-cost-comparison{display:grid;grid-template-columns:1fr auto 1.15fr;gap:24px;align-items:center}.ds-cost-comparison span{font-size:12px;color:var(--spotlight-detail)}.ds-cost-comparison strong{display:flex;align-items:baseline;gap:8px;font:700 clamp(28px,2.65vw,38px) var(--font-display),sans-serif;letter-spacing:-.035em;font-variant-numeric:tabular-nums;margin-top:8px}.ds-cost-comparison small{font:400 12px var(--font-body),sans-serif;letter-spacing:0;color:var(--spotlight-detail);white-space:nowrap}.ds-repeat-months{display:grid;grid-template-columns:repeat(12,1fr);gap:7px;margin-top:25px}.ds-repeat-months span{font-size:9px;text-align:center;color:var(--spotlight-detail)}.ds-repeat-months i{display:block;height:6px;border-radius:3px;background:#cadfc2;margin-bottom:8px;transform-origin:left;transition:transform 450ms cubic-bezier(.16,1,.3,1),background 300ms ease}.ds-bento-cost:hover .ds-repeat-months i{transform:scaleY(1.65);background:#fff}.ds-bento-cost figcaption{color:var(--spotlight-detail);font-size:11px;margin-top:17px;line-height:1.5}@media(max-width:600px){.ds-bento-cost{padding:28px}.ds-bento-cost h3{font-size:28px}.ds-cost-comparison{grid-template-columns:1fr;gap:16px}.ds-cost-comparison>svg{width:18px;height:18px;rotate:90deg}.ds-cost-comparison strong{font-size:36px}.ds-repeat-months{gap:4px}.ds-repeat-months span{font-size:7px}}@media(prefers-reduced-motion:reduce){.ds-repeat-months i{transition:none!important;transform:none!important}}"
+    },
+    {
+      "name": "Reviewed statement preview",
+      "kind": "card",
+      "description": "Content portion of the bento statement card; the live card pairs this review state with decorative statement-papers.webp and a gated 9s loop. Human confirmation remains explicit.",
+      "html": "<article class=\"ds-bento-review\"><div class=\"ds-statement-preview\" aria-label=\"Illustrative recurring-charge review\"><div><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h6\"/></svg><span>Statement review</span></div><div class=\"ds-statement-match\"><span><strong>Streaming service</strong><small>Monthly · EUR 9.99</small></span><span class=\"ds-review-status\">Needs review</span></div><p>Illustrative recurring payment candidate</p></div><h3>Find the repeat payments.</h3><p>Import a bank statement, review recurring charges, and confirm the subscription matches. No direct bank connection needed.</p></article>",
+      "css": ".ds-bento-review{min-width:0;border-radius:32px;background:var(--mint-light);color:var(--ink);padding:34px;font-family:var(--font-body),sans-serif}.ds-statement-preview{min-height:145px;transition:translate 400ms cubic-bezier(.16,1,.3,1)}.ds-bento-review:hover .ds-statement-preview{translate:0 -4px}.ds-statement-preview>div:first-child{display:flex;gap:10px;align-items:center;font-size:13px}.ds-statement-preview svg{color:var(--green)}.ds-statement-match{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:23px}.ds-statement-match>span:first-child{display:grid;gap:6px}.ds-statement-match strong{font-size:12px;font-weight:600}.ds-statement-match small{font-size:10px;color:var(--secondary)}.ds-review-status{border-radius:999px;padding:8px 10px;background:var(--mint);font-size:10px;white-space:nowrap}.ds-bento-review h3{font:700 25px/1.2 var(--font-display),sans-serif;letter-spacing:-.03em;margin:30px 0 0}.ds-bento-review p{font-size:15px;line-height:1.65;margin:13px 0 0}.ds-statement-preview>p{font-size:11px;color:var(--secondary);margin-top:17px}@media(max-width:600px){.ds-bento-review{padding:28px}.ds-bento-review>p{font-size:14px}}@media(prefers-reduced-motion:reduce){.ds-statement-preview{translate:none!important;transition:none!important}}"
+    },
+    {
+      "name": "Color theme preference",
+      "kind": "input",
+      "refersTo": "theme-control",
+      "description": "Icon-only 44px native System/Light/Dark selector next to the app action; accessible options, prepaint resolution and persistence remain intact.",
+      "html": "<label class=\"ds-theme-control\" title=\"Color theme: System\"><span class=\"ds-theme-symbol\" aria-hidden=\"true\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M8 21h8m-4-4v4\"/></svg></span><select aria-label=\"Color theme\"><option value=\"system\">System</option><option value=\"light\">Light</option><option value=\"dark\">Dark</option></select></label>",
+      "css": ".ds-theme-control{display:flex;align-items:center;position:relative;flex-shrink:0;color:var(--ink);font-family:var(--font-body),sans-serif}.ds-theme-control select{appearance:none;cursor:pointer;border:1px solid var(--secondary);border-radius:999px;min-height:44px;width:44px;padding:10px;font:inherit;font-size:12px;background:transparent;color:transparent;transition:background 180ms ease}.ds-theme-control select:hover{background:var(--mint)}.ds-theme-control select:focus-visible{outline:3px solid var(--green);outline-offset:5px}.ds-theme-control option{color:var(--ink);background:var(--paper)}.ds-theme-symbol{position:absolute;left:13px;pointer-events:none}@media(prefers-reduced-motion:reduce){.ds-theme-control select{transition:none}}"
+    },
+    {
+      "name": "Landing heading emphasis",
+      "kind": "custom",
+      "description": "Owner-authorized local Green keywords and selective underline; the inherited Manrope face and fixed logo remain unchanged.",
+      "html": "<h2 class=\"ds-emphasis-heading\">A little <em>clarity.</em><br>A lot less juggling.</h2><h2 class=\"ds-emphasis-heading ds-emphasis-spotlight\">At <em class=\"ds-emphasis-underline\">your pace.</em></h2>",
+      "css": ".ds-emphasis-heading{font:700 clamp(34px,3.7vw,52px)/1.13 var(--font-display),sans-serif;letter-spacing:-.04em;color:var(--ink);margin:0}.ds-emphasis-heading em{font-style:normal;color:var(--green)}.ds-emphasis-underline{text-decoration-line:underline;text-decoration-thickness:.045em;text-underline-offset:.13em;text-decoration-skip-ink:auto}.ds-emphasis-spotlight{background:var(--spotlight);color:var(--on-spotlight);padding:24px;border-radius:32px;margin-top:24px}.ds-emphasis-spotlight em{color:#a1e1be}"
+    },
+    {
+      "name": "Store availability placeholders",
+      "kind": "button",
+      "refersTo": "store-download-disabled-local",
+      "description": "Hero and closing reuse two native disabled buttons, with no launch URL or handler. Store marks use shipped Simple Icons CC0 paths.",
+      "html": "<div class=\"ds-store-downloads\" role=\"group\" aria-label=\"Mobile apps — coming soon\"><button class=\"ds-store-download\" type=\"button\" disabled aria-label=\"Download from App Store — coming soon\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701\"/></svg><span><small>Coming soon on</small><strong>App Store</strong></span></button><button class=\"ds-store-download\" type=\"button\" disabled aria-label=\"Download from Google Play — coming soon\"><svg viewBox=\"0 0 24 24\" width=\"25\" height=\"25\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M22.018 13.298l-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594zM1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924zm12.207 10.065l3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 10.973zm0 2.067l-11 10.933c.298.036.612-.016.906-.183l13.324-7.54-3.23-3.21z\"/></svg><span><small>Coming soon on</small><strong>Google Play</strong></span></button></div>",
+      "css": ".ds-store-downloads{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;font-family:var(--font-body),sans-serif}.ds-store-download{display:flex;align-items:center;gap:11px;min-height:62px;padding:11px 18px;border:0;border-radius:14px;background:var(--paper);color:var(--secondary);cursor:not-allowed;text-align:left;opacity:1;font:inherit}.ds-store-download>span{display:grid;gap:3px}.ds-store-download small{font-size:10px;line-height:1.2}.ds-store-download strong{font-size:17px;line-height:1.2;font-weight:600;letter-spacing:-.02em}.ds-store-download svg{flex-shrink:0}@media(max-width:600px){.ds-store-downloads{gap:10px;margin-top:22px}.ds-store-download{padding:11px 13px;gap:9px;min-height:60px}.ds-store-download strong{font-size:15px}.ds-store-download svg{width:23px;height:23px}}@media(max-width:360px){.ds-store-download{padding-inline:11px}.ds-store-downloads{gap:8px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Forest and mint Subloom, made personal",
+    "overview": "This local specification describes the finished marketing surface. It inherits the established world in `../DESIGN.md`: forest and mint, Manrope headings, DM Sans reading text, rounded tonal panels, Lucide actions and tactile financial artwork. It does not revise the product-wide system. Spacious page composition, larger display type and pill actions are local marketing adaptations.\n\nThe warm paper ground and Mint illustration stage support the existing forest identity. A tilted sample overview, existing wallet and matching tactile organizer/bento artwork make subscription tracking tangible. Product truth remains governed by `../PRODUCT.md`; surface strategy remains in `.impeccable/surfaces/landing.md`.\n\nInheritance checked against parent DESIGN.md and PRODUCT.md, `app/globals.css`, `app/layout.tsx`, `components/experience.tsx`, the surface contract and the reviewed desktop/tablet/mobile captures. Parent PRODUCT.md uses a legacy structure and its design sidecar was already flagged stale during context inspection. Those pre-existing issues remain untouched; this local record does not reconcile them.\n\nThe landing page uses the same fixed Fourfold Bloom identity as the native app. `../brand/source/identity.json` owns the four-petal symbol and outlined wordmark with an uppercase S; `../brand/GUIDE.md` governs their use. Light headers pair the Green mark with the Forest wordmark; dark fields use the Mint inverse. Personal app accents never change this logo.\n\nThe landing now supports System, Light and Dark appearance while preserving the same composition and brand geometry. Selected heading phrases use Green emphasis and occasional underlines under the owner’s explicit landing-only direction; the app-wide brand rules remain unchanged. Generated light/dark social previews reuse the exact canonical logo, local fonts and existing wallet artwork.",
+    "keyCharacteristics": [
+      "One generated Fourfold Bloom mark and outlined wordmark across app and website.",
+      "Semantic light/dark surfaces and paired action colors, with fixed brand-logo colors.",
+      "Green heading keywords and selective underlines scoped to this landing page.",
+      "Manrope display hierarchy with DM Sans controls and reading text.",
+      "Flat rounded panels alongside a coherent forest-green, ivory and restrained-gold financial illustration family.",
+      "Product-specific bento previews connect forgotten recurring costs with reviewed records and renewal planning.",
+      "One-time hero choreography, gated illustration loops and bounded interaction feedback.",
+      "Visible focus, exact-value financial transitions, a Pause/Play control and reduced-motion support."
+    ],
+    "rules": [
+      {
+        "name": "The Inheritance Rule",
+        "body": "Treat these as landing values; changes here do not alter the app's eight selectable accent palettes or light/dark themes.",
+        "section": "colors"
+      },
+      {
+        "name": "The Fixed Logo Color Rule",
+        "body": "Personal accents and interface theme tokens never recolor the logo. Use the dedicated logo roles for canonical Green mark/Forest outlined wordmark on light surfaces and canonical Bloom Mint for both on dark surfaces. Preserve the generated geometry and use `logo-inverse` for an explicit inverse application.",
+        "section": "colors"
+      },
+      {
+        "name": "The Surface Pair Rule",
+        "body": "Resolve `action` with `on-action`, and `spotlight` with `on-spotlight`/`spotlight-detail`, in the same active appearance. General surface, reading ink and interface Green are separate roles; the fixed logo palette remains independent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Outlined Wordmark Rule",
+        "body": "Render the supplied outlined Manrope 700 wordmark, `Subloom` with an uppercase S, without a trailing period; interface font loading must not change its geometry.",
+        "section": "typography"
+      },
+      {
+        "name": "The Landing Heading Emphasis Rule",
+        "body": "The owner explicitly authorizes Green keywords and selective underlines on this landing page. Keep the existing Manrope face and weight, use nonitalic emphasis, and underline selected phrases with a (0.045 em) stroke offset (0.13 em). Use resolved Green on ordinary fields and the dedicated privacy highlight on the spotlight panel. This narrow exception does not revise the global brand guidance or permit changing the wordmark.",
+        "section": "typography"
+      },
+      {
+        "name": "The Numeric Reading Rule",
+        "body": "Keep the sample currency symbol, decimal precision and period label readable together when selection changes the amount.",
+        "section": "typography"
+      },
+      {
+        "name": "The Gated Illustration Motion Rule",
+        "body": "Continuous illustration loops run only when the scene intersects, the document is visible, motion is enabled and the system has not requested reduced motion. The inline Pause motion / Play motion control below hero reassurance stops/resumes loops and disables pointer-depth updates while paused. Keep the logo static and retain useful content at every animation state.",
+        "section": "elevation & depth"
+      },
+      {
+        "name": "The One Master Rule",
+        "body": "Read `../brand/GUIDE.md` before changing a brand application. `components/brand.tsx` consumes generated `components/brand-identity.ts`, derived from `../brand/source/identity.json`; never redraw or retype a local logo.",
+        "section": "components"
+      },
+      {
+        "name": "The Illustrative Cost Rule",
+        "body": "Present repeated-payment arithmetic as an illustrative cost, never as measured or guaranteed savings. Keep review labels, original-currency units and provider-managed cancellation explicit in feature previews.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do use the generated Fourfold Bloom logo, fixed light/inverse colors and supplied outlined wordmark.",
+      "Do inherit the existing forest/mint identity and local Manrope/DM Sans fonts.",
+      "Do keep heading emphasis local, respect System/Light/Dark preference and use paired semantic foregrounds.",
+      "Do regenerate social images from canonical artwork and keep light-first metadata and explicit alternative text.",
+      "Do keep illustrative data labeled and preserve original-currency product claims.",
+      "Do connect each bento card to a real product task and keep review/cancellation responsibilities explicit.",
+      "Do preserve visible focus, the inline Pause/Play control, visibility gates and the reduced-motion override.",
+      "Do animate exact final sample totals and keep native FAQ answers usable before JavaScript.",
+      "Do keep local marketing adaptations scoped to this landing project."
+    ],
+    "donts": [
+      "Don't recolor the logo with a personal accent, retype it, add a trailing period or invent a sprout, paired leaf or eight-petal alternate.",
+      "Don't promote this page's composition or pill controls into app-wide requirements.",
+      "Don't hide essential information behind entrance animation or show intermediate animated money values.",
+      "Don't animate the logo, run illustration loops offscreen or remove motion controls.",
+      "Don't replace authentic product artwork with unrelated decorative imagery.",
+      "Don't present the illustrative annual charge as guaranteed savings or imply that import/receipt previews bypass review."
+    ]
+  }
+}

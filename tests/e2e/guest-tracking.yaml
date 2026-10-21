@@ -4,6 +4,12 @@ name: Guest tracking, editing and restart persistence
 ---
 - launchApp:
     clearState: true
+- tapOn:
+    id: onboarding-next
+- assertVisible: "See what’s.*"
+- tapOn:
+    id: onboarding-next
+- tapOn: Change currency and timezone
 - scrollUntilVisible:
     element:
       id: onboarding-currency

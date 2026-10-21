@@ -44,7 +44,14 @@ import {
 } from "../../components/ui/Primitives";
 import { ServiceIcon } from "../../components/subscriptions/ServiceIcon";
 import { DateField } from "../../components/ui/DateField";
+import { useBillingMethods } from "../../hooks/useBillingMethods";
+import {
+  billingSource,
+  subscriptionBillingLabel,
+} from "../../domain/billingMethods";
+import { PaymentMethodIcon } from "../../components/payments/PaymentMethodIcon";
 export default function Details() {
+  const billingMethods = useBillingMethods();
   const { id } = useLocalSearchParams<{ id: string }>(),
     { colors } = useTheme(),
     wide = useWide(),
@@ -65,6 +72,9 @@ export default function Details() {
       </Page>
     );
   const instructions = cancellationInstructions(s.serviceId),
+    paymentSource = billingMethods.loaded
+      ? billingSource(s, billingMethods.value)
+      : undefined,
     detection = data.candidates.find(
       (c) => c.state === "confirmed" && c.matchedSubscriptionId === s.id,
     ),
@@ -174,8 +184,12 @@ export default function Details() {
                 },
                 {
                   icon: CreditCard,
-                  label: "Billing note",
-                  value: s.paymentMethod || "No billing note",
+                  label: "Billing method",
+                  value: billingMethods.loaded
+                    ? subscriptionBillingLabel(s, billingMethods.value)
+                    : billingMethods.error
+                      ? "Could not load billing method"
+                      : "Loading…",
                 },
               ].map((row) => (
                 <View
@@ -186,7 +200,15 @@ export default function Details() {
                     alignItems: "center",
                   }}
                 >
-                  <row.icon size={19} color={colors.secondary} />
+                  {row.label === "Billing method" && paymentSource ? (
+                    <PaymentMethodIcon
+                      source={paymentSource}
+                      size={22}
+                      color={colors.secondary}
+                    />
+                  ) : (
+                    <row.icon size={19} color={colors.secondary} />
+                  )}
                   <View style={{ flex: 1 }}>
                     <Label size={11} color={colors.secondary}>
                       {row.label}
@@ -201,6 +223,23 @@ export default function Details() {
           </Card>
           <Card style={{ marginTop: 20 }}>
             <SectionTitle title="Details" />
+            <Button
+              small
+              variant="ghost"
+              icon={CreditCard}
+              onPress={() => router.push("/billing-methods")}
+            >
+              Manage cards & wallets
+            </Button>
+            {billingMethods.error && (
+              <Button
+                small
+                variant="secondary"
+                onPress={() => void billingMethods.reload()}
+              >
+                Reload billing method
+              </Button>
+            )}
             <Button
               small
               variant="ghost"

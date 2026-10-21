@@ -2,6 +2,8 @@ import { PGlite } from "@electric-sql/pglite";
 import { readFileSync, readdirSync } from "node:fs";
 import { describe, it, expect } from "vitest";
 import { userA, userB } from "../fixtures";
+import { buildBillingMethod } from "../../src/domain/billingMethods";
+import { paymentProfileSchema } from "../../src/domain/payments";
 describe("feature setting security", () => {
   it("isolates accounts, prevents blind writes and cascades deletes", async () => {
     const db = new PGlite();
@@ -48,9 +50,31 @@ describe("feature setting security", () => {
       await expect(
         db.query("select save_feature_setting('unknown','[]',0)"),
       ).rejects.toThrow();
+      const billingProfile = {
+        sources: [
+          buildBillingMethod(
+            {
+              kind: "card",
+              cardBrand: "Mastercard",
+              walletProvider: "PayPal",
+              last4: "0042",
+              nickname: "Daily",
+            },
+            "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            "2026-10-19T20:00:00Z",
+          ),
+        ],
+        links: [],
+      };
       await db.query(
         "select save_feature_setting('payment_sources',$1::jsonb,0)",
-        [JSON.stringify({ sources: [], links: [] })],
+        [JSON.stringify(billingProfile)],
+      );
+      const stored = await db.query<{ data: unknown }>(
+        "select data from feature_settings where key='payment_sources'",
+      );
+      expect(paymentProfileSchema.parse(stored.rows[0]!.data)).toEqual(
+        billingProfile,
       );
       await expect(
         db.query("select save_feature_setting('payment_sources','{}',0)"),

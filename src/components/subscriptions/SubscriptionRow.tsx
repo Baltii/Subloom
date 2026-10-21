@@ -15,12 +15,14 @@ export const SubscriptionRow = memo(function SubscriptionRow({
   days,
   eventType,
   showActions = false,
+  billingLabel,
 }: {
   subscription: Subscription;
   reference: string;
   days?: number;
   eventType?: string;
   showActions?: boolean;
+  billingLabel?: string;
 }) {
   const { colors } = useTheme(),
     wide = useWide(),
@@ -40,7 +42,8 @@ export const SubscriptionRow = memo(function SubscriptionRow({
             intervalLabel(s) +
             ", " +
             s.status +
-            (event ? ", next event " + dateLabel(event.date) : "")
+            (event ? ", next event " + dateLabel(event.date) : "") +
+            (billingLabel ? ", billing method " + billingLabel : "")
           }
           onPress={() =>
             router.push({
@@ -78,6 +81,11 @@ export const SubscriptionRow = memo(function SubscriptionRow({
                     })
                   : s.status}
             </Label>
+            {billingLabel && (
+              <Label size={12} color={colors.secondary} numberOfLines={2}>
+                {billingLabel}
+              </Label>
+            )}
           </View>
           {wide && days !== undefined && (
             <Badge

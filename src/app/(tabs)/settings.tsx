@@ -83,7 +83,7 @@ const settingsGroups = [
   {
     title: "Data & privacy",
     keywords:
-      "json export download permissions help reset clear delete account",
+      "json export download permissions help welcome onboarding tour reset clear delete account",
   },
 ];
 export default function SettingsRoute() {
@@ -847,6 +847,12 @@ function Settings() {
                   title="Help & setup"
                   detail="Answers and integration status"
                   onPress={() => router.push("/help")}
+                />
+                <LinkRow
+                  icon={HelpCircle}
+                  title="Welcome tour"
+                  detail="A quick hello to Subloom"
+                  onPress={() => router.push("/onboarding?tour=1")}
                 />
                 {state.identity === "guest" ? (
                   <Button

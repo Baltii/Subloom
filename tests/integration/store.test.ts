@@ -18,6 +18,10 @@ import {
 import { extractReceipt } from "../../src/domain/detection";
 import { dateSchema, defaultPreferences } from "../../src/domain/models";
 import { subscription, userA, userB } from "../fixtures";
+import {
+  billingReference,
+  unassignedBillingMethod,
+} from "../../src/domain/billingMethods";
 vi.mock("react-native", () => ({ Platform: { OS: "web" } }));
 vi.mock("expo-crypto", () => ({ randomUUID }));
 const disk = new Map<string, string>();
@@ -36,6 +40,82 @@ beforeEach(async () => {
   await hydrate("guest");
 });
 describe("durable guest data and offline operation transactions", () => {
+  it("finishes first run durably with the selected theme and region, without sample data", async () => {
+    expect(useApp.getState().data.onboarded).toBe(false);
+    await updatePreferences({ accentTheme: "blue", appearance: "dark" });
+    expect(useApp.getState().data.onboarded).toBe(false);
+    await finishOnboarding({
+      ...useApp.getState().data.preferences,
+      currency: "EUR",
+      timezone: "Africa/Tunis",
+    });
+    await hydrate("guest");
+    expect(useApp.getState().data).toMatchObject({
+      onboarded: true,
+      demo: false,
+      subscriptions: [],
+      outbox: [],
+      preferences: {
+        accentTheme: "blue",
+        appearance: "dark",
+        currency: "EUR",
+        timezone: "Africa/Tunis",
+      },
+    });
+    await hydrate(userA);
+    expect(useApp.getState().data.onboarded).toBe(false);
+    await hydrate("guest");
+    expect(useApp.getState().data.onboarded).toBe(true);
+  });
+  it("does not complete first run after a failed save and allows retry", async () => {
+    failWrites = true;
+    await expect(finishOnboarding(defaultPreferences())).rejects.toThrow(
+      "Storage is full",
+    );
+    expect(useApp.getState().data.onboarded).toBe(false);
+    failWrites = false;
+    await hydrate("guest");
+    expect(useApp.getState().data.onboarded).toBe(false);
+    await finishOnboarding(defaultPreferences());
+    await hydrate("guest");
+    expect(useApp.getState().data.onboarded).toBe(true);
+  });
+  it("keeps existing subscription data when finishing a replayed welcome tour", async () => {
+    await saveSubscription(subscription());
+    const before = useApp.getState().data.subscriptions;
+    await finishOnboarding(useApp.getState().data.preferences);
+    expect(useApp.getState().data.subscriptions).toEqual(before);
+    await hydrate("guest");
+    expect(useApp.getState().data.subscriptions).toEqual(before);
+  });
+  it("persists billing assignments atomically with subscription edits and the owner’s sync outbox", async () => {
+    const reference = billingReference("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
+    await saveSubscription(subscription({ paymentMethod: reference }));
+    await hydrate("guest");
+    expect(useApp.getState().data.subscriptions[0]?.paymentMethod).toBe(
+      reference,
+    );
+    await hydrate(userA);
+    await saveSubscription(subscription({ paymentMethod: reference }));
+    const before = useApp.getState().data;
+    failWrites = true;
+    await expect(
+      saveSubscription(
+        subscription({ paymentMethod: unassignedBillingMethod }),
+      ),
+    ).rejects.toThrow(/Storage is full/);
+    expect(useApp.getState().data).toBe(before);
+    failWrites = false;
+    await hydrate(userB);
+    expect(useApp.getState().data.subscriptions).toEqual([]);
+    await hydrate(userA);
+    expect(useApp.getState().data.subscriptions[0]?.paymentMethod).toBe(
+      reference,
+    );
+    expect(useApp.getState().data.outbox[0]).toMatchObject({
+      payload: { subscription: { paymentMethod: reference, userId: userA } },
+    });
+  });
   it("shows a useful validation message instead of internal schema JSON", () => {
     const result = dateSchema.safeParse("2026-02-30");
     if (result.success) throw new Error("Fixture must fail date validation");

@@ -9,7 +9,13 @@ import {
   type NavigationAction,
 } from "expo-router/react-navigation";
 import * as Crypto from "expo-crypto";
-import { Check, ChevronDown, ChevronUp, Search } from "lucide-react-native";
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Search,
+} from "lucide-react-native";
 import {
   categories,
   currencies,
@@ -42,6 +48,17 @@ import {
 } from "../components/ui/pickerOptions";
 import { ServicePicker } from "../components/subscriptions/ServicePicker";
 import { useTheme, useWide } from "../theme/useTheme";
+import { useBillingMethods } from "../hooks/useBillingMethods";
+import { BillingMethodEditor } from "../components/payments/BillingMethodEditor";
+import { PaymentMethodIcon } from "../components/payments/PaymentMethodIcon";
+import {
+  billingMethodLabel,
+  billingReference,
+  billingSourceId,
+  subscriptionBillingLabel,
+  subscriptionBillingValue,
+  unassignedBillingMethod,
+} from "../domain/billingMethods";
 const formSchema = z
   .object({
     name: z.string().trim().min(1, "Give your subscription a name.").max(80),
@@ -98,6 +115,7 @@ export function SubscriptionForm({
   page?: { title: string; subtitle?: string };
 }) {
   const navigation = useNavigation();
+  const billingMethods = useBillingMethods();
   const { colors } = useTheme(),
     wide = useWide(),
     preferences = useApp((s) => s.data.preferences),
@@ -112,6 +130,7 @@ export function SubscriptionForm({
     ),
     [error, setError] = useState<string | null>(null),
     [advanced, setAdvanced] = useState(false),
+    [addingBillingMethod, setAddingBillingMethod] = useState(false),
     [choosingService, setChoosingService] = useState(false),
     [pendingNavigation, setPendingNavigation] =
       useState<NavigationAction | null>(null),
@@ -125,6 +144,7 @@ export function SubscriptionForm({
     setValue,
     handleSubmit,
     setFocus,
+    getFieldState,
     formState: { errors, isDirty },
   } = useForm<Values, unknown, z.output<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -158,10 +178,28 @@ export function SubscriptionForm({
         (candidate ? today(preferences.timezone) : dateDefaults.startDate),
       trialEnd: initial?.trialEnd || candidate?.trialEnd || "",
       status: initial?.status || (candidate?.trialEnd ? "trial" : "active"),
-      paymentMethod: initial?.paymentMethod || "",
+      paymentMethod: initial?.paymentMethod || unassignedBillingMethod,
       notes: initial?.notes || "",
     },
   });
+  useEffect(() => {
+    if (
+      initial &&
+      !initial.paymentMethod &&
+      billingMethods.loaded &&
+      !getFieldState("paymentMethod").isDirty
+    )
+      setValue(
+        "paymentMethod",
+        subscriptionBillingValue(initial, billingMethods.value),
+      );
+  }, [
+    initial,
+    billingMethods.loaded,
+    billingMethods.value,
+    getFieldState,
+    setValue,
+  ]);
   const saved = useRef(false);
   usePreventRemove(isDirty, ({ data }) => {
     if (saved.current) navigation.dispatch(data.action);
@@ -240,6 +278,15 @@ export function SubscriptionForm({
         throw new Error("Your account changed. Reopen the form before saving.");
       if (!values.currency || !values.interval)
         throw new Error("Confirm the currency and billing frequency.");
+      const selectedSource = billingSourceId(values.paymentMethod);
+      if (
+        selectedSource &&
+        values.paymentMethod !== initial?.paymentMethod &&
+        (!billingMethods.loaded || !billingMethods.byId.has(selectedSource))
+      )
+        throw new Error(
+          "Reload your billing methods and choose an available card or wallet.",
+        );
       const now = new Date().toISOString(),
         id = initial?.id || Crypto.randomUUID();
       const subscription: Subscription = {
@@ -410,6 +457,78 @@ export function SubscriptionForm({
             />
           )}
         />
+        <View style={{ marginTop: 20, marginBottom: 4 }}>
+          <Controller
+            control={control}
+            name="paymentMethod"
+            render={({ field: f }) => {
+              const options = [
+                { value: unassignedBillingMethod, label: "Not assigned" },
+                ...billingMethods.value.sources.map((source) => ({
+                  value: billingReference(source.id),
+                  label: billingMethodLabel(source),
+                  icon: <PaymentMethodIcon source={source} size={24} />,
+                })),
+              ];
+              if (!options.some((option) => option.value === f.value))
+                options.push({
+                  value: f.value,
+                  label: !billingMethods.loaded
+                    ? "Saved billing method"
+                    : initial
+                      ? subscriptionBillingLabel(
+                          { ...initial, paymentMethod: f.value },
+                          billingMethods.value,
+                        )
+                      : "Billing method unavailable",
+                });
+              return (
+                <SelectField
+                  label="Billing method"
+                  testID="subscription-billing-method"
+                  value={f.value}
+                  options={options}
+                  onChange={f.onChange}
+                  disabled={busy || !billingMethods.loaded}
+                  searchable
+                  hint={
+                    billingMethods.loaded
+                      ? "The card or wallet used for this service."
+                      : "Loading saved cards and wallets…"
+                  }
+                />
+              );
+            }}
+          />
+          {billingMethods.error && (
+            <View style={{ gap: 8, marginBottom: 8 }}>
+              <Label color={colors.error} accessibilityRole="alert">
+                {billingMethods.error} Your saved assignment will be kept.
+              </Label>
+              <Button
+                small
+                variant="secondary"
+                onPress={() => void billingMethods.reload()}
+              >
+                Reload billing methods
+              </Button>
+            </View>
+          )}
+          <Button
+            small
+            variant="ghost"
+            icon={Plus}
+            disabled={
+              busy ||
+              !billingMethods.loaded ||
+              billingMethods.value.sources.length >= 50 ||
+              useApp.getState().data.demo
+            }
+            onPress={() => setAddingBillingMethod(true)}
+          >
+            Add a card or wallet
+          </Button>
+        </View>
         {interval === "custom" && (
           <View style={{ marginTop: 16 }}>
             {field("intervalCount", "Repeat every", {
@@ -552,6 +671,23 @@ export function SubscriptionForm({
           />
         )}
       </PickerSheet>
+
+      {addingBillingMethod && (
+        <BillingMethodEditor
+          onClose={() => setAddingBillingMethod(false)}
+          needsReload={!billingMethods.loaded}
+          onReload={billingMethods.reload}
+          onSave={async (source) => {
+            await billingMethods.save({
+              ...billingMethods.value,
+              sources: [...billingMethods.value.sources, source],
+            });
+            setValue("paymentMethod", billingReference(source.id), {
+              shouldDirty: true,
+            });
+          }}
+        />
+      )}
 
       <Confirm
         visible={Boolean(pendingNavigation)}

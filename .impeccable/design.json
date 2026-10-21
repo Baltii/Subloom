@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-13T07:14:30.586Z",
+  "generatedAt": "2026-10-21T11:35:55.863646+00:00",
   "title": "Design System: Subloom",
   "extensions": {
     "motion": [
@@ -3067,6 +3067,51 @@
           "oklch(83.57% 0.0091 106.69)",
           "oklch(95.00% 0.0091 106.69)"
         ]
+      },
+      "brand-green": {
+        "role": "primary",
+        "displayName": "Subloom Green",
+        "canonical": "#087C65",
+        "tonalRamp": [
+          "oklch(15.00% 0.0983 173.45)",
+          "oklch(26.43% 0.0983 173.45)",
+          "oklch(37.86% 0.0983 173.45)",
+          "oklch(49.29% 0.0983 173.45)",
+          "oklch(60.71% 0.0983 173.45)",
+          "oklch(72.14% 0.0983 173.45)",
+          "oklch(83.57% 0.0983 173.45)",
+          "oklch(95.00% 0.0983 173.45)"
+        ]
+      },
+      "brand-forest": {
+        "role": "neutral",
+        "displayName": "Forest",
+        "canonical": "#182D25",
+        "tonalRamp": [
+          "oklch(15.00% 0.0311 167.87)",
+          "oklch(26.43% 0.0311 167.87)",
+          "oklch(37.86% 0.0311 167.87)",
+          "oklch(49.29% 0.0311 167.87)",
+          "oklch(60.71% 0.0311 167.87)",
+          "oklch(72.14% 0.0311 167.87)",
+          "oklch(83.57% 0.0311 167.87)",
+          "oklch(95.00% 0.0311 167.87)"
+        ]
+      },
+      "brand-mint": {
+        "role": "neutral",
+        "displayName": "Bloom Mint",
+        "canonical": "#E1F0DE",
+        "tonalRamp": [
+          "oklch(15.00% 0.0287 140.48)",
+          "oklch(26.43% 0.0287 140.48)",
+          "oklch(37.86% 0.0287 140.48)",
+          "oklch(49.29% 0.0287 140.48)",
+          "oklch(60.71% 0.0287 140.48)",
+          "oklch(72.14% 0.0287 140.48)",
+          "oklch(83.57% 0.0287 140.48)",
+          "oklch(95.00% 0.0287 140.48)"
+        ]
       }
     }
   },
@@ -3153,8 +3198,9 @@
   ],
   "narrative": {
     "northStar": "Forest and mint Subloom, made personal",
-    "overview": "Subloom retains its forest/mint default, DM Sans/Manrope, Lucide icons and rounded semantic primitives. The authorized expansion makes the consumer interface more playful through eight predefined accents, financial object illustrations, inviting action cards and explicit success/failure feedback. Readability and clear financial tasks still lead the design.\n\nShared React Native primitives serve Expo native and web surfaces. Tonal fills, contrasting spotlight cards, thin borders and visible focus establish hierarchy. Original tactile 3D wallet, cards, coins and renewal-calendar artwork add depth around onboarding and payment tasks. These objects express the financial subject; they do not introduce a brand mascot.",
+    "overview": "Subloom retains its forest/mint default, DM Sans/Manrope, Lucide icons and rounded semantic primitives. The authorized expansion makes the consumer interface more playful through eight predefined accents, financial object illustrations, inviting action cards and explicit success/failure feedback. Readability and clear financial tasks still lead the design.\n\nShared React Native primitives serve Expo native and web surfaces. Tonal fills, contrasting spotlight cards, thin borders and visible focus establish hierarchy. Original tactile 3D wallet, cards, coins and renewal-calendar artwork add depth around financial tasks in the earlier UI handoff. These objects express the financial subject; they do not introduce a brand mascot.\n\nFourfold Bloom is the fixed brand identity: four matching rounded petals from the original native mark, with one outlined wordmark with an uppercase S and no trailing period. `brand/source/identity.json` owns the geometry and fixed palette; `brand/GUIDE.md` governs applications. The app and website consume generated data from that same master. This brand commitment leaves the existing accent preferences and financial behavior intact.",
     "keyCharacteristics": [
+      "Fixed Fourfold Bloom geometry and outlined wordmark across app and website.",
       "Forest and mint remain the default; eight accent choices work independently of appearance.",
       "Manrope headings above DM Sans body text, labels and tabular numbers.",
       "Rounded tonal controls, thin semantic borders, named Lucide actions and visible focus.",
@@ -3168,6 +3214,16 @@
         "section": "colors"
       },
       {
+        "name": "The Fixed Logo Color Rule",
+        "body": "Personal accents never recolor the logo. Use brand Green for the mark and Forest for the outlined wordmark on light surfaces; use Bloom Mint for both on dark surfaces. Resolve interface controls through the existing theme independently.",
+        "section": "colors"
+      },
+      {
+        "name": "The Outlined Wordmark Rule",
+        "body": "Render the supplied outlined Manrope 700 wordmark, `Subloom` with an uppercase S, without a trailing period. Keep Manrope and DM Sans interface text independent of the fixed logo geometry.",
+        "section": "typography"
+      },
+      {
         "name": "The Numeric Reading Rule",
         "body": "Preserve the shared tabular-number treatment and keep financial labels readable while motion runs; do not move exact money calculations into animation worklets.",
         "section": "typography"
@@ -3178,12 +3234,18 @@
         "section": "elevation & depth"
       },
       {
+        "name": "The One Master Rule",
+        "body": "The Fourfold Bloom mark and outlined wordmark with an uppercase S form one fixed identity across app and website. Read `brand/GUIDE.md` before any brand change; edit `brand/source/identity.json` deliberately and regenerate, never redraw or retype a local logo.",
+        "section": "components"
+      },
+      {
         "name": "The Feedback Without Travel Rule",
         "body": "Preserve state and readable labels when system reduced motion suppresses spatial or entrance animation. Source support is established; native runtime, OS reduced-motion settings and browser reduced-motion emulation were not exercised in the playful UI handoff.",
         "section": "components"
       }
     ],
     "dos": [
+      "**Do** reuse the generated Fourfold Bloom mark and outlined wordmark; regenerate and run the brand drift check after a deliberate master change.",
       "**Do** use the resolved semantic theme pairs, installed fonts, Lucide icons and shared primitives.",
       "**Do** keep accent and appearance independent, and keep feedback colors stable when accents change.",
       "**Do** reuse the committed financial object artwork with descriptive text and named actions.",
@@ -3193,6 +3255,8 @@
       "**Do** preserve guest persistence, owner-isolated saves, draft protection and contextual error recovery."
     ],
     "donts": [
+      "**Don't** recolor the logo with a personal accent, retype the wordmark, add a trailing period, redraw the petals or introduce a sprout, paired leaf or eight-petal alternate.",
+      "**Don't** stretch, crop, rotate, shadow or independently animate the petals; preserve the master geometry and clear space.",
       "**Don't** remove the Green default or replace the shared typography and rounded primitive language when extending this system.",
       "**Don't** substitute a brand mascot for the financial objects requested for this interface.",
       "**Don't** hide required compact actions behind hover or swiping.",

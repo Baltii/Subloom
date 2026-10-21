@@ -1,41 +1,47 @@
-import { Text, View } from "react-native";
-import Svg, { Path, Ellipse, G } from "react-native-svg";
+import Svg, { Path, G } from "react-native-svg";
 import { useTheme } from "../../theme/useTheme";
-import { tokens } from "../../theme/tokens";
+import { brandIdentity } from "../../brand/identity";
+
 export function Bloom({ size = 34, color }: { size?: number; color?: string }) {
-  const { colors } = useTheme();
+  const { isDark } = useTheme();
+  const fill =
+    color || (isDark ? brandIdentity.colors.mint : brandIdentity.colors.green);
   return (
     <Svg
       width={size}
       height={size}
-      viewBox="0 0 48 48"
-      accessibilityLabel="Subloom flower"
+      viewBox="0 0 64 64"
+      accessibilityRole="image"
+      accessibilityLabel="Subloom"
     >
-      <Path
-        d="M24 24C2 25 5 4 16 8C22 10 24 16 24 24Z M24 24C23 2 44 5 40 16C38 22 32 24 24 24Z M24 24C46 23 43 44 32 40C26 38 24 32 24 24Z M24 24C25 46 4 43 8 32C10 26 16 24 24 24Z"
-        fill={color || colors.primary}
-      />
+      <Path d={brandIdentity.markPath} fill={fill} />
     </Svg>
   );
 }
 export function Brand({ compact = false }: { compact?: boolean }) {
-  const { colors } = useTheme();
+  const { isDark } = useTheme();
+  const markColor = isDark
+    ? brandIdentity.colors.mint
+    : brandIdentity.colors.green;
+  const textColor = isDark
+    ? brandIdentity.colors.mint
+    : brandIdentity.colors.forest;
+  if (compact) return <Bloom size={32} />;
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
-      <Bloom size={32} />
-      {!compact && (
-        <Text
-          style={{
-            fontFamily: tokens.fonts.displayBold,
-            fontSize: 23,
-            color: colors.text,
-            letterSpacing: -1,
-          }}
-        >
-          subloom<Text style={{ color: colors.primary }}>.</Text>
-        </Text>
-      )}
-    </View>
+    <Svg
+      width={brandIdentity.lockupWidth / 2}
+      height={32}
+      viewBox={`0 0 ${brandIdentity.lockupWidth} 64`}
+      accessibilityRole="image"
+      accessibilityLabel="Subloom"
+    >
+      <Path d={brandIdentity.markPath} fill={markColor} />
+      <Path
+        d={brandIdentity.wordmarkPath}
+        transform={`translate(${brandIdentity.wordmarkOffsetX} 0)`}
+        fill={textColor}
+      />
+    </Svg>
   );
 }
 export function BloomArt({
@@ -46,20 +52,9 @@ export function BloomArt({
   color?: string;
 }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 240 240" aria-hidden>
-      <G transform="translate(120 120)">
-        {Array.from({ length: 8 }, (_, i) => (
-          <Ellipse
-            key={i}
-            cx="0"
-            cy="-51"
-            rx="31"
-            ry="58"
-            fill={color}
-            opacity={0.4 + i * 0.065}
-            transform={"rotate(" + i * 45 + ")"}
-          />
-        ))}
+    <Svg width={size} height={size} viewBox="0 0 64 64" aria-hidden>
+      <G fill={color}>
+        <Path d={brandIdentity.markPath} />
       </G>
     </Svg>
   );
