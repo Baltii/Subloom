@@ -2,6 +2,44 @@
 
 Release Please maintains this file from conventional commits merged into `main`.
 
+## [1.2.0](https://github.com/Baltii/Subloom/compare/v1.1.0...v1.2.0) (2026-10-21)
+
+
+### Features
+
+* add a theme-aware three-step welcome flow ([a0ad6a1](https://github.com/Baltii/Subloom/commit/a0ad6a1e5c799fdcaa4d9886ea7bde7f8eed51e6))
+* add Bitcoin watch history, wallet payment review and renewal preferences ([b9e84bd](https://github.com/Baltii/Subloom/commit/b9e84bd3863e14ff601e93992711341aa60a31f9))
+* add cancellation watch and evidence packets ([5e61768](https://github.com/Baltii/Subloom/commit/5e617683635e74a12aaf0e4a7775caafab213140))
+* add card labels and original-currency transaction journal ([35fc7a2](https://github.com/Baltii/Subloom/commit/35fc7a217a287ffbb760765474201175addad567))
+* add cards and wallets payment-source hub ([8cd977a](https://github.com/Baltii/Subloom/commit/8cd977a68587efe7f716a3e34de042c21848314a))
+* add family settlement ledger and request drafts ([46416fd](https://github.com/Baltii/Subloom/commit/46416fdb6e9b7dbebe26f91cdc02470d8e2d991f))
+* add playful payment UI and eight accent themes ([4f81b59](https://github.com/Baltii/Subloom/commit/4f81b59e47f88b5cea43f5987c53af57dd1d98b6))
+* add realistic saved card faces and billing icons ([80a578b](https://github.com/Baltii/Subloom/commit/80a578b7ca73e789c37481b1ef791492defb27f5))
+* add renewal reserve and payday planning ([b6a71b4](https://github.com/Baltii/Subloom/commit/b6a71b45210ff13a146709c6d84f6bff0ef7af18))
+* add renewal review rules and confirmation tracking ([4d564f0](https://github.com/Baltii/Subloom/commit/4d564f0cb73256b2f7f391b9d9947b916dbf1156))
+* add service cancellation instructions and website links ([fd11d91](https://github.com/Baltii/Subloom/commit/fd11d9157d24dd525fbfb74e8c0ed950cab1b662))
+* add statement imports and subscription radar ([6715774](https://github.com/Baltii/Subloom/commit/6715774dc3a2add90218e3f6667a1c749d749ee7))
+* add subscription value coach and confirmed comparisons ([2c83f15](https://github.com/Baltii/Subloom/commit/2c83f154a5d17f4f53a8e49555479b1181329c16))
+* add unenforced virtual card plans and simulations ([df24bc0](https://github.com/Baltii/Subloom/commit/df24bc017b7a57b70b531850310506607a631039))
+* cache daily currency reference rates and show exact estimates ([76db381](https://github.com/Baltii/Subloom/commit/76db381d2ce1670aa32c15fd683f4b8770b461dd))
+* finish combined app flows and document release readiness ([4d16b8b](https://github.com/Baltii/Subloom/commit/4d16b8b73710d8a3fe64769b9d06c8b1c970990b))
+* save cards and wallets as subscription billing methods ([67bb37c](https://github.com/Baltii/Subloom/commit/67bb37cbafbbe82c2626577f02f02b508289eb4b))
+* unify Subloom branding and publish animated landing page ([3b2113a](https://github.com/Baltii/Subloom/commit/3b2113afe4ffd5e33b3e99865b852c8c14480c9b))
+
+
+### Bug Fixes
+
+* build Expo web output on Vercel and stabilize CI fixtures ([31b0177](https://github.com/Baltii/Subloom/commit/31b017714aff9ef1d7919a6d7a851aaacf203ba0))
+* include homepage in production response headers ([2bf5bc7](https://github.com/Baltii/Subloom/commit/2bf5bc755610d65532f50c7009d5eda9819b71f4))
+* make Android EAS builds use reproducible npm installs ([fba0529](https://github.com/Baltii/Subloom/commit/fba05297f1f67929dcc2fdc4f7ef09ce37df9b23))
+* make EAS dependency installation reproducible ([781780b](https://github.com/Baltii/Subloom/commit/781780bdf4c18d4d64aad6b73df3573f58f16f89))
+* match saved card faces to light and dark appearance ([310f758](https://github.com/Baltii/Subloom/commit/310f758bc29120cb91ae7ef2ba9180d411b156f7))
+* refresh finance records on return and harden financial feedback ([068094c](https://github.com/Baltii/Subloom/commit/068094cde496805245b55cb3e5c60f3714931f15))
+* separate currency estimates from recorded spending ([953852e](https://github.com/Baltii/Subloom/commit/953852e46e268c435fe8d217c3fdf1def903009d))
+* use strict imports for deployed Bitcoin function ([f020686](https://github.com/Baltii/Subloom/commit/f020686f80e9c10a6c28a433f6342d179374fa77))
+* use web-safe accessibility props on billing icons ([abcee81](https://github.com/Baltii/Subloom/commit/abcee81e979f4528e31012267679b3c60428a4c4))
+* verify strict backend fixtures and document web deployment ([41971bd](https://github.com/Baltii/Subloom/commit/41971bd97011eb1d3a04fab910dc7c291f112a67))
+
 ## [1.1.0](https://github.com/Baltii/Subloom/compare/v1.0.0...v1.1.0) (2026-10-12)
 
 
