@@ -728,6 +728,7 @@ function normalizeSearch(value: string) {
 }
 const searchIndex = catalog.map((service) => ({
   service,
+  names: [service.name, ...(service.aliases ?? [])].map(normalizeSearch),
   text: normalizeSearch(
     [
       service.name,
@@ -749,4 +750,15 @@ export function searchServices(
         terms.every((term) => text.includes(term)),
     )
     .map((entry) => entry.service);
+}
+
+// Inline name suggestions intentionally match prefixes, not category/substring search.
+export function suggestServices(query: string): Service[] {
+  const prefix = normalizeSearch(query.slice(0, 80));
+  if (!prefix) return [];
+  return searchIndex
+    .filter(({ names }) => names.some((name) => name.startsWith(prefix)))
+    .map(({ service }) => service)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 6);
 }
