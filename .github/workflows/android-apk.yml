@@ -1,0 +1,63 @@
+name: Build Android test APK
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    name: Standalone Android APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CI: '1'
+      EXPO_NO_TELEMETRY: '1'
+      EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+      EXPO_PUBLIC_EAS_PROJECT_ID: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Require public Android app configuration
+        run: |
+          test -n "$EXPO_PUBLIC_SUPABASE_URL"
+          test -n "$EXPO_PUBLIC_SUPABASE_ANON_KEY"
+          test -f google-services.json
+      - run: npm ci
+      - name: Generate Android project from Expo configuration
+        run: node scripts/expo.mjs prebuild --platform android --no-install
+      - name: Build bundled, test-signed APK
+        working-directory: android
+        run: ./gradlew :app:assembleRelease --no-daemon --max-workers=2 -PreactNativeArchitectures=arm64-v8a,x86_64
+      - name: Package APK and checksum
+        run: |
+          mkdir -p build/android
+          version=$(node -p 'require("./package.json").version')
+          apk="Subloom-${version}-${GITHUB_SHA:0:7}-android-test.apk"
+          cp android/app/build/outputs/apk/release/app-release.apk "build/android/$apk"
+          cd build/android
+          sha256sum "$apk" > "$apk.sha256"
+          {
+            echo '### Android test APK'
+            echo "Download **$apk** from this run android-apk artifact."
+            echo 'Standalone bundled app for arm64 phones and x86_64 emulators; no Metro server or Expo token needed.'
+            echo 'Uses the Expo test signing key. It cannot update an EAS/store-signed installation; use a spare device/emulator or export guest data before uninstalling an existing copy.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: android-apk
+          path: build/android/*
+          if-no-files-found: error
+          retention-days: 14

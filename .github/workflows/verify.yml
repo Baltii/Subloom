@@ -1,4 +1,4 @@
-name: Verify app and build Mac artifacts
+name: Verify app, website and installable artifacts
 
 on:
   workflow_call:
@@ -23,6 +23,7 @@ jobs:
       - name: Validate GitHub workflows
         run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
       - run: npm run check
+      - run: node scripts/build-brand.mjs --check
       - run: npm run check:backend
       - run: npm run test:backend
       - name: Export web and native JavaScript bundles
@@ -84,3 +85,27 @@ jobs:
             build/Subloom-*-macos-*.sha256
           if-no-files-found: error
           retention-days: 14
+
+  landing:
+    name: Landing production build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: landing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: landing/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  android:
+    name: Android APK
+    needs: app
+    uses: ./.github/workflows/android-apk.yml

@@ -4,9 +4,9 @@ GitHub CI checks pull requests, produces Mac test builds, and tests native stora
 
 **Take control of your subscriptions.** An Expo React Native app for iOS and Android, with a responsive web preview, durable offline tracking, precise recurring-cost estimates, editable receipt detections, and a Supabase reminder backend.
 
-Production web: [subloom.baltii.tn](https://subloom.baltii.tn). GitHub `main` builds through the existing Vercel project; see [web deployment](feature-docs/web-deployment.md) for build settings, callbacks and live verification.
+Production web: [subloom.baltii.tn](https://subloom.baltii.tn). GitHub `release-candidate` builds through the existing Vercel project; see [web deployment](feature-docs/web-deployment.md) for build settings, callbacks and live verification.
 
-The focused tracker scope is documented in [Focused subscription tracker](feature-docs/focused-subscription-tracker.md). It removes speculative finance, card-control and collaboration screens, and makes reviewed statement transactions a main section. The production domain publishes the version on `main` after its Vercel deployment succeeds.
+The focused tracker scope is documented in [Focused subscription tracker](feature-docs/focused-subscription-tracker.md). It removes speculative finance, card-control and collaboration screens, and makes reviewed statement transactions a main section. The production domain publishes the version on `release-candidate` after its Vercel deployment succeeds.
 
 ## Run the app
 
@@ -50,7 +50,7 @@ Guest subscriptions, receipt candidates, settings, and activity are saved automa
 
 The ten-feature stack and preserved email templates are integrated on the rebased Mac branch. On 2026-10-11, all five feature migrations and twelve Edge Functions were deployed to the existing test project. The combined branch passes 195 application/Postgres tests and 22 backend tests. Three hosted scheduler/retention jobs remain active. See [setup progress](feature-docs/setup-progress.md) for live verification and the remaining Google/Apple, mailbox and SAML credentials.
 
-Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. Android FCM v1 credentials are configured in EAS and the matching Firebase client configuration is wired into Expo. Google authentication and an FCM validation-only send passed without delivering a message. An Android preview APK is queued in EAS; physical-device push delivery still needs verification. APNs setup and iOS delivery remain pending. Mac local reminders and durable guest files are implemented. Email notifications and Supabase Auth SMTP now use the existing Resend API key with the temporary sender `Subloom <onboarding@resend.dev>`. Resend's test sender delivers to the email associated with the Resend account; other real recipients require a verified sending domain. Provider simulation addresses can be used for development checks. OCR and email forwarding still require provider setup and live delivery validation.
+Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. Android FCM v1 credentials are configured in EAS and the matching Firebase client configuration is wired into Expo. Google authentication and an FCM validation-only send passed without delivering a message. An Android preview APK has finished building in EAS; physical-device push delivery still needs verification. APNs setup and iOS delivery remain pending. Mac local reminders and durable guest files are implemented. Email notifications and Supabase Auth SMTP now use the existing Resend API key with the temporary sender `Subloom <onboarding@resend.dev>`. Resend's test sender delivers to the email associated with the Resend account; other real recipients require a verified sending domain. Provider simulation addresses can be used for development checks. OCR and email forwarding still require provider setup and live delivery validation.
 
 The dependency audit still reports upstream high-severity findings in Expo/React Native tooling. Review these before a store release. This is not a claim of production certification.
 
@@ -63,3 +63,10 @@ Run `npm run preview:emails` to generate a gallery and individual HTML/plain-tex
 The shared template library covers subscription additions, upcoming renewals, renewals due today, past tracked due dates, trial endings, price changes, recorded cancellations, weekly digests, welcome emails, and receipt detections. Existing renewal/trial scheduling, digests, welcome emails, and inbound receipt alerts use the structured templates. Addition, price-change, cancellation, and past-due templates are available for future event triggers; creating a template does not enable automatic delivery for those events. Subloom does not verify payment failures or merchant cancellations.
 
 Templates use inline styles, presentation tables, escaped dynamic content, and equivalent plain text. Weekly digests retain signed opt-out links. Browser previews verify desktop and phone layouts; compatibility with every email client is not implied.
+
+
+## Production and Android CI
+
+`release-candidate` is the production/default branch. Open feature PRs against it, or stack each follow-up against its predecessor. Pull requests run the shared app/backend, website, Mac and Android verification workflow. Production pushes run the same verification before version/release automation. Manual deployments reject other branches.
+
+The **Build Android test APK** workflow also supports manual runs. Its `android-apk` artifact contains a standalone APK and SHA-256 checksum, retained for 14 days. It compiles the app in release mode using Expo’s test signing key for arm64 phones and x86_64 emulators. It needs only existing public app configuration, not an Expo token or private signing key. It cannot update the EAS/store-signed APK; export guest records before replacing an installation, or use a spare device/emulator. Store-signed builds continue through the existing manual EAS workflow and require `EXPO_TOKEN`.
