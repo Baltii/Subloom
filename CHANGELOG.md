@@ -2,6 +2,23 @@
 
 Release Please maintains this file from conventional commits merged into `main`.
 
+## [1.3.0](https://github.com/Baltii/Subloom/compare/v1.2.0...v1.3.0) (2026-10-21)
+
+
+### Features
+
+* add directional navigation and modal transitions ([09c402a](https://github.com/Baltii/Subloom/commit/09c402ae40fef2145ec60457e27f4ab9cbea6a50))
+* suggest matching services while typing subscription names ([6bdc2cd](https://github.com/Baltii/Subloom/commit/6bdc2cdbea9c780d1ea0069d823257439eab8c6f))
+
+
+### Bug Fixes
+
+* **ci:** handle historical release tags without mismatched artifacts ([94f15b5](https://github.com/Baltii/Subloom/commit/94f15b546d0f7f00387bc2a3e18fc0335f4a9c9f))
+* **ci:** skip mismatched artifacts for historical releases ([daa8c40](https://github.com/Baltii/Subloom/commit/daa8c40b554e9d6e110914bb4248800bb8f76b7f))
+* respect Android system navigation safe area ([a1ccf9f](https://github.com/Baltii/Subloom/commit/a1ccf9f8dc8b8a5b77cc4e06cb71c9936e0dba4b))
+* **security:** keep Firebase Android configuration out of Git ([0ac0d11](https://github.com/Baltii/Subloom/commit/0ac0d112deb5b0db10a2f8349ade2cd5281f691e))
+* **security:** move Firebase Android configuration to build secrets ([b0afdd5](https://github.com/Baltii/Subloom/commit/b0afdd5a6902c464a54ca1f288505a48d4779ac1))
+
 ## [1.2.0](https://github.com/Baltii/Subloom/compare/v1.1.0...v1.2.0) (2026-10-21)
 
 
