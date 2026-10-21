@@ -35,6 +35,7 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useTheme, useWide } from "../../theme/useTheme";
+import { bottomTabLayout } from "../../theme/navigation";
 import { tokens } from "../../theme/tokens";
 import { useApp } from "../../store/app";
 import { useQuickActions } from "../../hooks/useQuickActions";
@@ -935,6 +936,7 @@ export function LinkRow({
   );
 }
 export function Toast() {
+  const insets = useSafeAreaInsets();
   const toast = useApp((s) => s.toast),
     tone = useApp((s) => s.toastTone),
     toastId = useApp((s) => s.toastId),
@@ -962,7 +964,9 @@ export function Toast() {
       accessibilityLiveRegion="polite"
       style={{
         position: "absolute",
-        bottom: wide ? 24 : 92,
+        bottom: wide
+          ? 24 + insets.bottom
+          : 20 + bottomTabLayout(insets.bottom).height,
         alignSelf: "center",
         maxWidth: wide ? 520 : "90%",
         flexDirection: "row",
