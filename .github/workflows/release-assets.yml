@@ -1,0 +1,108 @@
+name: Attach release apps
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published release tag to build (for example v1.4.0)
+        type: string
+        required: true
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+      build:
+        description: Build the tag; false reuses this run's already verified artifacts
+        type: boolean
+        default: true
+    secrets:
+      GOOGLE_SERVICES_JSON:
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-assets-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  source:
+    name: Resolve the published production release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      sha: ${{ steps.source.outputs.sha }}
+      tag: ${{ steps.source.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: release-candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve and validate release source
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          REUSE_ARTIFACTS: ${{ github.event_name != 'release' && github.event_name != 'workflow_dispatch' && inputs.build == false }}
+        run: |
+          node --input-type=module <<'JS'
+          import { execFileSync } from 'node:child_process';
+          import { appendFileSync } from 'node:fs';
+          const run = (command, args) => execFileSync(command, args, { encoding: 'utf8' }).trim();
+          const tag = process.env.RELEASE_TAG;
+          if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Use a stable vX.Y.Z release tag.');
+          const release = JSON.parse(run('gh', ['release', 'view', tag, '--repo', process.env.GITHUB_REPOSITORY, '--json', 'tagName,isDraft,isPrerelease']));
+          if (release.isDraft || release.isPrerelease || release.tagName !== tag) throw new Error('Expected a published stable release.');
+          const sha = run('git', ['rev-parse', `refs/tags/${tag}^{commit}`]);
+          run('git', ['merge-base', '--is-ancestor', sha, 'origin/release-candidate']);
+          const manifest = JSON.parse(run('git', ['show', `${sha}:package.json`]));
+          if (`v${manifest.version}` !== tag) throw new Error('Release tag and app version differ.');
+          if (process.env.REUSE_ARTIFACTS === 'true' && sha !== process.env.GITHUB_SHA) throw new Error('Cannot attach binaries verified at a different commit.');
+          appendFileSync(process.env.GITHUB_OUTPUT, `sha=${sha}\ntag=${tag}\n`);
+          JS
+
+  verify:
+    needs: source
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch' || inputs.build != false
+    uses: ./.github/workflows/verify.yml
+    with:
+      ref: ${{ needs.source.outputs.sha }}
+    secrets:
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
+  publish:
+    name: Attach installers and checksums
+    needs: [source, verify]
+    if: >-
+      always() && needs.source.result == 'success' &&
+      (needs.verify.result == 'success' ||
+       (needs.verify.result == 'skipped' && github.event_name != 'release' && github.event_name != 'workflow_dispatch' && inputs.build == false))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download only this run's verified apps
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for artifact in android-apk windows-x64 macos-arm64 macos-x64; do
+            gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "artifacts/$artifact"
+          done
+      - name: Verify checksums and attach all platform downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.source.outputs.tag }}
+          RELEASE_SHA: ${{ needs.source.outputs.sha }}
+        run: |
+          for artifact in android-apk windows-x64 macos-arm64 macos-x64; do
+            (cd "artifacts/$artifact" && sha256sum --check ./*.sha256)
+          done
+          gh release upload "$RELEASE_TAG" artifacts/android-apk/* artifacts/windows-x64/* artifacts/macos-arm64/* artifacts/macos-x64/* --repo "$GITHUB_REPOSITORY" --clobber
+          echo "Attached Android APK, Windows x64 installer and both Mac apps from $RELEASE_SHA to $RELEASE_TAG." >> "$GITHUB_STEP_SUMMARY"
