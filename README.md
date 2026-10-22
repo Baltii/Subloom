@@ -1,78 +1,191 @@
-# Subloom
+<p align="center">
+  <a href="https://subloom.baltii.tn">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="landing/public/social-dark.png">
+      <source media="(prefers-color-scheme: light)" srcset="landing/public/social.png">
+      <img src="landing/public/social.png" alt="Subloom — Less money admin. More peace of mind." width="100%">
+    </picture>
+  </a>
+</p>
 
-GitHub CI checks pull requests, produces Mac test builds, and tests native storage. Release Please opens versioning PRs; merging a release PR publishes versioned Mac test downloads. Backend and mobile deployments use the protected deployment workflow. Feature setup documentation is tracked in [feature-docs](feature-docs/README.md); installed agent skills and local verification artifacts are ignored by Git.
+<p align="center">
+  <strong>A calmer place for your subscriptions.</strong><br>
+  See what renews, understand what it costs, and keep what matters.
+</p>
 
-**Take control of your subscriptions.** An Expo React Native app for iOS and Android, with a responsive web preview, durable offline tracking, precise recurring-cost estimates, editable receipt detections, and a Supabase reminder backend.
+<p align="center">
+  <a href="https://github.com/Baltii/Subloom/releases"><img src="https://img.shields.io/github/v/release/Baltii/Subloom?style=flat-square&amp;color=087C65&amp;label=release" alt="Latest GitHub release"></a>
+  <a href="https://github.com/Baltii/Subloom/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/Baltii/Subloom/release.yml?branch=release-candidate&amp;style=flat-square&amp;label=production%20checks" alt="Production verification status"></a>
+  <a href="package.json"><img src="https://img.shields.io/badge/Expo-57-182D25?style=flat-square&amp;logo=expo&amp;logoColor=white" alt="Built with Expo SDK 57"></a>
+  <a href="package.json"><img src="https://img.shields.io/badge/React_Native-0.86-182D25?style=flat-square&amp;logo=react&amp;logoColor=70D2AD" alt="React Native 0.86"></a>
+  <a href="tsconfig.json"><img src="https://img.shields.io/badge/TypeScript-6-182D25?style=flat-square&amp;logo=typescript&amp;logoColor=70D2AD" alt="TypeScript 6"></a>
+</p>
 
-Production web: [subloom.baltii.tn](https://subloom.baltii.tn). GitHub `release-candidate` builds through the existing Vercel project; see [web deployment](feature-docs/web-deployment.md) for build settings, callbacks and live verification.
+<p align="center">
+  <strong><a href="https://subloom.baltii.tn">Open the app ↗</a></strong>
+  &nbsp;·&nbsp; <a href="https://subloom-landing.vercel.app">Visit the website</a>
+  &nbsp;·&nbsp; <a href="https://github.com/Baltii/Subloom/releases">Releases</a>
+  &nbsp;·&nbsp; <a href="https://github.com/Baltii/Subloom/issues">Share feedback</a>
+</p>
 
-The focused tracker scope is documented in [Focused subscription tracker](feature-docs/focused-subscription-tracker.md). It removes speculative finance, card-control and collaboration screens, and makes reviewed statement transactions a main section. The production domain publishes the version on `release-candidate` after its Vercel deployment succeeds.
+<p align="center">
+  <a href="#why-subloom">Why Subloom</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#a-look-inside">A look inside</a> ·
+  <a href="#run-it-locally">Run locally</a> ·
+  <a href="#documentation">Documentation</a>
+</p>
 
-## Run the app
+---
 
-Use Node 22.13+ and npm. No provider credentials are needed for guest tracking or pasted-text detection.
+## Why Subloom
+
+A streaming service you stopped watching. A trial you meant to cancel. A small monthly charge that quietly became a yearly expense.
+
+Subloom brings your recurring commitments into one clear view. Track services, see the next renewal, and understand the monthly and yearly cost before deciding what deserves a place in your budget. It helps you spot the subscriptions you may have forgotten, without promising a fixed amount of savings.
+
+Start with a personal space saved on your device. Connect an account when you want to sync across devices. **Guest tracking needs no bank connection or account.**
+
+## Features
+
+| A little more clarity             | What you can do                                                                                                                                                                                  |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Your subscriptions, together**  | Add catalog services or custom subscriptions, with service-name suggestions, categories, notes, prices, trials, and status controls.                                                             |
+| **Renewals you can see coming**   | Browse a renewal calendar, upcoming charges, and a six-month forecast. Keep month-end dates, leap years, and your timezone in view.                                                              |
+| **A clearer picture of spending** | Compare monthly and yearly estimates, explore category breakdowns, set category budgets, and review recorded price changes. Original currencies stay separate.                                   |
+| **Find the recurring charges**    | Import a bank-exported statement CSV, review and categorize transactions, and confirm recurring-charge suggestions before creating subscriptions.                                                |
+| **Less retyping**                 | Paste receipt text, review the detected details, and confirm what gets saved. Screenshot OCR is available when its optional backend is configured.                                               |
+| **Your data, your choice**        | Track offline, optionally sync through an account, import/export subscription CSVs, and export renewal dates to your calendar. Guest backups and account export/deletion controls are available. |
+| **A calmer everyday interface**   | Light, dark, and system appearance; eight accent themes; responsive layouts; accessible controls; and motion that respects reduced-motion preferences.                                           |
+
+Subloom tracks and helps you review subscriptions. Managing or canceling a service still happens with its provider; recording a cancellation in Subloom does not cancel merchant billing.
+
+## A look inside
+
+<p align="center">
+  <img src=".github/assets/overview-light.png" alt="Subloom desktop overview in light mode, showing illustrative subscription totals, upcoming renewals, and a six-month forecast" width="100%">
+</p>
+
+<p align="center">
+  <strong>Review transactions on a smaller screen</strong><br><br>
+  <img src="feature-docs/images/focused-transactions-mobile.jpg" alt="Compact Subloom transaction review in dark mode, showing an illustrative refund" width="300">
+</p>
+
+<sub>Real web interface, captured with illustrative records. Names and prices are examples, not current provider offers. Compact screenshots show the responsive web layout, not a native-device certification.</sub>
+
+## Try Subloom
+
+| Platform    | Where to start                                                                                                                                                                                                                                                       |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Web app** | [Open Subloom](https://subloom.baltii.tn) — start a local workspace or sign in.                                                                                                                                                                                      |
+| **Website** | [Explore the landing page](https://subloom-landing.vercel.app).                                                                                                                                                                                                      |
+| **Android** | Download a test APK from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `android-apk` artifact in successful [Android workflow runs](https://github.com/Baltii/Subloom/actions/workflows/android-apk.yml).                                    |
+| **Windows** | Download the x64 `.exe` installer from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `windows-x64` artifact in successful [Windows workflow runs](https://github.com/Baltii/Subloom/actions/workflows/windows-exe.yml).                      |
+| **macOS**   | Download an Apple silicon or Intel app ZIP from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `macos-arm64` / `macos-x64` artifacts in successful [CI runs](https://github.com/Baltii/Subloom/actions/workflows/ci.yml). Requires macOS 14+. |
+| **iOS**     | Build an Expo development client locally or through EAS.                                                                                                                                                                                                             |
+
+New stable releases attach Android, Windows, and Mac test builds after their build jobs finish. Older releases may have fewer assets. Windows installers are unsigned; Mac apps are ad-hoc signed without Apple notarization. See the [release download guide](feature-docs/windows-release-downloads.md).
+
+Android CI APKs use a test signing key and cannot update an EAS/store-signed installation. Use a spare device, or export guest data before replacing an existing install. See the [build guide](feature-docs/development.md#android-test-apks) for details.
+
+<details>
+<summary><strong>Reminder and integration availability</strong></summary>
+
+- **macOS:** local renewal reminders are implemented; enable them in Settings and grant the macOS notification permission.
+- **Android:** FCM credentials and build configuration are set up. Physical-device notification delivery still needs verification.
+- **iOS:** APNs setup and device-delivery verification remain pending.
+- **Email, OCR, and receipt forwarding:** require their provider configuration and live delivery checks. General-recipient email also needs a verified sender domain.
+- **Bank statements:** imported from files you review. Direct bank connections and automatic merchant cancellation are not enabled.
+
+See the [development guide](feature-docs/development.md#optional-integrations) for configuration boundaries.
+
+</details>
+
+## Run it locally
+
+Use **Node.js 24** from [`.nvmrc`](.nvmrc) and npm.
 
 ```sh
+git clone --branch release-candidate https://github.com/Baltii/Subloom.git
+cd Subloom
 npm ci
 npm run dev
 ```
 
-Open [localhost:8081](http://localhost:8081). Choose **Create my personal space** for an empty, persistent guest workspace, or **Explore a clearly labeled sample first** for illustrative data. Sample data never syncs or sends reminders. It can be exited in Settings.
+Open **[localhost:8081](http://localhost:8081)**, complete the welcome tour, and choose **Use on this device** to start an empty local workspace. Guest tracking, pasted-text receipt review, and CSV imports need no provider credentials.
+
+For account sync, add the public app configuration to `.env.local` using [`.env.example`](.env.example) as a reference. Server secrets belong in backend settings, never in `EXPO_PUBLIC_*` variables or committed files. See [local configuration](feature-docs/development.md#local-configuration).
+
+<details>
+<summary><strong>Website, native builds, and checks</strong></summary>
+
+**Landing page**
 
 ```sh
-npm run check
-npm run check:backend
-npm run test:backend
-npm run export:web
+cd landing
+npm ci
+npm run dev
 ```
 
-For mobile, use an **Expo development build**, not Expo Go. Configure Supabase, Resend, OCR, APNs/FCM, and EAS for the integrations you enable.
+Open [localhost:3000](http://localhost:3000). The app and landing page are separate projects in this repository.
 
-The updated standalone Mac test app is `build/Subloom-update.app`. Quit the running Subloom copy, then open this replacement. It keeps the same bundle identifier and storage origin. Rebuild separately with `npm run build:macos -- --update`; it bundles the web interface and runs without Metro. This ad-hoc signed test app requires macOS 14+.
+**Native development** — use an Expo development build, rather than Expo Go:
 
-In the Mac app, enable **Settings → Mac notifications**, then use **Send a Mac test notification**. These are local system reminders; no Apple login, paid developer membership, APNs credentials, or Subloom account is needed. macOS permission is required, and Focus or banner settings can suppress visible alerts. Up to 48 upcoming reminders within a year stay scheduled while the app is closed. Opening the app, returning to it, or editing subscriptions refreshes the schedule. Device consent is separate from account-wide mobile push preferences; switching workspaces cancels the previous workspace’s reminders.
+```sh
+npm run android
+# On macOS with Xcode installed:
+npm run ios
+```
 
-Guest subscriptions, receipt candidates, settings, and activity are saved automatically before an edit is reported as successful. On Mac, atomic files live in the app sandbox under `Library/Application Support/Subloom/Snapshots`; validated existing WebKit data migrates on first launch. Mobile uses SQLite and browser previews use localStorage. Guest data stays separate when signing into or out of an account and is imported only on request. Files are private to the OS user, but are not separately encrypted; protect your Mac and backups. Run `npm run test:macos:storage` for native persistence and bridge-origin checks.
+Android needs its SDK/JDK tooling; iOS needs Xcode. Android Firebase builds also require the ignored local `google-services.json` or a `GOOGLE_SERVICES_JSON` file path. Cloud builds use EAS profiles. See the [development guide](feature-docs/development.md).
 
-## What works
+**Verification**
 
-- Subscription CRUD, catalog search without invented prices, recurrence dates, status changes, provider links, notes, category filters, sorting, timeline and activity.
-- Integer minor-unit prices and rational calculations; accurate per-currency monthly/annual estimates, month-end and leap-year anchors, timezone-aware upcoming renewals.
-- Guest SQLite persistence on mobile; identity-scoped offline cache, durable mutation outbox, idempotent transactional cloud sync, owned Realtime revision signals, foreground/reconnect refresh and explicit version-conflict resolution. Multiple devices signed into the same account share subscriptions, preferences, receipt candidates and activity.
-- Light/dark/system appearance, accessible controls, reduced-motion support, animated summaries, native swipe-to-pause/resume, and pull-to-refresh.
-- Local text/HTML receipt parsing, screenshot selection, missing-field review, candidate deduplication, confirmation/update/dismissal. OCR requires the configured backend and explicit consent.
-- Deployable authenticated Edge Functions, owner-isolating RLS, hard-to-guess revocable forwarding addresses, signed inbound webhooks, scheduled push/email reminders, delivery receipts, quiet hours, high-renewal thresholds and optional digests with signed opt-out links.
-- Full cloud export and cascading account deletion endpoints; local export and reset for guests.
+```sh
+npm run check             # TypeScript, lint, application and database tests
+npm run check:backend     # Deno checks for Edge Functions
+npm run test:backend      # Backend tests
+npm run export:web       # Production web bundle
+```
 
-## Verification and release status
+For desktop builds, follow the [Windows guide](windows/README.md) or the [Mac build instructions](feature-docs/development.md#mac-test-app-and-reminders).
 
-**2026-10-17:** The combined release was deployed to the production domain. The subsequent `codex/focused-subscription-tracker` change simplifies that release and removes misleading payment setup; see its [scope, verification and remaining setup](feature-docs/focused-subscription-tracker.md). The older [combined readiness report](feature-docs/app-readiness.md) and verification below describe the preceding feature stack.
+CI also verifies the landing build, native JavaScript exports, canonical brand assets, Mac builds, the Windows installer and app launch, and Android APK builds for trusted branches. Live provider/device checks are separate from these automated checks.
 
-The ten-feature stack and preserved email templates are integrated on the rebased Mac branch. On 2026-10-11, all five feature migrations and twelve Edge Functions were deployed to the existing test project. The combined branch passes 195 application/Postgres tests and 22 backend tests. Three hosted scheduler/retention jobs remain active. See [setup progress](feature-docs/setup-progress.md) for live verification and the remaining Google/Apple, mailbox and SAML credentials.
+</details>
 
-Mobile push registration, token refresh, per-device consent and test notification queuing are implemented. EAS ownership is verified, and public configuration is set for all three build environments. Android FCM v1 credentials are configured in EAS and the matching Firebase client configuration is wired into Expo. Google authentication and an FCM validation-only send passed without delivering a message. An Android preview APK has finished building in EAS; physical-device push delivery still needs verification. APNs setup and iOS delivery remain pending. Mac local reminders and durable guest files are implemented. Email notifications and Supabase Auth SMTP now use the existing Resend API key with the temporary sender `Subloom <onboarding@resend.dev>`. Resend's test sender delivers to the email associated with the Resend account; other real recipients require a verified sending domain. Provider simulation addresses can be used for development checks. OCR and email forwarding still require provider setup and live delivery validation.
+## Under the hood
 
-The dependency audit still reports upstream high-severity findings in Expo/React Native tooling. Review these before a store release. This is not a claim of production certification.
+| Layer                 | Built with                                                                                                |
+| --------------------- | --------------------------------------------------------------------------------------------------------- |
+| App                   | Expo 57, React Native 0.86, React 19, Expo Router                                                         |
+| Website               | Next.js 16 and React 19                                                                                   |
+| Desktop shells        | Electron on Windows; Swift/WebKit on macOS                                                                |
+| Language and forms    | TypeScript, React Hook Form, Zod                                                                          |
+| State and interaction | Zustand, TanStack Query, Reanimated, Gesture Handler                                                      |
+| Local storage         | SQLite on mobile, localStorage on web and in the persistent Windows profile, native snapshot files on Mac |
+| Backend               | Supabase Auth, Postgres with owner-isolating RLS, Realtime, and Edge Functions                            |
+| Delivery              | GitHub Actions, Release Please, Vercel, and Expo/EAS                                                      |
 
-Source: `src/app` routes; `src/components` design system; `src/domain` shared pure logic; `src/services` persistence/providers; `src/store` durable state; `supabase/migrations` schema and RLS; `supabase/functions` server integrations. No bank connection, mailbox OAuth scanning, paywall, automatic merchant cancellation, or advertising SDK is enabled.
+## Documentation
 
-## Email templates
+- [Development and build guide](feature-docs/development.md) — local setup, persistence, desktop builds, APKs, CI, and optional integrations.
+- [Release downloads](feature-docs/windows-release-downloads.md) — Android, Windows, and Mac artifacts and exact-tag release builds.
+- [Current product scope](feature-docs/focused-subscription-tracker.md) — the focused tracker and reviewed transaction workflow.
+- [Feature guides](feature-docs/README.md) — calendars, budgets, imports, and historical delivery records.
+- [Web deployment](feature-docs/web-deployment.md) — production routing and public build configuration.
+- [Brand guide](brand/GUIDE.md) · [Download brand kit](brand/output/Subloom-Brand-Kit.zip) — the fixed four-petal identity, colors, and typography.
+- [Email templates](feature-docs/email-templates.md) — message previews and which delivery triggers are implemented.
 
-Run `npm run preview:emails` to generate a gallery and individual HTML/plain-text examples in `build/email-templates/`. Preview data is illustrative, and the command does not load credentials or send email.
+## Contributing
 
-The shared template library covers subscription additions, upcoming renewals, renewals due today, past tracked due dates, trial endings, price changes, recorded cancellations, weekly digests, welcome emails, and receipt detections. Existing renewal/trial scheduling, digests, welcome emails, and inbound receipt alerts use the structured templates. Addition, price-change, cancellation, and past-due templates are available for future event triggers; creating a template does not enable automatic delivery for those events. Subloom does not verify payment failures or merchant cancellations.
+Use `release-candidate` as the base for new work. Name working branches `feat/`, `fix/`, `refactor/`, `chore/`, `hotfix/`, or `doc/` followed by a short kebab-case description. Use Conventional Commits such as `feat(subscriptions): add service suggestions` and `docs: improve the setup guide`; hotfix commits use `fix`.
 
-Templates use inline styles, presentation tables, escaped dynamic content, and equivalent plain text. Weekly digests retain signed opt-out links. Browser previews verify desktop and phone layouts; compatibility with every email client is not implied.
+Follow [AGENTS.md](AGENTS.md) for the complete naming and stacked-PR rules. Keep changes focused, preserve original-currency/date-only semantics and guest/account separation, and record the checks you actually ran. Found a bug or have an idea? [Open an issue](https://github.com/Baltii/Subloom/issues/new).
 
+---
 
-## Production and Android CI
-
-`release-candidate` is the production/default branch. Open feature PRs against it, or stack each follow-up against its predecessor. Pull requests run the shared app/backend, website, Mac and Android verification workflow. Production pushes run the same verification before version/release automation. Manual deployments reject other branches.
-
-New working branches use `feat/`, `fix/`, `refactor/`, `chore/`, `hotfix/`, or `doc/` followed by a short lowercase kebab-case description. Use Conventional Commit messages such as `feat(subscriptions): suggest matching services` or `docs: update setup instructions`; documentation commits use `docs`, and hotfix commits use `fix`. Do not use agent/tool names as prefixes. See the [branch and commit naming rules](AGENTS.md#branch-and-commit-naming) for examples and automation exceptions.
-
-The **Build Android test APK** workflow also supports manual runs. Its `android-apk` artifact contains a standalone APK and SHA-256 checksum, retained for 14 days. It compiles the app in release mode using Expo’s test signing key for arm64 phones and x86_64 emulators. It uses existing public app variables plus the encrypted `GOOGLE_SERVICES_JSON` repository secret. It needs no Expo token or private signing key. Android APK jobs run only for trusted repository branches; fork PRs retain the shared checks and bundle exports. It cannot update the EAS/store-signed APK; export guest records before replacing an installation, or use a spare device/emulator. Store-signed builds continue through the existing manual EAS workflow and require `EXPO_TOKEN`.
-
-Firebase Android configuration is intentionally untracked. Keep your downloaded `google-services.json` at the repository root for local native builds, or set `GOOGLE_SERVICES_JSON` to its file path. GitHub restores the encrypted repository secret into a temporary file; EAS has a secret file variable of the same name configured for development, preview and production. Never put the server service-account key into app configuration or a client bundle.
-
-Removing the file does not erase previous Git history or make a Firebase client key secret inside an APK. Review its Google API restrictions; use a separate restricted key for non-Firebase APIs, and rotate/revoke an exposed privileged key when needed.
+<p align="center">
+  Built with care by <a href="https://github.com/Baltii">@Baltii</a>.<br>
+  <sub>A little clarity for your recurring world.</sub>
+</p>

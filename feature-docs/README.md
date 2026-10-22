@@ -1,10 +1,18 @@
-> Current focused scope (2026-10-17): [Focused subscription tracker](focused-subscription-tracker.md). The feature stacks below are historical delivery records, including tools retired from the focused app. Production follows `main` after a successful Vercel deployment.
-
 # Feature delivery and setup
 
-The new eight-feature recurring-payments stack is documented in [Control center](control-center/README.md), with its current merge order, provider boundaries and validation.
+Production follows `release-candidate`. Start with the [development and build guide](development.md), [focused product scope](focused-subscription-tracker.md), and [web deployment guide](web-deployment.md). The root [README](../README.md) is the product overview.
 
-Each feature has its own branch, tested pull request and Markdown document. These are stacked PRs: merge in the following order, then retarget each next PR to `main` after its predecessor merges. Each PR contains only its feature delta relative to the preceding branch.
+For installable apps, see the [Android, Windows, and Mac release downloads](windows-release-downloads.md) and [Windows build guide](../windows/README.md).
+
+Current feature references include [dashboard charts](dashboard-insights.md), [renewal calendar](subscription-calendar.md), [service suggestions](service-name-suggestions.md), [CSV transfer](csv-import-export.md), [category budgets](monthly-budgets.md), and [price history](price-history.md).
+
+## Historical delivery records
+
+The records below describe earlier stacks and setup at their recorded dates. Some screens have since been retired, old PRs closed, and production moved from `main` to `release-candidate`. Their branch names and past deployment statements are historical references, not current setup instructions.
+
+The earlier eight-feature recurring-payments stack is documented in [Control center](control-center/README.md), with its recorded merge order, provider boundaries and validation.
+
+The original stack below used one branch, pull request, and Markdown document per feature. Its historical merge order targeted `main`, with each PR containing its feature delta relative to the preceding branch.
 
 | Order | Feature                    | Branch                         | PR                                               | Documentation                      |
 | ----- | -------------------------- | ------------------------------ | ------------------------------------------------ | ---------------------------------- |
@@ -19,8 +27,8 @@ Each feature has its own branch, tested pull request and Markdown document. Thes
 | 9     | Gmail/Outlook discovery    | `codex/mailbox-discovery`      | [#12](https://github.com/Baltii/Subloom/pull/12) | [Setup](mailbox-discovery.md)      |
 | 10    | Team workspaces + SAML SSO | `codex/team-sso`               | [#13](https://github.com/Baltii/Subloom/pull/13) | [Setup](team-workspaces-sso.md)    |
 
-The last three PRs remain drafts until live provider credentials, hosted configuration and device callbacks are tested. The existing Supabase/Resend credentials do not provide Google, Apple, Microsoft or organization IdP credentials. Detailed exact requirements and callback URLs are in each document; no secret values are stored here.
+At the time of this stack, the last three PRs were held as drafts pending live provider credentials, hosted configuration, and device callbacks. Supabase/Resend credentials did not supply Google, Apple, Microsoft, or organization IdP credentials. The documents record the requirements and callback URLs without secret values.
 
-On 2026-10-11, the owner requested setup on the existing test project. All five feature migrations were applied in order and twelve Edge Functions deployed from the integrated Mac branch. The first seven features need no additional credentials for testing. The last three still need live provider configuration. See [setup progress](setup-progress.md) for the per-feature results, repeatable commands and exact missing credentials.
+On 2026-10-11, the owner requested setup on the existing test project. All five feature migrations were applied in order and twelve Edge Functions deployed from the integrated Mac branch. The first seven features needed no additional credentials for testing; the last three required live provider configuration. See [setup progress](setup-progress.md) for the recorded per-feature results, commands, and missing credentials.
 
 The original email-template work is preserved on the rebased `codex/macos-local-reminders` branch, following this stack in PR #3. See [email templates](email-templates.md). Each original feature PR retains its feature delta.
