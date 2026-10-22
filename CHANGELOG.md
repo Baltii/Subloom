@@ -2,6 +2,20 @@
 
 Release Please maintains this file from conventional commits merged into `main`.
 
+## [1.4.0](https://github.com/Baltii/Subloom/compare/v1.3.0...v1.4.0) (2026-10-22)
+
+
+### Features
+
+* **desktop:** add Windows installer and release app downloads ([1671e65](https://github.com/Baltii/Subloom/commit/1671e6535b1f689ea54fc7168a6fa2eaa5ac25af))
+* **desktop:** build Windows installers and attach release apps ([2fc3a6e](https://github.com/Baltii/Subloom/commit/2fc3a6ef82fbef61569acce6bf865f6a4485d5bc))
+
+
+### Bug Fixes
+
+* **desktop:** verify saved guest setup and explicit artifact reuse ([3e9d79b](https://github.com/Baltii/Subloom/commit/3e9d79b6b5c52840429c3bdbce50c96af9343abd))
+* **releases:** name rebuilt APKs after their checked-out source ([02d8feb](https://github.com/Baltii/Subloom/commit/02d8feb18db713e3cc6e4f592b40b0dbdc93aab5))
+
 ## [1.3.0](https://github.com/Baltii/Subloom/compare/v1.2.0...v1.3.0) (2026-10-21)
 
 
