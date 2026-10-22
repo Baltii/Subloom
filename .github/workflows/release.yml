@@ -47,40 +47,18 @@ jobs:
           target-branch: release-candidate
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-      - name: Explain artifacts deferred for a historical release
-        if: steps.release.outputs.release_created == 'true' && steps.release.outputs.sha != github.sha
-        run: |
-          echo '::notice::The released tag points to an earlier commit. This run verified a newer commit, so its binaries will not be attached to that historical tag.'
-          echo 'Historical release: artifact publishing skipped because its commit differs from the verified build. Build that tag separately if artifacts are needed.' >> "$GITHUB_STEP_SUMMARY"
 
   publish-artifacts:
     needs: [verify, version]
-    if: needs.version.outputs.released == 'true' && needs.version.outputs.sha == github.sha
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    if: needs.version.outputs.released == 'true'
     permissions:
       actions: read
       contents: write
-    steps:
-      - name: Require configured builds from the released commit
-        run: |
-          test "$RELEASE_SHA" = "$GITHUB_SHA"
-          test -n "$SUPABASE_URL"
-          test -n "$SUPABASE_KEY"
-          test -n "$EAS_PROJECT"
-        env:
-          RELEASE_SHA: ${{ needs.version.outputs.sha }}
-          SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
-          SUPABASE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
-          EAS_PROJECT: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
-      - name: Download this run's verified Mac artifacts
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --pattern 'macos-*' --dir artifacts
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name android-apk --dir artifacts/android
-      - name: Attach verified Mac apps, Android test APK and checksums to release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ needs.version.outputs.tag }}
-        run: gh release upload "$RELEASE_TAG" artifacts/macos-*/* artifacts/android/* --repo "$GITHUB_REPOSITORY" --clobber
+    uses: ./.github/workflows/release-assets.yml
+    with:
+      tag: ${{ needs.version.outputs.tag }}
+      # Reuse the current run only when its verified commit is the release.
+      # Historical releases are rebuilt at their exact tag instead.
+      reuse_verified: ${{ needs.version.outputs.sha == github.sha }}
+    secrets:
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}

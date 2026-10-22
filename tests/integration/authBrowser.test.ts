@@ -83,3 +83,35 @@ it("keeps ordinary web redirects on the browser origin", async () => {
   ).toBeNull();
   expect(assign).toHaveBeenCalledWith("https://provider.test/authorize");
 });
+
+it("returns Windows OAuth to the app profile and reuses the mailbox callback transport", async () => {
+  const openAuth = vi
+    .fn()
+    .mockResolvedValue("subloom://auth-callback?code=windows-fixture");
+  vi.stubGlobal("subloomWindows", { version: 1, openAuth });
+  mocks.provider.mockResolvedValue({
+    data: { url: "https://provider.test/authorize" },
+    error: null,
+  });
+  mocks.exchange.mockResolvedValue({ error: null });
+  expect(usesNativeAuthBrowser()).toBe(true);
+  expect(authRedirect()).toBe("subloom://auth-callback");
+  await signInSocial("google");
+  expect(openAuth).toHaveBeenCalledWith(
+    "https://provider.test/authorize",
+    "subloom://auth-callback",
+  );
+  expect(mocks.exchange).toHaveBeenCalledWith("windows-fixture");
+  openAuth.mockResolvedValue("subloom://mailboxes?connected=gmail");
+  expect(
+    await openAuthBrowser(
+      "https://provider.test/consent",
+      "subloom://mailboxes",
+    ),
+  ).toContain("connected=gmail");
+  openAuth.mockRejectedValue(new Error("Sign-in canceled"));
+  await expect(
+    openAuthBrowser("https://provider.test", "subloom://auth-callback"),
+  ).rejects.toThrow(/canceled/);
+  expect(mocks.browser).not.toHaveBeenCalled();
+});
