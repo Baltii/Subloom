@@ -18,6 +18,7 @@ module.exports = {
     artifactName: "Subloom-${version}-windows-${arch}-setup.${ext}",
   },
   nsis: {
+    include: path.resolve(__dirname, "installer.nsh"),
     oneClick: false,
     perMachine: false,
     allowToChangeInstallationDirectory: true,

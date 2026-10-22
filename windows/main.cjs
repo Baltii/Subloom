@@ -16,9 +16,11 @@ const {
   bundledFile,
   createAuthBroker,
 } = require("./runtime.cjs");
-const smokeMode = process.argv
-  .find((arg) => /^--smoke-test=(write|read)$/.test(arg))
-  ?.split("=")[1];
+const smokeMode = process.env.SUBLOOM_SMOKE_USER_DATA
+  ? process.argv
+      .find((arg) => /^--smoke-test=(write|read|hold)$/.test(arg))
+      ?.split("=")[1]
+  : undefined;
 if (smokeMode && process.env.SUBLOOM_SMOKE_USER_DATA)
   app.setPath("userData", process.env.SUBLOOM_SMOKE_USER_DATA);
 app.setName("Subloom");
@@ -155,6 +157,10 @@ else {
         return auth.open(url, redirect);
       });
       await window.loadURL(APP_URL);
+      if (smokeMode === "hold") {
+        console.log("SUBLOOM_SMOKE_READY");
+        return;
+      }
       if (smokeMode) {
         const result = await window.webContents
           .executeJavaScript(`(async () => {

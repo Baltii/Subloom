@@ -44,7 +44,7 @@ jobs:
       - run: npm --prefix windows ci
       - run: npm run test:windows
       - run: npm run build:windows
-      - name: Launch packaged app and verify data survives a restart
+      - name: Install, reinstall and verify workspace persistence and process detection
         run: npm run test:windows:app
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
