@@ -66,7 +66,8 @@ jobs:
         run: |
           mkdir -p build/android
           version=$(node -p 'require("./package.json").version')
-          apk="Subloom-${version}-${GITHUB_SHA:0:7}-android-test.apk"
+          source_sha=$(git rev-parse HEAD)
+          apk="Subloom-${version}-${source_sha:0:7}-android-test.apk"
           cp android/app/build/outputs/apk/release/app-release.apk "build/android/$apk"
           cd build/android
           sha256sum "$apk" > "$apk.sha256"
@@ -74,6 +75,7 @@ jobs:
             echo '### Android test APK'
             echo "Download **$apk** from this run android-apk artifact."
             echo 'Standalone bundled app for arm64 phones and x86_64 emulators; no Metro server or Expo token needed.'
+            echo "Source commit: $source_sha"
             echo 'Uses the Expo test signing key. It cannot update an EAS/store-signed installation; use a spare device/emulator or export guest data before uninstalling an existing copy.'
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Remove temporary Firebase configuration
