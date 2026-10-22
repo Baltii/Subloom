@@ -1,6 +1,12 @@
 import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { once } from "node:events";
-import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 
@@ -15,6 +21,7 @@ const installers = readdirSync("build/windows").filter((name) =>
 if (installers.length !== 1) throw new Error("Expected one Windows installer.");
 const installer = resolve("build/windows", installers[0]);
 const executable = resolve(installation, "Subloom.exe");
+mkdirSync(profile);
 let running;
 function install(expected = 0) {
   // NSIS requires /D= to be the last argument. Runner temp paths have no spaces.
