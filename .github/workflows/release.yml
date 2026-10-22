@@ -59,6 +59,6 @@ jobs:
       tag: ${{ needs.version.outputs.tag }}
       # Reuse the current run only when its verified commit is the release.
       # Historical releases are rebuilt at their exact tag instead.
-      build: ${{ needs.version.outputs.sha != github.sha }}
+      reuse_verified: ${{ needs.version.outputs.sha == github.sha }}
     secrets:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}

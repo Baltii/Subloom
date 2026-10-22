@@ -105,6 +105,11 @@ else {
         const target = externalURL(url);
         if (target) void shell.openExternal(target).catch(() => {});
       };
+      if (smokeMode) {
+        window.webContents.on("console-message", (details) => {
+          if (details.level === "error") console.error(details.message);
+        });
+      }
       window.webContents.setWindowOpenHandler(({ url }) => {
         openLink(url);
         return { action: "deny" };
@@ -151,24 +156,32 @@ else {
       });
       await window.loadURL(APP_URL);
       if (smokeMode) {
-        await window.webContents
-          .executeJavaScript(`new Promise((resolve, reject) => {
-        const deadline = Date.now() + 30000;
-        const timer = setInterval(() => {
-          if (document.body.innerText.trim().length > 80) { clearInterval(timer); resolve(true); }
-          else if (Date.now() > deadline) { clearInterval(timer); reject(new Error("App did not render")); }
-        }, 100);
-      })`);
         const result = await window.webContents
           .executeJavaScript(`(async () => {
-        if (typeof require !== "undefined" || !globalThis.subloomWindows?.openAuth) throw new Error("Renderer isolation failed");
-        if (${JSON.stringify(smokeMode)} === "write") localStorage.setItem("subloom:smoke", "survives-restart");
-        if (localStorage.getItem("subloom:smoke") !== "survives-restart") throw new Error("Persistent storage failed");
-        const route = await fetch("/settings");
-        if (!route.ok || !(await route.text()).includes("<html")) throw new Error("SPA route failed");
-        if ((await fetch("/missing.js")).status !== 404) throw new Error("Missing asset should fail");
-        return true;
-      })()`);
+          const until = async (check, label) => {
+            const deadline = Date.now() + 30000;
+            while (!check()) {
+              if (Date.now() > deadline) throw new Error("App did not reach " + label);
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+          };
+          const snapshot = () => JSON.parse(localStorage.getItem("subloom:v1:guest") || "null");
+          if (typeof require !== "undefined" || !globalThis.subloomWindows?.openAuth) throw new Error("Renderer isolation failed");
+          if (${JSON.stringify(smokeMode)} === "write") {
+            await until(() => document.querySelector('[data-testid="onboarding-next"]'), "welcome screen");
+            document.querySelector('[data-testid="onboarding-next"]').click();
+            await until(() => document.body.innerText.includes("Step 2 of 3"), "second welcome step");
+            document.querySelector('[data-testid="onboarding-next"]').click();
+            await until(() => document.querySelector('[data-testid="get-started"]'), "guest setup");
+            document.querySelector('[data-testid="get-started"]').click();
+          }
+          await until(() => snapshot()?.onboarded === true && document.body.innerText.includes("Your subscriptions, at a glance."), "saved guest dashboard");
+          if (snapshot().schemaVersion !== 1) throw new Error("Guest workspace did not persist");
+          const route = await fetch("/settings");
+          if (!route.ok || !(await route.text()).includes("<html")) throw new Error("SPA route failed");
+          if ((await fetch("/missing.js")).status !== 404) throw new Error("Missing asset should fail");
+          return true;
+        })()`);
         if (!result) throw new Error("Windows smoke test failed");
         store.flushStorageData();
         await store.cookies.flushStore();

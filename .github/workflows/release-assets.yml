@@ -14,10 +14,10 @@ on:
       tag:
         type: string
         required: true
-      build:
-        description: Build the tag; false reuses this run's already verified artifacts
+      reuse_verified:
+        description: Reuse this run's already verified artifacts only at the same commit
         type: boolean
-        default: true
+        default: false
     secrets:
       GOOGLE_SERVICES_JSON:
         required: false
@@ -48,7 +48,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
-          REUSE_ARTIFACTS: ${{ github.event_name != 'release' && github.event_name != 'workflow_dispatch' && inputs.build == false }}
+          REUSE_ARTIFACTS: ${{ inputs.reuse_verified == true }}
         run: |
           node --input-type=module <<'JS'
           import { execFileSync } from 'node:child_process';
@@ -68,7 +68,7 @@ jobs:
 
   verify:
     needs: source
-    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch' || inputs.build != false
+    if: inputs.reuse_verified != true
     uses: ./.github/workflows/verify.yml
     with:
       ref: ${{ needs.source.outputs.sha }}
@@ -81,7 +81,7 @@ jobs:
     if: >-
       always() && needs.source.result == 'success' &&
       (needs.verify.result == 'success' ||
-       (needs.verify.result == 'skipped' && github.event_name != 'release' && github.event_name != 'workflow_dispatch' && inputs.build == false))
+       (needs.verify.result == 'skipped' && inputs.reuse_verified == true))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
