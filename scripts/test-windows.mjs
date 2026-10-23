@@ -18,7 +18,7 @@ try {
     if (result.status !== 0)
       throw new Error(`Packaged Windows ${mode} test exited ${result.status}`);
     console.log(
-      `PASS packaged Windows rendering, isolation, routes and storage (${mode})`,
+      `PASS packaged Windows rendering, isolation, routes, storage, OAuth recovery and notification IPC (${mode})`,
     );
   }
 } finally {

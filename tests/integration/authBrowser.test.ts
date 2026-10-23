@@ -2,6 +2,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import {
   openAuthBrowser,
   usesNativeAuthBrowser,
+  cancelAuthBrowser,
 } from "../../src/services/authBrowser";
 import { authRedirect, signInSocial } from "../../src/services/oauth";
 
@@ -101,6 +102,13 @@ it("returns Windows OAuth to the app profile and reuses the mailbox callback tra
     "https://provider.test/authorize",
     "subloom://auth-callback",
   );
+  expect(mocks.provider).toHaveBeenCalledWith({
+    provider: "google",
+    options: {
+      redirectTo: "subloom://auth-callback",
+      skipBrowserRedirect: true,
+    },
+  });
   expect(mocks.exchange).toHaveBeenCalledWith("windows-fixture");
   openAuth.mockResolvedValue("subloom://mailboxes?connected=gmail");
   expect(
@@ -114,4 +122,20 @@ it("returns Windows OAuth to the app profile and reuses the mailbox callback tra
     openAuthBrowser("https://provider.test", "subloom://auth-callback"),
   ).rejects.toThrow(/canceled/);
   expect(mocks.browser).not.toHaveBeenCalled();
+});
+
+it("fails explicitly when the Windows bridge is missing instead of opening a web session", () => {
+  vi.stubGlobal("location", { protocol: "subloom-app:" });
+  expect(() => authRedirect()).toThrow(/Restart Subloom/);
+});
+
+it("lets Windows cancel the pending browser request", async () => {
+  const cancelAuth = vi.fn().mockResolvedValue(undefined);
+  vi.stubGlobal("subloomWindows", {
+    version: 1,
+    openAuth: vi.fn(),
+    cancelAuth,
+  });
+  await cancelAuthBrowser();
+  expect(cancelAuth).toHaveBeenCalledOnce();
 });

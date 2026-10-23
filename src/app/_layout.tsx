@@ -36,6 +36,7 @@ import {
   maintainPushRegistration,
 } from "../services/notifications";
 import { maintainMacReminders } from "../services/macosNotifications";
+import { maintainWindowsReminders } from "../services/windowsNotifications";
 export { ErrorBoundary } from "expo-router";
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +45,10 @@ const queryClient = new QueryClient({
 });
 function Session() {
   useEffect(() => maintainMacReminders((path) => router.push(path as "/")), []);
+  useEffect(
+    () => maintainWindowsReminders((path) => router.push(path as "/")),
+    [],
+  );
   const identity = useApp((s) => s.identity),
     outboxRevision = useApp((s) => s.data.outbox.at(-1)?.id ?? "empty"),
     pushEnabled = useApp((s) => s.data.preferences.pushEnabled),

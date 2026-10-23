@@ -22,11 +22,21 @@ The output is `build/windows/Subloom-<version>-windows-x64-setup.exe` and its SH
 
 The installed app uses a stable `com.subloom.windows` identity, the `persist:subloom` browser session, and a fixed `subloom-app://bundle` origin. Guest workspaces, owner-specific snapshots, settings, and the app's PKCE verifier use the existing web persistence code. Installing an update retains that profile. The installer does not request administrator access or delete app data during uninstall.
 
-The renderer has no Node or filesystem access. Bundled files are served through a custom protocol, browser permissions are denied by default, remote pages cannot replace the app window, and external links are limited to HTTPS. The preload exposes only a bounded browser-auth operation.
+The renderer has no Node or filesystem access. Bundled files are served through a custom protocol, browser permissions are denied by default, remote pages cannot replace the app window, and external links are limited to HTTPS. The preload exposes bounded browser-auth and local notification operations. Every operation checks the sending frame and app origin; arbitrary IPC, filesystem access and external navigation remain blocked.
 
-Provider sign-in and mailbox consent open the system browser. The installer registers `subloom://`; only a matching callback for a pending request returns to the app. The existing OAuth code then exchanges the code in the profile that created the verifier. Keep `subloom://auth-callback` and `subloom://mailboxes` in the backend's allowed redirects, as for the existing native apps. No new OAuth provider secret is required.
+Provider sign-in and mailbox consent open the system browser. The installer registers `subloom://`; only a matching callback for a pending request returns to the app. The shell pins Supabase OAuth requests to the native return address. The existing OAuth code then exchanges the code in the profile that created the verifier. A missing desktop bridge fails explicitly, and browser sign-in can be canceled from the app. Root-slash callback variants are accepted without relaxing the host or route checks. Keep `subloom://auth-callback` and `subloom://mailboxes` in the backend's allowed redirects, as for the existing native apps. No new OAuth provider secret is required.
 
-Windows uses the app's web capabilities. The Mac-specific widget, local notification bridge, and Android/iOS push registration are not Windows features. Provider sign-in still depends on the existing backend/provider configuration.
+Run `npm run test:desktop:oauth` to verify the hosted Google callback with a canceled public OAuth flow. It does not sign in, create an account, read management credentials, or exchange a session token. CI runs this before producing a Windows installer and exercises the exported sign-in screen through the preload and a simulated Windows return event. The browser's website session does not sign the desktop profile in automatically; start sign-in from the app.
+
+## Windows system notifications
+
+Settings → Reminders → Windows notifications enables local system reminders, including for guest workspaces. Use **Send a Windows test notification** to verify delivery and **Open Windows notification settings** if Windows blocks banners. Install with the NSIS installer so the Start Menu shortcut exists. The shell assigns its app identity and Electron toast activator to that shortcut.
+
+Keep Subloom running or minimized: reminders stop when the process exits, and this implementation does not register a background service or receive mobile push. Up to 48 upcoming reminders are held in memory and refreshed after edits, workspace changes, on focus, and every five minutes. Windows sleep can delay alerts; alerts more than 15 minutes late are skipped to avoid a burst after waking.
+
+Consent is stored per local workspace. Scheduled and visible alerts are removed on disable, sign-out, workspace change, navigation reload, and quit. Notification clicks open only validated internal routes belonging to the active workspace. The existing local planner preserves account timezone, quiet hours, trial/reminder preferences, privacy mode, and original currencies. Demo workspaces never schedule reminders. Only consent booleans persist in the desktop notification file; subscription text stays in the existing workspace store.
+
+The Mac-specific widget and Android/iOS push registration remain separate platform features. Provider sign-in still depends on the existing backend/provider configuration.
 
 ## Release downloads
 

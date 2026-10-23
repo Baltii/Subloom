@@ -9,6 +9,12 @@ it("accepts only a code at the expected callback", () => {
   ).toBe("test-code");
   expect(
     callbackCode(
+      "subloom://auth-callback/?code=windows",
+      "subloom://auth-callback",
+    ),
+  ).toBe("windows");
+  expect(
+    callbackCode(
       "https://app.test/auth-callback?code=ok",
       "https://app.test/auth-callback",
     ),

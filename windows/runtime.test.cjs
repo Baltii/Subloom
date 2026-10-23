@@ -121,3 +121,22 @@ test("mailbox consent, cancellation, timeout and browser errors release pending 
     /not supported/,
   );
 });
+
+test("pins Supabase OAuth to the app callback and accepts the browser's root slash", async () => {
+  const opened = [];
+  const broker = createAuthBroker(async (url) => opened.push(url));
+  const result = broker.open(
+    "https://project.supabase.co/auth/v1/authorize?provider=google&redirect_to=https%3A%2F%2Fwebsite.test&code_challenge=fixture",
+    "subloom://auth-callback",
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+  const target = new URL(opened[0]);
+  assert.equal(
+    target.searchParams.get("redirect_to"),
+    "subloom://auth-callback",
+  );
+  assert.equal(target.searchParams.get("code_challenge"), "fixture");
+  assert.equal(broker.complete("subloom://auth-callback/?code=windows"), true);
+  assert.equal(await result, "subloom://auth-callback/?code=windows");
+});

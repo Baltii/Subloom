@@ -4,9 +4,23 @@ import { macosBridge, macosRequest } from "./macosBridge";
 import { windowsBridge } from "./windowsBridge";
 
 export function usesNativeAuthBrowser() {
+  // Never send a desktop sign-in to a web callback if preload failed. The
+  // browser cannot exchange a PKCE code whose verifier lives in the app.
+  if (
+    Platform.OS === "web" &&
+    globalThis.location?.protocol === "subloom-app:" &&
+    !windowsBridge()
+  )
+    throw new Error(
+      "Windows sign-in could not initialize. Restart Subloom and try again.",
+    );
   return (
     Platform.OS !== "web" || Boolean(macosBridge()) || Boolean(windowsBridge())
   );
+}
+
+export async function cancelAuthBrowser() {
+  await windowsBridge()?.cancelAuth?.();
 }
 
 export function authBrowserRedirect(path: "auth-callback" | "mailboxes") {

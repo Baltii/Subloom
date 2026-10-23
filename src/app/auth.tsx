@@ -4,6 +4,8 @@ import { router } from "expo-router";
 import { Mail, ShieldCheck } from "lucide-react-native";
 import { z } from "zod";
 import { signInSocial } from "../services/oauth";
+import { cancelAuthBrowser } from "../services/authBrowser";
+import { windowsBridge } from "../services/windowsBridge";
 import { supabase } from "../services/supabase";
 import { useTheme } from "../theme/useTheme";
 import {
@@ -98,6 +100,20 @@ export default function Auth() {
                 </Button>
               </View>
             ) : null}
+            {busy && windowsBridge()?.cancelAuth && (
+              <View style={{ gap: 10 }}>
+                <Label color={colors.secondary} size={13}>
+                  Finish sign-in in your browser and allow it to open Subloom.
+                  If the website opens instead, cancel and use an email code.
+                </Label>
+                <Button
+                  variant="ghost"
+                  onPress={() => void cancelAuthBrowser()}
+                >
+                  Cancel browser sign-in
+                </Button>
+              </View>
+            )}
             <Label color={colors.secondary} size={13}>
               {sent
                 ? "Enter the one-time code from your email. Your guest data stays safe until you choose to import it."
