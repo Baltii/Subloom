@@ -1,5 +1,5 @@
 import { Tabs, Redirect, router, usePathname } from "expo-router";
-import { View, Pressable, Easing } from "react-native";
+import { View, ScrollView, Pressable, Easing } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import {
   House,
@@ -41,12 +41,18 @@ function Sidebar() {
     syncError = useApp((s) => s.syncError),
     demo = useApp((s) => s.data.demo);
   return (
-    <View
+    <ScrollView
+      testID="app-sidebar"
       style={{
         width: 232,
+        flexGrow: 0,
+        flexShrink: 0,
         backgroundColor: colors.sidebar,
         borderRightWidth: 1,
         borderColor: colors.border,
+      }}
+      contentContainerStyle={{
+        flexGrow: 1,
         padding: 24,
         paddingTop: 32,
       }}
@@ -162,6 +168,7 @@ function Sidebar() {
         </Pressable>
       </View>
       <Pressable
+        testID="sidebar-account"
         accessibilityRole="button"
         onPress={() => router.push("/settings")}
         style={{
@@ -204,7 +211,7 @@ function Sidebar() {
           </Label>
         </View>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 export default function TabLayout() {
