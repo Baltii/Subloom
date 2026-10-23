@@ -10,6 +10,7 @@ export function Bloom({ size = 34, color }: { size?: number; color?: string }) {
     <Svg
       width={size}
       height={size}
+      style={{ flexShrink: 0 }}
       viewBox="0 0 64 64"
       accessibilityRole="image"
       accessibilityLabel="Subloom"
@@ -31,6 +32,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
     <Svg
       width={brandIdentity.lockupWidth / 2}
       height={32}
+      style={{ flexShrink: 0 }}
       viewBox={`0 0 ${brandIdentity.lockupWidth} 64`}
       accessibilityRole="image"
       accessibilityLabel="Subloom"

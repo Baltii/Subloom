@@ -329,6 +329,22 @@ else {
           return true;
         })()`);
         if (!result) throw new Error("Windows smoke test failed");
+        for (const height of [720, 600, 900]) {
+          window.setSize(1280, height);
+          await window.webContents.executeJavaScript(`(async () => {
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            const sidebar = document.querySelector('[data-testid="app-sidebar"]');
+            const logo = sidebar?.querySelector('svg[aria-label="Subloom"]');
+            const bounds = logo?.getBoundingClientRect();
+            if (!bounds || Math.abs(bounds.height - 32) > 0.1 || bounds.width < 140)
+              throw new Error("The sidebar logo collapsed at a laptop window height");
+            sidebar.scrollTop = sidebar.scrollHeight;
+            const account = sidebar.querySelector('[data-testid="sidebar-account"]').getBoundingClientRect();
+            const viewport = sidebar.getBoundingClientRect();
+            if (account.top < viewport.top || account.bottom > viewport.bottom + 1)
+              throw new Error("The sidebar account control cannot be reached by scrolling");
+          })()`);
+        }
         await window.loadURL(APP_URL + "auth");
         await window.webContents.executeJavaScript(`(async () => {
           const until = async (check) => {
