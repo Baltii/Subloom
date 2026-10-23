@@ -38,6 +38,7 @@ import { formatMoney } from "../../domain/money";
 import { advanceRenewal, nextEvent, today } from "../../domain/renewal";
 import { PaymentSettingState } from "../../components/payments/PaymentSettingState";
 import { shareText } from "../../services/files";
+import { workspaceHasPro } from "../../store/pro";
 function Radar() {
   const ledger = useFeatureSetting(
       "payment_transactions",
@@ -157,7 +158,11 @@ function Radar() {
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
           <Button
             disabled={demo}
-            onPress={() => router.push("/payments/statement")}
+            onPress={() =>
+              router.push(
+                workspaceHasPro(identity) ? "/payments/statement" : "/pro",
+              )
+            }
           >
             Import a statement
           </Button>
@@ -166,6 +171,10 @@ function Radar() {
               variant="secondary"
               loading={exporting}
               onPress={() => {
+                if (!workspaceHasPro(identity)) {
+                  router.push("/pro");
+                  return;
+                }
                 setExporting(true);
                 setError(null);
                 void shareText(

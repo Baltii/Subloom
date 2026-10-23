@@ -2,6 +2,8 @@ import { Platform } from "react-native";
 import { accountClient } from "./supabase";
 import { z } from "zod";
 import { macosBridge, macosRequest } from "./macosBridge";
+import { canAddBillingMethod } from "../domain/pro";
+import { requirePro, workspaceHasPro } from "../store/pro";
 let db: Promise<import("expo-sqlite").SQLiteDatabase> | undefined;
 async function database() {
   db ??= import("expo-sqlite").then(async (sqlite) => {
@@ -108,6 +110,39 @@ export async function writeSetting<T>(
       "These records are full. Export your data and remove older records before saving.",
     );
   if (identity === "guest") {
+    // Enforce local limits at the durable write boundary as well as in the UI.
+    if (key === "payment_sources" || key === "payment_transactions") {
+      const raw = await localSetting(identity, key);
+      const previous = raw
+        ? JSON.parse(raw)
+        : key === "payment_sources"
+          ? { sources: [] }
+          : [];
+      if (key === "payment_sources") {
+        const ids = (record: unknown) =>
+          z
+            .object({ sources: z.array(z.object({ id: z.string() })) })
+            .parse(record)
+            .sources.map((s) => s.id);
+        if (
+          !canAddBillingMethod(
+            ids(previous),
+            ids(parsed),
+            workspaceHasPro(identity),
+          )
+        )
+          requirePro(identity);
+      } else {
+        const ids = (record: unknown) =>
+          z
+            .array(z.object({ id: z.string() }))
+            .parse(record)
+            .map((row) => row.id);
+        const previousIds = new Set(ids(previous));
+        if (ids(parsed).some((id) => !previousIds.has(id)))
+          requirePro(identity);
+      }
+    }
     await localSetting(identity, key, JSON.stringify(parsed));
     return 0;
   }
@@ -135,6 +170,17 @@ export async function writeSetting<T>(
     setting_data: parsed,
     expected_version: version,
   });
+  if (
+    error &&
+    [
+      "Pro is required for more than 3 cards and wallets",
+      "Pro is required to import statements",
+    ].includes(error.message)
+  )
+    throw new Error(
+      error.message +
+        ". Open Subloom Pro to purchase or restore access; your input is still here.",
+    );
   if (error)
     throw new Error(
       "Could not save. Another device may have changed these settings. Reload before retrying.",

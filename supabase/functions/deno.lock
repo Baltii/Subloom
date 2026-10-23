@@ -3,6 +3,7 @@
   "specifiers": {
     "npm:@js-temporal/polyfill@0.5.1": "0.5.1",
     "npm:@supabase/supabase-js@2.117.3": "2.117.3",
+    "npm:stripe@23.0.0": "23.0.0",
     "npm:svix@1.99.1": "1.99.1",
     "npm:zod@3.25.76": "3.25.76"
   },
@@ -77,6 +78,9 @@
         "fast-sha256"
       ]
     },
+    "stripe@23.0.0": {
+      "integrity": "sha512-MDE2A5ZVVluYURORaZEVghSmnLJc3w6aHAlZSxDQMsOjOb3V0O6ro/CiaeFlJS4N7uIVmsg98ocRsPmUK6YfyA=="
+    },
     "svix@1.99.1": {
       "integrity": "sha512-JfpvbAg5iT5NagDAfOq3e6Ci6NbOMbMm6C3DnfDBB60m2JDK+Z2hXPE9XNAmutb53DCdPoih1V70IbklZnX09A==",
       "dependencies": [
@@ -94,6 +98,7 @@
     "dependencies": [
       "npm:@js-temporal/polyfill@0.5.1",
       "npm:@supabase/supabase-js@2.117.3",
+      "npm:stripe@23.0.0",
       "npm:svix@1.99.1",
       "npm:zod@3.25.76"
     ]

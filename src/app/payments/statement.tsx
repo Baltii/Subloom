@@ -37,6 +37,7 @@ import { formatMoney } from "../../domain/money";
 import { chooseStatementCsv } from "../../services/statementImport";
 import { shareText } from "../../services/files";
 import { PaymentSettingState } from "../../components/payments/PaymentSettingState";
+import { requirePro, usePro } from "../../store/pro";
 function Importer() {
   const ledger = useFeatureSetting(
       "payment_transactions",
@@ -51,6 +52,9 @@ function Importer() {
   const identity = useApp((s) => s.identity),
     preferences = useApp((s) => s.data.preferences),
     demo = useApp((s) => s.data.demo);
+  const pro = usePro(
+    (state) => state.workspace === identity && state.offlineUntil > Date.now(),
+  );
   const [text, setText] = useState(""),
     [headers, setHeaders] = useState<string[]>([]),
     [mapping, setMapping] = useState<StatementMapping | null>(null),
@@ -143,6 +147,7 @@ function Importer() {
             disabled={!ready || !preview.length}
             onPress={() =>
               void run(async () => {
+                requirePro(identity);
                 const result = mergeStatement(ledger.value, preview);
                 await ledger.save(result.value);
                 draft.saved();
@@ -160,6 +165,18 @@ function Importer() {
       }
     >
       <View style={{ gap: 20 }}>
+        {!pro && (
+          <View style={{ gap: 10 }}>
+            <Label>
+              Statement imports and recurring-charge detection are Pro features.
+              You can preview your CSV here; Pro is required to save new
+              transactions.
+            </Label>
+            <Button variant="secondary" onPress={() => router.push("/pro")}>
+              Explore Subloom Pro
+            </Button>
+          </View>
+        )}
         <PaymentSettingState
           loaded={ledger.loaded}
           error={ledger.error}

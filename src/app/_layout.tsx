@@ -37,6 +37,7 @@ import {
 } from "../services/notifications";
 import { maintainMacReminders } from "../services/macosNotifications";
 import { maintainWindowsReminders } from "../services/windowsNotifications";
+import { maintainPro } from "../services/proBilling";
 export { ErrorBoundary } from "expo-router";
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +54,9 @@ function Session() {
     outboxRevision = useApp((s) => s.data.outbox.at(-1)?.id ?? "empty"),
     pushEnabled = useApp((s) => s.data.preferences.pushEnabled),
     hydrated = useApp((s) => s.hydrated);
+  useEffect(() => {
+    if (hydrated) return maintainPro(identity);
+  }, [hydrated, identity]);
   const { refetch } = useQuery({
     queryKey: ["sync", identity, outboxRevision],
     queryFn: async () => {
