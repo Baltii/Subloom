@@ -29,6 +29,9 @@ jobs:
       EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
       EXPO_PUBLIC_EAS_PROJECT_ID: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
+      EXPO_PUBLIC_PRO_LICENSE_PUBLIC_KEY: ${{ vars.EXPO_PUBLIC_PRO_LICENSE_PUBLIC_KEY }}
+      # This job distributes a direct APK, not a Play Store build.
+      EXPO_PUBLIC_ALLOW_NATIVE_STRIPE_CHECKOUT: ${{ vars.EXPO_PUBLIC_ALLOW_NATIVE_STRIPE_CHECKOUT }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

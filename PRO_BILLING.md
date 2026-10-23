@@ -30,6 +30,8 @@ Trialing subscriptions with a recognized configured price get Pro until the tria
 
 Native store builds default to no external purchase/manage buttons. Web, Windows and macOS use hosted Stripe Checkout. `EXPO_PUBLIC_ALLOW_NATIVE_STRIPE_CHECKOUT=true` is only for native distribution where this is permitted, such as the current direct test builds. App Store / Play releases need an in-app purchase/store policy implementation before enabling checkout; this feature does not add StoreKit or Play Billing.
 
+Set the public verification key as a GitHub Actions **variable** named `EXPO_PUBLIC_PRO_LICENSE_PUBLIC_KEY` for CI/release installers, and in Vercel's app build environment. Set it separately in each EAS build environment (development/preview/production), since remote EAS workers use those environments. This key is public; never put the private JWK in Actions variables or Expo/EAS public environment variables. The direct Android APK workflow additionally forwards `EXPO_PUBLIC_ALLOW_NATIVE_STRIPE_CHECKOUT`; leave it unset/false for store distribution and configure direct-build environments deliberately.
+
 ## Required verification before taking real payments
 
 - `npm run check`, `npm run check:backend`, `npm run test:backend`, and web/native bundle exports.
