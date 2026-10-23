@@ -28,8 +28,9 @@
     "open:macos": "open build/Subloom.app",
     "test:macos:storage": "node scripts/test-macos-storage.mjs",
     "build:windows": "node scripts/build-windows.mjs",
-    "test:windows": "node --test windows/runtime.test.cjs",
-    "test:windows:app": "node scripts/test-windows.mjs"
+    "test:windows": "node --test windows/*.test.cjs",
+    "test:windows:app": "node scripts/test-windows.mjs",
+    "test:desktop:oauth": "node scripts/check-desktop-oauth.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.4.2",

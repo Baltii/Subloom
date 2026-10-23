@@ -25,6 +25,13 @@ import {
 import { moneyInput, parseMoney } from "../../domain/money";
 import { supabase } from "../../services/supabase";
 import { macosBridge } from "../../services/macosBridge";
+import { windowsBridge } from "../../services/windowsBridge";
+import {
+  enableWindowsReminders,
+  openWindowsNotificationSettings,
+  sendWindowsTestNotification,
+  useWindowsNotifications,
+} from "../../services/windowsNotifications";
 import {
   enableMacReminders,
   openMacNotificationSettings,
@@ -73,7 +80,7 @@ const settingsGroups = [
   {
     title: "Reminders",
     keywords:
-      "notification push email trial weekly digest private lock screen time quiet hours renewal threshold mac",
+      "notification push email trial weekly digest private lock screen time quiet hours renewal threshold mac windows",
   },
   {
     title: "Tools",
@@ -136,7 +143,9 @@ function Settings() {
         .map((group) => group.title)
     : [section];
   const isMac = Boolean(macosBridge());
+  const isWindows = Boolean(windowsBridge());
   const mac = useMacNotifications();
+  const windows = useWindowsNotifications();
   const [hour, setHour] = useState(String(p.reminderHour)),
     [quietStart, setQuietStart] = useState(String(p.quietStart)),
     [quietEnd, setQuietEnd] = useState(String(p.quietEnd)),
@@ -468,6 +477,61 @@ function Settings() {
             {visibleGroups.includes("Reminders") && (
               <Card>
                 <SectionTitle title="Reminder preferences" />
+                {isWindows && (
+                  <>
+                    {toggle(
+                      "Windows notifications",
+                      "Local reminders on this laptop, including guest subscriptions.",
+                      windows.enabled,
+                      enableWindowsReminders,
+                    )}
+                    <Label size={12} color={colors.secondary}>
+                      {windows.enabled
+                        ? `${windows.pending} upcoming reminders ready on this laptop.`
+                        : "Enable Windows notifications to receive subscription reminders."}
+                    </Label>
+                    <Label
+                      size={11}
+                      color={colors.secondary}
+                      style={{ marginTop: 8 }}
+                    >
+                      Keep Subloom open or minimized for reminders. They stop
+                      when you quit the app. Windows notification settings and
+                      Do not disturb can silence banners.
+                    </Label>
+                    <View style={{ gap: 10, marginVertical: 16 }}>
+                      {windows.enabled && (
+                        <Button
+                          variant="secondary"
+                          loading={busy}
+                          onPress={() =>
+                            void run(async () => {
+                              await sendWindowsTestNotification();
+                              notify(
+                                "Windows accepted the test notification. Check Notification Center if no banner appears.",
+                              );
+                            })
+                          }
+                        >
+                          Send a Windows test notification
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        onPress={() =>
+                          void run(openWindowsNotificationSettings)
+                        }
+                      >
+                        Open Windows notification settings
+                      </Button>
+                      {windows.error && (
+                        <Label size={12} color={colors.error}>
+                          {windows.error}
+                        </Label>
+                      )}
+                    </View>
+                  </>
+                )}
                 {isMac && (
                   <>
                     {toggle(
@@ -538,7 +602,7 @@ function Settings() {
                     </View>
                   </>
                 )}
-                {state.identity === "guest" && !isMac && (
+                {state.identity === "guest" && !isMac && !isWindows && (
                   <Badge tone="neutral">Connect an account for delivery</Badge>
                 )}
                 {toggle(
@@ -660,7 +724,7 @@ function Settings() {
                 )}
                 {toggle(
                   "Private lock-screen content",
-                  "Hide merchant names and prices from push alerts.",
+                  "Hide merchant names and prices from notification alerts.",
                   p.privacyMode,
                   async (privacyMode) => updatePreferences({ privacyMode }),
                 )}

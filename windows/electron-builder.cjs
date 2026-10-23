@@ -7,7 +7,14 @@ module.exports = {
   productName: "Subloom",
   electronVersion,
   directories: { output: path.resolve(__dirname, "../build/windows") },
-  files: ["main.cjs", "preload.cjs", "runtime.cjs", "web/**/*", "icon.png"],
+  files: [
+    "main.cjs",
+    "preload.cjs",
+    "runtime.cjs",
+    "notifications.cjs",
+    "web/**/*",
+    "icon.png",
+  ],
   asar: true,
   npmRebuild: false,
   // Keep the existing subloom:// auth callback shared with mobile and Mac.

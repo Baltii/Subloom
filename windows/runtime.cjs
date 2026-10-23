@@ -55,7 +55,10 @@ function callbackMatches(value, redirect) {
     return (
       actual.protocol === expected.protocol &&
       actual.host === expected.host &&
-      actual.pathname === expected.pathname &&
+      (actual.pathname === expected.pathname ||
+        (actual.protocol === "subloom:" &&
+          actual.pathname === "/" &&
+          expected.pathname === "")) &&
       !actual.username &&
       !actual.password
     );
@@ -77,14 +80,22 @@ function createAuthBroker(openExternal, timeoutMs = 180000) {
         );
       if (pending)
         return Promise.reject(new Error("A sign-in is already in progress."));
+      const browserURL = new URL(target);
+      // The Windows shell owns its return address. A missing/stale web return
+      // on a Supabase OAuth URL otherwise silently signs into the website.
+      if (browserURL.pathname === "/auth/v1/authorize")
+        browserURL.searchParams.set("redirect_to", redirect);
       return new Promise((resolve, reject) => {
         const timer = setTimeout(
-          () => this.cancel("Sign-in timed out. Please try again."),
+          () =>
+            this.cancel(
+              "Sign-in timed out without returning to Subloom. If your browser opened the website, the app callback is not configured correctly. Try an email code or restart sign-in.",
+            ),
           timeoutMs,
         );
         pending = { redirect, resolve, reject, timer };
         Promise.resolve()
-          .then(() => openExternal(target))
+          .then(() => openExternal(browserURL.href))
           .catch(() =>
             this.cancel("Could not open your browser. Please try again."),
           );

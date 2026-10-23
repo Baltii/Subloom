@@ -6,8 +6,11 @@ const {
   protocol,
   session,
   shell,
+  Notification,
 } = require("electron");
 const path = require("node:path");
+const fs = require("node:fs");
+const { createNotificationBroker } = require("./notifications.cjs");
 const { pathToFileURL } = require("node:url");
 const {
   APP_URL,
@@ -33,14 +36,27 @@ protocol.registerSchemesAsPrivileged([
     },
   },
 ]);
-const auth = createAuthBroker((url) => shell.openExternal(url));
+const auth = createAuthBroker((url) => {
+  if (!smokeMode) return shell.openExternal(url);
+  const target = new URL(url);
+  if (
+    target.pathname !== "/auth/v1/authorize" ||
+    target.searchParams.get("redirect_to") !== "subloom://auth-callback"
+  )
+    throw new Error("Desktop sign-in selected the wrong callback.");
+  // Exercise the same event Windows sends when a protocol launch returns.
+  app.emit("second-instance", {}, [
+    process.execPath,
+    "subloom://auth-callback?error=access_denied",
+  ]);
+});
 let window;
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
   app.on("second-instance", (_event, argv) => {
     const callback = argv.find((arg) => arg.startsWith("subloom://"));
     if (callback) auth.complete(callback);
-    if (window) {
+    if (window && !smokeMode) {
       if (window.isMinimized()) window.restore();
       window.show();
       window.focus();
@@ -54,6 +70,21 @@ else {
       if (process.platform === "win32" && app.isPackaged && !smokeMode) {
         app.setAppUserModelId("com.subloom.windows");
         app.setAsDefaultProtocolClient("subloom");
+        // NSIS supplies the Start Menu shortcut. Keep its toast identity in
+        // sync with Electron so alerts appear under Subloom in Windows.
+        const shortcut = path.join(
+          app.getPath("appData"),
+          "Microsoft",
+          "Windows",
+          "Start Menu",
+          "Programs",
+          "Subloom.lnk",
+        );
+        if (fs.existsSync(shortcut))
+          shell.writeShortcutLink(shortcut, "update", {
+            appUserModelId: "com.subloom.windows",
+            toastActivatorClsid: app.toastActivatorCLSID,
+          });
       }
       const store = session.fromPartition("persist:subloom");
       store.setPermissionRequestHandler((_contents, _permission, callback) =>
@@ -152,8 +183,118 @@ else {
           !isAppURL(event.senderFrame.url)
         )
           throw new Error("Sign-in must start in the Subloom app.");
+        if (
+          process.platform === "win32" &&
+          app.isPackaged &&
+          !smokeMode &&
+          !app.setAsDefaultProtocolClient("subloom")
+        )
+          throw new Error(
+            "Windows could not register the sign-in callback. Reinstall Subloom using its installer, then try again.",
+          );
         return auth.open(url, redirect);
       });
+      ipcMain.handle("subloom:auth-cancel", (event) => {
+        if (
+          event.sender !== window?.webContents ||
+          event.senderFrame !== window.webContents.mainFrame ||
+          !isAppURL(event.senderFrame.url)
+        )
+          throw new Error("Sign-in must be canceled in the Subloom app.");
+        auth.cancel();
+      });
+      const consentFile = path.join(
+        app.getPath("userData"),
+        "notification-consent.json",
+      );
+      let consent = {};
+      try {
+        consent = JSON.parse(fs.readFileSync(consentFile, "utf8"));
+      } catch {}
+      if (!consent || typeof consent !== "object" || Array.isArray(consent))
+        consent = {};
+      const notifications = createNotificationBroker({
+        supported: () => Notification.isSupported(),
+        loadConsent: (identity) => consent[identity] === true,
+        saveConsent: (identity, enabled) => {
+          const next = { ...consent, [identity]: enabled };
+          const temp = consentFile + ".tmp";
+          fs.mkdirSync(path.dirname(consentFile), { recursive: true });
+          fs.writeFileSync(temp, JSON.stringify(next));
+          fs.renameSync(temp, consentFile);
+          consent = next;
+        },
+        show: (request, identity) =>
+          new Promise((resolve, reject) => {
+            const toast = new Notification({
+              title: request.title,
+              body: request.body,
+              icon: path.join(__dirname, "icon.png"),
+            });
+            const timeout = setTimeout(() => {
+              toast.close();
+              reject(
+                new Error(
+                  "Windows did not confirm the notification. Check Windows notification settings and Do not disturb.",
+                ),
+              );
+            }, 10000);
+            toast.once("show", () => {
+              clearTimeout(timeout);
+              resolve(() => toast.close());
+            });
+            toast.once("failed", () => {
+              clearTimeout(timeout);
+              reject(
+                new Error(
+                  "Windows could not show the notification. Check Windows notification settings.",
+                ),
+              );
+            });
+            toast.on("click", () => {
+              if (!window || notifications.currentOwner() !== identity) return;
+              if (window.isMinimized()) window.restore();
+              window.show();
+              window.focus();
+              window.webContents.send("subloom:notification-click", {
+                identity,
+                path: request.path,
+              });
+            });
+            toast.show();
+          }),
+      });
+      for (const operation of [
+        "activate",
+        "enable",
+        "replace",
+        "test",
+        "settings",
+      ]) {
+        ipcMain.handle(
+          "subloom:notification-" + operation,
+          (event, ...args) => {
+            if (
+              event.sender !== window?.webContents ||
+              event.senderFrame !== window.webContents.mainFrame ||
+              !isAppURL(event.senderFrame.url)
+            )
+              throw new Error(
+                "Notifications must be managed in the Subloom app.",
+              );
+            if (operation === "settings")
+              return shell.openExternal("ms-settings:notifications");
+            return notifications[operation](...args);
+          },
+        );
+      }
+      app.on("before-quit", () => notifications.dispose());
+      window.webContents.on(
+        "did-start-navigation",
+        (_event, _url, inPlace, mainFrame) => {
+          if (mainFrame && !inPlace) notifications.activate(null);
+        },
+      );
       await window.loadURL(APP_URL);
       if (smokeMode) {
         const result = await window.webContents
@@ -167,6 +308,11 @@ else {
           };
           const snapshot = () => JSON.parse(localStorage.getItem("subloom:v1:guest") || "null");
           if (typeof require !== "undefined" || !globalThis.subloomWindows?.openAuth) throw new Error("Renderer isolation failed");
+          const localNotifications = globalThis.subloomWindows.notifications;
+          const notificationStatus = await localNotifications.activate("guest");
+          if (typeof notificationStatus.supported !== "boolean") throw new Error("Notification bridge is unavailable");
+          await localNotifications.enable("guest", false);
+          if ((await localNotifications.replace("guest", [])).pending !== 0) throw new Error("Disabled notifications scheduled an alert");
           if (${JSON.stringify(smokeMode)} === "write") {
             await until(() => document.querySelector('[data-testid="onboarding-next"]'), "welcome screen");
             document.querySelector('[data-testid="onboarding-next"]').click();
@@ -183,6 +329,21 @@ else {
           return true;
         })()`);
         if (!result) throw new Error("Windows smoke test failed");
+        await window.loadURL(APP_URL + "auth");
+        await window.webContents.executeJavaScript(`(async () => {
+          const until = async (check) => {
+            const deadline = Date.now() + 30000;
+            while (!check()) {
+              if (Date.now() > deadline) throw new Error("Desktop OAuth did not recover from a canceled callback");
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+          };
+          const google = () => [...document.querySelectorAll('[role="button"],button')].find(el => el.textContent === "Continue with Google");
+          await until(google);
+          google().click();
+          await until(() => document.body.innerText.includes("Sign-in could not finish"));
+          if (google().getAttribute("aria-disabled") === "true") throw new Error("Desktop sign-in remained busy");
+        })()`);
         store.flushStorageData();
         await store.cookies.flushStore();
         app.quit();

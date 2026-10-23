@@ -30,7 +30,12 @@ const stage = resolve("build/windows-app"),
 rmSync(stage, { recursive: true, force: true });
 rmSync(output, { recursive: true, force: true });
 mkdirSync(stage, { recursive: true });
-for (const file of ["main.cjs", "preload.cjs", "runtime.cjs"])
+for (const file of [
+  "main.cjs",
+  "preload.cjs",
+  "runtime.cjs",
+  "notifications.cjs",
+])
   cpSync(`windows/${file}`, `${stage}/${file}`);
 cpSync("assets/icon.png", `${stage}/icon.png`);
 cpSync("build/windows-web", `${stage}/web`, { recursive: true });

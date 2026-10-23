@@ -4,7 +4,12 @@ export function callbackCode(url: string, redirect: string): string {
   if (
     actual.protocol !== expected.protocol ||
     actual.host !== expected.host ||
-    actual.pathname !== expected.pathname ||
+    (actual.pathname !== expected.pathname &&
+      !(
+        actual.protocol === "subloom:" &&
+        actual.pathname === "/" &&
+        expected.pathname === ""
+      )) ||
     actual.username ||
     actual.password
   )

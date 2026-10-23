@@ -43,6 +43,8 @@ jobs:
       - run: npm ci
       - run: npm --prefix windows ci
       - run: npm run test:windows
+      - name: Verify hosted OAuth returns to the desktop callback
+        run: npm run test:desktop:oauth
       - run: npm run build:windows
       - name: Launch packaged app and verify data survives a restart
         run: npm run test:windows:app
