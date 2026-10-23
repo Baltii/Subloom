@@ -4,7 +4,7 @@ import { AppState, Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import * as Crypto from "expo-crypto";
 
-const authStorage = {
+export const authStorage = {
   async getItem(key: string) {
     if (Platform.OS === "web") return globalThis.localStorage.getItem(key);
     const metadata = await SecureStore.getItemAsync(key + ".meta");

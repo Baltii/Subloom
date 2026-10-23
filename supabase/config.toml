@@ -44,3 +44,8 @@ verify_jwt = false
 verify_jwt = false
 [functions.mailbox-callback]
 verify_jwt = false
+
+[functions.pro-billing]
+verify_jwt = false
+[functions.stripe-webhook]
+verify_jwt = false

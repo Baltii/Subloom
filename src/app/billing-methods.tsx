@@ -21,6 +21,7 @@ import {
   Page,
 } from "../components/ui/Primitives";
 import { useTheme, useWide } from "../theme/useTheme";
+import { usePro, workspaceHasPro } from "../store/pro";
 
 export default function BillingMethodsRoute() {
   const identity = useApp((state) => state.identity);
@@ -32,6 +33,9 @@ function BillingMethods() {
     methods = useBillingMethods(),
     data = useApp((state) => state.data),
     identity = useApp((state) => state.identity);
+  const pro = usePro(
+    (state) => state.workspace === identity && state.offlineUntil > Date.now(),
+  );
   const [editing, setEditing] = useState<PaymentSource | "new" | null>(null),
     [removing, setRemoving] = useState<PaymentSource | null>(null),
     [error, setError] = useState<string | null>(null);
@@ -55,7 +59,11 @@ function BillingMethods() {
           small
           icon={Plus}
           disabled={disabled || methods.value.sources.length >= 50}
-          onPress={() => setEditing("new")}
+          onPress={() => {
+            if (!workspaceHasPro(identity) && methods.value.sources.length >= 3)
+              router.push("/pro");
+            else setEditing("new");
+          }}
         >
           {wide ? "Add method" : "Add"}
         </Button>
@@ -67,6 +75,21 @@ function BillingMethods() {
         <Label color={colors.secondary} size={13}>
           Save cards and wallets, then assign them to your subscriptions.
         </Label>
+        {!pro && (
+          <View style={{ gap: 8 }}>
+            <Label size={13}>
+              Free includes 3 saved cards and wallets combined. Pro includes up
+              to 50. Existing methods stay available after a downgrade.
+            </Label>
+            <Button
+              small
+              variant="secondary"
+              onPress={() => router.push("/pro")}
+            >
+              Explore Subloom Pro
+            </Button>
+          </View>
+        )}
         {data.demo && (
           <Label size={13} color={colors.secondary}>
             Leave the sample workspace to save your own cards and wallets.

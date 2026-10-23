@@ -46,6 +46,7 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
           EXPO_PUBLIC_EAS_PROJECT_ID: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
+          EXPO_PUBLIC_PRO_LICENSE_PUBLIC_KEY: ${{ vars.EXPO_PUBLIC_PRO_LICENSE_PUBLIC_KEY }}
 
   macos:
     name: Mac build (${{ matrix.arch }})
@@ -79,6 +80,7 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
           EXPO_PUBLIC_EAS_PROJECT_ID: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
+          EXPO_PUBLIC_PRO_LICENSE_PUBLIC_KEY: ${{ vars.EXPO_PUBLIC_PRO_LICENSE_PUBLIC_KEY }}
       - name: Package versioned test app
         run: |
           version=$(node -p 'require("./package.json").version')

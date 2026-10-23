@@ -13,6 +13,7 @@ import {
   Search,
   X,
   Activity,
+  Sparkles,
 } from "lucide-react-native";
 import {
   useApp,
@@ -71,7 +72,8 @@ import {
 const settingsGroups = [
   {
     title: "Account",
-    keywords: "login sign in sync import guest",
+    keywords:
+      "login sign in sync import guest pro upgrade trial billing payment subscription",
   },
   {
     title: "Preferences",
@@ -291,6 +293,12 @@ function Settings() {
             {visibleGroups.includes("Account") && (
               <Card>
                 <SectionTitle title="Account" />
+                <LinkRow
+                  icon={Sparkles}
+                  title="Subloom Pro"
+                  detail="Trial, purchases and billing"
+                  onPress={() => router.push("/pro")}
+                />
                 <LinkRow
                   icon={Activity}
                   title="Recent activity"
