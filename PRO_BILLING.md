@@ -10,7 +10,17 @@ Signed-in workspaces use their own main auth identity. Guest billing access does
 
 Entitlements are reconciled against current Stripe state, never a redirect query or client-written plan flag. The legacy `user_entitlements.plan` is not a billing authority. P-256 signed offline licenses last at most 72 hours and never beyond the current trial/paid period. They are bound to billing owner, installation and workspace cache. Tampering, wrong key, expired license and backward clock jumps fail closed. Online denial replaces the cache. Like any local application, a modified binary or deleted local clock history cannot be made a perfect DRM boundary. Account writes are also checked by Postgres. Free tracking remains usable without a network or account.
 
-## Configure later (no credentials are included)
+## Sandbox configuration recorded on 2026-10-23
+
+The connected `subloom sandbox` account (`acct_1UQaSbAWlPRrHQhE`, test mode) is configured with product `subloom_pro`, monthly price `price_1UToAIAWlPRrHQhE0g9BJaqV`, yearly price `price_1UToAfAWlPRrHQhEsORtnnq8`, and default customer portal configuration `bpc_1UToAiAWlPRrHQhEPOeWk8OA`. The portal allows invoices, payment-method updates and cancellation at period end; plan/quantity changes are disabled.
+
+All six server settings below are installed in Subloom's Supabase Edge Function secrets and their stored digests were verified. The public verification key is configured locally, in GitHub Actions variables, in Vercel development/preview/production, and in EAS development/preview/production. Secret values are excluded from source control and client builds. The existing sandbox server key was used; replace it with a restricted key with the listed permissions before live rollout.
+
+Webhook `we_1UToDWAWlPRrHQhEruGV9qp0` targets `https://fdjsmpmgrwzmqovzundx.supabase.co/functions/v1/stripe-webhook` at API version `2026-09-30.endive`, with the 12 handled events below. It is deliberately **disabled** until the reviewed billing migration/functions are deployed from `release-candidate`. PR #66 is not merged, and these backend changes have not been deployed. Enable this endpoint only after deployment, then verify signed deliveries and the complete app purchase/restore flow. Adding credentials alone does not publish the billing feature.
+
+A real sandbox API smoke check verified both prices, matching signing/verification keys, a hosted Checkout Session with a required payment method and a 7-day trial, and a billing-portal session. No payment was submitted and no subscription was activated. The temporary Checkout Session was expired and its temporary customer deleted. Full payment completion, webhook delivery and device restoration still need the acceptance run below.
+
+## Configuration and activation (no credentials are included in source)
 
 1. Create a **separate Stripe sandbox** for development. This repository pins stripe-node 23.0.0 / API `2026-09-30.endive`; 23.0.1 was published inside Deno's minimum dependency-age window when implemented, so that protection was preserved. Keep the webhook snapshot version at `2026-09-30.endive` too.
 2. Create recurring prices in EUR: **299 cents / month** and **2400 cents / year**, each interval count 1, per-unit, quantity 1. The server rejects other prices. Archive old prices only after planning migrations; keep configured price IDs stable while subscribers exist. No promotions, tax collection, or price-changing customer portal controls are enabled by code.
@@ -42,4 +52,4 @@ Set the public verification key as a GitHub Actions **variable** named `EXPO_PUB
 - Verify offline restore ≤72h, wrong installation/owner/key, expired period, clock rollback, online revocation and returning from the browser to Check purchase. A browser success URL alone must never grant Pro.
 - Verify free 3-method limit on local and authenticated writes, editing/removing existing over-limit methods, locked imports/CSV report, and free JSON backup/manual tracking/reminders. Rebuild and test on a real Windows laptop and native devices; bundle exports alone do not prove device behavior.
 
-No live payment or sandbox checkout was performed during implementation because Stripe credentials were intentionally deferred. Database/processor mocks and cryptographic tests do not replace this sandbox acceptance run.
+The sandbox credential check above supplements the database/processor mocks and cryptographic tests. It does not replace a completed sandbox payment, signed webhook delivery, or the full app/device acceptance run. No live payment has been performed.
