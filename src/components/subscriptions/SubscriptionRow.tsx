@@ -1,12 +1,12 @@
 import { memo } from "react";
 import { Pressable, View } from "react-native";
-import { ChevronRight, CircleHelp } from "lucide-react-native";
+import { ChevronRight } from "lucide-react-native";
 import { router } from "expo-router";
 import type { Subscription } from "../../domain/models";
 import { formatMoney } from "../../domain/money";
 import { dateLabel, intervalLabel, nextEvent } from "../../domain/renewal";
 import { useTheme, useWide } from "../../theme/useTheme";
-import { Badge, Button, Label } from "../ui/Primitives";
+import { Badge, Label } from "../ui/Primitives";
 import { ServiceIcon } from "./ServiceIcon";
 import { SubscriptionActions } from "./SubscriptionActions";
 export const SubscriptionRow = memo(function SubscriptionRow({
@@ -118,26 +118,6 @@ export const SubscriptionRow = memo(function SubscriptionRow({
         </Pressable>
         {showActions && <SubscriptionActions subscription={s} />}
       </View>
-      {showActions && (
-        <View
-          style={{ alignSelf: "flex-start", marginLeft: 48, marginBottom: 10 }}
-        >
-          <Button
-            small
-            variant="ghost"
-            icon={CircleHelp}
-            accessibilityLabel={"How to cancel " + s.name}
-            onPress={() =>
-              router.push({
-                pathname: "/subscription/cancel",
-                params: { id: s.id },
-              })
-            }
-          >
-            How to cancel
-          </Button>
-        </View>
-      )}
     </View>
   );
 });

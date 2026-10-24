@@ -18,7 +18,6 @@ import {
 } from "../../components/ui/Primitives";
 import { SubscriptionViewSwitcher } from "../../components/subscriptions/SubscriptionViewSwitcher";
 import { SubscriptionRow } from "../../components/subscriptions/SubscriptionRow";
-import { SwipeRow } from "../../components/subscriptions/SwipeRow";
 import { FilterSheet } from "../../components/ui/FilterSheet";
 import { useQuickActions } from "../../hooks/useQuickActions";
 import { useBillingMethods } from "../../hooks/useBillingMethods";
@@ -393,18 +392,16 @@ function Subscriptions() {
                   marginBottom: 10,
                 }}
               >
-                <SwipeRow subscription={item}>
-                  <SubscriptionRow
-                    subscription={item}
-                    reference={reference}
-                    showActions
-                    billingLabel={
-                      billingMethods.loaded
-                        ? subscriptionBillingLabel(item, billingMethods.value)
-                        : undefined
-                    }
-                  />
-                </SwipeRow>
+                <SubscriptionRow
+                  subscription={item}
+                  reference={reference}
+                  showActions
+                  billingLabel={
+                    billingMethods.loaded
+                      ? subscriptionBillingLabel(item, billingMethods.value)
+                      : undefined
+                  }
+                />
                 {item.status !== "active" && (
                   <View style={{ marginBottom: 14 }}>
                     <Badge
