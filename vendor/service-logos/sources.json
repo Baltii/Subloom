@@ -385,5 +385,63 @@
       "source": "https://partnermarketinghub.withgoogle.com",
       "guidelines": "https://about.google/brand-resource-center/brand-elements/"
     }
+  ],
+  "additionalAssets": [
+    {
+      "id": "chatgpt",
+      "package": "simple-icons@13.21.0",
+      "asset": "icons/openai.svg",
+      "source": "https://openai.com/brand/"
+    },
+    {
+      "id": "icloud",
+      "package": "simple-icons@16.35.0",
+      "asset": "icons/icloud.svg",
+      "source": "https://www.icloud.com/"
+    },
+    {
+      "id": "google",
+      "asset": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/google-one.svg",
+      "source": "https://one.google.com/",
+      "note": "Original multicolor Google One mark; bundled SVG.",
+      "license": "Apache-2.0 (collection); brand trademarks belong to their respective owners",
+      "licenseFile": "DASHBOARD-ICONS-LICENSE",
+      "modifications": "Bundled into serviceArtwork.ts; Figma style classes inlined as fills and Google One viewBox made explicit for React Native SVG rendering."
+    },
+    {
+      "id": "figma",
+      "asset": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/figma.svg",
+      "source": "https://www.figma.com/using-the-figma-brand/",
+      "note": "Original multicolor Figma mark; bundled SVG.",
+      "license": "Apache-2.0 (collection); brand trademarks belong to their respective owners",
+      "licenseFile": "DASHBOARD-ICONS-LICENSE",
+      "modifications": "Bundled into serviceArtwork.ts; Figma style classes inlined as fills and Google One viewBox made explicit for React Native SVG rendering."
+    },
+    {
+      "id": "netflix",
+      "package": "simple-icons@13.21.0",
+      "asset": "icons/netflix.svg",
+      "source": "https://brand.netflix.com/"
+    },
+    {
+      "id": "adobe",
+      "package": "simple-icons@13.21.0",
+      "asset": "icons/adobecreativecloud.svg",
+      "source": "https://www.adobe.com/creativecloud.html"
+    },
+    {
+      "id": "amazon",
+      "package": "simple-icons@13.21.0",
+      "asset": "icons/amazonprime.svg",
+      "source": "https://www.amazon.com/prime"
+    },
+    {
+      "id": "microsoft",
+      "asset": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/microsoft-365.svg",
+      "source": "https://www.microsoft.com/microsoft-365",
+      "license": "Apache-2.0 (collection); brand trademarks belong to their respective owners",
+      "licenseFile": "DASHBOARD-ICONS-LICENSE",
+      "modifications": "Bundled as SVG XML into serviceArtwork.ts; geometry and brand colors preserved."
+    }
   ]
 }
