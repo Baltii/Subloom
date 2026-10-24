@@ -20,6 +20,8 @@ import { uniqueCsvRows } from "../domain/csv";
 import { duplicateCandidate, possibleMatch } from "../domain/detection";
 import { loadSnapshot, saveSnapshot } from "../services/storage";
 import { demoSnapshot } from "../services/demo";
+import { canAddSubscriptions, FREE_SUBSCRIPTIONS } from "../domain/pro";
+import { workspaceHasPro } from "./pro";
 import { today } from "../domain/renewal";
 import {
   trackedProSubscription,
@@ -176,6 +178,22 @@ export async function leaveDemo() {
   }));
   notify("Your own space is ready.");
 }
+function checkSubscriptionCapacity(
+  current: Subscription[],
+  next: Subscription[],
+) {
+  if (
+    !canAddSubscriptions(
+      current.map((s) => s.id),
+      next.map((s) => s.id),
+      workspaceHasPro(useApp.getState().identity),
+    )
+  )
+    throw new Error(
+      `Free includes up to ${FREE_SUBSCRIPTIONS} subscriptions. Open Subloom Pro to add more; your existing records are still available.`,
+    );
+}
+
 export async function saveSubscription(
   input: Subscription,
   candidateId?: string,
@@ -215,6 +233,11 @@ export async function saveSubscription(
           "Billing manages this Pro record. Open Subloom Pro to change or cancel your plan; reminder choices remain editable.",
         );
     }
+    if (!previous)
+      checkSubscriptionCapacity(data.subscriptions, [
+        ...data.subscriptions,
+        subscription,
+      ]);
     const candidate = candidateId
       ? data.candidates.find((c) => c.id === candidateId)
       : null;
@@ -500,6 +523,10 @@ export async function importGuestData(
     const imported = guest.subscriptions
       .filter((s) => !existing.has(s.id))
       .map((s) => ({ ...s, userId: useApp.getState().identity, version: 1 }));
+    checkSubscriptionCapacity(data.subscriptions, [
+      ...data.subscriptions,
+      ...imported,
+    ]);
     const candidateIds = new Set(data.candidates.map((c) => c.id));
     const candidates = guest.candidates.filter((c) => !candidateIds.has(c.id));
     return {
@@ -559,6 +586,10 @@ export async function importSubscriptions(
       createdAt: now,
       updatedAt: now,
     }));
+    checkSubscriptionCapacity(data.subscriptions, [
+      ...data.subscriptions,
+      ...imported,
+    ]);
     const events = imported.map((s) =>
       activity("created", "CSV subscription imported", s.name, s.id),
     );

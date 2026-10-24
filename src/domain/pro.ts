@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { p256 } from "@noble/curves/nist.js";
 
-export const FREE_BILLING_METHODS = 3;
+export const FREE_SUBSCRIPTIONS = 10;
+export const FREE_CARDS = 1;
+export const FREE_WALLETS = 1;
+type BillingMethod = { id: string; kind: "card" | "wallet" | "bank" };
 export const PRO_BILLING_METHODS = 50;
 export const OFFLINE_PRO_MS = 72 * 3600_000;
 export const licenseSchema = z
@@ -63,14 +66,35 @@ export function verifyProLicense(
   }
 }
 export function canAddBillingMethod(
+  current: readonly BillingMethod[],
+  next: readonly BillingMethod[],
+  pro: boolean,
+) {
+  if (next.length > PRO_BILLING_METHODS) return false;
+  if (pro) return true;
+  return (["card", "wallet", "bank"] as const).every((kind) => {
+    const methods = next.filter((method) => method.kind === kind);
+    const limit =
+      kind === "card" ? FREE_CARDS : kind === "wallet" ? FREE_WALLETS : 0;
+    return (
+      methods.length <= limit ||
+      methods.every((method) =>
+        current.some(
+          (saved) => saved.id === method.id && saved.kind === method.kind,
+        ),
+      )
+    );
+  });
+}
+
+export function canAddSubscriptions(
   currentIds: readonly string[],
   nextIds: readonly string[],
   pro: boolean,
 ) {
   return (
-    nextIds.length <= PRO_BILLING_METHODS &&
-    (pro ||
-      nextIds.length <= FREE_BILLING_METHODS ||
-      nextIds.every((id) => currentIds.includes(id)))
+    pro ||
+    nextIds.length <= FREE_SUBSCRIPTIONS ||
+    nextIds.every((id) => currentIds.includes(id))
   );
 }

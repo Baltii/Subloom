@@ -1,5 +1,11 @@
 import { View } from "react-native";
-import { CreditCard, Download, FileSearch, Check } from "lucide-react-native";
+import {
+  CreditCard,
+  Download,
+  FileSearch,
+  Check,
+  ListPlus,
+} from "lucide-react-native";
 import { Card, Heading, Label } from "../ui/Primitives";
 import { useTheme } from "../../theme/useTheme";
 export function ProFeatures() {
@@ -8,6 +14,11 @@ export function ProFeatures() {
     <Card style={{ gap: 24 }}>
       <Heading size={20}>Less sorting. More living.</Heading>
       {[
+        {
+          icon: ListPlus,
+          title: "Track more than 10 subscriptions",
+          body: "Free includes up to 10 subscriptions. Pro gives you room for more recurring services.",
+        },
         {
           icon: FileSearch,
           title: "Find the subscriptions hiding in statements",
@@ -21,7 +32,7 @@ export function ProFeatures() {
         {
           icon: CreditCard,
           title: "Room for up to 50 cards & wallets",
-          body: "Keep your saved billing labels together. Free includes 3 combined.",
+          body: "Keep your saved billing labels together. Free includes one card and one wallet.",
         },
       ].map(({ icon: Icon, title, body }) => (
         <View key={title} style={{ flexDirection: "row", gap: 14 }}>
@@ -49,8 +60,8 @@ export function ProFeatures() {
           </Label>
         </View>
         <Label size={13} color={colors.secondary}>
-          Manual tracking, reminders, calendar, JSON backup and basic
-          subscription CSV. Your saved records stay yours if Pro ends.
+          Tracking for up to 10 subscriptions, reminders, calendar, JSON backup
+          and basic subscription CSV. Your saved records stay yours if Pro ends.
         </Label>
       </View>
     </Card>

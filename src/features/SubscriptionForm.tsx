@@ -42,6 +42,8 @@ import {
 } from "../components/ui/pickerOptions";
 import { ServiceNameField } from "../components/subscriptions/ServiceNameField";
 import { useTheme, useWide } from "../theme/useTheme";
+import { FREE_SUBSCRIPTIONS } from "../domain/pro";
+import { useProAccess } from "../hooks/useProAccess";
 import { useBillingMethods } from "../hooks/useBillingMethods";
 import { BillingMethodEditor } from "../components/payments/BillingMethodEditor";
 import { PaymentMethodIcon } from "../components/payments/PaymentMethodIcon";
@@ -110,6 +112,8 @@ export function SubscriptionForm({
 }) {
   const navigation = useNavigation();
   const billingMethods = useBillingMethods();
+  const { pro, requestPro } = useProAccess();
+  const subscriptionCount = useApp((state) => state.data.subscriptions.length);
   const { colors } = useTheme(),
     wide = useWide(),
     preferences = useApp((s) => s.data.preferences),
@@ -279,6 +283,12 @@ export function SubscriptionForm({
         !useApp.getState().hydrated
       )
         throw new Error("Your account changed. Reopen the form before saving.");
+      if (
+        !initial &&
+        useApp.getState().data.subscriptions.length >= FREE_SUBSCRIPTIONS &&
+        !requestPro("More subscriptions")
+      )
+        return;
       if (!values.currency || !values.interval)
         throw new Error("Confirm the currency and billing frequency.");
       const selectedSource = billingSourceId(values.paymentMethod);
@@ -352,6 +362,16 @@ export function SubscriptionForm({
             ? "Save changes"
             : "Add subscription"}
       </Button>
+      {!initial && !pro && (
+        <Label
+          size={12}
+          color={colors.secondary}
+          style={{ textAlign: "center" }}
+        >
+          {subscriptionCount} / {FREE_SUBSCRIPTIONS} subscriptions on Free · Pro
+          adds more
+        </Label>
+      )}
       <Label size={12} color={colors.secondary} style={{ textAlign: "center" }}>
         {identity === "guest"
           ? "Saves on this device"
@@ -646,6 +666,7 @@ export function SubscriptionForm({
       </Card>
       {addingBillingMethod && (
         <BillingMethodEditor
+          sources={billingMethods.value.sources}
           onClose={() => setAddingBillingMethod(false)}
           needsReload={!billingMethods.loaded}
           onReload={billingMethods.reload}

@@ -1,3 +1,5 @@
+import { canAddBillingMethod } from "../../domain/pro";
+import { useProAccess } from "../../hooks/useProAccess";
 import { useState } from "react";
 import { View } from "react-native";
 import * as Crypto from "expo-crypto";
@@ -20,20 +22,29 @@ import { PaymentMethodIcon } from "./PaymentMethodIcon";
 
 export function BillingMethodEditor({
   initial,
+  sources,
   onSave,
   onClose,
   needsReload,
   onReload,
 }: {
   initial?: PaymentSource;
+  sources: readonly PaymentSource[];
   onSave: (source: PaymentSource) => Promise<void>;
   onClose: () => void;
   needsReload: boolean;
   onReload: () => Promise<void>;
 }) {
   const { colors } = useTheme();
+  const { requestPro } = useProAccess();
   const [draft, setDraft] = useState<BillingMethodDraft>({
-    kind: initial?.kind === "wallet" ? "wallet" : "card",
+    kind:
+      initial?.kind === "wallet" ||
+      (!initial &&
+        sources.some((s) => s.kind === "card") &&
+        !sources.some((s) => s.kind === "wallet"))
+        ? "wallet"
+        : "card",
     cardBrand: initial ? initial.cardBrand || "Other card" : "Visa",
     walletProvider: initial
       ? initial.walletProvider || "Other wallet"
@@ -69,14 +80,26 @@ export function BillingMethodEditor({
     setBusy(true);
     setError(null);
     try {
-      await onSave(
-        buildBillingMethod(
-          parsed.data,
-          initial?.id || Crypto.randomUUID(),
-          new Date().toISOString(),
-          initial,
-        ),
+      const source = buildBillingMethod(
+        parsed.data,
+        initial?.id || Crypto.randomUUID(),
+        new Date().toISOString(),
+        initial,
       );
+      if (
+        !canAddBillingMethod(
+          sources,
+          [...sources.filter((s) => s.id !== source.id), source],
+          false,
+        ) &&
+        !requestPro("More cards & wallets")
+      ) {
+        setError(
+          "Free includes one card and one wallet. Your draft is still here.",
+        );
+        return;
+      }
+      await onSave(source);
       onClose();
     } catch (failure) {
       setError(readableError(failure));
