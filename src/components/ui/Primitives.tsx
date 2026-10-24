@@ -890,11 +890,13 @@ export function Confirm({
 export function LinkRow({
   title,
   detail,
+  badge,
   icon: Icon,
   onPress,
 }: {
   title: string;
   detail?: string;
+  badge?: ReactNode;
   icon: LucideIcon;
   onPress: () => void;
 }) {
@@ -924,7 +926,17 @@ export function LinkRow({
         <Icon size={18} color={colors.primary} />
       </View>
       <View style={{ flex: 1 }}>
-        <Label bold>{title}</Label>
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <Label bold>{title}</Label>
+          {badge}
+        </View>
         {detail && (
           <Label size={12} color={colors.secondary}>
             {detail}

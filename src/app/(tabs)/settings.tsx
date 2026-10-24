@@ -63,6 +63,7 @@ import {
 } from "../../components/ui/Primitives";
 import { toolActions } from "../../components/ui/QuickActions";
 import { ThemePicker } from "../../components/ui/ThemePicker";
+import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
 import { ProBadge } from "../../components/pro/ProBadge";
 import { SelectField } from "../../components/ui/Selection";
 import {
@@ -895,6 +896,9 @@ function Settings() {
                       key={action.title}
                       title={action.title}
                       detail={action.detail}
+                      badge={
+                        action.proFeature ? <ProFeatureBadge /> : undefined
+                      }
                       icon={action.icon}
                       onPress={() => router.push(action.route)}
                     />
