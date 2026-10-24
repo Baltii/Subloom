@@ -10,3 +10,12 @@ Start from `release-candidate`. Merge these ready-for-review PRs in order; each 
 6. `feat/personalized-home-greeting`: greet the current client by available profile name, with a warm guest fallback and wave emoji.
 
 Validation: run the repository check suite for each delta, export web/native routes and assets, and inspect desktop/compact layouts, theme variants and keyboard controls. Record actual results in each PR.
+
+
+## Completed delivery
+
+All six tasks are implemented. Merge the ready PRs in this order: [#67 Pro access](https://github.com/Baltii/Subloom/pull/67) → [#68 theme-aware card](https://github.com/Baltii/Subloom/pull/68) → [#69 Cards & Wallets navigation](https://github.com/Baltii/Subloom/pull/69) → [#70 filter sheets](https://github.com/Baltii/Subloom/pull/70) → [#71 icon switcher](https://github.com/Baltii/Subloom/pull/71) → [#72 Home greeting](https://github.com/Baltii/Subloom/pull/72). Each PR targets its predecessor; #67 targets `release-candidate`.
+
+Final verification: `npm run check` passed (typecheck, lint, 61 test files / 358 tests). Web, iOS and Android exports passed. Brand consistency passed. Web inspection covered 320/390/1440/1940px, blue/light and violet/dark cards, free Pro entry and close/Escape, filter draft dismissal/Apply/Clear, Cards & Wallets/default Quick actions, keyboard Timeline selection and guest greeting. The independent review's only correction, 48×48 view-switcher targets, was resolved and confirmed with refreshed screenshots.
+
+Native UI interaction, live provider sign-in/checkout/restore, populated-data UI and OS reduced-motion emulation were not exercised. Named greetings and entitlement isolation are covered by source/unit checks. Existing uncommitted work in the original checkout was preserved. Design evidence and the scoped review are recorded in `.impeccable/surfaces/mobile-pro-ux-stack.md`; global design and theme tokens remain unchanged.

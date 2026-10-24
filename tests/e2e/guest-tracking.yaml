@@ -23,7 +23,7 @@ name: Guest tracking, editing and restart persistence
     direction: DOWN
 - tapOn:
     id: get-started
-- assertVisible: "Your subscriptions, at a glance."
+- assertVisible: "Hi! 👋"
 - tapOn: Add
 - scrollUntilVisible:
     element:

@@ -22,6 +22,8 @@ import { loadSnapshot, saveSnapshot } from "../services/storage";
 import { demoSnapshot } from "../services/demo";
 import { today } from "../domain/renewal";
 
+import type { GreetingProfile } from "../domain/greeting";
+
 type AppState = {
   data: Snapshot;
   identity: string;
@@ -33,6 +35,7 @@ type AppState = {
   syncError: string | null;
   syncing: boolean;
   email: string | null;
+  greetingProfile: GreetingProfile | null;
   pushError: string | null;
   pushDeviceEnabled: boolean | null;
 };
@@ -47,6 +50,7 @@ export const useApp = create<AppState>(() => ({
   syncError: null,
   syncing: false,
   email: null,
+  greetingProfile: null,
   pushError: null,
   pushDeviceEnabled: null,
 }));

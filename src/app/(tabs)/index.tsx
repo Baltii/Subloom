@@ -10,6 +10,7 @@ import {
   Sparkles,
   ArrowUpRight,
 } from "lucide-react-native";
+import { homeGreeting } from "../../domain/greeting";
 import { useApp } from "../../store/app";
 import { recurringTotals, formatMoney, annualCost } from "../../domain/money";
 import { dateLabel, today, upcoming } from "../../domain/renewal";
@@ -39,6 +40,8 @@ export default function Home() {
   const { colors } = useTheme(),
     wide = useWide(),
     data = useApp((s) => s.data);
+  const identity = useApp((state) => state.identity);
+  const profile = useApp((state) => state.greetingProfile);
   const totals = useMemo(
     () => recurringTotals(data.subscriptions),
     [data.subscriptions],
@@ -69,7 +72,7 @@ export default function Home() {
   ).length;
   return (
     <Page
-      title="Your subscriptions, at a glance."
+      title={homeGreeting(identity, profile)}
       subtitle={dateLabel(reference, {
         weekday: "long",
         month: "long",
