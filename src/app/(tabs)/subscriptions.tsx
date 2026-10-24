@@ -18,10 +18,9 @@ import {
 } from "../../components/ui/Primitives";
 import { SubscriptionRow } from "../../components/subscriptions/SubscriptionRow";
 import { SwipeRow } from "../../components/subscriptions/SwipeRow";
-import { SelectField } from "../../components/ui/Selection";
+import { FilterSheet } from "../../components/ui/FilterSheet";
 import { useQuickActions } from "../../hooks/useQuickActions";
 import { useBillingMethods } from "../../hooks/useBillingMethods";
-import { PaymentMethodIcon } from "../../components/payments/PaymentMethodIcon";
 import {
   billingMethodLabel,
   billingReference,
@@ -88,7 +87,6 @@ function Subscriptions() {
     ...billingMethods.value.sources.map((source) => ({
       value: billingReference(source.id),
       label: billingMethodLabel(source),
-      icon: <PaymentMethodIcon source={source} size={24} />,
     })),
   ];
   if (!billingOptions.some((option) => option.value === billing))
@@ -201,81 +199,104 @@ function Subscriptions() {
                 />
               )}
             </View>
-            <Chips
-              values={[
-                "All",
-                "Active",
-                "Trial",
-                "Paused",
-                "Canceled",
-                "Expired",
-              ]}
-              selected={status}
-              onChange={setStatus}
-            />
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 10,
-                marginTop: 16,
-                marginBottom: 12,
-                alignItems: "center",
+            <FilterSheet
+              title="Subscription filters"
+              value={{ status, category, sort, billing }}
+              defaults={{
+                status: "All",
+                category: "All categories",
+                sort: "Renewal date",
+                billing: "all",
+              }}
+              count={
+                Number(status !== "All") +
+                Number(category !== "All categories") +
+                Number(sort !== "Renewal date") +
+                Number(billing !== "all")
+              }
+              summary={[
+                status !== "All" ? status : "",
+                category !== "All categories" ? category : "",
+                billing !== "all"
+                  ? billingOptions.find((option) => option.value === billing)
+                      ?.label
+                  : "",
+                sort !== "Renewal date" ? `Sort: ${sort}` : "",
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+              onApply={(next) => {
+                setStatus(next.status);
+                setCategory(next.category);
+                setSort(next.sort);
+                setBilling(next.billing);
               }}
             >
-              <View style={{ flex: 1 }}>
-                <SelectField
-                  compact
-                  label="Filter category"
-                  value={category}
-                  options={["All categories", ...categories].map((value) => ({
-                    value,
-                    label: value,
-                  }))}
-                  onChange={setCategory}
-                  searchable
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <SelectField
-                  compact
-                  label="Sort subscriptions"
-                  value={sort}
-                  options={["Renewal date", "Name", "Price"].map((value) => ({
-                    value,
-                    label: value,
-                  }))}
-                  onChange={setSort}
-                />
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 10,
-                marginBottom: 12,
-                alignItems: "center",
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <SelectField
-                  compact
-                  label="Filter billing method"
-                  testID="subscriptions-billing-filter"
-                  value={billing}
-                  options={billingOptions}
-                  onChange={setBilling}
-                  searchable
-                  disabled={!billingMethods.loaded}
-                />
-              </View>
-              <Button
-                small
-                variant="ghost"
-                onPress={() => router.push("/billing-methods")}
-              >
-                Cards & wallets
-              </Button>
-            </View>
+              {(draft, update) => (
+                <>
+                  <View style={{ gap: 8 }}>
+                    <Label bold>Status</Label>
+                    <Chips
+                      wrap
+                      values={[
+                        "All",
+                        "Active",
+                        "Trial",
+                        "Paused",
+                        "Canceled",
+                        "Expired",
+                      ]}
+                      selected={draft.status}
+                      onChange={(status) => update({ ...draft, status })}
+                    />
+                  </View>
+                  <View style={{ gap: 8 }}>
+                    <Label bold>Category</Label>
+                    <Chips
+                      wrap
+                      values={["All categories", ...categories]}
+                      selected={draft.category}
+                      onChange={(category) => update({ ...draft, category })}
+                    />
+                  </View>
+                  <View style={{ gap: 8 }}>
+                    <Label bold>Billing method</Label>
+                    <Chips
+                      wrap
+                      values={billingOptions.map((option) => option.value)}
+                      labels={Object.fromEntries(
+                        billingOptions.map((option) => [
+                          option.value,
+                          option.label,
+                        ]),
+                      )}
+                      selected={draft.billing}
+                      onChange={(billing) => update({ ...draft, billing })}
+                      disabled={!billingMethods.loaded}
+                    />
+                    {!billingMethods.loaded && (
+                      <Label size={12}>
+                        Billing methods are unavailable until they load. Close
+                        this sheet to retry.
+                      </Label>
+                    )}
+                  </View>
+                  <View style={{ gap: 8 }}>
+                    <Label bold>Sort by</Label>
+                    <Chips
+                      wrap
+                      values={["Renewal date", "Name", "Price"]}
+                      selected={draft.sort}
+                      onChange={(sort) => update({ ...draft, sort })}
+                    />
+                    <Label size={12} color={colors.secondary}>
+                      Price sorts within each original currency. Timeline always
+                      follows event dates.
+                    </Label>
+                  </View>
+                </>
+              )}
+            </FilterSheet>
             {billingMethods.error && (
               <View style={{ marginBottom: 12, gap: 8 }}>
                 <Label size={12} color={colors.error} accessibilityRole="alert">
@@ -427,6 +448,7 @@ function Subscriptions() {
                   setStatus("All");
                   setCategory("All categories");
                   setBilling("all");
+                  setSort("Renewal date");
                   setTimeline(false);
                 } else router.push("/subscription/new");
               }}
