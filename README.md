@@ -1,10 +1,6 @@
 <p align="center">
   <a href="https://subloom.baltii.tn">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="landing/public/social-dark.png">
-      <source media="(prefers-color-scheme: light)" srcset="landing/public/social.png">
-      <img src="landing/public/social.png" alt="Subloom — Less money admin. More peace of mind." width="100%">
-    </picture>
+    <img src=".github/assets/overview-light.png" alt="Subloom subscription dashboard preview" width="100%">
   </a>
 </p>
 
@@ -23,7 +19,7 @@
 
 <p align="center">
   <strong><a href="https://subloom.baltii.tn">Open the app ↗</a></strong>
-  &nbsp;·&nbsp; <a href="https://subloom-landing.vercel.app">Visit the website</a>
+  &nbsp;·&nbsp; <a href="https://subloom-landing-standalone.vercel.app">Visit the website</a>
   &nbsp;·&nbsp; <a href="https://github.com/Baltii/Subloom/releases">Releases</a>
   &nbsp;·&nbsp; <a href="https://github.com/Baltii/Subloom/issues">Share feedback</a>
 </p>
@@ -78,7 +74,7 @@ Subloom tracks and helps you review subscriptions. Managing or canceling a servi
 | Platform    | Where to start                                                                                                                                                                                                                                                       |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Web app** | [Open Subloom](https://subloom.baltii.tn) — start a local workspace or sign in.                                                                                                                                                                                      |
-| **Website** | [Explore the landing page](https://subloom-landing.vercel.app).                                                                                                                                                                                                      |
+| **Website** | [Explore the landing page](https://subloom-landing-standalone.vercel.app).                                                                                                                                                                                                      |
 | **Android** | Download a test APK from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `android-apk` artifact in successful [Android workflow runs](https://github.com/Baltii/Subloom/actions/workflows/android-apk.yml).                                    |
 | **Windows** | Download the x64 `.exe` installer from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `windows-x64` artifact in successful [Windows workflow runs](https://github.com/Baltii/Subloom/actions/workflows/windows-exe.yml).                      |
 | **macOS**   | Download an Apple silicon or Intel app ZIP from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `macos-arm64` / `macos-x64` artifacts in successful [CI runs](https://github.com/Baltii/Subloom/actions/workflows/ci.yml). Requires macOS 14+. |
@@ -117,17 +113,9 @@ Open **[localhost:8081](http://localhost:8081)**, complete the welcome tour, and
 For account sync, add the public app configuration to `.env.local` using [`.env.example`](.env.example) as a reference. Server secrets belong in backend settings, never in `EXPO_PUBLIC_*` variables or committed files.
 
 <details>
-<summary><strong>Website, native builds, and checks</strong></summary>
+<summary><strong>Native builds and checks</strong></summary>
 
-**Landing page**
-
-```sh
-cd landing
-npm ci
-npm run dev
-```
-
-Open [localhost:3000](http://localhost:3000). The app and landing page are separate projects in this repository.
+The marketing website now lives in [Baltii/Subloom-Landing](https://github.com/Baltii/Subloom-Landing), with its own Next.js build, CI and Vercel deployment.
 
 **Native development** — use an Expo development build, rather than Expo Go:
 
@@ -150,7 +138,7 @@ npm run export:web       # Production web bundle
 
 For desktop builds, follow the [Windows guide](windows/README.md), or run `npm run build:macos` on macOS with Xcode installed.
 
-CI also verifies the landing build, native JavaScript exports, canonical brand assets, Mac builds, the Windows installer and app launch, and Android APK builds for trusted branches. Live provider/device checks are separate from these automated checks.
+CI verifies native JavaScript exports, canonical brand assets, Mac builds, the Windows installer and app launch, and Android APK builds for trusted branches. Live provider/device checks are separate from these automated checks.
 
 </details>
 
@@ -159,7 +147,6 @@ CI also verifies the landing build, native JavaScript exports, canonical brand a
 | Layer                 | Built with                                                                                                |
 | --------------------- | --------------------------------------------------------------------------------------------------------- |
 | App                   | Expo 57, React Native 0.86, React 19, Expo Router                                                         |
-| Website               | Next.js 16 and React 19                                                                                   |
 | Desktop shells        | Electron on Windows; Swift/WebKit on macOS                                                                |
 | Language and forms    | TypeScript, React Hook Form, Zod                                                                          |
 | State and interaction | Zustand, TanStack Query, Reanimated, Gesture Handler                                                      |
@@ -169,7 +156,9 @@ CI also verifies the landing build, native JavaScript exports, canonical brand a
 
 ## Repository contents
 
-This repository includes product source, build configuration, public assets, and third-party licenses. Internal feature records, agent skills, artwork prompts, and the full brand workspace are kept locally and excluded from version control. Required logo components, icons, fonts, and optimized illustrations remain included.
+This app repository includes product source, build configuration, public assets, and third-party licenses. Internal feature records, agent skills, artwork prompts, and the full brand workspace are kept locally and excluded from version control. Required logo components, icons, fonts, and optimized illustrations remain included.
+
+The [separate website repository](https://github.com/Baltii/Subloom-Landing) contains the landing and download pages.
 
 Run `npm run check:repository` to reject accidentally tracked private or generated files. Run `node scripts/build-brand.mjs --check` to verify the committed brand assets; regenerating them requires the private canonical brand workspace.
 

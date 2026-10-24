@@ -101,16 +101,9 @@ add(
   "brand/icons/subloom-favicon.svg",
   icon(64, 72, colors.mint, colors.green, true),
 );
-add("landing/public/icon.svg", files.get("brand/icons/subloom-favicon.svg"));
-for (const variant of ["primary", "inverse", "forest"])
-  add(
-    `landing/public/brand/subloom-logo-${variant}.svg`,
-    files.get(`brand/logos/subloom-logo-${variant}.svg`),
-  );
 
 const constants = `// Generated from ${masterPath}. Run node scripts/build-brand.mjs; do not redraw.\nexport const brandIdentity = ${JSON.stringify({ version: identity.version, markPath: mark.path, wordmarkPath: wordmark.path, lockupWidth: wordmark.lockupWidth, wordmarkOffsetX: wordmark.offsetX, colors }, null, 2)} as const;\n`;
 add("src/brand/identity.ts", constants);
-add("landing/components/brand-identity.ts", constants);
 add(
   "brand/tokens/brand.json",
   JSON.stringify(
@@ -157,7 +150,13 @@ if (check) {
     `Brand consistency passed: ${files.size} vector/token/component exports and ${Object.keys(manifest.files).length} manifest entries match the master.`,
   );
 } else {
-  const sharp = createRequire(path.join(root, "landing/package.json"))("sharp");
+  // Optional tool for regenerating the private brand kit; runtime verification needs no sharp.
+  let sharp;
+  try {
+    sharp = createRequire(path.join(root, "package.json"))("sharp");
+  } catch {
+    throw new Error("Regenerating the private brand kit requires sharp: npm install --no-save sharp");
+  }
   for (const variant of ["primary", "inverse", "forest", "black", "white"])
     for (const shape of ["logo", "mark", "wordmark"]) {
       const filename = `brand/logos/subloom-${shape}-${variant}`;
@@ -228,7 +227,6 @@ if (check) {
         .toBuffer(),
     );
   add("brand/icons/subloom-apple-touch-icon.png", await sharp(files.get("brand/icons/subloom-app-icon.png")).resize(180, 180).removeAlpha().png().toBuffer());
-  add("landing/public/apple-touch-icon.png", files.get("brand/icons/subloom-apple-touch-icon.png"));
   for (const [file, value] of files) {
     await mkdir(path.dirname(path.join(root, file)), { recursive: true });
     await writeFile(path.join(root, file), value);
