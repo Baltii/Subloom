@@ -6,6 +6,7 @@ import {
   suggestServices,
 } from "../../src/domain/catalog";
 import { categories } from "../../src/domain/models";
+import { serviceArtwork } from "../../src/assets/serviceArtwork";
 import { serviceLogos } from "../../src/assets/serviceLogos";
 
 describe("service catalog", () => {
@@ -43,21 +44,27 @@ describe("service catalog", () => {
     expect(searchServices("a service that does not exist")).toEqual([]);
     expect(searchServices(" ")).toHaveLength(catalog.length);
   });
-  it("bundles logos for every added service and keeps unknown services safe", () => {
+  it("keeps multicolor SVG gradient references local to each brand", () => {
+    expect(serviceArtwork.figma).toContain('fill="#0acf83"');
+    const allIds = new Set<string>();
+    for (const svg of Object.values(serviceArtwork)) {
+      expect(svg).not.toMatch(/class=|<style/);
+      const ids = new Set(
+        [...svg.matchAll(/id="([^"]+)"/g)].map((match) => match[1]!),
+      );
+      for (const reference of svg.matchAll(/url\(#([^)]+)\)/g))
+        expect(ids.has(reference[1]!)).toBe(true);
+      for (const id of ids) {
+        expect(allIds.has(id)).toBe(false);
+        allIds.add(id);
+      }
+    }
+  });
+  it("bundles logos for every branded service and keeps unknown services safe", () => {
     const dedicatedGlyphs = new Set([
-      "netflix",
-      "spotify",
-      "youtube",
-      "icloud",
-      "google",
-      "chatgpt",
-      "adobe",
-      "microsoft",
-      "amazon",
-      "notion",
-      "figma",
       "gym",
       "subloom-pro",
+      ...Object.keys(serviceArtwork),
     ]);
     for (const service of catalog.filter(
       (service) => !dedicatedGlyphs.has(service.id),
