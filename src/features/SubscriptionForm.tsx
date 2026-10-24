@@ -9,13 +9,7 @@ import {
   type NavigationAction,
 } from "expo-router/react-navigation";
 import * as Crypto from "expo-crypto";
-import {
-  Check,
-  ChevronDown,
-  ChevronUp,
-  Plus,
-  Search,
-} from "lucide-react-native";
+import { Check, ChevronDown, ChevronUp, Plus } from "lucide-react-native";
 import {
   categories,
   currencies,
@@ -40,14 +34,13 @@ import {
   Page,
 } from "../components/ui/Primitives";
 import { DateField } from "../components/ui/DateField";
-import { PickerSheet, SelectField } from "../components/ui/Selection";
+import { SelectField } from "../components/ui/Selection";
 import {
   currencyOptions,
   categoryOptions,
   intervalOptions,
 } from "../components/ui/pickerOptions";
 import { ServiceNameField } from "../components/subscriptions/ServiceNameField";
-import { ServicePicker } from "../components/subscriptions/ServicePicker";
 import { useTheme, useWide } from "../theme/useTheme";
 import { useBillingMethods } from "../hooks/useBillingMethods";
 import { BillingMethodEditor } from "../components/payments/BillingMethodEditor";
@@ -132,7 +125,6 @@ export function SubscriptionForm({
     [error, setError] = useState<string | null>(null),
     [advanced, setAdvanced] = useState(false),
     [addingBillingMethod, setAddingBillingMethod] = useState(false),
-    [choosingService, setChoosingService] = useState(false),
     [pendingNavigation, setPendingNavigation] =
       useState<NavigationAction | null>(null),
     [busy, setBusy] = useState(false);
@@ -227,7 +219,6 @@ export function SubscriptionForm({
       shouldValidate: true,
     });
     setValue("category", service?.category ?? "Other", { shouldDirty: true });
-    setChoosingService(false);
     requestAnimationFrame(() => setFocus("amount"));
   }
 
@@ -371,35 +362,15 @@ export function SubscriptionForm({
   const content = (
     <View style={{ maxWidth: 780, width: "100%", alignSelf: "center" }}>
       <Card style={{ padding: wide ? 30 : 20 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 12,
-            marginBottom: 18,
-          }}
-        >
-          {!candidate && (
-            <Button
-              icon={Search}
-              variant="secondary"
-              small
-              disabled={busy}
-              onPress={() => {
-                setChoosingService(true);
-              }}
-            >
-              Choose a service
-            </Button>
-          )}
-          {isDirty && (
-            <Label size={12} color={colors.secondary}>
-              Unsaved changes
-            </Label>
-          )}
-        </View>
+        {isDirty && (
+          <Label
+            size={12}
+            color={colors.secondary}
+            style={{ marginBottom: 18 }}
+          >
+            Unsaved changes
+          </Label>
+        )}
         {candidate && (
           <View style={{ marginBottom: 20, gap: 8 }}>
             <Badge tone="warning">Review before confirming</Badge>
@@ -673,22 +644,6 @@ export function SubscriptionForm({
         )}
         {!page && saveBar}
       </Card>
-      <PickerSheet
-        visible={choosingService}
-        title="Choose a service"
-        description="Select a service or use a custom name in the form."
-        onClose={() => setChoosingService(false)}
-      >
-        {choosingService && (
-          <ServicePicker
-            selected={serviceId}
-            presentation="sheet"
-            autoFocus
-            onSelect={chooseService}
-          />
-        )}
-      </PickerSheet>
-
       {addingBillingMethod && (
         <BillingMethodEditor
           onClose={() => setAddingBillingMethod(false)}
