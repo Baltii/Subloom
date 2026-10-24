@@ -1,4 +1,4 @@
-name: Verify app, website and installable artifacts
+name: Verify app and installable artifacts
 
 on:
   workflow_call:
@@ -7,14 +7,6 @@ on:
         description: Exact source commit to verify and package
         type: string
         default: ''
-      run_landing:
-        description: Whether to build the landing website
-        type: boolean
-        default: true
-      run_native:
-        description: Whether to verify the app and native installers
-        type: boolean
-        default: true
     secrets:
       GOOGLE_SERVICES_JSON:
         description: Firebase Android client configuration
@@ -25,7 +17,6 @@ permissions:
 
 jobs:
   app:
-    if: ${{ inputs.run_native }}
     name: App, database and backend checks
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -58,7 +49,6 @@ jobs:
           EXPO_PUBLIC_PRO_LICENSE_PUBLIC_KEY: ${{ vars.EXPO_PUBLIC_PRO_LICENSE_PUBLIC_KEY }}
 
   macos:
-    if: ${{ inputs.run_native }}
     name: Mac build (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 25
@@ -110,29 +100,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  landing:
-    if: ${{ inputs.run_landing }}
-    name: Landing production build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: landing
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ inputs.ref }}
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: landing/package-lock.json
-      - run: npm ci
-      - run: npm run build
-
   android:
-    if: ${{ inputs.run_native }}
     name: Android APK
     needs: app
     uses: ./.github/workflows/android-apk.yml
@@ -142,7 +110,6 @@ jobs:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
   windows:
-    if: ${{ inputs.run_native }}
     name: Windows installer
     uses: ./.github/workflows/windows-exe.yml
     with:
