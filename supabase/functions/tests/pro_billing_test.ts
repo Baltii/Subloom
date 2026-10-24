@@ -332,6 +332,21 @@ Deno.test(
     assert(f.state.creations.length === 1);
   },
 );
+Deno.test("sync returns the recognized subscription or explicit null for unavailable plans", async () => {
+  const f = fixture();
+  const sync = () => f.billing.locked(owner, (row, save) =>
+    f.billing.sync(row, save, user.email)
+  );
+  assert(await sync() === null, "No customer must return null");
+  f.row.customer_id = "cus_local";
+  assert(await sync() === null, "An empty customer must return null");
+  const subscription = f.subscription("trialing", true);
+  f.state.subscriptions = [subscription];
+  assert(await sync() === subscription, "Return the verified processor record");
+  subscription.items.data[0]!.price.unit_amount = 1;
+  assert(await sync() === null, "Unrecognized prices must not reach tracking or cancellation");
+  assert(!hasAccess(f.row), "Unrecognized prices cannot retain Pro access");
+});
 Deno.test("period-end cancellation preserves trial/paid access, confirms dates and is idempotent", async () => {
   for (const trial of [false, true]) {
     const f = fixture();
