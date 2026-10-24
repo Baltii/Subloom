@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { ProTracking } from "../domain/proTracking";
 export type ProSnapshot = {
   configured: boolean;
   pro: boolean;
@@ -9,6 +10,7 @@ export type ProSnapshot = {
   cancelAtPeriodEnd: boolean;
   trialEligible: boolean;
   canManage: boolean;
+  tracking?: ProTracking | null;
 };
 type ProState = {
   workspace: string | null;

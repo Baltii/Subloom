@@ -3,6 +3,7 @@ import { Platform, View } from "react-native";
 import { router, type Href } from "expo-router";
 import {
   Ellipsis,
+  Crown,
   CircleHelp,
   History,
   Pause,
@@ -150,27 +151,38 @@ export function SubscriptionActions({
           </View>
         ) : (
           <>
-            <LinkRow
-              icon={Pencil}
-              title="Edit subscription"
-              detail="Price, renewal date and details"
-              onPress={() =>
-                navigate({
-                  pathname: "/subscription/edit",
-                  params: { id: s.id },
-                })
-              }
-            />
-            <LinkRow
-              icon={resume ? Play : Pause}
-              title={resume ? "Resume tracking" : "Pause tracking"}
-              detail={
-                resume
-                  ? "Restore estimates and reminders"
-                  : "Pause Subloom tracking; provider billing continues"
-              }
-              onPress={() => setConfirmation("status")}
-            />
+            {s.proBillingOwner ? (
+              <LinkRow
+                icon={Crown}
+                title="Manage Pro subscription"
+                detail="Plan, renewal and cancellation"
+                onPress={() => navigate("/pro")}
+              />
+            ) : (
+              <>
+                <LinkRow
+                  icon={Pencil}
+                  title="Edit subscription"
+                  detail="Price, renewal date and details"
+                  onPress={() =>
+                    navigate({
+                      pathname: "/subscription/edit",
+                      params: { id: s.id },
+                    })
+                  }
+                />
+                <LinkRow
+                  icon={resume ? Play : Pause}
+                  title={resume ? "Resume tracking" : "Pause tracking"}
+                  detail={
+                    resume
+                      ? "Restore estimates and reminders"
+                      : "Pause Subloom tracking; provider billing continues"
+                  }
+                  onPress={() => setConfirmation("status")}
+                />
+              </>
+            )}
             <LinkRow
               icon={History}
               title="Price history"
@@ -182,28 +194,32 @@ export function SubscriptionActions({
                 })
               }
             />
-            <LinkRow
-              icon={CircleHelp}
-              title="How to cancel"
-              detail="Instructions and the service’s official website"
-              onPress={() =>
-                navigate({
-                  pathname: "/subscription/cancel",
-                  params: { id: s.id },
-                })
-              }
-            />
-            <LinkRow
-              icon={ShieldCheck}
-              title="Cancellation assistant"
-              detail="Provider steps and your confirmation"
-              onPress={() =>
-                navigate({
-                  pathname: "/cancellation",
-                  params: { subscriptionId: s.id },
-                })
-              }
-            />
+            {!s.proBillingOwner && (
+              <>
+                <LinkRow
+                  icon={CircleHelp}
+                  title="How to cancel"
+                  detail="Instructions and the service’s official website"
+                  onPress={() =>
+                    navigate({
+                      pathname: "/subscription/cancel",
+                      params: { id: s.id },
+                    })
+                  }
+                />
+                <LinkRow
+                  icon={ShieldCheck}
+                  title="Cancellation assistant"
+                  detail="Provider steps and your confirmation"
+                  onPress={() =>
+                    navigate({
+                      pathname: "/cancellation",
+                      params: { subscriptionId: s.id },
+                    })
+                  }
+                />
+              </>
+            )}
             <View
               style={{
                 borderTopWidth: 1,

@@ -8,6 +8,9 @@ import { macosBridge } from "./macosBridge";
 import { windowsBridge } from "./windowsBridge";
 import { emptyPro, usePro } from "../store/pro";
 import { licenseSchema, verifyProLicense } from "../domain/pro";
+import { proTrackingSchema } from "../domain/proTracking";
+import { reconcileProSubscription, useApp } from "../store/app";
+import { syncNow } from "./sync";
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -41,6 +44,7 @@ const statusSchema = z.object({
   trialEligible: z.boolean(),
   canManage: z.boolean(),
   license: licenseSchema.nullable(),
+  tracking: proTrackingSchema.nullable().optional(),
 });
 const cacheSchema = z.object({
   license: licenseSchema,
@@ -48,6 +52,9 @@ const cacheSchema = z.object({
 });
 let generation = 0;
 let activeWorkspace: string | null = null;
+let lastRefresh = 0;
+const pendingKey = (workspace: string, owner: string) =>
+  `subloom.pro.pending.${workspace}.${owner}`;
 class BillingRequestError extends Error {
   constructor(
     message: string,
@@ -102,13 +109,36 @@ async function request(session: Session, body: object) {
   }
   return result;
 }
-export async function refreshPro(workspace = activeWorkspace) {
-  if (!workspace || workspace !== activeWorkspace) return;
+let refreshTask: {
+  workspace: string;
+  revision: number;
+  promise: Promise<void>;
+} | null = null;
+let mutationInProgress = false;
+export function refreshPro(workspace = activeWorkspace): Promise<void> {
+  if (!workspace || workspace !== activeWorkspace || mutationInProgress)
+    return Promise.resolve();
+  if (
+    refreshTask?.workspace === workspace &&
+    refreshTask.revision === generation
+  )
+    return refreshTask.promise;
   const revision = ++generation;
+  const task = { workspace, revision, promise: Promise.resolve() };
+  refreshTask = task;
+  task.promise = performRefresh(workspace, revision).finally(() => {
+    if (refreshTask === task) refreshTask = null;
+  });
+  return task.promise;
+}
+async function performRefresh(workspace: string, revision: number) {
   const current = () =>
     generation === revision && activeWorkspace === workspace;
-  // Clear the previous identity's access before any asynchronous work.
-  usePro.setState({ ...emptyPro, workspace, loading: true });
+  // Auth changes revoke old access immediately; same-owner refreshes retain it.
+  if (usePro.getState().workspace !== workspace)
+    usePro.setState({ ...emptyPro, workspace, loading: true });
+  else usePro.setState({ loading: true, error: null });
+  lastRefresh = Date.now();
   let session: Session | null = null;
   let device = "";
   let cachedUntil = 0;
@@ -116,9 +146,11 @@ export async function refreshPro(workspace = activeWorkspace) {
     session = await billingSession(workspace);
     if (!current()) return;
     if (!session) {
-      usePro.setState({ ready: true, loading: false });
+      usePro.setState({ ...emptyPro, workspace, ready: true });
       return;
     }
+    if (usePro.getState().owner !== session.user.id)
+      usePro.setState({ ...emptyPro, workspace, loading: true });
     usePro.setState({
       owner: session.user.id,
       email: session.user.email ?? null,
@@ -183,6 +215,40 @@ export async function refreshPro(workspace = activeWorkspace) {
           ? "This app’s Pro verification key needs updating before it can activate a purchase."
           : null,
     });
+    if (result.tracking && current()) {
+      const marker = `subloom.pro.tracked.${workspace}.${session.user.id}.${result.tracking.id}`;
+      try {
+        const seen = Boolean(await authStorage.getItem(marker));
+        if (!current()) return;
+        if (workspace !== "guest") await syncNow();
+        if (!current()) return;
+        await reconcileProSubscription(
+          result.tracking,
+          session.user.id,
+          workspace,
+          current,
+          seen,
+        );
+        if (
+          current() &&
+          useApp
+            .getState()
+            .data.subscriptions.some((s) => s.id === result.tracking!.id)
+        )
+          await authStorage.setItem(marker, "1");
+      } catch {
+        // Billing access remains valid if device storage fails. Retry on the next refresh.
+        if (current())
+          usePro.setState({
+            error:
+              "Your billing status is current, but its tracking entry could not be saved. Check your connection and device storage, then reopen Subloom.",
+          });
+      }
+    }
+    if (result.pro && current())
+      await authStorage
+        .removeItem(pendingKey(workspace, session.user.id))
+        .catch(() => {});
   } catch (error) {
     if (
       error instanceof BillingRequestError &&
@@ -210,10 +276,11 @@ export function maintainPro(workspace: string) {
   usePro.setState({ ...emptyPro, workspace });
   void refreshPro(workspace);
   const client = workspace === "guest" ? billingAuth : supabase;
-  const listener = client?.auth.onAuthStateChange(() => {
+  const listener = client?.auth.onAuthStateChange((_event, session) => {
     // No session/storage work inside the auth lock. Revoke stale access immediately.
     generation++;
-    usePro.setState({ ...emptyPro, workspace });
+    if (!session || session.user.id !== usePro.getState().owner)
+      usePro.setState({ ...emptyPro, workspace });
     setTimeout(() => {
       if (activeWorkspace === workspace) void refreshPro(workspace);
     }, 0);
@@ -225,14 +292,52 @@ export function maintainPro(workspace: string) {
     } else if (Platform.OS !== "web") billingAuth?.auth.stopAutoRefresh();
   });
   const focus = () => {
-    void refreshPro(workspace);
+    if (!usePro.getState().loading) void refreshPro(workspace);
   };
+  let expires: ReturnType<typeof setTimeout> | undefined;
+  let scheduledUntil = 0;
+  const expiration = usePro.subscribe((state) => {
+    if (scheduledUntil === state.offlineUntil) return;
+    scheduledUntil = state.offlineUntil;
+    clearTimeout(expires);
+    if (!scheduledUntil) return;
+    const until = scheduledUntil,
+      owner = state.owner;
+    expires = setTimeout(
+      () => {
+        const current = usePro.getState();
+        if (
+          activeWorkspace === workspace &&
+          current.owner === owner &&
+          current.offlineUntil === until
+        )
+          usePro.setState({ offlineUntil: 0 });
+      },
+      Math.max(0, until - Date.now()) + 1,
+    );
+  });
   if (Platform.OS === "web") globalThis.addEventListener("focus", focus);
   // Expired licenses fail closed in action guards even while this timer is suspended.
   const timer = setInterval(() => {
     if (usePro.getState().offlineUntil <= Date.now())
       usePro.setState({ offlineUntil: 0 });
-  }, 30000);
+    const state = usePro.getState();
+    if (!state.owner || state.loading || mutationInProgress) return;
+    void authStorage
+      .getItem(pendingKey(workspace, state.owner))
+      .then((raw) => {
+        if (
+          activeWorkspace !== workspace ||
+          usePro.getState().owner !== state.owner ||
+          usePro.getState().loading
+        )
+          return;
+        const pending = Number(raw) > Date.now();
+        if (Date.now() - lastRefresh >= (pending ? 10_000 : 5 * 60_000))
+          void refreshPro(workspace);
+      })
+      .catch(() => {});
+  }, 10000);
   return () => {
     activeWorkspace = null;
     generation++;
@@ -240,6 +345,8 @@ export function maintainPro(workspace: string) {
     listener?.data.subscription.unsubscribe();
     app.remove();
     clearInterval(timer);
+    expiration();
+    clearTimeout(expires);
     if (Platform.OS === "web") globalThis.removeEventListener("focus", focus);
   };
 }
@@ -297,7 +404,7 @@ export async function openProBilling(
   const result = z
     .object({ url: z.string().url() })
     .parse(
-      await request(
+      await exclusiveRequest(
         session,
         action === "checkout" ? { action, interval } : { action },
       ),
@@ -315,10 +422,54 @@ export async function openProBilling(
     !["checkout.stripe.com", "billing.stripe.com"].includes(target.hostname)
   )
     throw new Error("The payment address could not be verified.");
+  if (action === "checkout")
+    await authStorage.setItem(
+      pendingKey(workspace, session.user.id),
+      String(Date.now() + 2 * 60_000),
+    );
   // Standard browsers block new tabs opened after the asynchronous Checkout
   // request. Navigate the current tab; desktop shells route external links to
   // the system browser and native builds use their OS URL handler.
   if (Platform.OS === "web" && !macosBridge() && !windowsBridge())
     globalThis.location.assign(target.href);
   else await Linking.openURL(target.href);
+}
+
+export async function cancelProSubscription() {
+  const workspace = activeWorkspace;
+  if (!workspace || !stripeCheckoutAllowed)
+    throw new Error("Billing cancellation is not available in this build.");
+  const session = await billingSession(workspace);
+  if (!session) throw new Error("Verify your billing email first.");
+  const result = z
+    .object({
+      canceled: z.literal(true),
+      endsAt: z.string().datetime().nullable(),
+    })
+    .parse(await exclusiveRequest(session, { action: "cancel" }));
+  if (
+    activeWorkspace !== workspace ||
+    usePro.getState().owner !== session.user.id
+  )
+    throw new Error("Your billing identity changed. Reopen Subloom Pro.");
+  await refreshPro(workspace);
+  return result;
+}
+
+async function exclusiveRequest(session: Session, body: object) {
+  if (mutationInProgress)
+    throw new Error("Billing is updating. Please wait a moment.");
+  mutationInProgress = true;
+  const workspace = activeWorkspace;
+  try {
+    await refreshTask?.promise;
+    if (
+      activeWorkspace !== workspace ||
+      usePro.getState().owner !== session.user.id
+    )
+      throw new Error("Your billing identity changed. Reopen Subloom Pro.");
+    return await request(session, body);
+  } finally {
+    mutationInProgress = false;
+  }
 }

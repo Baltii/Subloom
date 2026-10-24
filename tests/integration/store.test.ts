@@ -14,6 +14,7 @@ import {
   deleteSubscription,
   updatePreferences,
   readableError,
+  reconcileProSubscription,
 } from "../../src/store/app";
 import { extractReceipt } from "../../src/domain/detection";
 import { dateSchema, defaultPreferences } from "../../src/domain/models";
@@ -22,6 +23,7 @@ import {
   billingReference,
   unassignedBillingMethod,
 } from "../../src/domain/billingMethods";
+import type { ProTracking } from "../../src/domain/proTracking";
 vi.mock("react-native", () => ({ Platform: { OS: "web" } }));
 vi.mock("expo-crypto", () => ({ randomUUID }));
 const disk = new Map<string, string>();
@@ -38,6 +40,106 @@ beforeEach(async () => {
   disk.clear();
   failWrites = false;
   await hydrate("guest");
+});
+describe("durable managed Pro tracking", () => {
+  function tracking(): ProTracking {
+    const purchasedAt = new Date().toISOString();
+    const periodEnd = new Date(Date.now() + 7 * 24 * 3600000).toISOString();
+    return {
+      id: "bbbbbbbb-bbbb-5bbb-8bbb-bbbbbbbbbbbb",
+      purchasedAt,
+      periodEnd,
+      anchorAt: periodEnd,
+      trialEnd: periodEnd,
+      canceledAt: null,
+      endsAt: periodEnd,
+      cancelAtPeriodEnd: false,
+      status: "trialing",
+      confirmed: true,
+      interval: "month",
+      amountMinor: 299,
+      currency: "EUR",
+    };
+  }
+  it("adds one local record durably and does not upload guest data or repeat activity", async () => {
+    const plan = tracking();
+    await reconcileProSubscription(plan, userA, "guest", () => true);
+    const first = useApp.getState().data;
+    await reconcileProSubscription(plan, userA, "guest", () => true);
+    expect(useApp.getState().data.subscriptions).toHaveLength(1);
+    expect(useApp.getState().data.activity).toHaveLength(first.activity.length);
+    expect(useApp.getState().data.outbox).toEqual([]);
+    await hydrate("guest");
+    expect(useApp.getState().data.subscriptions[0]?.proBillingOwner).toBe(
+      userA,
+    );
+  });
+  it("uses the normal owned outbox and preserves reminder choices on plan updates", async () => {
+    await hydrate(userA);
+    const plan = tracking();
+    await reconcileProSubscription(plan, userA, userA, () => true);
+    const saved = useApp.getState().data.subscriptions[0]!;
+    await saveSubscription({
+      ...saved,
+      notes: "My reminder notes",
+      reminders: { enabled: false, days: [1] },
+    });
+    await reconcileProSubscription(
+      { ...plan, interval: "year", amountMinor: 2400, cancelAtPeriodEnd: true },
+      userA,
+      userA,
+      () => true,
+    );
+    expect(useApp.getState().data.subscriptions[0]).toMatchObject({
+      currency: "EUR",
+      amountMinor: 2400,
+      status: "canceled",
+      notes: "My reminder notes",
+      reminders: { enabled: false, days: [1] },
+    });
+    expect(useApp.getState().data.outbox).toHaveLength(3);
+    expect(useApp.getState().data.outbox.at(-1)?.payload).toMatchObject({
+      subscription: { userId: userA, proBillingOwner: userA },
+    });
+  });
+  it("keeps billing-managed status and dates immutable while allowing reminder changes", async () => {
+    await reconcileProSubscription(tracking(), userA, "guest", () => true);
+    const saved = useApp.getState().data.subscriptions[0]!;
+    await expect(changeStatus(saved.id, "paused")).rejects.toThrow(
+      /Billing manages/,
+    );
+    await expect(
+      saveSubscription({ ...saved, nextRenewal: "2030-01-01" }),
+    ).rejects.toThrow(/Billing manages/);
+    expect(useApp.getState().data.subscriptions[0]).toEqual(saved);
+    await saveSubscription({
+      ...saved,
+      reminders: { enabled: false, days: [1] },
+    });
+    expect(useApp.getState().data.subscriptions[0]?.reminders?.enabled).toBe(
+      false,
+    );
+  });
+  it("honors deletions, rejects stale identity saves and retries storage failures", async () => {
+    const plan = tracking();
+    await reconcileProSubscription(plan, userA, "guest", () => false);
+    expect(useApp.getState().data.subscriptions).toHaveLength(0);
+    failWrites = true;
+    await expect(
+      reconcileProSubscription(plan, userA, "guest", () => true),
+    ).rejects.toThrow("Storage is full");
+    expect(useApp.getState().data.subscriptions).toHaveLength(0);
+    failWrites = false;
+    await reconcileProSubscription(plan, userA, "guest", () => true);
+    await deleteSubscription(plan.id);
+    await reconcileProSubscription(plan, userA, "guest", () => true);
+    expect(useApp.getState().data.subscriptions).toHaveLength(0);
+    await hydrate(userB);
+    await expect(
+      reconcileProSubscription(plan, userA, "guest", () => true),
+    ).rejects.toThrow(/account changed/);
+    expect(useApp.getState().data.subscriptions).toHaveLength(0);
+  });
 });
 describe("durable guest data and offline operation transactions", () => {
   it("finishes first run durably with the selected theme and region, without sample data", async () => {

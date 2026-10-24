@@ -29,11 +29,16 @@ export function localReminderPlan(
     let cursor = reference.toString();
     for (let count = 0; count < 400; count++) {
       const event = nextEvent(s, cursor);
-      if (!event || event.type === "paid_through") break;
+      if (!event || (event.type === "paid_through" && !s.proBillingOwner))
+        break;
       const date = Temporal.PlainDate.from(event.date);
       if (Temporal.PlainDate.compare(date, horizon.add({ days: 30 })) > 0)
         break;
-      if (event.type !== "trial" || p.trialReminders) {
+      if (
+        (event.type !== "trial" &&
+          !(event.type === "paid_through" && s.trialEnd === s.paidThrough)) ||
+        p.trialReminders
+      ) {
         for (const lead of days) {
           let due = date.subtract({ days: lead }).toZonedDateTime({
             timeZone: p.timezone,
@@ -50,19 +55,21 @@ export function localReminderPlan(
           )
             continue;
           const trial = event.type === "trial";
+          const ending = event.type === "paid_through";
           results.push({
             id: [s.id, s.version, event.type, event.date, lead].join(":"),
             title: p.privacyMode
               ? "Subloom reminder"
-              : `${s.name} ${trial ? "trial ending" : "renewal"}`,
+              : `${s.name} ${ending ? "plan ending" : trial ? "trial ending" : "renewal"}`,
             body: p.privacyMode
               ? "A subscription needs your attention. Open Subloom to see the details."
-              : `${trial ? "Trial ends" : "Renews"} ${event.date}${trial ? "" : " · " + formatMoney(s.amountMinor, s.currency)}.`,
+              : `${ending ? "Access ends" : trial ? "Trial ends" : "Renews"} ${event.date}${trial || ending ? "" : " · " + formatMoney(s.amountMinor, s.currency)}.${ending ? " Renewal is canceled." : ""}`,
             at: due.toInstant().toString(),
             path: "/subscription/" + s.id,
           });
         }
       }
+      if (event.type === "paid_through") break;
       cursor = date.add({ days: 1 }).toString();
     }
   }

@@ -21,6 +21,10 @@ import { duplicateCandidate, possibleMatch } from "../domain/detection";
 import { loadSnapshot, saveSnapshot } from "../services/storage";
 import { demoSnapshot } from "../services/demo";
 import { today } from "../domain/renewal";
+import {
+  trackedProSubscription,
+  type ProTracking,
+} from "../domain/proTracking";
 
 import type { GreetingProfile } from "../domain/greeting";
 
@@ -104,6 +108,7 @@ export function commit(
         "The account changed. Please retry in the current workspace.",
       );
     const next = update(state.data);
+    if (next === state.data) return;
     await saveSnapshot(state.identity, next);
     useApp.setState({ data: next, error: null });
   });
@@ -184,6 +189,32 @@ export async function saveSubscription(
       updatedAt: now,
       version: (previous?.version ?? 0) + 1,
     });
+    if (previous?.proBillingOwner) {
+      const managedFields = [
+        "proBillingOwner",
+        "serviceId",
+        "name",
+        "category",
+        "amountMinor",
+        "currency",
+        "interval",
+        "intervalCount",
+        "customUnit",
+        "startDate",
+        "nextRenewal",
+        "anchorDay",
+        "trialEnd",
+        "canceledAt",
+        "paidThrough",
+        "status",
+      ] as const;
+      if (
+        managedFields.some((field) => subscription[field] !== previous[field])
+      )
+        throw new Error(
+          "Billing manages this Pro record. Open Subloom Pro to change or cancel your plan; reminder choices remain editable.",
+        );
+    }
     const candidate = candidateId
       ? data.candidates.find((c) => c.id === candidateId)
       : null;
@@ -257,6 +288,67 @@ export async function saveSubscription(
     candidateId ? "Receipt confirmed. You’re all set." : "Subscription saved.",
   );
 }
+export async function reconcileProSubscription(
+  tracking: ProTracking,
+  owner: string,
+  identity: string,
+  guard: () => boolean,
+  previouslyTracked = false,
+) {
+  await commit((data) => {
+    if (!guard() || !useApp.getState().hydrated || data.demo) return data;
+    const previous = data.subscriptions.find((s) => s.id === tracking.id);
+    // Respect a removed tracking entry, including deletions synced from another device.
+    if (
+      !previous &&
+      (previouslyTracked ||
+        data.preferences.dismissedProTracking.includes(tracking.id) ||
+        data.activity.some(
+          (a) => a.type === "deleted" && a.targetId === tracking.id,
+        ))
+    )
+      return data;
+    const next = trackedProSubscription(
+      tracking,
+      identity,
+      owner,
+      data.preferences.timezone,
+      previous,
+    );
+    if (!next || JSON.stringify(next) === JSON.stringify(previous)) return data;
+    const now = new Date().toISOString();
+    const subscription = {
+      ...next,
+      version: (previous?.version ?? 0) + 1,
+      updatedAt: now,
+    };
+    const event = activity(
+      previous ? "edited" : "created",
+      previous ? "Pro billing dates updated" : "Subloom Pro added",
+      "Your plan and reminder dates follow your confirmed billing status.",
+      subscription.id,
+    );
+    return {
+      ...data,
+      priceHistory: recordPrice(data.priceHistory, previous, subscription),
+      subscriptions: previous
+        ? data.subscriptions.map((s) =>
+            s.id === subscription.id ? subscription : s,
+          )
+        : [subscription, ...data.subscriptions],
+      activity: [event, ...data.activity].slice(0, 500),
+      outbox: queue(
+        data,
+        op(
+          "subscription",
+          subscription.id,
+          { subscription, activity: event },
+          previous?.version ?? null,
+        ),
+      ),
+    };
+  }, identity);
+}
 export async function changeStatus(
   id: string,
   status: Subscription["status"],
@@ -293,21 +385,36 @@ export async function deleteSubscription(id: string) {
       subscription.name,
       null,
     );
+    const preferences = subscription.proBillingOwner
+      ? {
+          ...data.preferences,
+          dismissedProTracking: [
+            ...new Set([...data.preferences.dismissedProTracking, id]),
+          ].slice(-500),
+        }
+      : data.preferences;
+    const pending = queue(
+      data,
+      op(
+        "subscription",
+        id,
+        { activity: event },
+        subscription.version,
+        "delete",
+      ),
+    );
     return {
       ...data,
+      preferences,
       subscriptions: data.subscriptions.filter((s) => s.id !== id),
       priceHistory: data.priceHistory.filter((p) => p.subscriptionId !== id),
       activity: [event, ...data.activity],
-      outbox: queue(
-        data,
-        op(
-          "subscription",
-          id,
-          { activity: event },
-          subscription.version,
-          "delete",
-        ),
-      ),
+      outbox:
+        preferences !== data.preferences &&
+        useApp.getState().identity !== "guest" &&
+        !data.demo
+          ? [...pending, op("preferences", "preferences", preferences)]
+          : pending,
     };
   });
   notify("Subscription deleted.");

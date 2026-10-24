@@ -13,6 +13,7 @@ import { emptyPro, usePro } from "../../src/store/pro";
 
 const mock = vi.hoisted(() => ({
   storage: new Map<string, string>(),
+  failTrackingRead: false,
   session: null as Session | null,
   mainSession: null as Session | null,
   mainGetSession: vi.fn(),
@@ -33,6 +34,8 @@ vi.mock("@supabase/supabase-js", () => ({ createClient: mock.createClient }));
 vi.mock("../../src/services/supabase", () => ({
   authStorage: {
     async getItem(key: string) {
+      if (mock.failTrackingRead && key.startsWith("subloom.pro.tracked."))
+        throw new Error("Storage unavailable");
       return mock.storage.get(key) ?? null;
     },
     async setItem(key: string, value: string) {
@@ -142,6 +145,7 @@ beforeAll(async () => {
 });
 beforeEach(() => {
   mock.storage.clear();
+  mock.failTrackingRead = false;
   mock.session = null;
   mock.mainSession = session(account);
   mock.mainGetSession.mockReset().mockImplementation(async () => ({
@@ -166,6 +170,7 @@ afterEach(() => {
   cleanup?.();
   cleanup = undefined;
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 describe("local billing identity isolation", () => {
   it("verifies/restores in a separate session without signing into the cloud workspace", async () => {
@@ -286,6 +291,108 @@ describe("local billing identity isolation", () => {
       owner: account,
       offlineUntil: 0,
     });
+  });
+  it("deduplicates refreshes and preserves access while the same owner refreshes", async () => {
+    mock.session = session(owner);
+    vi.stubGlobal("fetch", api());
+    cleanup = billing.maintainPro("guest");
+    await billing.refreshPro("guest");
+    const until = usePro.getState().offlineUntil;
+    let finish!: (response: Response) => void;
+    let device = "";
+    const fetch = vi.fn((_input: unknown, init?: RequestInit) => {
+      device = JSON.parse(String(init?.body)).device;
+      return new Promise<Response>((resolve) => {
+        finish = resolve;
+      });
+    });
+    vi.stubGlobal("fetch", fetch);
+    const first = billing.refreshPro("guest");
+    expect(billing.refreshPro("guest")).toBe(first);
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+    expect(usePro.getState().offlineUntil).toBe(until);
+    finish(new Response(JSON.stringify(snapshot(device))));
+    await first;
+    expect(usePro.getState().loading).toBe(false);
+  });
+  it("revokes access at expiry without waiting for the periodic refresh", async () => {
+    mock.session = session(owner);
+    vi.stubGlobal("fetch", api());
+    cleanup = billing.maintainPro("guest");
+    await billing.refreshPro("guest");
+    vi.useFakeTimers();
+    usePro.setState({ offlineUntil: Date.now() + 100 });
+    await vi.advanceTimersByTimeAsync(101);
+    expect(usePro.getState().offlineUntil).toBe(0);
+  });
+  it("keeps verified access when tracking-marker storage fails", async () => {
+    mock.session = session(owner);
+    mock.failTrackingRead = true;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_input: unknown, init?: RequestInit) => {
+        const body = JSON.parse(String(init?.body));
+        const end = new Date(Date.now() + 3600000).toISOString();
+        return new Response(
+          JSON.stringify({
+            ...snapshot(body.device),
+            tracking: {
+              id: "bbbbbbbb-bbbb-5bbb-8bbb-bbbbbbbbbbbb",
+              purchasedAt: new Date().toISOString(),
+              periodEnd: end,
+              anchorAt: end,
+              trialEnd: null,
+              canceledAt: null,
+              endsAt: end,
+              cancelAtPeriodEnd: false,
+              status: "active",
+              confirmed: true,
+              interval: "month",
+              amountMinor: 299,
+              currency: "EUR",
+            },
+          }),
+        );
+      }),
+    );
+    cleanup = billing.maintainPro("guest");
+    await billing.refreshPro("guest");
+    expect(usePro.getState().offlineUntil).toBeGreaterThan(Date.now());
+    expect(usePro.getState().error).toMatch(/tracking entry/);
+  });
+  it("cancels through the current billing identity and refreshes its status", async () => {
+    mock.session = session(owner);
+    const endsAt = new Date(Date.now() + 3600000).toISOString();
+    let canceled = false;
+    const fetch = vi.fn(async (_input: unknown, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body));
+      if (body.action === "cancel") {
+        canceled = true;
+        return new Response(JSON.stringify({ canceled: true, endsAt }));
+      }
+      return new Response(
+        JSON.stringify({
+          ...snapshot(body.device),
+          cancelAtPeriodEnd: canceled,
+        }),
+      );
+    });
+    vi.stubGlobal("fetch", fetch);
+    cleanup = billing.maintainPro("guest");
+    await billing.refreshPro("guest");
+    await expect(billing.cancelProSubscription()).resolves.toEqual({
+      canceled: true,
+      endsAt,
+    });
+    const request = fetch.mock.calls.find(
+      (call) => JSON.parse(String(call[1]?.body)).action === "cancel",
+    );
+    expect(request?.[1]?.headers).toMatchObject({
+      Authorization: "Bearer verified-token-" + owner,
+    });
+    expect(usePro.getState().snapshot?.cancelAtPeriodEnd).toBe(true);
+    expect(usePro.getState().offlineUntil).toBeGreaterThan(Date.now());
+    expect(mock.mainSetSession).not.toHaveBeenCalled();
   });
   it("disconnects only billing and retains local workspace records", async () => {
     mock.storage.set("local-subscription-data", "still on device");

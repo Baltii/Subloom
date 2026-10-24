@@ -1,14 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { View } from "react-native";
-import { useFocusEffect } from "expo-router";
-import {
-  Check,
-  CreditCard,
-  Download,
-  FileSearch,
-  Mail,
-  X,
-} from "lucide-react-native";
+import { router, useFocusEffect } from "expo-router";
+import { Crown, CalendarDays, X, Mail } from "lucide-react-native";
 import {
   Button,
   Card,
@@ -23,10 +16,10 @@ import {
 import { useTheme, useWide } from "../theme/useTheme";
 import { useApp, readableError } from "../store/app";
 import { usePro } from "../store/pro";
-import { ProMembershipCard } from "../components/pro/ProMembershipCard";
 import { useProAccess, type ProFeature } from "../hooks/useProAccess";
 import {
   billingAuth,
+  cancelProSubscription,
   disconnectBilling,
   openProBilling,
   refreshPro,
@@ -35,12 +28,16 @@ import {
   verifyBillingCode,
 } from "../services/proBilling";
 
+import { ProMembershipCard } from "../components/pro/ProMembershipCard";
+import { ProFeatures } from "../components/pro/ProFeatures";
+
 function formatDate(value: string | null) {
   return value
     ? new Date(value).toLocaleDateString(undefined, {
         year: "numeric",
         month: "short",
         day: "numeric",
+        timeZone: useApp.getState().data.preferences.timezone,
       })
     : "your billing date";
 }
@@ -69,9 +66,13 @@ export function ProPage({
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [disconnect, setDisconnect] = useState(false);
+  const [cancel, setCancel] = useState(false);
   const operation = useRef(false);
   const { pro } = useProAccess();
   const snapshot = billing.workspace === identity ? billing.snapshot : null;
+  const tracked = useApp((s) =>
+    s.data.subscriptions.some((item) => item.id === snapshot?.tracking?.id),
+  );
   useFocusEffect(
     useCallback(() => {
       void refreshPro(identity);
@@ -95,9 +96,11 @@ export function ProPage({
   const price = interval === "month" ? "€2.99" : "€24";
   const cadence = interval === "month" ? "month" : "year";
   const status = pro
-    ? snapshot?.status === "trialing"
-      ? "Your Pro trial is active"
-      : "Pro is active"
+    ? snapshot?.cancelAtPeriodEnd
+      ? "Renewal canceled. Enjoy Pro until your plan ends."
+      : snapshot?.status === "trialing"
+        ? "Your Pro trial is active"
+        : "Pro is active"
     : snapshot?.status === "past_due" || snapshot?.status === "unpaid"
       ? "Your payment needs attention"
       : snapshot?.status === "review"
@@ -120,83 +123,27 @@ export function ProPage({
       contentMaxWidth={1000}
     >
       <View style={{ gap: 24 }}>
-        <View style={{ gap: 10, maxWidth: 680 }}>
-          <Heading size={wide ? 36 : 28}>{status}</Heading>
-          <Label color={colors.secondary}>
-            Keep tracking subscriptions and getting reminders for free. Choose
-            Pro when you want to find recurring charges in statements, export
-            transaction reports, or save more billing methods.
-          </Label>
-        </View>
         <View
           style={{
             flexDirection: wide ? "row" : "column",
             gap: 24,
-            alignItems: "stretch",
+            alignItems: wide ? "flex-start" : "stretch",
           }}
         >
           <View style={{ flex: wide ? 1 : undefined, gap: 24 }}>
             <ProMembershipCard
               active={pro}
               ending={Boolean(snapshot?.cancelAtPeriodEnd)}
-              interval={interval}
-              detail={status}
+              interval={snapshot?.interval ?? interval}
+              detail={
+                pro
+                  ? status
+                  : "An optional upgrade. Your everyday essentials stay free."
+              }
             />
-            <Card style={{ gap: 22 }}>
-              <Heading size={22}>More clarity, less sorting.</Heading>
-              {[
-                {
-                  icon: FileSearch,
-                  title: "Import statements",
-                  body: "Review CSV transactions and detect possible recurring subscriptions. You choose what to track.",
-                },
-                {
-                  icon: Download,
-                  title: "Export transaction reports",
-                  body: "Download your imported transaction records as a CSV, in their original currencies.",
-                },
-                {
-                  icon: CreditCard,
-                  title: "Up to 50 cards & wallets",
-                  body: "Keep more saved billing labels together. Free includes 3 combined.",
-                },
-              ].map(({ icon: Icon, title, body }) => (
-                <View key={title} style={{ flexDirection: "row", gap: 14 }}>
-                  <Icon size={22} color={colors.primary} />
-                  <View style={{ flex: 1, gap: 4 }}>
-                    <Label bold>{title}</Label>
-                    <Label size={13} color={colors.secondary}>
-                      {body}
-                    </Label>
-                  </View>
-                </View>
-              ))}
-              <View
-                style={{
-                  gap: 8,
-                  borderTopWidth: 1,
-                  borderTopColor: colors.border,
-                  paddingTop: 18,
-                }}
-              >
-                <Label bold size={13}>
-                  Always included for free
-                </Label>
-                <Label size={13} color={colors.secondary}>
-                  Manual subscription tracking, renewal reminders, calendar, and
-                  a full JSON backup of your data. Your existing records stay
-                  accessible if Pro ends.
-                </Label>
-              </View>
-            </Card>
+            {wide && <ProFeatures />}
           </View>
-          <Card
-            style={{
-              flex: wide ? 1 : undefined,
-              gap: 18,
-              alignSelf: wide ? "flex-start" : undefined,
-            }}
-          >
+          <Card style={{ flex: wide ? 1 : undefined, gap: 18 }}>
             {pro ? (
               <>
                 <View
@@ -206,18 +153,81 @@ export function ProPage({
                     alignItems: "center",
                   }}
                 >
-                  <Check size={22} color={colors.primary} />
-                  <Heading size={22}>You’re all set.</Heading>
+                  <Crown size={22} color={colors.primary} />
+                  <Heading size={22}>Your Pro membership</Heading>
                 </View>
                 <Label>
-                  {snapshot?.status === "trialing"
-                    ? `Trial ends ${formatDate(snapshot.trialEnd)}.`
-                    : snapshot?.cancelAtPeriodEnd
-                      ? `Pro ends ${formatDate(snapshot.accessUntil)}. Renewal is canceled.`
+                  {snapshot?.cancelAtPeriodEnd
+                    ? `Pro ends ${formatDate(snapshot.accessUntil ?? snapshot.tracking?.endsAt ?? null)}. Renewal is canceled.`
+                    : snapshot?.status === "trialing"
+                      ? `Trial ends ${formatDate(snapshot.trialEnd)}.`
                       : snapshot?.accessUntil
                         ? `Next billing date: ${formatDate(snapshot.accessUntil)}.`
                         : "Your purchase is saved on this device."}
                 </Label>
+                {snapshot?.interval && (
+                  <View style={{ gap: 5 }}>
+                    <Label size={12} color={colors.secondary}>
+                      {snapshot.status === "trialing"
+                        ? "After your trial"
+                        : "Your plan"}
+                    </Label>
+                    <Label bold size={22}>
+                      {snapshot.interval === "month"
+                        ? "€2.99 / month"
+                        : "€24 / year"}
+                    </Label>
+                  </View>
+                )}
+                {snapshot?.tracking && tracked && (
+                  <View
+                    style={{
+                      gap: 8,
+                      paddingVertical: 16,
+                      borderTopWidth: 1,
+                      borderBottomWidth: 1,
+                      borderColor: colors.border,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        gap: 8,
+                        alignItems: "center",
+                      }}
+                    >
+                      <CalendarDays size={16} color={colors.primary} />
+                      <Label bold size={13}>
+                        Added to your subscriptions
+                      </Label>
+                    </View>
+                    <Label size={13} color={colors.secondary}>
+                      Your purchase date and{" "}
+                      {snapshot.cancelAtPeriodEnd
+                        ? "ending"
+                        : snapshot.status === "trialing"
+                          ? "trial"
+                          : "renewal"}{" "}
+                      date stay in sync. Reminders follow your notification
+                      settings.
+                    </Label>
+                    <Label size={12} color={colors.secondary}>
+                      Purchased {formatDate(snapshot.tracking.purchasedAt)}
+                    </Label>
+                    <Button
+                      small
+                      variant="ghost"
+                      onPress={() =>
+                        router.push({
+                          pathname: "/subscription/[id]",
+                          params: { id: snapshot.tracking!.id },
+                        })
+                      }
+                    >
+                      View subscription & reminders
+                    </Button>
+                  </View>
+                )}
                 {!snapshot && (
                   <Label size={13} color={colors.secondary}>
                     Offline access is available until{" "}
@@ -329,7 +339,7 @@ export function ProPage({
                         })
                       }
                     >
-                      Verify and restore Pro
+                      Verify email
                     </Button>
                   </>
                 )}
@@ -343,7 +353,7 @@ export function ProPage({
                   <>
                     <Label size={13}>
                       {snapshot.trialEligible
-                        ? `7 days free, then ${price}/${cadence}. A payment method is required now. Renews automatically unless you cancel before the trial ends in Manage billing.`
+                        ? `7 days free, then ${price}/${cadence}. A payment method is required now. Renews automatically unless you cancel before the trial ends.`
                         : `Your free trial has already been used. ${price}/${cadence} starts immediately and renews automatically until canceled.`}
                     </Label>
                     <Button
@@ -360,7 +370,7 @@ export function ProPage({
                         void run(async () => {
                           await openProBilling("checkout", interval);
                           setMessage(
-                            "Complete checkout in your browser, then return and check your Pro status.",
+                            "Finish checkout in your browser. Your plan and reminders update automatically when you return.",
                           );
                         })
                       }
@@ -380,7 +390,7 @@ export function ProPage({
                       void run(async () => {
                         await openProBilling("portal");
                         setMessage(
-                          "Manage your plan, payment method, invoices, or cancellation in Stripe. Return here to refresh your status.",
+                          "Manage payment details and invoices in Stripe. Your plan updates automatically when you return.",
                         );
                       })
                     }
@@ -388,17 +398,26 @@ export function ProPage({
                     Manage billing
                   </Button>
                 )}
-                <Button
-                  variant="secondary"
-                  loading={busy || billing.loading}
-                  onPress={() =>
-                    void run(async () => {
-                      await refreshPro(identity);
-                    })
-                  }
-                >
-                  Check purchase / restore access
-                </Button>
+                {snapshot?.canManage &&
+                  stripeCheckoutAllowed &&
+                  [
+                    "trialing",
+                    "active",
+                    "past_due",
+                    "unpaid",
+                    "paused",
+                  ].includes(snapshot.status) &&
+                  !snapshot.cancelAtPeriodEnd && (
+                    <Button
+                      variant="ghost"
+                      icon={X}
+                      disabled={busy || demo || billing.loading}
+                      testID="pro-cancel-subscription"
+                      onPress={() => setCancel(true)}
+                    >
+                      Cancel subscription
+                    </Button>
+                  )}
                 {snapshot && !snapshot.configured && (
                   <Label size={13}>
                     Pro purchases aren’t available yet. Payment setup is still
@@ -423,12 +442,22 @@ export function ProPage({
               </Label>
             )}
             {(error || billing.error) && (
-              <Label accessibilityRole="alert" color={colors.error} size={13}>
-                {error || billing.error}
-              </Label>
+              <View style={{ gap: 10 }}>
+                <Label accessibilityRole="alert" color={colors.error} size={13}>
+                  {error || billing.error}
+                </Label>
+                <Button
+                  variant="secondary"
+                  loading={busy || billing.loading}
+                  onPress={() => void run(() => refreshPro(identity))}
+                >
+                  Retry billing status
+                </Button>
+              </View>
             )}
           </Card>
         </View>
+        {!wide && <ProFeatures />}
         <Label size={12} color={colors.secondary}>
           Payments are handled by Stripe. Subloom never receives your full
           payment card details. For local workspaces, verify the same billing
@@ -438,9 +467,32 @@ export function ProPage({
         </Label>
       </View>
       <Confirm
+        visible={cancel}
+        title="Cancel your Pro subscription?"
+        body={
+          (pro
+            ? "This stops automatic renewal. You keep Pro until "
+            : "This stops automatic renewal. Your plan ends ") +
+          formatDate(
+            snapshot?.tracking?.endsAt ?? snapshot?.accessUntil ?? null,
+          ) +
+          ". Your saved records stay available after Pro ends. Outstanding invoices, if any, remain payable."
+        }
+        action="Cancel subscription"
+        onClose={() => setCancel(false)}
+        onConfirm={async () => {
+          const result = await cancelProSubscription();
+          setMessage(
+            "Renewal canceled. Your plan ends " +
+              formatDate(result.endsAt) +
+              ".",
+          );
+        }}
+      />
+      <Confirm
         visible={disconnect}
         title="Disconnect billing on this device?"
-        body="This removes Pro access from this local workspace until you verify your billing email again. Your local records stay saved. This does not cancel your subscription or stop renewal; use Manage billing to cancel first."
+        body="This removes Pro access from this local workspace until you verify your billing email again. Your local records stay saved. This does not cancel your subscription or stop renewal; use Cancel subscription to stop renewal."
         action="Disconnect billing"
         onClose={() => setDisconnect(false)}
         onConfirm={disconnectBilling}
