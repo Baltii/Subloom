@@ -2,6 +2,28 @@
 
 Release Please maintains this file from conventional commits merged into `main`.
 
+## [1.6.0](https://github.com/Baltii/Subloom/compare/v1.5.1...v1.6.0) (2026-10-24)
+
+
+### Features
+
+* label premium tools in Settings and Quick actions ([9c558fc](https://github.com/Baltii/Subloom/commit/9c558fc72dc97704e592153b884736c06a23380e))
+* limit Free to ten subscriptions one card and one wallet ([1c4c1ca](https://github.com/Baltii/Subloom/commit/1c4c1caba688e19b1f74a378c134a3ede4fc8339))
+* set Free limits to 10 subscriptions, one card and one wallet ([0c6b531](https://github.com/Baltii/Subloom/commit/0c6b5317e288c4f1a91fea2b1bd4259ed55ede95))
+* show Pro tags on premium subscription tools ([731323d](https://github.com/Baltii/Subloom/commit/731323d188b824fdff6b938a7f5ab028f0f95311))
+
+
+### Bug Fixes
+
+* bundle real ChatGPT iCloud Google One and Figma logos ([3e1dca0](https://github.com/Baltii/Subloom/commit/3e1dca0c5ca46a9ef78ba9652311c18f5a9253b9))
+* bundle real logos for branded subscription services ([76c3540](https://github.com/Baltii/Subloom/commit/76c35403bab124e97d8213105cba42241caf5fd1))
+* keep one service search in the subscription form ([77c8f12](https://github.com/Baltii/Subloom/commit/77c8f12bcb403c8bd381ff7e713c950bf853571c))
+* keep subscription actions in the three-dot menu ([4121b32](https://github.com/Baltii/Subloom/commit/4121b32be07094b4cc6344c3a682d59f16be1ea0))
+* keep subscription rows still and actions in their menu ([0d399b1](https://github.com/Baltii/Subloom/commit/0d399b14a357c8b1555d9849bff25e43ff4df9d3))
+* make list and timeline controls smaller and neutral ([4c97a0e](https://github.com/Baltii/Subloom/commit/4c97a0ee606b2a34a0f32a755c108b586a233037))
+* make subscription view controls compact and neutral ([dce9f8b](https://github.com/Baltii/Subloom/commit/dce9f8b91c665d7c48632ea73e18fd0379f4a734))
+* use inline service search as the subscription entry point ([4d8fdaf](https://github.com/Baltii/Subloom/commit/4d8fdaf1d0fc5e227a577fdd8e630e676f60ffcc))
+
 ## [1.5.1](https://github.com/Baltii/Subloom/compare/v1.5.0...v1.5.1) (2026-10-24)
 
 
