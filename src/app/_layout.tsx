@@ -39,6 +39,7 @@ import {
 import { maintainMacReminders } from "../services/macosNotifications";
 import { maintainWindowsReminders } from "../services/windowsNotifications";
 import { profileDisplayName } from "../domain/greeting";
+import { maintainUpdateDraftProtection } from "../services/updateDraftProtection";
 import { maintainPro } from "../services/proBilling";
 export { ErrorBoundary } from "expo-router";
 const queryClient = new QueryClient({
@@ -47,6 +48,7 @@ const queryClient = new QueryClient({
   },
 });
 function Session() {
+  useEffect(() => maintainUpdateDraftProtection(), []);
   useEffect(() => maintainMacReminders((path) => router.push(path as "/")), []);
   useEffect(
     () => maintainWindowsReminders((path) => router.push(path as "/")),

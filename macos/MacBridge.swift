@@ -7,6 +7,7 @@ import AuthenticationServices
     let store: SnapshotStore
     let center = UNUserNotificationCenter.current()
     weak var webView: WKWebView?
+    var appUpdater: MacUpdater?
     var workspace: String?
     var notificationWork: Task<Void, Never>?
     var navigation: [String: String]?
@@ -39,6 +40,12 @@ import AuthenticationServices
         // Disk writes remain available even while a notification permission prompt is open.
         do {
             switch op {
+            case "update.draft":
+                guard let active = body["active"] as? Bool else { throw LocalAppError.invalid("Invalid update protection request.") }
+                appUpdater?.hasDraft = active; replyHandler(true, nil); return
+            case "update.status": replyHandler(appUpdater?.state ?? ["supported": false, "status": "unavailable"], nil); return
+            case "update.check": replyHandler(appUpdater?.check() ?? ["supported": false, "status": "unavailable"], nil); return
+            case "update.install": appUpdater?.showUpdates(); replyHandler(true, nil); return
             case "auth.open":
                 try openAuth(body, reply: replyHandler); return
             case "wallet.open":

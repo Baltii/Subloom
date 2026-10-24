@@ -203,6 +203,46 @@ else {
           throw new Error("Sign-in must be canceled in the Subloom app.");
         auth.cancel();
       });
+      const { NsisUpdater } = require("electron-updater");
+      const { createUpdateBroker } = require("./updates.cjs");
+      let updateDraftActive = true;
+      ipcMain.handle("subloom:update-draft", (event, active) => {
+        if (
+          event.sender !== window?.webContents ||
+          event.senderFrame !== window.webContents.mainFrame ||
+          !isAppURL(event.senderFrame.url) ||
+          typeof active !== "boolean"
+        )
+          throw new Error("Invalid update protection request.");
+        updateDraftActive = active;
+      });
+      const updates = createUpdateBroker({
+        canInstall: () => !updateDraftActive,
+        updater: new NsisUpdater(),
+        version: app.getVersion(),
+        enabled: process.platform === "win32" && app.isPackaged && !smokeMode,
+        notify: (state) => {
+          if (window && !window.isDestroyed())
+            window.webContents.send("subloom:update-state", state);
+        },
+      });
+      for (const action of ["status", "check", "install"]) {
+        ipcMain.handle("subloom:update-" + action, (event) => {
+          if (
+            event.sender !== window?.webContents ||
+            event.senderFrame !== window.webContents.mainFrame ||
+            !isAppURL(event.senderFrame.url)
+          )
+            throw new Error("Updates must be managed in the Subloom app.");
+          return updates[action]();
+        });
+      }
+      if (process.platform === "win32" && app.isPackaged && !smokeMode) {
+        const timer = setTimeout(() => void updates.check(), 30000);
+        timer.unref();
+        const interval = setInterval(() => void updates.check(), 24 * 3600000);
+        interval.unref();
+      }
       const consentFile = path.join(
         app.getPath("userData"),
         "notification-consent.json",

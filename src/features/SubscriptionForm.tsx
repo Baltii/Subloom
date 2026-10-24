@@ -1,3 +1,4 @@
+import { useUpdateDraft } from "../hooks/useUpdateDraft";
 import { useEffect, useRef, useState } from "react";
 import { View, Platform } from "react-native";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -197,6 +198,7 @@ export function SubscriptionForm({
     getFieldState,
     setValue,
   ]);
+  useUpdateDraft(isDirty || busy);
   const saved = useRef(false);
   usePreventRemove(isDirty, ({ data }) => {
     if (saved.current) navigation.dispatch(data.action);
