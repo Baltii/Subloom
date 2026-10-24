@@ -159,8 +159,8 @@ export class ProBilling {
     row: BillingRow,
     save: (patch: Partial<BillingRow>) => Promise<void>,
     email?: string,
-  ) {
-    if (!row.customer_id) return;
+  ): Promise<Stripe.Subscription | null> {
+    if (!row.customer_id) return null;
     const list = await this.stripe.subscriptions.list({
       customer: row.customer_id,
       status: "all",
@@ -234,6 +234,7 @@ export class ProBilling {
       if (result.error)
         throw new HttpError(503, "Trial history could not be verified.");
     }
+    return recognized ? subscription ?? null : null;
   }
 
   async snapshot(
