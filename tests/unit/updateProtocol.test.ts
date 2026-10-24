@@ -1,11 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { generateKeyPairSync, sign, createHash } from "node:crypto";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { newerVersion, validateRelease } from "../../updates/protocol.cjs";
-import { verifyReleaseManifest } from "../../src/services/releaseManifest";
+import {
+  fetchReleaseManifest,
+  verifyReleaseManifest,
+} from "../../src/services/releaseManifest";
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 const require = createRequire(import.meta.url);
 const { verifyRelease, verifyAsset } = require("../../updates/node.cjs");
 const keys = generateKeyPairSync("ed25519");
@@ -44,6 +51,15 @@ function envelope(data = release()) {
   });
 }
 describe("signed app updates", () => {
+  it("handles a pre-updater release on React Native without AbortSignal.timeout", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("AbortSignal", {});
+    const fetch = vi.fn().mockResolvedValue({ status: 404 });
+    vi.stubGlobal("fetch", fetch);
+    expect(await fetchReleaseManifest()).toBeNull();
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
+  });
   it("accepts a complete signed release and rejects tampering or another signer", () => {
     expect(verifyRelease(envelope(), publicHex).version).toBe("1.6.0");
     expect(verifyReleaseManifest(envelope(), publicHex).version).toBe("1.6.0");

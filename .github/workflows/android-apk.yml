@@ -46,6 +46,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
+          cache-dependency-path: package-lock.json
       - name: Require public Android app configuration
         run: |
           test -n "$EXPO_PUBLIC_SUPABASE_URL"
@@ -65,7 +67,13 @@ jobs:
         run: node scripts/expo.mjs prebuild --platform android --no-install
       - name: Build bundled, test-signed APK
         working-directory: android
-        run: ./gradlew :app:assembleRelease --no-daemon --max-workers=2 -PreactNativeArchitectures=arm64-v8a,x86_64
+        # Expo's 512 MiB metaspace default exhausts class metadata during release
+        # lint after adding expo-updates. Bound memory and exit on OOM instead of
+        # leaving a broken daemon alive until the whole job times out.
+        run: >-
+          ./gradlew :app:assembleRelease --no-daemon --max-workers=2
+          '-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=2g -XX:+ExitOnOutOfMemoryError -Dfile.encoding=UTF-8'
+          -PreactNativeArchitectures=arm64-v8a,x86_64
       - name: Package APK and checksum
         run: |
           mkdir -p build/android

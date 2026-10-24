@@ -119,6 +119,19 @@ it("leaves the installed app usable after an offline check", async () => {
   await client.checkAppUpdates();
   expect(client.state().status).toBe("available");
 });
+it("can apply Expo's recovery directive to the embedded app without clearing data", async () => {
+  m.check.mockResolvedValue({ isAvailable: false, isRollBackToEmbedded: true });
+  m.fetch.mockResolvedValue({ isNew: false, isRollBackToEmbedded: true });
+  const client = await start();
+  await client.checkAppUpdates();
+  expect(client.state().status).toBe("available");
+  await client.downloadAppUpdate();
+  expect(client.state().status).toBe("ready");
+  await client.installAppUpdate();
+  expect(m.flush).toHaveBeenCalled();
+  expect(m.reload).toHaveBeenCalledOnce();
+  expect(m.deleted).not.toHaveBeenCalled();
+});
 it("offers only newer test APKs and verifies downloaded bytes again before Android confirmation", async () => {
   m.channel = "github-test";
   m.enabled = false;

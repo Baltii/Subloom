@@ -20,3 +20,13 @@ Mac archives keep the existing bundle identifier and sandbox container. Develope
 Expo updates use the existing EAS project, separate production/preview/test channels and fingerprint runtime compatibility. Native API changes require a new binary. Publishing an Expo update needs an authorized Expo account/token; this feature does not purchase a plan or publish an OTA update by itself. Compatible downloaded updates are applied on user-requested reload or a later launch.
 
 No update automatically clears user storage, removes an existing app, changes Pro ownership, signs a user out or interrupts an editor to restart. Browser users receive deployments through normal page refreshes.
+
+## First release and later updates
+
+Merge the stack in order: protocol, desktop, mobile, then Settings/release integration. The next release must run the updated verification and asset workflow. It uploads the Windows `latest.yml` beside its installer and publishes `subloom-updates.json` plus both Mac appcasts only after all four installer artifacts are available. A failed build or missing signing secret prevents feed publication. Install that release once on existing devices; earlier binaries cannot gain a native updater from a web deployment.
+
+Afterward use **Settings → App updates**. Windows checks and downloads a verified installer; Mac opens Sparkle’s native update window; direct Android APK builds download a verified APK and open Android’s installer. Downloads never uninstall the current app. Declining installation leaves the current app available. Save or discard editor drafts first. The browser offers a normal refresh.
+
+For EAS/store iOS and Android builds, configure an authorized `EXPO_TOKEN` repository secret for the existing Expo project before running **Publish compatible mobile app update** on `release-candidate`. That manual workflow tests the source and publishes to the `production` channel using EAS production environment variables and fingerprint runtime matching. Preview builds use the `preview` channel. Native dependency/configuration changes need a new binary; this workflow does not make store/native replacements automatic. GitHub test APK builds disable OTA and use only their own installer feed.
+
+Release smoke test on spare devices: install the updater-enabled bootstrap, create a subscription and a draft, publish a newer verified release, confirm the update is detected, confirm the draft blocks restart, save it, install, and verify subscriptions/preferences/session survive reopening. Also test declining Android’s prompt, going offline, interrupted downloads, and the supported Mac architectures. Local signature/protocol tests and package builds do not replace this two-version device test.
