@@ -19,7 +19,7 @@
 
 <p align="center">
   <strong><a href="https://subloom.baltii.tn">Open the app ↗</a></strong>
-  &nbsp;·&nbsp; <a href="https://subloom-landing-standalone.vercel.app">Visit the website</a>
+  &nbsp;·&nbsp; <a href="https://subloom-landing.baltii.tn">Visit the website</a>
   &nbsp;·&nbsp; <a href="https://github.com/Baltii/Subloom/releases">Releases</a>
   &nbsp;·&nbsp; <a href="https://github.com/Baltii/Subloom/issues">Share feedback</a>
 </p>
@@ -74,7 +74,7 @@ Subloom tracks and helps you review subscriptions. Managing or canceling a servi
 | Platform    | Where to start                                                                                                                                                                                                                                                       |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Web app** | [Open Subloom](https://subloom.baltii.tn) — start a local workspace or sign in.                                                                                                                                                                                      |
-| **Website** | [Explore the landing page](https://subloom-landing-standalone.vercel.app).                                                                                                                                                                                                      |
+| **Website** | [Explore the landing page](https://subloom-landing.baltii.tn).                                                                                                                                                                                                      |
 | **Android** | Download a test APK from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `android-apk` artifact in successful [Android workflow runs](https://github.com/Baltii/Subloom/actions/workflows/android-apk.yml).                                    |
 | **Windows** | Download the x64 `.exe` installer from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `windows-x64` artifact in successful [Windows workflow runs](https://github.com/Baltii/Subloom/actions/workflows/windows-exe.yml).                      |
 | **macOS**   | Download an Apple silicon or Intel app ZIP from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `macos-arm64` / `macos-x64` artifacts in successful [CI runs](https://github.com/Baltii/Subloom/actions/workflows/ci.yml). Requires macOS 14+. |
