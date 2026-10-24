@@ -38,6 +38,7 @@ import {
 } from "../services/notifications";
 import { maintainMacReminders } from "../services/macosNotifications";
 import { maintainWindowsReminders } from "../services/windowsNotifications";
+import { profileDisplayName } from "../domain/greeting";
 import { maintainPro } from "../services/proBilling";
 export { ErrorBoundary } from "expo-router";
 const queryClient = new QueryClient({
@@ -83,7 +84,15 @@ function Session() {
           syncError:
             "Your session could not be restored. Guest data is available on this device.",
         });
-      useApp.setState({ email: data.session?.user.email || null });
+      useApp.setState({
+        email: data.session?.user.email || null,
+        greetingProfile: data.session
+          ? {
+              owner: data.session.user.id,
+              name: profileDisplayName(data.session.user.user_metadata),
+            }
+          : null,
+      });
       await hydrate(data.session?.user.id || "guest");
     })().catch((error) => useApp.setState({ error: readableError(error) }));
     const auth = supabase?.auth.onAuthStateChange((_event, session) => {
@@ -91,7 +100,15 @@ function Session() {
       // Defer storage work outside the auth callback to avoid Supabase auth-lock deadlocks.
       setTimeout(() => {
         if (alive && revision === authRevision) {
-          useApp.setState({ email: session?.user.email || null });
+          useApp.setState({
+            email: session?.user.email || null,
+            greetingProfile: session
+              ? {
+                  owner: session.user.id,
+                  name: profileDisplayName(session.user.user_metadata),
+                }
+              : null,
+          });
           const nextIdentity = session?.user.id || "guest";
           if (
             useApp.getState().identity !== nextIdentity ||
