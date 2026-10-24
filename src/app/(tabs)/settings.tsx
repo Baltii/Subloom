@@ -65,6 +65,7 @@ import { toolActions } from "../../components/ui/QuickActions";
 import { ThemePicker } from "../../components/ui/ThemePicker";
 import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
 import { ProBadge } from "../../components/pro/ProBadge";
+import { AppUpdatesCard } from "../../components/settings/AppUpdatesCard";
 import { SelectField } from "../../components/ui/Selection";
 import {
   currencyOptions,
@@ -90,6 +91,10 @@ const settingsGroups = [
     title: "Tools",
     keywords:
       "subscription receipt import discovery gmail outlook monthly budgets csv calendar forwarding bank statement transactions",
+  },
+  {
+    title: "App updates",
+    keywords: "version download install update restart release",
   },
   {
     title: "Data & privacy",
@@ -905,6 +910,7 @@ function Settings() {
                   ))}
               </Card>
             )}
+            {visibleGroups.includes("App updates") && <AppUpdatesCard />}
             {visibleGroups.includes("Data & privacy") && (
               <Card style={{ marginTop: 24 }}>
                 <SectionTitle title="Data & privacy" />
