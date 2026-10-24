@@ -321,7 +321,7 @@ else {
             await until(() => document.querySelector('[data-testid="get-started"]'), "guest setup");
             document.querySelector('[data-testid="get-started"]').click();
           }
-          await until(() => snapshot()?.onboarded === true && document.body.innerText.includes("Your subscriptions, at a glance."), "saved guest dashboard");
+          await until(() => snapshot()?.onboarded === true && document.body.innerText.includes("Hi! 👋"), "saved guest dashboard");
           if (snapshot().schemaVersion !== 1) throw new Error("Guest workspace did not persist");
           const route = await fetch("/settings");
           if (!route.ok || !(await route.text()).includes("<html")) throw new Error("SPA route failed");
