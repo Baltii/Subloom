@@ -29,6 +29,7 @@ import { useTheme } from "../theme/useTheme";
 import { Brand } from "../components/ui/Brand";
 import { Button, Label, Toast } from "../components/ui/Primitives";
 import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
+import { ProAccessProvider } from "../components/pro/ProAccessProvider";
 import { QuickActionsProvider } from "../components/ui/QuickActions";
 import { BrowserStyles } from "../components/ui/BrowserStyles";
 import {
@@ -173,41 +174,43 @@ function Shell() {
           )}
         </View>
       ) : (
-        <QuickActionsProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colors.background },
-              animation: reduced ? "none" : "slide_from_right",
-              animationDuration: tokens.motion.normal,
-            }}
-          >
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="onboarding" />
-            <Stack.Screen
-              name="subscription/new"
-              options={{
-                presentation: "modal",
-                animation: reduced ? "none" : "slide_from_bottom",
+        <ProAccessProvider>
+          <QuickActionsProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: colors.background },
+                animation: reduced ? "none" : "slide_from_right",
+                animationDuration: tokens.motion.normal,
               }}
-            />
-            <Stack.Screen
-              name="subscription/edit"
-              options={{
-                presentation: "modal",
-                animation: reduced ? "none" : "slide_from_bottom",
-              }}
-            />
-            <Stack.Screen
-              name="import"
-              options={{
-                presentation: "modal",
-                animation: reduced ? "none" : "slide_from_bottom",
-              }}
-            />
-          </Stack>
-          <Toast />
-        </QuickActionsProvider>
+            >
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="onboarding" />
+              <Stack.Screen
+                name="subscription/new"
+                options={{
+                  presentation: "modal",
+                  animation: reduced ? "none" : "slide_from_bottom",
+                }}
+              />
+              <Stack.Screen
+                name="subscription/edit"
+                options={{
+                  presentation: "modal",
+                  animation: reduced ? "none" : "slide_from_bottom",
+                }}
+              />
+              <Stack.Screen
+                name="import"
+                options={{
+                  presentation: "modal",
+                  animation: reduced ? "none" : "slide_from_bottom",
+                }}
+              />
+            </Stack>
+            <Toast />
+          </QuickActionsProvider>
+        </ProAccessProvider>
       )}
     </SafeAreaView>
   );

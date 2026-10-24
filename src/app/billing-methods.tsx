@@ -21,7 +21,9 @@ import {
   Page,
 } from "../components/ui/Primitives";
 import { useTheme, useWide } from "../theme/useTheme";
-import { usePro, workspaceHasPro } from "../store/pro";
+import { useProAccess } from "../hooks/useProAccess";
+import { ProFeatureBadge } from "../components/pro/ProFeatureBadge";
+import { FREE_BILLING_METHODS, PRO_BILLING_METHODS } from "../domain/pro";
 
 export default function BillingMethodsRoute() {
   const identity = useApp((state) => state.identity);
@@ -33,9 +35,7 @@ function BillingMethods() {
     methods = useBillingMethods(),
     data = useApp((state) => state.data),
     identity = useApp((state) => state.identity);
-  const pro = usePro(
-    (state) => state.workspace === identity && state.offlineUntil > Date.now(),
-  );
+  const { pro, requestPro, openPro } = useProAccess();
   const [editing, setEditing] = useState<PaymentSource | "new" | null>(null),
     [removing, setRemoving] = useState<PaymentSource | null>(null),
     [error, setError] = useState<string | null>(null);
@@ -58,11 +58,16 @@ function BillingMethods() {
         <Button
           small
           icon={Plus}
-          disabled={disabled || methods.value.sources.length >= 50}
+          disabled={
+            disabled || methods.value.sources.length >= PRO_BILLING_METHODS
+          }
           onPress={() => {
-            if (!workspaceHasPro(identity) && methods.value.sources.length >= 3)
-              router.push("/pro");
-            else setEditing("new");
+            if (
+              methods.value.sources.length >= FREE_BILLING_METHODS &&
+              !requestPro("More cards & wallets")
+            )
+              return;
+            setEditing("new");
           }}
         >
           {wide ? "Add method" : "Add"}
@@ -77,6 +82,7 @@ function BillingMethods() {
         </Label>
         {!pro && (
           <View style={{ gap: 8 }}>
+            <ProFeatureBadge />
             <Label size={13}>
               Free includes 3 saved cards and wallets combined. Pro includes up
               to 50. Existing methods stay available after a downgrade.
@@ -84,7 +90,7 @@ function BillingMethods() {
             <Button
               small
               variant="secondary"
-              onPress={() => router.push("/pro")}
+              onPress={() => openPro("More cards & wallets")}
             >
               Explore Subloom Pro
             </Button>
@@ -140,7 +146,7 @@ function BillingMethods() {
             }
           />
         )}
-        {methods.value.sources.length >= 50 && (
+        {methods.value.sources.length >= PRO_BILLING_METHODS && (
           <Label size={13} color={colors.secondary}>
             You can save up to 50 billing methods. Edit or remove an existing
             method to make room.
@@ -167,6 +173,14 @@ function BillingMethods() {
             if (editing !== "new" && !methods.byId.has(source.id))
               throw new Error(
                 "This method was removed. Close this form and add a new method.",
+              );
+            if (
+              editing === "new" &&
+              methods.value.sources.length >= FREE_BILLING_METHODS &&
+              !requestPro("More cards & wallets")
+            )
+              throw new Error(
+                "More billing methods need Pro. Your draft is still here.",
               );
             await methods.save({
               ...methods.value,

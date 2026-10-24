@@ -37,7 +37,9 @@ import { formatMoney } from "../../domain/money";
 import { chooseStatementCsv } from "../../services/statementImport";
 import { shareText } from "../../services/files";
 import { PaymentSettingState } from "../../components/payments/PaymentSettingState";
-import { requirePro, usePro } from "../../store/pro";
+import { requirePro } from "../../store/pro";
+import { useProAccess } from "../../hooks/useProAccess";
+import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
 function Importer() {
   const ledger = useFeatureSetting(
       "payment_transactions",
@@ -52,9 +54,7 @@ function Importer() {
   const identity = useApp((s) => s.identity),
     preferences = useApp((s) => s.data.preferences),
     demo = useApp((s) => s.data.demo);
-  const pro = usePro(
-    (state) => state.workspace === identity && state.offlineUntil > Date.now(),
-  );
+  const { pro, requestPro, openPro } = useProAccess();
   const [text, setText] = useState(""),
     [headers, setHeaders] = useState<string[]>([]),
     [mapping, setMapping] = useState<StatementMapping | null>(null),
@@ -146,6 +146,7 @@ function Importer() {
             loading={busy || ledger.busy}
             disabled={!ready || !preview.length}
             onPress={() =>
+              requestPro("Statement imports") &&
               void run(async () => {
                 requirePro(identity);
                 const result = mergeStatement(ledger.value, preview);
@@ -165,6 +166,7 @@ function Importer() {
       }
     >
       <View style={{ gap: 20 }}>
+        <ProFeatureBadge />
         {!pro && (
           <View style={{ gap: 10 }}>
             <Label>
@@ -172,7 +174,10 @@ function Importer() {
               You can preview your CSV here; Pro is required to save new
               transactions.
             </Label>
-            <Button variant="secondary" onPress={() => router.push("/pro")}>
+            <Button
+              variant="secondary"
+              onPress={() => openPro("Statement imports")}
+            >
               Explore Subloom Pro
             </Button>
           </View>

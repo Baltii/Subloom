@@ -38,8 +38,10 @@ import { formatMoney } from "../../domain/money";
 import { advanceRenewal, nextEvent, today } from "../../domain/renewal";
 import { PaymentSettingState } from "../../components/payments/PaymentSettingState";
 import { shareText } from "../../services/files";
-import { workspaceHasPro } from "../../store/pro";
+import { useProAccess } from "../../hooks/useProAccess";
+import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
 function Radar() {
+  const { requestPro } = useProAccess();
   const ledger = useFeatureSetting(
       "payment_transactions",
       ledgerSchema,
@@ -155,14 +157,14 @@ function Radar() {
           error={profile.error}
           reload={profile.reload}
         />
+        <ProFeatureBadge />
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
           <Button
             disabled={demo}
-            onPress={() =>
-              router.push(
-                workspaceHasPro(identity) ? "/payments/statement" : "/pro",
-              )
-            }
+            onPress={() => {
+              if (requestPro("Statement imports"))
+                router.push("/payments/statement");
+            }}
           >
             Import a statement
           </Button>
@@ -171,10 +173,7 @@ function Radar() {
               variant="secondary"
               loading={exporting}
               onPress={() => {
-                if (!workspaceHasPro(identity)) {
-                  router.push("/pro");
-                  return;
-                }
+                if (!requestPro("Transaction exports")) return;
                 setExporting(true);
                 setError(null);
                 void shareText(
