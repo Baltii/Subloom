@@ -36,6 +36,7 @@ import {
   Label,
   Page,
 } from "../../components/ui/Primitives";
+import { FilterSheet } from "../../components/ui/FilterSheet";
 import { ServiceIcon } from "../../components/subscriptions/ServiceIcon";
 
 const initialPlans: ReturnType<typeof cancellationSchema.parse> = {};
@@ -216,15 +217,55 @@ export default function Calendar() {
             </Label>
           </View>
         )}
-        <Chips values={filters} selected={filter} onChange={setFilter} />
-        {currencies.length > 1 && (
-          <Chips
-            values={["All", ...currencies]}
-            labels={{ All: "All currencies" }}
-            selected={effectiveCurrency}
-            onChange={setCurrency}
-          />
-        )}
+        <FilterSheet<{
+          filter: (typeof filters)[number];
+          currency: Currency | "All";
+        }>
+          title="Calendar filters"
+          value={{ filter, currency: effectiveCurrency }}
+          defaults={{ filter: "All events", currency: "All" }}
+          count={
+            Number(filter !== "All events") +
+            Number(effectiveCurrency !== "All")
+          }
+          summary={[
+            filter !== "All events" ? filter : "",
+            effectiveCurrency !== "All" ? effectiveCurrency : "",
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+          onApply={(next) => {
+            setFilter(next.filter);
+            setCurrency(next.currency);
+          }}
+        >
+          {(draft, update) => (
+            <>
+              <View style={{ gap: 8 }}>
+                <Label bold>Event type</Label>
+                <Chips
+                  wrap
+                  values={filters}
+                  selected={draft.filter}
+                  onChange={(filter) => update({ ...draft, filter })}
+                />
+              </View>
+              <View style={{ gap: 8 }}>
+                <Label bold>Currency</Label>
+                <Chips
+                  wrap
+                  values={["All", ...currencies] as const}
+                  labels={{ All: "All currencies" }}
+                  selected={draft.currency}
+                  onChange={(currency) => update({ ...draft, currency })}
+                />
+                <Label size={12} color={colors.secondary}>
+                  Amounts stay in their original currencies.
+                </Label>
+              </View>
+            </>
+          )}
+        </FilterSheet>
         {!data.demo && !settings.loaded && !settings.error && (
           <Label size={12} color={colors.secondary}>
             Loading your saved cancellation deadlines…
