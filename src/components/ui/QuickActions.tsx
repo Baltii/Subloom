@@ -87,8 +87,8 @@ export const toolActions: {
     detail: "Manage billing methods for your subscriptions",
     route: "/billing-methods",
     icon: CreditCard,
-    keywords: "billing payment visa mastercard paypal crypto wallet",
-    group: "Manage",
+    keywords: "manage billing payment visa mastercard paypal wallet",
+    group: "Everyday",
   },
   {
     title: "Monthly budgets",

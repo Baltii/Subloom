@@ -2,16 +2,16 @@ import { useMemo, useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
 import { CreditCard, Plus } from "lucide-react-native";
-import { useApp, notify, readableError } from "../store/app";
-import { useBillingMethods } from "../hooks/useBillingMethods";
+import { useApp, notify, readableError } from "../../store/app";
+import { useBillingMethods } from "../../hooks/useBillingMethods";
 import {
   billingMethodLabel,
   billingReference,
   billingSource,
-} from "../domain/billingMethods";
-import { removePaymentSource, type PaymentSource } from "../domain/payments";
-import { SavedBillingMethods } from "../components/payments/SavedBillingMethods";
-import { BillingMethodEditor } from "../components/payments/BillingMethodEditor";
+} from "../../domain/billingMethods";
+import { removePaymentSource, type PaymentSource } from "../../domain/payments";
+import { SavedBillingMethods } from "../../components/payments/SavedBillingMethods";
+import { BillingMethodEditor } from "../../components/payments/BillingMethodEditor";
 import {
   Button,
   Card,
@@ -19,11 +19,11 @@ import {
   Empty,
   Label,
   Page,
-} from "../components/ui/Primitives";
-import { useTheme, useWide } from "../theme/useTheme";
-import { useProAccess } from "../hooks/useProAccess";
-import { ProFeatureBadge } from "../components/pro/ProFeatureBadge";
-import { FREE_BILLING_METHODS, PRO_BILLING_METHODS } from "../domain/pro";
+} from "../../components/ui/Primitives";
+import { useTheme, useWide } from "../../theme/useTheme";
+import { useProAccess } from "../../hooks/useProAccess";
+import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
+import { FREE_BILLING_METHODS, PRO_BILLING_METHODS } from "../../domain/pro";
 
 export default function BillingMethodsRoute() {
   const identity = useApp((state) => state.identity);
@@ -52,7 +52,6 @@ function BillingMethods() {
     <Page
       title="Cards & wallets"
       subtitle="Know what pays for each subscription."
-      back
       contentMaxWidth={1076}
       right={
         <Button
@@ -80,9 +79,21 @@ function BillingMethods() {
         <Label color={colors.secondary} size={13}>
           Save cards and wallets, then assign them to your subscriptions.
         </Label>
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 8,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <ProFeatureBadge />
+          <Label size={12} color={colors.secondary}>
+            Up to 50 saved cards & wallets
+          </Label>
+        </View>
         {!pro && (
           <View style={{ gap: 8 }}>
-            <ProFeatureBadge />
             <Label size={13}>
               Free includes 3 saved cards and wallets combined. Pro includes up
               to 50. Existing methods stay available after a downgrade.
