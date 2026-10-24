@@ -1,6 +1,19 @@
 # Changelog
 
-Release Please maintains this file from conventional commits merged into `main`.
+Release Please maintains this file from conventional commits merged into `release-candidate`.
+
+## [1.7.0](https://github.com/Baltii/Subloom/compare/v1.6.0...v1.7.0) (2026-10-24)
+
+### Features
+
+* Add signed Mac and Windows updates with explicit installation and restart protection ([#88](https://github.com/Baltii/Subloom/pull/88), [#89](https://github.com/Baltii/Subloom/pull/89)).
+* Add compatible Expo mobile updates and verified GitHub Android APK installation ([#90](https://github.com/Baltii/Subloom/pull/90)).
+* Add Settings → App updates with version, progress, checks, and recovery actions; publish signed update feeds after verified downloads ([#91](https://github.com/Baltii/Subloom/pull/91)).
+
+### Bug Fixes
+
+* Give Android release builds enough metadata memory and fail promptly if memory is exhausted.
+* Handle mobile recovery updates and normal Mac update cancellation without clearing saved data.
 
 ## [1.6.0](https://github.com/Baltii/Subloom/compare/v1.5.1...v1.6.0) (2026-10-24)
 
