@@ -23,7 +23,7 @@ import {
 import { useTheme, useWide } from "../../theme/useTheme";
 import { useProAccess } from "../../hooks/useProAccess";
 import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
-import { FREE_BILLING_METHODS, PRO_BILLING_METHODS } from "../../domain/pro";
+import { PRO_BILLING_METHODS } from "../../domain/pro";
 
 export default function BillingMethodsRoute() {
   const identity = useApp((state) => state.identity);
@@ -62,7 +62,10 @@ function BillingMethods() {
           }
           onPress={() => {
             if (
-              methods.value.sources.length >= FREE_BILLING_METHODS &&
+              methods.value.sources.some((source) => source.kind === "card") &&
+              methods.value.sources.some(
+                (source) => source.kind === "wallet",
+              ) &&
               !requestPro("More cards & wallets")
             )
               return;
@@ -95,8 +98,9 @@ function BillingMethods() {
         {!pro && (
           <View style={{ gap: 8 }}>
             <Label size={13}>
-              Free includes 3 saved cards and wallets combined. Pro includes up
-              to 50. Existing methods stay available after a downgrade.
+              Free includes one card and one wallet. Pro includes up to 50 saved
+              cards and wallets. Existing methods stay available after a
+              downgrade.
             </Label>
             <Button
               small
@@ -176,6 +180,7 @@ function BillingMethods() {
       {editing && (
         <BillingMethodEditor
           key={editing === "new" ? "new" : editing.id}
+          sources={methods.value.sources}
           initial={editing === "new" ? undefined : editing}
           needsReload={!methods.loaded}
           onReload={methods.reload}
@@ -184,14 +189,6 @@ function BillingMethods() {
             if (editing !== "new" && !methods.byId.has(source.id))
               throw new Error(
                 "This method was removed. Close this form and add a new method.",
-              );
-            if (
-              editing === "new" &&
-              methods.value.sources.length >= FREE_BILLING_METHODS &&
-              !requestPro("More cards & wallets")
-            )
-              throw new Error(
-                "More billing methods need Pro. Your draft is still here.",
               );
             await methods.save({
               ...methods.value,

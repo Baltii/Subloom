@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { generateKeyPairSync, sign } from "node:crypto";
 import {
   canAddBillingMethod,
+  canAddSubscriptions,
   OFFLINE_PRO_MS,
   verifyProLicense,
 } from "../../src/domain/pro";
@@ -93,29 +94,63 @@ describe("signed local Pro access", () => {
     usePro.setState(emptyPro);
   });
 });
-it("retains existing over-limit methods after downgrade but rejects new ones", () => {
-  expect(canAddBillingMethod(["a", "b"], ["a", "b", "c"], false)).toBe(true);
-  expect(
-    canAddBillingMethod(["a", "b", "c"], ["a", "b", "c", "d"], false),
-  ).toBe(false);
-  expect(
-    canAddBillingMethod(["a", "b", "c", "d"], ["a", "b", "c", "d"], false),
-  ).toBe(true);
-  expect(
-    canAddBillingMethod(["a", "b", "c", "d"], ["a", "b", "c", "e"], false),
-  ).toBe(false);
-  expect(
-    canAddBillingMethod(
-      [],
-      Array.from({ length: 50 }, (_, i) => String(i)),
+describe("free plan capacity", () => {
+  const card = (id: string) => ({ id, kind: "card" as const });
+  const wallet = (id: string) => ({ id, kind: "wallet" as const });
+  it("allows one card and one wallet, but not two of either type", () => {
+    expect(canAddBillingMethod([], [card("a"), wallet("b")], false)).toBe(true);
+    expect(canAddBillingMethod([], [card("a"), card("b")], false)).toBe(false);
+    expect(canAddBillingMethod([], [wallet("a"), wallet("b")], false)).toBe(
+      false,
+    );
+    expect(canAddBillingMethod([], [{ id: "bank", kind: "bank" }], false)).toBe(
+      false,
+    );
+  });
+  it("keeps existing methods editable/removable after downgrade without allowing replacements or kind changes above capacity", () => {
+    const saved = [card("a"), card("b"), wallet("c"), wallet("d")];
+    expect(canAddBillingMethod(saved, saved, false)).toBe(true);
+    expect(canAddBillingMethod(saved, saved.slice(0, 3), false)).toBe(true);
+    expect(canAddBillingMethod(saved, [card("a"), card("new")], false)).toBe(
+      false,
+    );
+    expect(canAddBillingMethod(saved, [card("a"), card("c")], false)).toBe(
+      false,
+    );
+    expect(
+      canAddBillingMethod(
+        [card("a"), card("b")],
+        [card("a"), card("b"), wallet("new")],
+        false,
+      ),
+    ).toBe(true);
+  });
+  it("allows up to 50 Pro methods", () => {
+    expect(
+      canAddBillingMethod(
+        [],
+        Array.from({ length: 50 }, (_, i) => card(String(i))),
+        true,
+      ),
+    ).toBe(true);
+    expect(
+      canAddBillingMethod(
+        [],
+        Array.from({ length: 51 }, (_, i) => card(String(i))),
+        true,
+      ),
+    ).toBe(false);
+  });
+  it("caps free subscriptions at ten, preserves existing records and lifts the cap with Pro", () => {
+    const ten = Array.from({ length: 10 }, (_, i) => String(i));
+    expect(canAddSubscriptions([], ten, false)).toBe(true);
+    expect(canAddSubscriptions(ten, [...ten, "new"], false)).toBe(false);
+    expect(canAddSubscriptions(ten, [...ten, "new"], true)).toBe(true);
+    expect(canAddSubscriptions([...ten, "old"], [...ten, "old"], false)).toBe(
       true,
-    ),
-  ).toBe(true);
-  expect(
-    canAddBillingMethod(
-      [],
-      Array.from({ length: 51 }, (_, i) => String(i)),
-      true,
-    ),
-  ).toBe(false);
+    );
+    expect(canAddSubscriptions([...ten, "old"], [...ten, "new"], false)).toBe(
+      false,
+    );
+  });
 });

@@ -119,15 +119,21 @@ export async function writeSetting<T>(
           ? { sources: [] }
           : [];
       if (key === "payment_sources") {
-        const ids = (record: unknown) =>
+        const sources = (record: unknown) =>
           z
-            .object({ sources: z.array(z.object({ id: z.string() })) })
-            .parse(record)
-            .sources.map((s) => s.id);
+            .object({
+              sources: z.array(
+                z.object({
+                  id: z.string(),
+                  kind: z.enum(["card", "wallet", "bank"]),
+                }),
+              ),
+            })
+            .parse(record).sources;
         if (
           !canAddBillingMethod(
-            ids(previous),
-            ids(parsed),
+            sources(previous),
+            sources(parsed),
             workspaceHasPro(identity),
           )
         )
@@ -173,7 +179,7 @@ export async function writeSetting<T>(
   if (
     error &&
     [
-      "Pro is required for more than 3 cards and wallets",
+      "Pro is required for more than one card or one wallet",
       "Pro is required to import statements",
     ].includes(error.message)
   )

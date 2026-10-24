@@ -1,6 +1,7 @@
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { readFileSync } from "node:fs";
+import { subscription } from "../fixtures";
 import { randomUUID } from "node:crypto";
 let db: PGlite;
 const a = randomUUID(),
@@ -30,10 +31,13 @@ beforeAll(async () => {
     "create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$; grant usage on schema public,auth to authenticated,anon,service_role;",
   );
   for (const name of [
+    "202610090001_core.sql",
+    "202610090004_contract_validation.sql",
     "202610110001_feature_settings.sql",
     "20261012131814_payment_sources.sql",
     "20261012132927_subscription_radar.sql",
     "20261023160619_pro_billing.sql",
+    "20261024173456_free_plan_limits.sql",
   ])
     await db.exec(
       readFileSync(
@@ -101,12 +105,13 @@ describe("billing security in PostgreSQL", () => {
     const profile = (count: number) => ({
       sources: Array.from({ length: count }, (_, i) => ({
         id: String(i),
+        kind: i % 2 ? "wallet" : "card",
         name: "Card " + i,
       })),
       links: [],
     });
-    await save("payment_sources", profile(3), 0);
-    await expect(save("payment_sources", profile(4), 1)).rejects.toThrow(/Pro/);
+    await save("payment_sources", profile(2), 0);
+    await expect(save("payment_sources", profile(3), 1)).rejects.toThrow(/Pro/);
     await expect(
       save("payment_transactions", [{ id: "charge-a" }], 0),
     ).rejects.toThrow(/Pro/);
@@ -149,11 +154,94 @@ describe("billing security in PostgreSQL", () => {
       await expect(
         save(
           "payment_sources",
-          { sources: [0, 1, 2, 3].map((id) => ({ id: String(id) })) },
+          {
+            sources: [0, 1, 2, 3].map((id) => ({
+              id: String(id),
+              kind: "card",
+            })),
+          },
           4,
         ),
       ).rejects.toThrow(/Pro/);
     }
+  });
+  it("caps subscriptions including API upserts, allows edits and deletes after expiry, and isolates owners", async () => {
+    const owner = randomUUID();
+    await db.query("insert into auth.users values($1)", [owner]);
+    const put = async (id: string, version = 1) =>
+      role("authenticated", async () => {
+        await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
+          owner,
+        ]);
+        const data = subscription({ id, userId: owner, version });
+        return db.query("select apply_operation($1::jsonb)", [
+          JSON.stringify({
+            id: randomUUID(),
+            entity: "subscription",
+            entityId: id,
+            action: "put",
+            expectedVersion: version === 1 ? null : version - 1,
+            payload: { subscription: data },
+            createdAt: new Date().toISOString(),
+          }),
+        ]);
+      });
+    const ids = Array.from({ length: 10 }, () => randomUUID());
+    for (const id of ids) await put(id);
+    await expect(put(randomUUID())).rejects.toThrow(/10 subscriptions/);
+    await put(ids[0]!, 2);
+    await db.query(
+      "insert into pro_billing(user_id,status,access_until,verified_at) values($1,'active',now()+interval '1 day',now())",
+      [owner],
+    );
+    const extra = randomUUID();
+    await put(extra);
+    await db.query(
+      "update pro_billing set access_until=now()-interval '1 second' where user_id=$1",
+      [owner],
+    );
+    await put(extra, 2);
+    await expect(put(randomUUID())).rejects.toThrow(/Pro/);
+    await role("authenticated", async () => {
+      await db.query("select apply_operation($1::jsonb)", [
+        JSON.stringify({
+          id: randomUUID(),
+          entity: "subscription",
+          entityId: extra,
+          action: "delete",
+          expectedVersion: 2,
+          payload: {},
+          createdAt: new Date().toISOString(),
+        }),
+      ]);
+    });
+    expect(
+      (await db.query("select id from subscriptions where user_id=$1", [owner]))
+        .rows,
+    ).toHaveLength(10);
+    // A different workspace has its own capacity and cannot change the first owner's rows.
+    await db.query("select set_config('request.jwt.claim.sub',$1,false)", [b]);
+    const foreign = subscription({ id: ids[0], userId: b, version: 3 });
+    await expect(
+      db.query(
+        "insert into subscriptions(id,user_id,data,version) values($1,$2,$3,3)",
+        [foreign.id, owner, foreign],
+      ),
+    ).rejects.toThrow(/owner/);
+  });
+  it("rejects missing or forged method kinds and duplicate IDs", async () => {
+    for (const sources of [
+      [{ id: "x" }],
+      [{ id: "x", kind: "other" }],
+      [
+        { id: "x", kind: "card" },
+        { id: "x", kind: "wallet" },
+      ],
+      [{ id: "x", kind: "bank" }],
+    ])
+      await expect(
+        save("payment_sources", { sources, links: [] }, 0, b),
+      ).rejects.toThrow(/Invalid|Pro/);
   });
   it("cascades billing rows on deletion while retaining minimal trial-abuse history", async () => {
     await db.query("insert into pro_trial_history(email_hash) values($1)", [

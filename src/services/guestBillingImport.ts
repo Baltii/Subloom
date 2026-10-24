@@ -2,6 +2,8 @@ import { emptyPaymentProfile, paymentProfileSchema } from "../domain/payments";
 import { mergeGuestBillingMethods } from "../domain/billingMethods";
 import { readSetting, writeSetting } from "./featureSettings";
 import { loadSnapshot } from "./storage";
+import { canAddSubscriptions, FREE_SUBSCRIPTIONS } from "../domain/pro";
+import { workspaceHasPro } from "../store/pro";
 import { importGuestData, useApp } from "../store/app";
 
 // Save metadata first, so a failed settings write cannot import dangling assignments.
@@ -23,6 +25,14 @@ export async function importGuestBillingWorkspace() {
   if (snapshot.demo)
     throw new Error(
       "Leave the sample workspace before importing your own data.",
+    );
+  const currentIds = useApp.getState().data.subscriptions.map((s) => s.id);
+  const nextIds = [
+    ...new Set([...currentIds, ...snapshot.subscriptions.map((s) => s.id)]),
+  ];
+  if (!canAddSubscriptions(currentIds, nextIds, workspaceHasPro(identity)))
+    throw new Error(
+      `Free includes up to ${FREE_SUBSCRIPTIONS} subscriptions. Open Subloom Pro before importing more; your local copy is preserved.`,
     );
   const guest = await readSetting(
     "guest",

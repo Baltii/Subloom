@@ -3,7 +3,10 @@ import { useApp } from "../store/app";
 import { usePro, workspaceHasPro } from "../store/pro";
 
 export type ProFeature =
-  "Statement imports" | "Transaction exports" | "More cards & wallets";
+  | "Statement imports"
+  | "Transaction exports"
+  | "More cards & wallets"
+  | "More subscriptions";
 export const ProAccessContext = createContext<(feature: ProFeature) => void>(
   () => {},
 );
