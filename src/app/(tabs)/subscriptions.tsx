@@ -16,6 +16,7 @@ import {
   IconButton,
   Label,
 } from "../../components/ui/Primitives";
+import { SubscriptionViewSwitcher } from "../../components/subscriptions/SubscriptionViewSwitcher";
 import { SubscriptionRow } from "../../components/subscriptions/SubscriptionRow";
 import { SwipeRow } from "../../components/subscriptions/SwipeRow";
 import { FilterSheet } from "../../components/ui/FilterSheet";
@@ -336,10 +337,9 @@ function Subscriptions() {
                   ? " matching your filters"
                   : " tracked"}
               </Label>
-              <Chips
-                values={["List", "Timeline"] as const}
-                selected={timeline ? "Timeline" : "List"}
-                onChange={(value) => setTimeline(value === "Timeline")}
+              <SubscriptionViewSwitcher
+                timeline={timeline}
+                onChange={setTimeline}
               />
             </View>
             {sort === "Price" && (
