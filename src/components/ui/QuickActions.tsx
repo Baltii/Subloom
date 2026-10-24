@@ -15,6 +15,8 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react-native";
+import type { ProFeature } from "../../hooks/useProAccess";
+import { ProFeatureBadge } from "../pro/ProFeatureBadge";
 import { QuickActionsContext } from "../../hooks/useQuickActions";
 import { useApp } from "../../store/app";
 import { useTheme } from "../../theme/useTheme";
@@ -27,6 +29,7 @@ export const toolActions: {
   route: Href;
   icon: LucideIcon;
   keywords?: string;
+  proFeature?: ProFeature;
   group: string;
 }[] = [
   {
@@ -45,10 +48,11 @@ export const toolActions: {
   },
   {
     title: "Transactions",
-    detail: "Import bank statements and review recurring charges",
+    detail: "Review recurring charges · Pro statement imports and exports",
+    proFeature: "Statement imports",
     route: "/transactions",
     icon: ReceiptText,
-    keywords: "bank statement payments charges",
+    keywords: "bank statement payments charges pro premium",
     group: "Everyday",
   },
   {
@@ -209,7 +213,10 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
               )}
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={action.title}
+                accessibilityLabel={
+                  action.title +
+                  (action.proFeature ? ", Pro imports and exports" : "")
+                }
                 onPress={() => {
                   setOpen(false);
                   if (Platform.OS === "ios")
@@ -228,9 +235,19 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
               >
                 <action.icon size={19} color={colors.primary} />
                 <View style={{ flex: 1, gap: 3 }}>
-                  <Label bold size={14}>
-                    {action.title}
-                  </Label>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: 8,
+                    }}
+                  >
+                    <Label bold size={14}>
+                      {action.title}
+                    </Label>
+                    {action.proFeature && <ProFeatureBadge />}
+                  </View>
                   <Label size={12} color={colors.secondary}>
                     {action.detail}
                   </Label>
