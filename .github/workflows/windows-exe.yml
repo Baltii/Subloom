@@ -55,6 +55,8 @@ jobs:
           path: |
             build/windows/Subloom-*-windows-x64-setup.exe
             build/windows/Subloom-*-windows-x64-setup.exe.sha256
+            build/windows/latest.yml
+            build/windows/*.blockmap
           if-no-files-found: error
           retention-days: 14
       - name: Explain Windows download

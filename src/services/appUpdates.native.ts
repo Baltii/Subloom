@@ -72,7 +72,10 @@ export function checkAppUpdates() {
     } else if (Updates.isEnabled) {
       const result = await Updates.checkForUpdateAsync();
       useUpdates.setState({
-        status: result.isAvailable ? "available" : "current",
+        status:
+          result.isAvailable || result.isRollBackToEmbedded
+            ? "available"
+            : "current",
         availableVersion: null,
       });
     } else useUpdates.setState({ status: "unavailable", supported: false });
@@ -138,7 +141,7 @@ export function downloadAppUpdate() {
       }
     } else {
       const result = await Updates.fetchUpdateAsync();
-      if (!result.isNew)
+      if (!result.isNew && !result.isRollBackToEmbedded)
         throw new Error("This update is no longer available. Check again.");
     }
     useUpdates.setState({ status: "ready", progress: 100 });

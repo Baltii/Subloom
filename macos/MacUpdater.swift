@@ -72,6 +72,13 @@ import Sparkle
         phase = "installing"; publish()
     }
     func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {
+        let reason = error as NSError
+        if reason.domain == SUSparkleErrorDomain && reason.code == Int(SUError.noUpdateError.rawValue) {
+            phase = "current"; available = nil; failure = nil; publish(); return
+        }
+        if reason.domain == SUSparkleErrorDomain && reason.code == Int(SUError.installationCanceledError.rawValue) {
+            phase = available == nil ? "idle" : "available"; failure = nil; publish(); return
+        }
         phase = "error"; failure = "The update could not be completed. Your installed app and saved data are unchanged. Try again later."; publish()
     }
     func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: Error?) {

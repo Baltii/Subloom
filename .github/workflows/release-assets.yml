@@ -19,6 +19,8 @@ on:
         type: boolean
         default: false
     secrets:
+      SUBLOOM_UPDATE_SIGNING_SEED:
+        required: true
       GOOGLE_SERVICES_JSON:
         required: false
 
@@ -88,6 +90,13 @@ jobs:
       actions: read
       contents: write
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.source.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
       - name: Download only this run's verified apps
         env:
           GH_TOKEN: ${{ github.token }}
@@ -95,14 +104,23 @@ jobs:
           for artifact in android-apk windows-x64 macos-arm64 macos-x64; do
             gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "artifacts/$artifact"
           done
-      - name: Verify checksums and attach all platform downloads
+      - name: Verify all platform checksums
+        run: |
+          for artifact in android-apk windows-x64 macos-arm64 macos-x64; do
+            (cd "artifacts/$artifact" && sha256sum --check ./*.sha256)
+          done
+      - name: Sign complete release metadata with the installed app's trust key
+        env:
+          RELEASE_TAG: ${{ needs.source.outputs.tag }}
+          RELEASE_SHA: ${{ needs.source.outputs.sha }}
+          SUBLOOM_UPDATE_SIGNING_SEED: ${{ secrets.SUBLOOM_UPDATE_SIGNING_SEED }}
+        run: node scripts/prepare-update-release.mjs
+      - name: Attach platform downloads before publishing update feeds
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.source.outputs.tag }}
           RELEASE_SHA: ${{ needs.source.outputs.sha }}
         run: |
-          for artifact in android-apk windows-x64 macos-arm64 macos-x64; do
-            (cd "artifacts/$artifact" && sha256sum --check ./*.sha256)
-          done
           gh release upload "$RELEASE_TAG" artifacts/android-apk/* artifacts/windows-x64/* artifacts/macos-arm64/* artifacts/macos-x64/* --repo "$GITHUB_REPOSITORY" --clobber
+          gh release upload "$RELEASE_TAG" artifacts/updates/* --repo "$GITHUB_REPOSITORY" --clobber
           echo "Attached Android APK, Windows x64 installer and both Mac apps from $RELEASE_SHA to $RELEASE_TAG." >> "$GITHUB_STEP_SUMMARY"

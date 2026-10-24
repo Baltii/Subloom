@@ -61,4 +61,5 @@ jobs:
       # Historical releases are rebuilt at their exact tag instead.
       reuse_verified: ${{ needs.version.outputs.sha == github.sha }}
     secrets:
+      SUBLOOM_UPDATE_SIGNING_SEED: ${{ secrets.SUBLOOM_UPDATE_SIGNING_SEED }}
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
