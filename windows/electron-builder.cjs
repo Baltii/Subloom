@@ -12,10 +12,16 @@ module.exports = {
     "preload.cjs",
     "runtime.cjs",
     "notifications.cjs",
+    "updates.cjs",
+    "updates/**/*",
     "web/**/*",
     "icon.png",
   ],
   asar: true,
+  publish: {
+    provider: "generic",
+    url: "https://github.com/Baltii/Subloom/releases/latest/download/",
+  },
   npmRebuild: false,
   // Keep the existing subloom:// auth callback shared with mobile and Mac.
   protocols: [{ name: "Subloom", schemes: ["subloom"] }],

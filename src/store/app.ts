@@ -617,3 +617,11 @@ export async function importSubscriptions(
   }, identity);
   notify("CSV import saved.");
 }
+
+export async function flushPendingWrites() {
+  await writes;
+  if (!useApp.getState().hydrated || useApp.getState().error)
+    throw new Error(
+      "Resolve the current save error before restarting Subloom.",
+    );
+}

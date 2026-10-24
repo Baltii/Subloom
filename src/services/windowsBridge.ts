@@ -1,3 +1,4 @@
+import type { AppUpdateState } from "../domain/updates";
 import { Platform } from "react-native";
 import type { LocalReminder } from "../domain/localReminders";
 
@@ -11,6 +12,13 @@ type WindowsBridge = {
   version: number;
   openAuth: (url: string, redirect: string) => Promise<string>;
   cancelAuth?: () => Promise<void>;
+  updates?: {
+    status: () => Promise<AppUpdateState>;
+    check: () => Promise<AppUpdateState>;
+    install: () => Promise<void>;
+    setDraft: (active: boolean) => Promise<void>;
+    onState: (listener: (state: AppUpdateState) => void) => () => void;
+  };
   notifications?: {
     activate: (identity: string | null) => Promise<NotificationStatus>;
     enable: (identity: string, enabled: boolean) => Promise<NotificationStatus>;

@@ -109,6 +109,10 @@ final class BundleServer {
         webView = WKWebView(frame: .zero, configuration: config)
         bridge.webView = webView
         webView.navigationDelegate = self; webView.uiDelegate = self
+        bridge.appUpdater = MacUpdater(webView: webView)
+        let updateItem = NSMenuItem(title: "Check for Updates…", action: #selector(MacUpdater.showUpdates), keyEquivalent: "")
+        updateItem.target = bridge.appUpdater
+        appMenu.insertItem(updateItem, at: 1)
         window.contentView = webView; window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
         guard let root = Bundle.main.resourceURL?.appendingPathComponent("Web"), FileManager.default.fileExists(atPath: root.appendingPathComponent("index.html").path) else {
             fail("The bundled app files are missing. Rebuild with npm run build:macos."); return

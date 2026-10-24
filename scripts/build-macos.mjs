@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
+import { prepareSparkle } from "./prepare-sparkle.mjs";
+import trust from "../updates/trust.json" with { type: "json" };
 const env = {
   ...process.env,
   DEVELOPER_DIR:
@@ -34,6 +36,25 @@ mkdirSync(app + "/Contents/MacOS", { recursive: true });
 mkdirSync(app + "/Contents/Resources", { recursive: true });
 cpSync("build/macos-web", app + "/Contents/Resources/Web", { recursive: true });
 cpSync("macos/Info.plist", app + "/Contents/Info.plist");
+const sparkle = await prepareSparkle();
+mkdirSync(app + "/Contents/Frameworks", { recursive: true });
+cpSync(
+  sparkle + "/Sparkle.framework",
+  app + "/Contents/Frameworks/Sparkle.framework",
+  { recursive: true, verbatimSymlinks: true },
+);
+for (const [key, value] of [
+  [
+    "SUFeedURL",
+    `https://github.com/Baltii/Subloom/releases/latest/download/subloom-macos-${process.arch}.xml`,
+  ],
+  ["SUPublicEDKey", Buffer.from(trust.publicKey, "hex").toString("base64")],
+])
+  run("/usr/libexec/PlistBuddy", [
+    "-c",
+    `Add :${key} string ${value}`,
+    app + "/Contents/Info.plist",
+  ]);
 // Release Please owns package.json; stamp both Mac versions before signing.
 const { version } = JSON.parse(readFileSync("package.json", "utf8"));
 if (!/^\d+\.\d+\.\d+$/.test(version))
@@ -80,6 +101,15 @@ run("xcrun", [
   `${process.arch === "arm64" ? "arm64" : "x86_64"}-apple-macos14.0`,
   "macos/SnapshotStore.swift",
   "macos/MacBridge.swift",
+  "macos/MacUpdater.swift",
+  "-F",
+  sparkle,
+  "-framework",
+  "Sparkle",
+  "-Xlinker",
+  "-rpath",
+  "-Xlinker",
+  "@executable_path/../Frameworks",
   "macos/main.swift",
   "-o",
   app + "/Contents/MacOS/Subloom",

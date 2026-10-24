@@ -5,6 +5,17 @@ contextBridge.exposeInMainWorld("subloomWindows", {
   openAuth: (url, redirect) =>
     ipcRenderer.invoke("subloom:auth", url, redirect),
   cancelAuth: () => ipcRenderer.invoke("subloom:auth-cancel"),
+  updates: {
+    setDraft: (active) => ipcRenderer.invoke("subloom:update-draft", active),
+    status: () => ipcRenderer.invoke("subloom:update-status"),
+    check: () => ipcRenderer.invoke("subloom:update-check"),
+    install: () => ipcRenderer.invoke("subloom:update-install"),
+    onState: (listener) => {
+      const receive = (_event, state) => listener(state);
+      ipcRenderer.on("subloom:update-state", receive);
+      return () => ipcRenderer.removeListener("subloom:update-state", receive);
+    },
+  },
   notifications: {
     activate: (identity) =>
       ipcRenderer.invoke("subloom:notification-activate", identity),

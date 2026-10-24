@@ -35,8 +35,11 @@ for (const file of [
   "preload.cjs",
   "runtime.cjs",
   "notifications.cjs",
+  "updates.cjs",
 ])
   cpSync(`windows/${file}`, `${stage}/${file}`);
+cpSync("updates", `${stage}/updates`, { recursive: true });
+cpSync("windows/package-lock.json", `${stage}/package-lock.json`);
 cpSync("assets/icon.png", `${stage}/icon.png`);
 cpSync("build/windows-web", `${stage}/web`, { recursive: true });
 writeFileSync(
@@ -49,11 +52,25 @@ writeFileSync(
       main: "main.cjs",
       description: "A calmer place for your subscriptions.",
       author: "Subloom",
+      dependencies: JSON.parse(readFileSync("windows/package.json", "utf8"))
+        .dependencies,
     },
     null,
     2,
   ) + "\n",
 );
+if (!process.env.npm_execpath)
+  throw new Error("Run the Windows build through npm run build:windows.");
+run(process.execPath, [
+  process.env.npm_execpath,
+  "ci",
+  "--prefix",
+  stage,
+  "--omit=dev",
+  "--ignore-scripts",
+  "--no-audit",
+  "--no-fund",
+]);
 run(process.execPath, [
   "windows/node_modules/electron-builder/cli.js",
   "--projectDir",
