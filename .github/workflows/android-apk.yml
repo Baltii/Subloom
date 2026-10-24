@@ -26,6 +26,7 @@ jobs:
     env:
       CI: '1'
       EXPO_NO_TELEMETRY: '1'
+      EXPO_PUBLIC_ANDROID_UPDATE_CHANNEL: github-test
       EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
       EXPO_PUBLIC_EAS_PROJECT_ID: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
@@ -79,7 +80,7 @@ jobs:
             echo "Download **$apk** from this run android-apk artifact."
             echo 'Standalone bundled app for arm64 phones and x86_64 emulators; no Metro server or Expo token needed.'
             echo "Source commit: $source_sha"
-            echo 'Uses the Expo test signing key. It cannot update an EAS/store-signed installation; use a spare device/emulator or export guest data before uninstalling an existing copy.'
+            echo 'Uses the Expo test signing key and the GitHub-test update channel. Android confirms every installation and rejects updates signed by a different key. EAS/store builds do not use this APK feed.'
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Remove temporary Firebase configuration
         if: always()
