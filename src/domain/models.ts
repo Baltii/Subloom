@@ -84,6 +84,8 @@ export const subscriptionSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   version: z.number().int().min(0),
+  // Tracking metadata only; it never grants billing access.
+  proBillingOwner: z.string().uuid().optional(),
 });
 export type Subscription = z.infer<typeof subscriptionSchema>;
 export const candidateSchema = z.object({
@@ -148,6 +150,7 @@ export const preferencesSchema = z.object({
   trialReminders: z.boolean(),
   weeklyDigest: z.boolean(),
   privacyMode: z.boolean(),
+  dismissedProTracking: z.array(z.string().uuid()).max(500).default([]),
   highRenewalThresholdMinor: z
     .number()
     .int()
@@ -226,6 +229,7 @@ export function defaultPreferences(): Preferences {
     trialReminders: true,
     weeklyDigest: false,
     privacyMode: true,
+    dismissedProTracking: [],
     highRenewalThresholdMinor: null,
   };
 }

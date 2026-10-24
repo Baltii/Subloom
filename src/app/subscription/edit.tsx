@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { Redirect, useLocalSearchParams } from "expo-router";
 import { useApp } from "../../store/app";
 import { Empty, Page } from "../../components/ui/Primitives";
 import { SubscriptionForm } from "../../features/SubscriptionForm";
@@ -7,6 +7,7 @@ export default function EditSubscription() {
     subscription = useApp((s) =>
       s.data.subscriptions.find((sub) => sub.id === id),
     );
+  if (subscription?.proBillingOwner) return <Redirect href="/pro" />;
   return subscription ? (
     <SubscriptionForm
       initial={subscription}

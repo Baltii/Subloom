@@ -20,6 +20,15 @@ function guide(
 // Original summaries of first-party guidance. No remote HTML or user-derived URLs.
 // Keep uncertain menu paths general rather than presenting guessed labels as facts.
 const guides: Record<string, CancellationInstructions> = {
+  "subloom-pro": guide(
+    "https://subloom.baltii.tn/pro",
+    "https://subloom.baltii.tn/pro",
+    [
+      "Open Subloom Pro in Settings using the account or verified billing email used for your purchase.",
+      "Choose Cancel subscription and confirm that you want to stop renewal.",
+      "Check the confirmed access end date. Your saved records stay available when Pro ends.",
+    ],
+  ),
   netflix: guide(
     "https://www.netflix.com",
     "https://help.netflix.com/en/node/407",

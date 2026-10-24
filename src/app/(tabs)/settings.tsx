@@ -63,6 +63,7 @@ import {
 } from "../../components/ui/Primitives";
 import { toolActions } from "../../components/ui/QuickActions";
 import { ThemePicker } from "../../components/ui/ThemePicker";
+import { ProBadge } from "../../components/pro/ProBadge";
 import { SelectField } from "../../components/ui/Selection";
 import {
   currencyOptions,
@@ -327,6 +328,7 @@ function Settings() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Label bold>{state.email || "Your personal space"}</Label>
+                    <ProBadge />
                     <Label size={11} color={colors.secondary}>
                       {state.identity === "guest"
                         ? "Everything is saved on this device."

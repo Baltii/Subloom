@@ -159,8 +159,8 @@ export class ProBilling {
     row: BillingRow,
     save: (patch: Partial<BillingRow>) => Promise<void>,
     email?: string,
-  ) {
-    if (!row.customer_id) return;
+  ): Promise<Stripe.Subscription | null> {
+    if (!row.customer_id) return null;
     const list = await this.stripe.subscriptions.list({
       customer: row.customer_id,
       status: "all",
@@ -218,7 +218,9 @@ export class ProBilling {
             )
           : null,
       trial_end: date(subscription?.trial_end),
-      cancel_at_period_end: subscription?.cancel_at_period_end ?? false,
+      cancel_at_period_end: Boolean(
+        subscription?.cancel_at_period_end || subscription?.cancel_at,
+      ),
       trial_used: used,
       verified_at: new Date().toISOString(),
     });
@@ -232,16 +234,23 @@ export class ProBilling {
       if (result.error)
         throw new HttpError(503, "Trial history could not be verified.");
     }
+    return recognized ? subscription ?? null : null;
   }
 
-  async snapshot(row: BillingRow, email: string, device: string) {
+  async snapshot(
+    row: BillingRow,
+    email: string,
+    device: string,
+    subscription: Stripe.Subscription | null = null,
+  ) {
     const history = await this.db
       .from("pro_trial_history")
       .select("email_hash")
       .eq("email_hash", await sha256(email.toLowerCase()))
       .maybeSingle();
-    if (history.error)
+    if (history.error) {
       throw new HttpError(503, "Trial availability could not be verified.");
+    }
     const pro = hasAccess(row);
     return {
       configured: billingConfigured(),
@@ -257,7 +266,75 @@ export class ProBilling {
       license: pro
         ? await signLicense(row.user_id, device, Date.parse(row.access_until!))
         : null,
+      tracking: subscription ? await this.tracking(row, subscription) : null,
     };
+  }
+
+  async tracking(row: BillingRow, subscription: Stripe.Subscription) {
+    const item = subscription.items.data[0];
+    if (!item || !row.interval || !item.current_period_end) return null;
+    const hash = await sha256(`subloom-pro:${row.user_id}:${subscription.id}`);
+    const id = `${hash.slice(0, 8)}-${hash.slice(8, 12)}-5${
+      hash.slice(13, 16)
+    }-${((parseInt(hash.charAt(16), 16) & 3) | 8).toString(16)}${
+      hash.slice(17, 20)
+    }-${hash.slice(20, 32)}`;
+    return {
+      id,
+      purchasedAt: date(subscription.created),
+      periodEnd: date(item.current_period_end),
+      anchorAt: date(
+        subscription.billing_cycle_anchor || item.current_period_end,
+      ),
+      trialEnd: date(subscription.trial_end),
+      canceledAt: date(subscription.canceled_at),
+      endsAt: date(
+        subscription.ended_at ?? subscription.cancel_at ??
+          item.current_period_end,
+      ),
+      cancelAtPeriodEnd: subscription.cancel_at_period_end ||
+        Boolean(subscription.cancel_at),
+      status: subscription.status,
+      confirmed: hasAccess(row),
+      interval: row.interval,
+      amountMinor: item.price.unit_amount,
+      currency: "EUR" as const,
+    };
+  }
+
+  async cancel(user: User) {
+    return this.locked(user.id, async (row, save) => {
+      const subscription = await this.sync(row, save, user.email);
+      if (
+        !subscription ||
+        !["active", "trialing", "past_due", "unpaid", "paused"].includes(
+          subscription.status,
+        )
+      ) {
+        throw new HttpError(
+          409,
+          "There is no renewing Pro subscription to cancel.",
+        );
+      }
+      if (!subscription.cancel_at_period_end && !subscription.cancel_at) {
+        await this.stripe.subscriptions.update(subscription.id, {
+          cancel_at_period_end: true,
+        });
+      }
+      const current = await this.sync(row, save, user.email);
+      if (!current?.cancel_at_period_end && !current?.cancel_at) {
+        throw new HttpError(
+          503,
+          "Cancellation could not be confirmed. Please try again.",
+        );
+      }
+      return {
+        canceled: true,
+        endsAt: date(
+          current.cancel_at ?? current.items.data[0]?.current_period_end,
+        ),
+      };
+    });
   }
 
   async checkout(user: User, interval: PlanInterval) {

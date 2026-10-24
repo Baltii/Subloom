@@ -10,6 +10,7 @@ export const emailPresentationSchema = z.object({
     "renewal_today",
     "payment_overdue",
     "trial_ending",
+    "plan_ending",
     "price_change",
     "cancellation",
     "weekly_digest",
@@ -39,6 +40,7 @@ export type SubscriptionEmailKind = Extract<
   | "renewal_today"
   | "payment_overdue"
   | "trial_ending"
+  | "plan_ending"
   | "price_change"
   | "cancellation"
 >;
@@ -139,6 +141,15 @@ export function subscriptionNotification(
       details[3] = { label: "Trial ends", value: date };
       tone = "amber";
       action = "Review trial";
+      break;
+    case "plan_ending":
+      title = `Your ${s.name} plan ends ${when}.`;
+      body =
+        `Your access ends on ${date}. Renewal is canceled, so there is no upcoming renewal charge. Your tracked records stay saved when Pro ends.`;
+      details.splice(1);
+      details.push({ label: "Access ends", value: date });
+      action = "Review your plan";
+      tone = "amber";
       break;
     case "price_change":
       title = `The tracked price for ${s.name} changed.`;

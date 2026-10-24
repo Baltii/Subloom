@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Linking, View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { ExternalLink } from "lucide-react-native";
 import type { Subscription } from "../../domain/models";
 import { serviceFor } from "../../domain/catalog";
@@ -198,6 +198,7 @@ export default function CancellationGuide() {
       ? state.data.subscriptions.find((row) => row.id === params.id)
       : undefined,
   );
+  if (subscription?.proBillingOwner) return <Redirect href="/pro" />;
   return (
     <Page
       title="How to cancel"

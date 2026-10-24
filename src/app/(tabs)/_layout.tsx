@@ -21,6 +21,7 @@ import { bottomTabLayout } from "../../theme/navigation";
 import { tokens } from "../../theme/tokens";
 import { useApp } from "../../store/app";
 import { useQuickActions } from "../../hooks/useQuickActions";
+import { ProBadge } from "../../components/pro/ProBadge";
 const navigation: {
   path: "/" | "/subscriptions" | "/calendar" | "/billing-methods" | "/settings";
   title: string;
@@ -209,6 +210,7 @@ function Sidebar() {
                   ? "Cloud sync connected"
                   : "Saved on this device"}
           </Label>
+          <ProBadge />
         </View>
       </Pressable>
     </ScrollView>

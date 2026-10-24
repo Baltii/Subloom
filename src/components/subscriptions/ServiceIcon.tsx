@@ -5,6 +5,8 @@ import { serviceLogos } from "../../assets/serviceLogos";
 import { serviceFor } from "../../domain/catalog";
 import { tokens } from "../../theme/tokens";
 import { useTheme } from "../../theme/useTheme";
+import { Bloom } from "../ui/Brand";
+import { brandIdentity } from "../../brand/identity";
 export function ServiceIcon({
   serviceId,
   name,
@@ -34,7 +36,9 @@ export function ServiceIcon({
         justifyContent: "center",
       }}
     >
-      {logo ? (
+      {glyph === "subloom" ? (
+        <Bloom size={size * 0.82} color={brandIdentity.colors.green} />
+      ) : logo ? (
         <Svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24">
           <Path d={logo} fill={color} />
         </Svg>

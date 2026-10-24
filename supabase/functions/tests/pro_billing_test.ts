@@ -69,6 +69,7 @@ function fixture() {
     unavailable: false,
     failEvent: false,
     failSessionSave: false,
+    cancellationUpdates: 0,
   };
   const db = {
     async rpc() {
@@ -84,17 +85,13 @@ function fixture() {
       let mode = "select",
         patch: Record<string, unknown> = {};
       const execute = () => {
-        const records: Record<string, unknown>[] =
-          table === "pro_billing"
-            ? [row]
-            : [
-                ...(table === "pro_trial_history"
-                  ? histories
-                  : events
-                ).values(),
-              ];
+        const records: Record<string, unknown>[] = table === "pro_billing"
+          ? [row]
+          : [
+            ...(table === "pro_trial_history" ? histories : events).values(),
+          ];
         const record = records.find((r) =>
-          filters.every(([key, value]) => r[key] === value),
+          filters.every(([key, value]) => r[key] === value)
         );
         if (mode === "update") {
           if (patch.checkout_id && state.failSessionSave) {
@@ -105,8 +102,9 @@ function fixture() {
           return { data: record ? { ...record } : null, error: null };
         }
         if (mode === "insert" || mode === "upsert") {
-          if (table === "pro_webhook_events" && state.failEvent)
+          if (table === "pro_webhook_events" && state.failEvent) {
             return { data: null, error: new Error("database unavailable") };
+          }
           (table === "pro_trial_history" ? histories : events).set(
             String(patch.email_hash ?? patch.id),
             patch,
@@ -183,6 +181,14 @@ function fixture() {
       },
       async retrieve(id: string) {
         return state.subscriptions.find((s) => s.id === id)!;
+      },
+      async update(id: string, patch: Stripe.SubscriptionUpdateParams) {
+        state.cancellationUpdates++;
+        return Object.assign(
+          state.subscriptions.find((s) => s.id === id)!,
+          patch,
+          { canceled_at: Math.floor(Date.now() / 1000) },
+        );
       },
       async cancel(id: string) {
         state.canceled = true;
@@ -326,6 +332,96 @@ Deno.test(
     assert(f.state.creations.length === 1);
   },
 );
+Deno.test("sync returns the recognized subscription or explicit null for unavailable plans", async () => {
+  const f = fixture();
+  const sync = () => f.billing.locked(owner, (row, save) =>
+    f.billing.sync(row, save, user.email)
+  );
+  assert(await sync() === null, "No customer must return null");
+  f.row.customer_id = "cus_local";
+  assert(await sync() === null, "An empty customer must return null");
+  const subscription = f.subscription("trialing", true);
+  f.state.subscriptions = [subscription];
+  assert(await sync() === subscription, "Return the verified processor record");
+  subscription.items.data[0]!.price.unit_amount = 1;
+  assert(await sync() === null, "Unrecognized prices must not reach tracking or cancellation");
+  assert(!hasAccess(f.row), "Unrecognized prices cannot retain Pro access");
+});
+Deno.test("period-end cancellation preserves trial/paid access, confirms dates and is idempotent", async () => {
+  for (const trial of [false, true]) {
+    const f = fixture();
+    f.row.customer_id = "cus_local";
+    f.state.subscriptions = [
+      f.subscription(trial ? "trialing" : "active", trial),
+    ];
+    const first = await f.billing.cancel(user);
+    const second = await f.billing.cancel(user);
+    assert(
+      first.canceled && first.endsAt === second.endsAt && Boolean(first.endsAt),
+    );
+    assert(f.state.cancellationUpdates === 1 && f.row.cancel_at_period_end);
+    assert(
+      hasAccess(f.row),
+      "Keep access through the confirmed current period",
+    );
+    assert(
+      !f.state.canceled,
+      "Do not immediately delete a trial or paid period",
+    );
+  }
+});
+Deno.test("cancellation fails closed for missing/unrecognized plans and processor outages", async () => {
+  const f = fixture();
+  await rejects(() => f.billing.cancel(user), /no renewing/);
+  f.row.customer_id = "cus_local";
+  f.state.subscriptions = [f.subscription()];
+  f.state.subscriptions[0]!.items.data[0]!.price.unit_amount = 1;
+  await rejects(() => f.billing.cancel(user), /no renewing/);
+  f.state.unavailable = true;
+  await rejects(() => f.billing.cancel(user), /unavailable/);
+  assert(f.state.cancellationUpdates === 0);
+});
+Deno.test("portal cancel_at dates are reflected in status without another cancellation mutation", async () => {
+  const f = fixture();
+  f.row.customer_id = "cus_local";
+  const subscription = f.subscription("active");
+  subscription.cancel_at_period_end = false;
+  subscription.cancel_at = subscription.items.data[0]!.current_period_end;
+  f.state.subscriptions = [subscription];
+  const result = await f.billing.cancel(user);
+  assert(result.canceled && f.row.cancel_at_period_end);
+  assert(
+    result.endsAt === new Date(subscription.cancel_at * 1000).toISOString(),
+  );
+  assert(f.state.cancellationUpdates === 0 && hasAccess(f.row));
+});
+Deno.test("tracking metadata uses confirmed processor dates, stable opaque IDs and configured original currency", async () => {
+  const f = fixture();
+  f.row.customer_id = "cus_local";
+  f.state.subscriptions = [f.subscription("trialing", true)];
+  const tracking = await f.billing.locked(owner, async (row, save) => {
+    const subscription = await f.billing.sync(row, save, user.email);
+    return await f.billing.tracking(row, subscription!);
+  });
+  if (!tracking) throw new Error("Expected confirmed tracking metadata");
+  assert(
+    tracking?.currency === "EUR" && tracking.amountMinor === 299 &&
+      tracking.confirmed,
+  );
+  assert(
+    tracking.trialEnd ===
+      new Date(f.state.subscriptions[0]!.trial_end! * 1000).toISOString(),
+  );
+  assert(
+    /^[0-9a-f-]{36}$/.test(tracking.id) && !tracking.id.includes("sub_pro"),
+  );
+  assert(
+    (await f.billing.tracking(f.row, f.state.subscriptions[0]!))?.id ===
+      tracking.id,
+  );
+  const changed = { ...f.state.subscriptions[0]!, id: "sub_new_purchase" };
+  assert((await f.billing.tracking(f.row, changed))?.id !== tracking.id);
+});
 Deno.test(
   "existing subscriptions prevent double purchase, used trials never reset, archived prices retain access",
   async () => {
@@ -346,13 +442,15 @@ Deno.test(
       await f.billing.sync(row, save);
     });
     assert(hasAccess(f.row));
-    for (const status of [
-      "past_due",
-      "unpaid",
-      "paused",
-      "incomplete",
-      "canceled",
-    ] as const) {
+    for (
+      const status of [
+        "past_due",
+        "unpaid",
+        "paused",
+        "incomplete",
+        "canceled",
+      ] as const
+    ) {
       f.state.subscriptions[0]!.status = status;
       await f.billing.locked(owner, async (row, save) => {
         await f.billing.sync(row, save);
@@ -497,8 +595,9 @@ Deno.test(
       until = now + 3600_000;
     const license = await signLicense(owner, device, until, now);
     assert(JSON.parse(license.payload).exp === until);
-    const signature = Uint8Array.from(license.signature.match(/../g)!, (v) =>
-      parseInt(v, 16),
+    const signature = Uint8Array.from(
+      license.signature.match(/../g)!,
+      (v) => parseInt(v, 16),
     );
     assert(
       await crypto.subtle.verify(

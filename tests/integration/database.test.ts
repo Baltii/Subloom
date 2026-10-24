@@ -47,6 +47,7 @@ beforeAll(async () => {
     "202610090005_retention.sql",
     "20261009154930_account_sync_and_push_devices.sql",
     "202610110002_price_history.sql",
+    "20261023204406_pro_plan_ending_reminders.sql",
   ])
     await database.exec(
       readFileSync(
@@ -93,6 +94,20 @@ describe("real PostgreSQL migrations, transactions and RLS", () => {
     expect(
       (await asUser(userB, "select * from subscriptions")).rows,
     ).toHaveLength(0);
+  });
+  it("rejects malformed display-only Pro ownership metadata at the database boundary", async () => {
+    for (const proBillingOwner of [null, [], {}, 12, "not-an-owner"]) {
+      const id = randomUUID();
+      await expect(
+        asUser(userA, "select apply_operation($1::jsonb)", [
+          JSON.stringify(
+            operation("subscription", id, {
+              subscription: { ...subscription(), id, proBillingOwner },
+            }),
+          ),
+        ]),
+      ).rejects.toThrow(/subscription_pro_billing_owner|check constraint/);
+    }
   });
   it("blocks direct subscription writes", async () => {
     await expect(asUser(userA, "delete from subscriptions")).rejects.toThrow(

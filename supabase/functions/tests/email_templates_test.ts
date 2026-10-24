@@ -19,6 +19,7 @@ const kinds: SubscriptionEmailKind[] = [
   "renewal_today",
   "payment_overdue",
   "trial_ending",
+  "plan_ending",
   "price_change",
   "cancellation",
 ];

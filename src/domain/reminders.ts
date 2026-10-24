@@ -6,7 +6,7 @@ export type Reminder = {
   subscriptionId: string;
   version: number;
   eventDate: string;
-  kind: "renewal" | "trial";
+  kind: "renewal" | "trial" | "ending";
   daysBefore: number;
   dueAt: string;
 };
@@ -37,8 +37,11 @@ export function dueReminder(
     event = nextEvent(s, reference);
   if (
     !event ||
-    event.type === "paid_through" ||
-    (event.type === "trial" && !preferences.trialReminders)
+    (event.type === "paid_through" && !s.proBillingOwner) ||
+    (event.type === "trial" && !preferences.trialReminders) ||
+    (event.type === "paid_through" &&
+      s.trialEnd === s.paidThrough &&
+      !preferences.trialReminders)
   )
     return null;
   const days = daysBetween(reference, event.date);
@@ -64,7 +67,7 @@ export function dueReminder(
     subscriptionId: s.id,
     version: s.version,
     eventDate: event.date,
-    kind: event.type,
+    kind: event.type === "paid_through" ? "ending" : event.type,
     daysBefore: days,
     dueAt,
   };

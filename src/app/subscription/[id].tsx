@@ -104,10 +104,12 @@ export default function Details() {
           icon={Pencil}
           small
           onPress={() =>
-            router.push({ pathname: "/subscription/edit", params: { id } })
+            s.proBillingOwner
+              ? router.push("/pro")
+              : router.push({ pathname: "/subscription/edit", params: { id } })
           }
         >
-          Edit
+          {s.proBillingOwner ? "Manage Pro" : "Edit"}
         </Button>
       }
     >
@@ -255,7 +257,9 @@ export default function Details() {
               Added through
             </Label>
             <Label style={{ marginBottom: 16 }}>
-              {s.source.replace("_", " ")}
+              {s.proBillingOwner
+                ? "Subloom Pro billing · updates automatically"
+                : s.source.replace("_", " ")}
             </Label>
             {detection && (
               <Label
@@ -326,68 +330,82 @@ export default function Details() {
           </Card>
           <Card style={{ marginTop: 20, gap: 14 }}>
             <Heading size={18}>Make it work for you.</Heading>
-            <Button
-              variant="secondary"
-              icon={CircleHelp}
-              onPress={() =>
-                router.push({
-                  pathname: "/subscription/cancel",
-                  params: { id },
-                })
-              }
-            >
-              How to cancel
-            </Button>
-            {instructions.websiteUrl && (
-              <Button
-                variant="secondary"
-                icon={ExternalLink}
-                onPress={() =>
-                  void Linking.openURL(instructions.websiteUrl!).catch(() =>
-                    setError("Could not open the provider link."),
-                  )
-                }
-              >
-                Visit website
-              </Button>
-            )}
-            <Label size={11} color={colors.secondary}>
-              To cancel billing, visit your provider. Recording a cancellation
-              here only updates Subloom.
-            </Label>
-            {s.status === "active" || s.status === "trial" ? (
+            {s.proBillingOwner ? (
               <>
-                <Button
-                  variant="secondary"
-                  icon={Pause}
-                  onPress={() =>
-                    void changeStatus(id, "paused").catch((e) =>
-                      setError(readableError(e)),
-                    )
-                  }
-                >
-                  Pause tracking
-                </Button>
-                <Button
-                  variant="secondary"
-                  icon={X}
-                  onPress={() => setConfirmation("cancel")}
-                >
-                  Record cancellation
+                <Label size={13} color={colors.secondary}>
+                  Your plan’s price and dates follow confirmed billing details.
+                  Manage renewal or cancel your subscription in Subloom Pro.
+                </Label>
+                <Button variant="secondary" onPress={() => router.push("/pro")}>
+                  Manage Pro subscription
                 </Button>
               </>
             ) : (
-              <Button
-                variant="secondary"
-                icon={Play}
-                onPress={() =>
-                  void changeStatus(id, "active").catch((e) =>
-                    setError(readableError(e)),
-                  )
-                }
-              >
-                Resume tracking
-              </Button>
+              <>
+                <Button
+                  variant="secondary"
+                  icon={CircleHelp}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/subscription/cancel",
+                      params: { id },
+                    })
+                  }
+                >
+                  How to cancel
+                </Button>
+                {instructions.websiteUrl && (
+                  <Button
+                    variant="secondary"
+                    icon={ExternalLink}
+                    onPress={() =>
+                      void Linking.openURL(instructions.websiteUrl!).catch(() =>
+                        setError("Could not open the provider link."),
+                      )
+                    }
+                  >
+                    Visit website
+                  </Button>
+                )}
+                <Label size={11} color={colors.secondary}>
+                  To cancel billing, visit your provider. Recording a
+                  cancellation here only updates Subloom.
+                </Label>
+                {s.status === "active" || s.status === "trial" ? (
+                  <>
+                    <Button
+                      variant="secondary"
+                      icon={Pause}
+                      onPress={() =>
+                        void changeStatus(id, "paused").catch((e) =>
+                          setError(readableError(e)),
+                        )
+                      }
+                    >
+                      Pause tracking
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      icon={X}
+                      onPress={() => setConfirmation("cancel")}
+                    >
+                      Record cancellation
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    icon={Play}
+                    onPress={() =>
+                      void changeStatus(id, "active").catch((e) =>
+                        setError(readableError(e)),
+                      )
+                    }
+                  >
+                    Resume tracking
+                  </Button>
+                )}
+              </>
             )}
             <Button
               variant="danger"

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Linking, Switch, View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useApp, saveSubscription, readableError } from "../store/app";
 import { useFeatureSetting } from "../hooks/useFeatureSetting";
 import {
@@ -229,6 +229,7 @@ export default function Cancellation() {
   const setId = (value: string | null) =>
     router.setParams({ subscriptionId: value || "", id: "" });
   const s = state.data.subscriptions.find((row) => row.id === id);
+  if (s?.proBillingOwner) return <Redirect href="/pro" />;
   return (
     <Page
       title="Cancellation assistant"

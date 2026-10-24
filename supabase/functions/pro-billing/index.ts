@@ -21,11 +21,13 @@ const input = z.discriminatedUnion("action", [
     })
     .strict(),
   z.object({ action: z.literal("portal") }).strict(),
+  z.object({ action: z.literal("cancel") }).strict(),
 ]);
 export const handler = endpoint(async (req) => {
   const { client, user } = await authenticated(req);
-  if (!user.email || !user.email_confirmed_at)
+  if (!user.email || !user.email_confirmed_at) {
     throw new HttpError(403, "Verify your billing email to continue.");
+  }
   const raw = await limited(req, 2048);
   let parsed: unknown;
   try {
@@ -37,7 +39,7 @@ export const handler = endpoint(async (req) => {
   if (!body.success) throw new HttpError(400, "Invalid billing request.");
   await rateLimit(client, "pro:" + user.id, 60, 3600, user.id);
   if (!billingConfigured()) {
-    if (body.data.action === "status")
+    if (body.data.action === "status") {
       return json({
         configured: false,
         verificationKey: null,
@@ -50,18 +52,22 @@ export const handler = endpoint(async (req) => {
         accessUntil: null,
         trialEnd: null,
         cancelAtPeriodEnd: false,
+        tracking: null,
       });
+    }
     throw new HttpError(503, "Pro purchases are not available yet.");
   }
   const billing = new ProBilling(client, stripeClient());
-  if (body.data.action === "checkout")
+  if (body.data.action === "checkout") {
     return json(await billing.checkout(user, body.data.interval));
+  }
   if (body.data.action === "portal") return json(await billing.portal(user.id));
+  if (body.data.action === "cancel") return json(await billing.cancel(user));
   const device = body.data.device;
   return json(
     await billing.locked(user.id, async (row, save) => {
-      await billing.sync(row, save, user.email);
-      return await billing.snapshot(row, user.email!, device);
+      const subscription = await billing.sync(row, save, user.email);
+      return await billing.snapshot(row, user.email!, device, subscription);
     }),
   );
 });

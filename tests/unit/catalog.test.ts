@@ -44,7 +44,7 @@ describe("service catalog", () => {
     expect(searchServices(" ")).toHaveLength(catalog.length);
   });
   it("bundles logos for every added service and keeps unknown services safe", () => {
-    const original = new Set([
+    const dedicatedGlyphs = new Set([
       "netflix",
       "spotify",
       "youtube",
@@ -57,11 +57,13 @@ describe("service catalog", () => {
       "notion",
       "figma",
       "gym",
+      "subloom-pro",
     ]);
     for (const service of catalog.filter(
-      (service) => !original.has(service.id),
+      (service) => !dedicatedGlyphs.has(service.id),
     ))
       expect(serviceLogos[service.id]).toMatch(/^M/i);
+    expect(serviceFor("subloom-pro")?.glyph).toBe("subloom");
     expect(serviceFor(null)).toBeUndefined();
     expect(serviceFor("https://example.com/untrusted.svg")).toBeUndefined();
     expect(

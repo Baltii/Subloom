@@ -12,6 +12,16 @@ export type Service = {
 // No suggested prices. Provider links only go to first-party account pages.
 export const catalog: Service[] = [
   {
+    id: "subloom-pro",
+    name: "Subloom Pro",
+    category: "Productivity",
+    color: "#087C65",
+    background: "#E1F0DE",
+    glyph: "subloom",
+    managementUrl: "https://subloom.baltii.tn/pro",
+    aliases: ["Subloom", "Subloom Premium"],
+  },
+  {
     id: "netflix",
     name: "Netflix",
     category: "Entertainment",

@@ -106,7 +106,9 @@ export const handler = endpoint(async (req) => {
             kind: reminder.kind,
             dueAt: reminder.dueAt,
             payload: subscriptionNotification(
-              reminder.kind === "trial"
+              reminder.kind === "ending"
+                ? "plan_ending"
+                : reminder.kind === "trial"
                 ? "trial_ending"
                 : reminder.daysBefore === 0
                 ? "renewal_today"
