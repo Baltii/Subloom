@@ -1,0 +1,113 @@
+/* A calm, install-first companion to the main Subloom landing page. */
+.downloads-page { position: relative; min-height: 100vh; overflow: clip; background: var(--ground); }
+.downloads-page .header { position: relative; z-index: 5; }
+.download-hero { position: relative; isolation: isolate; text-align: center; display: flex; flex-direction: column; align-items: center; padding-top: 90px; padding-bottom: 100px; }
+.download-hero-glow { position: absolute; z-index: -1; top: -245px; left: 50%; width: min(940px, 100vw); aspect-ratio: 1.35; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse, color-mix(in srgb, var(--green) 16%, transparent) 0%, color-mix(in srgb, var(--mint) 60%, transparent) 38%, transparent 72%); filter: blur(8px); pointer-events: none; animation: download-glow 11s ease-in-out infinite alternate; }
+.download-eyebrow { display: inline-flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--green); background: var(--mint-light); border: 1px solid var(--line); border-radius: 99px; padding: 10px 16px; animation: download-rise 680ms var(--ease) both; }
+.download-hero h1 { max-width: 950px; font-size: clamp(47px, 6.4vw, 91px); line-height: 1.07; letter-spacing: -.064em; margin-top: 32px; animation: download-rise 800ms 70ms var(--ease) both; }
+.download-hero h1 em { color: var(--green); font-style: normal; }
+.download-hero > p { max-width: 600px; font-size: clamp(16px, 1.6vw, 19px); line-height: 1.7; margin-top: 28px; color: var(--secondary); animation: download-rise 800ms 150ms var(--ease) both; }
+.download-hero-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 23px; margin-top: 35px; animation: download-rise 800ms 230ms var(--ease) both; }
+.download-hero-actions .button { gap: 30px; }
+.download-browser-link { display: inline-flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 600; padding: 14px 5px; transition: color 200ms ease, transform 280ms var(--ease); }
+.download-browser-link:hover { color: var(--green); transform: translateY(-2px); }
+.download-browser-link svg { transition: transform 280ms var(--ease); }
+.download-browser-link:hover svg { transform: translate(3px, -3px); }
+.download-release-line { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 11px; color: var(--secondary); font-size: 12px; margin-top: 48px; animation: download-rise 800ms 290ms var(--ease) both; }
+.download-release-line strong { color: var(--ink); font-weight: 600; }
+.download-release-line a { display: inline-flex; align-items: center; gap: 6px; color: var(--green); border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+.download-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #3fc99e; box-shadow: 0 0 0 5px color-mix(in srgb, #3fc99e 15%, transparent); }
+.download-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 45px; margin-bottom: 30px; }
+.download-section-kicker { display: block; color: var(--green); font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 13px; }
+.download-section-heading h2 { font-size: clamp(33px, 4vw, 54px); max-width: 650px; }
+.download-section-heading p { color: var(--secondary); max-width: 310px; font-size: 14px; line-height: 1.7; }
+.download-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.download-card { position: relative; min-height: 372px; min-width: 0; display: flex; flex-direction: column; overflow: hidden; padding: 36px; border-radius: 30px; background: var(--paper); border: 1px solid var(--line); box-shadow: 0 20px 45px rgba(8, 39, 27, .025); animation: download-rise 800ms var(--ease) backwards; transition: transform 450ms var(--ease), box-shadow 450ms var(--ease), border-color 250ms ease; }
+.download-card:nth-child(2) { animation-delay: 80ms; }
+.download-card:nth-child(3) { animation-delay: 160ms; }
+.download-card:nth-child(4) { animation-delay: 240ms; }
+.download-card:hover { transform: translateY(-6px); box-shadow: 0 30px 60px rgba(8, 39, 27, .09); border-color: color-mix(in srgb, var(--green) 30%, var(--line)); }
+.download-card-top { display: flex; justify-content: space-between; align-items: start; gap: 20px; margin-bottom: 22px; }
+.download-icon { display: grid; place-items: center; flex-shrink: 0; width: 57px; height: 57px; border-radius: 18px; color: var(--green); background: var(--mint-light); }
+.download-card-type { padding: 8px 12px; color: var(--secondary); border: 1px solid var(--line); border-radius: 999px; font-size: 11px; white-space: nowrap; }
+.download-card h3 { font-size: 31px; letter-spacing: -.035em; line-height: 1.2; }
+.download-card > p { max-width: 410px; margin-top: 12px; font-size: 14px; line-height: 1.65; color: var(--secondary); }
+.download-card-bottom { margin-top: auto; padding-top: 29px; }
+.download-action { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 63px; padding: 12px 18px; border-radius: 16px; background: var(--action); color: var(--on-action); transition: transform 260ms var(--ease), background 200ms ease, box-shadow 250ms ease; }
+.download-action:not(.download-action-unavailable):hover { background: var(--action-hover); color: var(--on-action); transform: translateY(-2px); box-shadow: 0 9px 25px rgba(0, 0, 0, .1); }
+.download-action > span { display: grid; gap: 3px; min-width: 0; }
+.download-action strong { font-size: 14px; font-weight: 600; }
+.download-action small { font-size: 10px; font-weight: 400; opacity: .75; }
+.download-action-unavailable { background: var(--mint-light); color: var(--secondary); font-size: 13px; justify-content: center; cursor: not-allowed; text-align: center; }
+.download-card-hint { display: inline-flex; align-items: center; gap: 6px; color: var(--secondary); font-size: 11px; margin-top: 14px; line-height: 1.5; }
+.download-asset-notice { display: inline-flex; align-items: center; border: 1px solid var(--line); color: var(--secondary); font-size: 10px; padding: 5px 9px; border-radius: 999px; margin-bottom: 10px; }
+.download-mac-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.download-mac-options .download-action { min-width: 0; padding-inline: 13px; gap: 8px; }
+.download-mac-options .download-action strong { font-size: 12px; }
+.download-mac-options .download-action small { font-size: 9px; }
+.download-mac-options .download-action > svg { width: 17px; }
+.download-card-web { background: var(--spotlight); color: var(--on-spotlight); border-color: transparent; }
+.download-card-web .download-icon { color: #183e31; background: #bcead2; }
+.download-card-web .download-card-type { color: var(--spotlight-detail); border-color: color-mix(in srgb, var(--spotlight-detail) 25%, transparent); }
+.download-card-web > p, .download-card-web .download-card-hint { color: var(--spotlight-detail); }
+.download-card-web .download-action { color: #182d25; background: #e1f0de; }
+.download-card-web .download-action:not(.download-action-unavailable):hover { background: #bcead2; color: #182d25; }
+.download-trust-line { display: flex; align-items: center; gap: 14px; margin-top: 29px; padding: 21px 24px; border: 1px solid var(--line); border-radius: 19px; color: var(--secondary); }
+.download-trust-line > svg { color: var(--green); flex-shrink: 0; }
+.download-trust-line p { font-size: 12px; line-height: 1.5; }
+.download-trust-line a { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; font-size: 12px; color: var(--green); font-weight: 600; margin-left: auto; }
+.download-trust-line a:hover { text-decoration: underline; }
+.download-last-note { text-align: center; margin-top: 140px; padding-bottom: 130px; }
+.download-last-note h2 { font-size: clamp(37px, 4.5vw, 55px); }
+.download-last-note p { color: var(--secondary); margin: 19px auto 28px; max-width: 470px; font-size: 15px; }
+.download-last-note > a { display: inline-flex; align-items: center; justify-content: center; gap: 12px; font-size: 14px; font-weight: 600; padding: 15px 23px; background: var(--mint); border-radius: 999px; transition: transform 260ms var(--ease), background 200ms ease; }
+.download-last-note > a:hover { transform: translateY(-3px); background: var(--mint-deep); }
+.download-footer { border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 130px; }
+.download-footer .brand { font-size: 22px; }
+.download-footer .brand svg { width: 28px; height: 28px; }
+.download-footer > span { color: var(--secondary); font-size: 11px; }
+.download-footer > a:last-child { display: inline-flex; align-items: center; gap: 9px; font-size: 12px; color: var(--secondary); transition: color 200ms ease; }
+.download-footer > a:last-child:hover { color: var(--green); }
+@keyframes download-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes download-glow { from { opacity: .72; translate: 0 0; } to { opacity: 1; translate: 0 25px; } }
+@media (max-width: 1000px) {
+  .download-hero { padding-top: 65px; padding-bottom: 85px; }
+  .download-card { padding: 29px; min-height: 385px; }
+  .download-section-heading { gap: 25px; }
+  .download-mac-options { grid-template-columns: 1fr; }
+  .download-mac-options .download-action strong { font-size: 13px; }
+}
+@media (max-width: 700px) {
+  .download-hero { padding-top: 44px; padding-bottom: 72px; }
+  .download-hero h1 { font-size: clamp(43px, 9vw, 63px); margin-top: 28px; }
+  .download-hero > p { margin-top: 22px; }
+  .download-release-line { margin-top: 40px; }
+  .download-section-heading { display: block; margin-bottom: 25px; }
+  .download-section-heading p { margin-top: 16px; }
+  .download-grid { grid-template-columns: 1fr; gap: 14px; }
+  .download-card { padding: 28px; min-height: 345px; }
+  .download-mac-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .download-trust-line { align-items: flex-start; flex-wrap: wrap; padding: 19px; }
+  .download-trust-line p { flex: 1; min-width: 180px; }
+  .download-trust-line a { margin-left: 34px; }
+  .download-last-note { margin-top: 95px; padding-bottom: 90px; }
+  .download-footer { flex-wrap: wrap; justify-content: center; text-align: center; padding-block: 28px; gap: 13px 30px; }
+  .download-footer > span { order: 3; flex-basis: 100%; }
+}
+@media (max-width: 420px) {
+  .download-hero h1 { font-size: 41px; }
+  .download-hero-actions { gap: 10px; flex-direction: column; }
+  .download-browser-link { padding-top: 12px; }
+  .download-release-line { font-size: 11px; }
+  .download-card { padding: 23px; }
+  .download-mac-options { grid-template-columns: 1fr; }
+  .download-card-type { font-size: 10px; padding: 7px 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .download-hero-glow, .download-eyebrow, .download-hero h1, .download-hero > p,
+  .download-hero-actions, .download-release-line, .download-card { animation: none !important; }
+  .download-browser-link, .download-browser-link svg, .download-card, .download-action,
+  .download-last-note > a { transition: none !important; }
+  .download-card:hover, .download-action:hover, .download-browser-link:hover,
+  .download-browser-link:hover svg, .download-last-note > a:hover { transform: none !important; }
+}

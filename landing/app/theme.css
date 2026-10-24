@@ -89,11 +89,13 @@
 .nav-utilities { display: flex; align-items: center; gap: 10px; }
 .icon-link { display: grid; place-items: center; width: 44px; min-height: 44px; border-radius: 50%; color: var(--ink); transition: background 180ms ease, color 180ms ease; }
 .icon-link:hover { background: var(--mint); color: var(--green); }
-.store-downloads { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
-.store-download { display: flex; align-items: center; gap: 11px; min-height: 62px; padding: 11px 18px; border-radius: 14px; background: var(--paper); color: var(--secondary); cursor: not-allowed; text-align: left; }
-.store-download > span { display: grid; gap: 3px; }
-.store-download small { font-size: 10px; line-height: 1.2; }
-.store-download strong { font-size: 17px; line-height: 1.2; font-weight: 600; letter-spacing: -.02em; }
+.platform-download { display: inline-flex; align-items: center; gap: 12px; max-width: 100%; padding: 11px 15px; margin-top: 24px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; transition: transform 260ms var(--ease), border-color 260ms ease; }
+.platform-download:hover { transform: translateY(-3px); border-color: var(--green); }
+.platform-download-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: var(--green); background: var(--mint-light); flex-shrink: 0; }
+.platform-download-copy { display: grid; gap: 3px; text-align: left; }
+.platform-download-copy small { color: var(--secondary); font-size: 10px; }
+.platform-download-copy strong { color: var(--ink); font-size: 13px; font-weight: 600; }
+.platform-download > svg { margin-left: 14px; color: var(--green); }
 @media (max-width: 1000px) {
   .header-actions { gap: 14px; }
   .nav-links { gap: 14px; }
@@ -104,14 +106,13 @@
   .header-actions { gap: 8px; }
   .nav-utilities { margin-top: 12px; }
   .nav-utilities .button-small { margin-top: 0; flex: 1; }
-  .store-downloads { gap: 10px; margin-top: 22px; }
-  .store-download { padding: 11px 13px; gap: 9px; min-height: 60px; }
-  .store-download strong { font-size: 15px; }
-  .store-download svg { width: 23px; height: 23px; }
+  .platform-download { padding: 10px 12px; gap: 9px; margin-top: 22px; }
+  .platform-download-copy strong { font-size: 12px; }
+  .platform-download > svg { margin-left: 2px; }
 }
 @media (max-width: 360px) {
   .nav-utilities { gap: 5px; }
   .nav-utilities .button-small { padding-inline: 12px; font-size: 12px; gap: 6px; }
-  .store-download { padding-inline: 11px; }
-  .store-downloads { gap: 8px; }
+  .platform-download { padding-inline: 10px; }
+  .platform-download-copy strong { font-size: 11px; }
 }
