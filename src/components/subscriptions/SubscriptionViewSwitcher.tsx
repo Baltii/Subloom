@@ -16,10 +16,12 @@ export function SubscriptionViewSwitcher({
       accessibilityLabel="Subscription view"
       style={{
         flexDirection: "row",
-        gap: 4,
-        padding: 4,
-        borderRadius: 999,
-        backgroundColor: colors.mint,
+        gap: 0,
+        padding: 2,
+        borderRadius: 12,
+        backgroundColor: "transparent",
+        borderColor: colors.border,
+        borderWidth: 1,
         flexShrink: 0,
       }}
     >
@@ -35,9 +37,9 @@ export function SubscriptionViewSwitcher({
           aria-pressed={timeline === value}
           onPress={() => onChange(value)}
           style={({ pressed }) => ({
-            minWidth: 48,
-            minHeight: 48,
-            borderRadius: 999,
+            minWidth: 44,
+            minHeight: 44,
+            borderRadius: 9,
             alignItems: "center",
             justifyContent: "center",
             backgroundColor:
@@ -46,8 +48,8 @@ export function SubscriptionViewSwitcher({
           })}
         >
           <Icon
-            size={20}
-            color={timeline === value ? colors.primary : colors.secondary}
+            size={18}
+            color={timeline === value ? colors.text : colors.secondary}
             strokeWidth={1.8}
             aria-hidden
           />
