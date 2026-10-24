@@ -23,6 +23,7 @@ import {
 import { useTheme, useWide } from "../theme/useTheme";
 import { useApp, readableError } from "../store/app";
 import { usePro } from "../store/pro";
+import { ProMembershipCard } from "../components/pro/ProMembershipCard";
 import { useProAccess, type ProFeature } from "../hooks/useProAccess";
 import {
   billingAuth,
@@ -134,54 +135,68 @@ export function ProPage({
             alignItems: "stretch",
           }}
         >
-          <Card style={{ flex: wide ? 1 : undefined, gap: 22 }}>
-            <Heading size={22}>More clarity, less sorting.</Heading>
-            {[
-              {
-                icon: FileSearch,
-                title: "Import statements",
-                body: "Review CSV transactions and detect possible recurring subscriptions. You choose what to track.",
-              },
-              {
-                icon: Download,
-                title: "Export transaction reports",
-                body: "Download your imported transaction records as a CSV, in their original currencies.",
-              },
-              {
-                icon: CreditCard,
-                title: "Up to 50 cards & wallets",
-                body: "Keep more saved billing labels together. Free includes 3 combined.",
-              },
-            ].map(({ icon: Icon, title, body }) => (
-              <View key={title} style={{ flexDirection: "row", gap: 14 }}>
-                <Icon size={22} color={colors.primary} />
-                <View style={{ flex: 1, gap: 4 }}>
-                  <Label bold>{title}</Label>
-                  <Label size={13} color={colors.secondary}>
-                    {body}
-                  </Label>
+          <View style={{ flex: wide ? 1 : undefined, gap: 24 }}>
+            <ProMembershipCard
+              active={pro}
+              ending={Boolean(snapshot?.cancelAtPeriodEnd)}
+              interval={interval}
+              detail={status}
+            />
+            <Card style={{ gap: 22 }}>
+              <Heading size={22}>More clarity, less sorting.</Heading>
+              {[
+                {
+                  icon: FileSearch,
+                  title: "Import statements",
+                  body: "Review CSV transactions and detect possible recurring subscriptions. You choose what to track.",
+                },
+                {
+                  icon: Download,
+                  title: "Export transaction reports",
+                  body: "Download your imported transaction records as a CSV, in their original currencies.",
+                },
+                {
+                  icon: CreditCard,
+                  title: "Up to 50 cards & wallets",
+                  body: "Keep more saved billing labels together. Free includes 3 combined.",
+                },
+              ].map(({ icon: Icon, title, body }) => (
+                <View key={title} style={{ flexDirection: "row", gap: 14 }}>
+                  <Icon size={22} color={colors.primary} />
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Label bold>{title}</Label>
+                    <Label size={13} color={colors.secondary}>
+                      {body}
+                    </Label>
+                  </View>
                 </View>
+              ))}
+              <View
+                style={{
+                  gap: 8,
+                  borderTopWidth: 1,
+                  borderTopColor: colors.border,
+                  paddingTop: 18,
+                }}
+              >
+                <Label bold size={13}>
+                  Always included for free
+                </Label>
+                <Label size={13} color={colors.secondary}>
+                  Manual subscription tracking, renewal reminders, calendar, and
+                  a full JSON backup of your data. Your existing records stay
+                  accessible if Pro ends.
+                </Label>
               </View>
-            ))}
-            <View
-              style={{
-                gap: 8,
-                borderTopWidth: 1,
-                borderTopColor: colors.border,
-                paddingTop: 18,
-              }}
-            >
-              <Label bold size={13}>
-                Always included for free
-              </Label>
-              <Label size={13} color={colors.secondary}>
-                Manual subscription tracking, renewal reminders, calendar, and a
-                full JSON backup of your data. Your existing records stay
-                accessible if Pro ends.
-              </Label>
-            </View>
-          </Card>
-          <Card style={{ flex: wide ? 1 : undefined, gap: 18 }}>
+            </Card>
+          </View>
+          <Card
+            style={{
+              flex: wide ? 1 : undefined,
+              gap: 18,
+              alignSelf: wide ? "flex-start" : undefined,
+            }}
+          >
             {pro ? (
               <>
                 <View
