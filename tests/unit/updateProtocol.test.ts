@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { newerVersion, validateRelease } from "../../updates/protocol.cjs";
+import { verifyReleaseManifest } from "../../src/services/releaseManifest";
 const require = createRequire(import.meta.url);
 const { verifyRelease, verifyAsset } = require("../../updates/node.cjs");
 const keys = generateKeyPairSync("ed25519");
@@ -45,6 +46,10 @@ function envelope(data = release()) {
 describe("signed app updates", () => {
   it("accepts a complete signed release and rejects tampering or another signer", () => {
     expect(verifyRelease(envelope(), publicHex).version).toBe("1.6.0");
+    expect(verifyReleaseManifest(envelope(), publicHex).version).toBe("1.6.0");
+    expect(() =>
+      verifyReleaseManifest(envelope().replace("1.6.0", "9.0.0"), publicHex),
+    ).toThrow(/verified/);
     expect(() =>
       verifyRelease(envelope().replace("1.6.0", "9.0.0"), publicHex),
     ).toThrow(/signed/);
