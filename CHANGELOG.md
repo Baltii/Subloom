@@ -2,6 +2,39 @@
 
 Release Please maintains this file from conventional commits merged into `main`.
 
+## [1.5.0](https://github.com/Baltii/Subloom/compare/v1.4.0...v1.5.0) (2026-10-24)
+
+
+### Features
+
+* **billing:** add Pro subscriptions with local purchase recovery ([2826706](https://github.com/Baltii/Subloom/commit/2826706a57fc637ca349fd2b3540c8c14e4dd1dc))
+* **billing:** add Stripe Pro subscriptions and local purchase recovery ([f3ad9a2](https://github.com/Baltii/Subloom/commit/f3ad9a295402f793e85ac4625ecc822ca229c6bd))
+* **filters:** apply mobile filters from a shared bottom sheet ([9c2782b](https://github.com/Baltii/Subloom/commit/9c2782b23a9ef5208a03cd5b71e612c47346da63))
+* **filters:** consolidate calendar and subscription filters into sheets ([726e314](https://github.com/Baltii/Subloom/commit/726e314a9ce0aa9fcebc879c602cb5cc01845fdf))
+* **home:** greet the client by profile name with a wave ([e98d33c](https://github.com/Baltii/Subloom/commit/e98d33c84bd0f7877140f2982bfd7da3eedd3984))
+* **home:** greet the current client by profile name ([9608d02](https://github.com/Baltii/Subloom/commit/9608d02a4ae3168fa3027db605a3892b75aa87e9))
+* **navigation:** promote cards and wallets to the main navigation ([0259817](https://github.com/Baltii/Subloom/commit/02598174d497f56fc63dfc8ffc7ff7e04614073b))
+* **navigation:** replace Transactions with Cards & Wallets ([5e7b8d9](https://github.com/Baltii/Subloom/commit/5e7b8d92a22f5b51ae5a80e1e7c8f9bcbb01b8e4))
+* **pro:** badge premium features and show a full-screen upgrade modal ([1ff0b63](https://github.com/Baltii/Subloom/commit/1ff0b6344cc21b9093e27b7e75b9252010ee81ec))
+* **pro:** gate premium actions with a closable upgrade modal ([cb2570c](https://github.com/Baltii/Subloom/commit/cb2570cf63b2872f4087e73032d2a2d6373d6010))
+* **pro:** reconcile membership management, tracking and ending reminders ([db6b667](https://github.com/Baltii/Subloom/commit/db6b667d378ffd550185c8b3d08a05739450e3af))
+* **pro:** track membership billing and ending reminders ([84e626f](https://github.com/Baltii/Subloom/commit/84e626f3285ec50354080011b8cd027643684f4f))
+* **subscriptions:** add an icon-only List and Timeline pill switcher ([e46fdf1](https://github.com/Baltii/Subloom/commit/e46fdf14e90f157d3b2e4b6c136d64b12c9275a9))
+* **subscriptions:** group list and timeline in an icon switcher ([d057339](https://github.com/Baltii/Subloom/commit/d0573395b717f131f45ec6ab9a909d99949701ce))
+
+
+### Bug Fixes
+
+* **billing:** exclude private settings from development bundles ([707767a](https://github.com/Baltii/Subloom/commit/707767a178d9264009fb19330c5f2fac3cf73c4d))
+* **billing:** return verified subscriptions from status sync ([d19b896](https://github.com/Baltii/Subloom/commit/d19b896914840e4a184b30a7223d40edba475fae))
+* **home:** update guest smoke checks for the new greeting ([e7e95d7](https://github.com/Baltii/Subloom/commit/e7e95d72541f1fc043474642848376dbf71553b0))
+* **navigation:** keep the sidebar logo visible on laptop screens ([53cd86a](https://github.com/Baltii/Subloom/commit/53cd86ad6342a6dd30a75c4873ebf30ede00a0d7))
+* **navigation:** preserve sidebar logo at laptop heights ([5a529d4](https://github.com/Baltii/Subloom/commit/5a529d49b32d5ad8739a6624535b5a4d9bee6a12))
+* **pro:** adapt the illustrated membership card to every theme ([899c812](https://github.com/Baltii/Subloom/commit/899c812e79305f92d82125ec90e92cd87acc5fed))
+* **pro:** make the illustrated membership card follow the selected theme ([b25c5e2](https://github.com/Baltii/Subloom/commit/b25c5e28ef9ad0ca64906df876f90b29aefc4a42))
+* **windows:** repair OAuth callbacks and add local reminders ([b4ca0b9](https://github.com/Baltii/Subloom/commit/b4ca0b989fc2a82f5ceed38870f1ba105c19188f))
+* **windows:** repair OAuth callbacks and add system reminders ([2def4d1](https://github.com/Baltii/Subloom/commit/2def4d1013368bfdbfbaf8bfd5e7b59cc2976303))
+
 ## [1.4.0](https://github.com/Baltii/Subloom/compare/v1.3.0...v1.4.0) (2026-10-22)
 
 
