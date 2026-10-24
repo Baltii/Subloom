@@ -2,6 +2,14 @@
 
 Release Please maintains this file from conventional commits merged into `main`.
 
+## [1.5.1](https://github.com/Baltii/Subloom/compare/v1.5.0...v1.5.1) (2026-10-24)
+
+
+### Bug Fixes
+
+* **landing:** replace mock service icons with real logos ([636b25f](https://github.com/Baltii/Subloom/commit/636b25ffcf82bb66f89feba98831756b8a43f862))
+* **landing:** use authentic service logos in previews ([a04d00b](https://github.com/Baltii/Subloom/commit/a04d00b0c5293617a8a96e42b4c141466026ed01))
+
 ## [1.5.0](https://github.com/Baltii/Subloom/compare/v1.4.0...v1.5.0) (2026-10-24)
 
 
