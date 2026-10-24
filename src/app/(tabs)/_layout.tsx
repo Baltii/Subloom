@@ -5,7 +5,7 @@ import {
   House,
   CalendarDays,
   Layers2,
-  ReceiptText,
+  CreditCard,
   Settings2,
   Plus,
   ShieldCheck,
@@ -22,14 +22,14 @@ import { tokens } from "../../theme/tokens";
 import { useApp } from "../../store/app";
 import { useQuickActions } from "../../hooks/useQuickActions";
 const navigation: {
-  path: "/" | "/subscriptions" | "/calendar" | "/transactions" | "/settings";
+  path: "/" | "/subscriptions" | "/calendar" | "/billing-methods" | "/settings";
   title: string;
   icon: LucideIcon;
 }[] = [
   { path: "/", title: "Overview", icon: House },
   { path: "/subscriptions", title: "Subscriptions", icon: Layers2 },
   { path: "/calendar", title: "Calendar", icon: CalendarDays },
-  { path: "/transactions", title: "Transactions", icon: ReceiptText },
+  { path: "/billing-methods", title: "Cards & wallets", icon: CreditCard },
   { path: "/settings", title: "Settings", icon: Settings2 },
 ];
 function Sidebar() {
@@ -283,14 +283,15 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
-            name="transactions"
+            name="billing-methods"
             options={{
-              title: "Transactions",
+              title: "Cards & wallets",
               tabBarIcon: ({ color, size }) => (
-                <ReceiptText color={color} size={size - 3} />
+                <CreditCard color={color} size={size - 3} />
               ),
             }}
           />
+          <Tabs.Screen name="transactions" options={{ href: null }} />
           <Tabs.Screen name="activity" options={{ href: null }} />
           <Tabs.Screen
             name="settings"
