@@ -12,7 +12,61 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Select relevant checks
+    runs-on: ubuntu-24.04
+    outputs:
+      run_landing: ${{ steps.scope.outputs.run_landing }}
+      run_native: ${{ steps.scope.outputs.run_native }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: scope
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          landing=false
+          native=false
+          if [[ "$EVENT_NAME" != "pull_request" ]]; then
+            landing=true
+            native=true
+          else
+            if ! changed_files=$(git diff --name-only "$BASE_SHA...$HEAD_SHA"); then
+              echo "::warning::Could not inspect changed files; running all checks"
+              landing=true
+              native=true
+            else
+              while IFS= read -r path; do
+                [[ -z "$path" ]] && continue
+                case "$path" in
+                  landing/*) landing=true ;;
+                  .github/*|.nvmrc) landing=true; native=true ;;
+                  *) native=true ;;
+                esac
+              done <<< "$changed_files"
+            fi
+          fi
+          if [[ "$landing" == false && "$native" == false ]]; then
+            landing=true
+            native=true
+          fi
+          {
+            echo "run_landing=$landing"
+            echo "run_native=$native"
+          } >> "$GITHUB_OUTPUT"
+          echo "Landing checks: $landing"
+          echo "Native checks: $native"
+
   verify:
+    needs: changes
     uses: ./.github/workflows/verify.yml
+    with:
+      run_landing: ${{ needs.changes.outputs.run_landing == 'true' }}
+      run_native: ${{ needs.changes.outputs.run_native == 'true' }}
     secrets:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
