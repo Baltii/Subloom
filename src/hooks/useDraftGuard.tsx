@@ -1,3 +1,4 @@
+import { useUpdateDraft } from "./useUpdateDraft";
 import { useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
 import { useNavigation } from "expo-router";
@@ -7,6 +8,7 @@ import {
 } from "expo-router/react-navigation";
 import { Confirm } from "../components/ui/Primitives";
 export function useDraftGuard(dirty: boolean, busy = false) {
+  useUpdateDraft(dirty || busy);
   const navigation = useNavigation(),
     allowed = useRef(false);
   const [pending, setPending] = useState<NavigationAction | null>(null);
