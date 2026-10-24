@@ -12,3 +12,7 @@
 !package-lock.json
 !tsconfig.json
 !vercel.json
+
+# Provenance records stay local, including within the public asset tree.
+public/illustrations/*.prompt.txt
+public/illustrations/*.webp.json

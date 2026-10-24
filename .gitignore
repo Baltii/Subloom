@@ -31,3 +31,31 @@ build/
 /credentials.json
 *.jks
 *.keystore
+
+# Private agent workspaces and internal project records (app and landing)
+.agents/
+.codex/
+.claude/
+.openai/
+.impeccable/
+.taste-skill/
+skills/
+skills-lock.json
+AGENTS.md
+SKILL.md
+DESIGN.md
+PRODUCT.md
+PRO_BILLING.md
+/feature-docs/
+/brand/
+artwork/
+*.prompt.txt
+*.webp.json
+
+# Keep npm as the repository lockfile source.
+bun.lock
+bun.lockb
+
+# Private environment variants; retain the public example.
+.env*
+!.env.example

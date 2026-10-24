@@ -40,6 +40,6 @@ The Mac-specific widget and Android/iOS push registration remain separate platfo
 
 ## Release downloads
 
-See [release workflow details](../feature-docs/windows-release-downloads.md). The GitHub workflow uploads the installer and checksum as `windows-x64`; a published stable release receives that installer alongside Android and Mac binaries. Release builds use the canonical `assets/icon.png` without changing the brand.
+The GitHub workflow uploads the installer and checksum as `windows-x64`; a published stable release receives that installer alongside Android and Mac binaries. Release builds use the canonical `assets/icon.png` without changing the brand.
 
 These Windows installers are currently unsigned. Windows may show an unknown-publisher/SmartScreen warning. Trusted publisher signing requires a Windows signing certificate or signing service. The existing Android APK uses the Expo test key, and the Mac app is ad-hoc signed without Apple notarization. These are downloadable test builds, not store-signed releases.

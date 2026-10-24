@@ -1,17 +1,36 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, access } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
+const check = process.argv.includes("--check");
+const hash = (value) => createHash("sha256").update(value).digest("hex");
+const runtimeManifestPath = "scripts/brand-runtime-manifest.json";
+
+// CI validates the committed product assets without needing the private brand kit.
+if (check) {
+  const manifest = JSON.parse(await readFile(path.join(root, runtimeManifestPath), "utf8"));
+  for (const [file, expectedHash] of Object.entries(manifest.files)) {
+    if (hash(await readFile(path.join(root, file))) !== expectedHash)
+      throw new Error(`Modified runtime brand export: ${file}`);
+  }
+  console.log(`Runtime brand consistency passed: ${Object.keys(manifest.files).length} product assets.`);
+}
+
 const masterPath = "brand/source/identity.json";
+try {
+  await access(path.join(root, masterPath));
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
+  if (check) process.exit(0);
+  throw new Error("Restore the private brand workspace to regenerate assets. Use --check to verify the committed product assets.");
+}
 const masterSource = await readFile(path.join(root, masterPath), "utf8");
 const identity = JSON.parse(masterSource);
 const { mark, wordmark, colors } = identity;
-const check = process.argv.includes("--check");
 const files = new Map();
-const hash = (value) => createHash("sha256").update(value).digest("hex");
 const markBody = (fill) =>
   `<path fill="${fill}" d="${mark.path}"/>`;
 const svg = (viewBox, body, width, height) =>
@@ -228,6 +247,17 @@ if (check) {
       null,
       2,
     ) + "\n",
+  );
+  await writeFile(
+    path.join(root, runtimeManifestPath),
+    JSON.stringify({
+      version: identity.version,
+      source: masterPath,
+      sourceHash: hash(masterSource),
+      files: Object.fromEntries([...files]
+        .filter(([file]) => !file.startsWith("brand/"))
+        .map(([file, value]) => [file, hash(value)])),
+    }, null, 2) + "\n",
   );
   console.log(
     `Generated ${files.size} brand exports from one canonical master.`,

@@ -68,7 +68,7 @@ Subloom tracks and helps you review subscriptions. Managing or canceling a servi
 
 <p align="center">
   <strong>Review transactions on a smaller screen</strong><br><br>
-  <img src="feature-docs/images/focused-transactions-mobile.jpg" alt="Compact Subloom transaction review in dark mode, showing an illustrative refund" width="300">
+  <img src=".github/assets/transactions-mobile.jpg" alt="Compact Subloom transaction review in dark mode, showing an illustrative refund" width="300">
 </p>
 
 <sub>Real web interface, captured with illustrative records. Names and prices are examples, not current provider offers. Compact screenshots show the responsive web layout, not a native-device certification.</sub>
@@ -84,9 +84,9 @@ Subloom tracks and helps you review subscriptions. Managing or canceling a servi
 | **macOS**   | Download an Apple silicon or Intel app ZIP from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `macos-arm64` / `macos-x64` artifacts in successful [CI runs](https://github.com/Baltii/Subloom/actions/workflows/ci.yml). Requires macOS 14+. |
 | **iOS**     | Build an Expo development client locally or through EAS.                                                                                                                                                                                                             |
 
-New stable releases attach Android, Windows, and Mac test builds after their build jobs finish. Older releases may have fewer assets. Windows installers are unsigned; Mac apps are ad-hoc signed without Apple notarization. See the [release download guide](feature-docs/windows-release-downloads.md).
+New stable releases attach Android, Windows, and Mac test builds after their build jobs finish. Older releases may have fewer assets. Windows installers are unsigned; Mac apps are ad-hoc signed without Apple notarization.
 
-Android CI APKs use a test signing key and cannot update an EAS/store-signed installation. Use a spare device, or export guest data before replacing an existing install. See the [build guide](feature-docs/development.md#android-test-apks) for details.
+Android CI APKs use a test signing key and cannot update an EAS/store-signed installation. Use a spare device, or export guest data before replacing an existing install.
 
 <details>
 <summary><strong>Reminder and integration availability</strong></summary>
@@ -97,7 +97,7 @@ Android CI APKs use a test signing key and cannot update an EAS/store-signed ins
 - **Email, OCR, and receipt forwarding:** require their provider configuration and live delivery checks. General-recipient email also needs a verified sender domain.
 - **Bank statements:** imported from files you review. Direct bank connections and automatic merchant cancellation are not enabled.
 
-See the [development guide](feature-docs/development.md#optional-integrations) for configuration boundaries.
+Configure optional providers separately before relying on their integrations.
 
 </details>
 
@@ -114,7 +114,7 @@ npm run dev
 
 Open **[localhost:8081](http://localhost:8081)**, complete the welcome tour, and choose **Use on this device** to start an empty local workspace. Guest tracking, pasted-text receipt review, and CSV imports need no provider credentials.
 
-For account sync, add the public app configuration to `.env.local` using [`.env.example`](.env.example) as a reference. Server secrets belong in backend settings, never in `EXPO_PUBLIC_*` variables or committed files. See [local configuration](feature-docs/development.md#local-configuration).
+For account sync, add the public app configuration to `.env.local` using [`.env.example`](.env.example) as a reference. Server secrets belong in backend settings, never in `EXPO_PUBLIC_*` variables or committed files.
 
 <details>
 <summary><strong>Website, native builds, and checks</strong></summary>
@@ -137,7 +137,7 @@ npm run android
 npm run ios
 ```
 
-Android needs its SDK/JDK tooling; iOS needs Xcode. Android Firebase builds also require the ignored local `google-services.json` or a `GOOGLE_SERVICES_JSON` file path. Cloud builds use EAS profiles. See the [development guide](feature-docs/development.md).
+Android needs its SDK/JDK tooling; iOS needs Xcode. Android Firebase builds also require the ignored local `google-services.json` or a `GOOGLE_SERVICES_JSON` file path. Cloud builds use EAS profiles.
 
 **Verification**
 
@@ -148,7 +148,7 @@ npm run test:backend      # Backend tests
 npm run export:web       # Production web bundle
 ```
 
-For desktop builds, follow the [Windows guide](windows/README.md) or the [Mac build instructions](feature-docs/development.md#mac-test-app-and-reminders).
+For desktop builds, follow the [Windows guide](windows/README.md), or run `npm run build:macos` on macOS with Xcode installed.
 
 CI also verifies the landing build, native JavaScript exports, canonical brand assets, Mac builds, the Windows installer and app launch, and Android APK builds for trusted branches. Live provider/device checks are separate from these automated checks.
 
@@ -167,21 +167,17 @@ CI also verifies the landing build, native JavaScript exports, canonical brand a
 | Backend               | Supabase Auth, Postgres with owner-isolating RLS, Realtime, and Edge Functions                            |
 | Delivery              | GitHub Actions, Release Please, Vercel, and Expo/EAS                                                      |
 
-## Documentation
+## Repository contents
 
-- [Development and build guide](feature-docs/development.md) — local setup, persistence, desktop builds, APKs, CI, and optional integrations.
-- [Release downloads](feature-docs/windows-release-downloads.md) — Android, Windows, and Mac artifacts and exact-tag release builds.
-- [Current product scope](feature-docs/focused-subscription-tracker.md) — the focused tracker and reviewed transaction workflow.
-- [Feature guides](feature-docs/README.md) — calendars, budgets, imports, and historical delivery records.
-- [Web deployment](feature-docs/web-deployment.md) — production routing and public build configuration.
-- [Brand guide](brand/GUIDE.md) · [Download brand kit](brand/output/Subloom-Brand-Kit.zip) — the fixed four-petal identity, colors, and typography.
-- [Email templates](feature-docs/email-templates.md) — message previews and which delivery triggers are implemented.
+This repository includes product source, build configuration, public assets, and third-party licenses. Internal feature records, agent skills, artwork prompts, and the full brand workspace are kept locally and excluded from version control. Required logo components, icons, fonts, and optimized illustrations remain included.
+
+Run `npm run check:repository` to reject accidentally tracked private or generated files. Run `node scripts/build-brand.mjs --check` to verify the committed brand assets; regenerating them requires the private canonical brand workspace.
 
 ## Contributing
 
 Use `release-candidate` as the base for new work. Name working branches `feat/`, `fix/`, `refactor/`, `chore/`, `hotfix/`, or `doc/` followed by a short kebab-case description. Use Conventional Commits such as `feat(subscriptions): add service suggestions` and `docs: improve the setup guide`; hotfix commits use `fix`.
 
-Follow [AGENTS.md](AGENTS.md) for the complete naming and stacked-PR rules. Keep changes focused, preserve original-currency/date-only semantics and guest/account separation, and record the checks you actually ran. Found a bug or have an idea? [Open an issue](https://github.com/Baltii/Subloom/issues/new).
+For a feature stack, target `release-candidate` with the first PR and target each predecessor with the next PR. State the merge order in every PR. Keep changes focused, preserve original-currency/date-only semantics and guest/account separation, and record the checks you actually ran. Found a bug or have an idea? [Open an issue](https://github.com/Baltii/Subloom/issues/new).
 
 ---
 
