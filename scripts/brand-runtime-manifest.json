@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "source": "brand/source/identity.json",
+  "sourceHash": "5c7159ed9501c9a8ef6f576833c5a8c6bc4c1059f46720779650a247c1f2d65b",
+  "files": {
+    "landing/public/icon.svg": "19ddef156ec7f1db757a3dc59594d4dfb91a89ae6e5544c27dd1311e41ace10c",
+    "landing/public/brand/subloom-logo-primary.svg": "4f22a09ed4b7a83d6d02f0f86dc19b4f7ba76ab8f8f78fc4539526ddce69c47c",
+    "landing/public/brand/subloom-logo-inverse.svg": "257f09f8181fee24a326e06e8df5cae4dbcb736e547621d2b3db2d31de4ef285",
+    "landing/public/brand/subloom-logo-forest.svg": "cd25843dee4a94a7c8788e72613a3825bb14ba3b26e5636e107b4f35786e5d7e",
+    "src/brand/identity.ts": "f2911fe279f414008c9c9cb23a2adfe7558a122a34bc2eef8dc02e0fa90474a5",
+    "landing/components/brand-identity.ts": "f2911fe279f414008c9c9cb23a2adfe7558a122a34bc2eef8dc02e0fa90474a5",
+    "assets/icon.png": "3cb4c1a0bfbedd184e70224f567e5c9120731ba2f26f59956fcb0fe6aff1d630",
+    "assets/adaptive-icon.png": "5031b6b02b052a2c5f9d729aa06c1bb17d52d2aabb05c8a276359fcd1bff8de2",
+    "assets/monochrome-icon.png": "0741358b7d182f59b0492bbd1d4a259bec4688337ec1011a2e118078c7b648c2",
+    "assets/splash-mark.png": "b6e949ec6a3f41d21633cd0650c91b7bd8f6cf10bec35fb0dabcdfa1cdcc6430",
+    "assets/splash-mark-dark.png": "2a0242876c00a33c79ae552e41cf509ab636d758d1456aa1e0371c6f2bfe1369",
+    "landing/public/apple-touch-icon.png": "561be83532b21cf581fa1c2f25f9eefacda505ab62cc7416cc837afb765df2ca"
+  }
+}

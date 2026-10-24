@@ -156,8 +156,7 @@ try {
       ) + "\n",
     );
     console.log(
-      "Schema prerequisites verified. See feature-docs/" +
-        "setup-progress.md for provider and live-test status.",
+      "Schema prerequisites verified. Provider configuration, function deployment, and live checks remain separate.",
     );
   }
 } finally {

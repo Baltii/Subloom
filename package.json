@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "export:web": "node scripts/expo.mjs export --platform web",
-    "check": "npm run typecheck && npm run lint && npm test",
+    "check": "npm run check:repository && npm run typecheck && npm run lint && npm test",
     "test:backend": "deno test --allow-env --allow-net --config supabase/functions/deno.json supabase/functions/tests",
     "check:backend": "deno check --config supabase/functions/deno.json supabase/functions/*/index.ts",
     "format": "prettier --write src tests docs *.ts *.json",
@@ -30,7 +30,8 @@
     "build:windows": "node scripts/build-windows.mjs",
     "test:windows": "node --test windows/*.test.cjs",
     "test:windows:app": "node scripts/test-windows.mjs",
-    "test:desktop:oauth": "node scripts/check-desktop-oauth.mjs"
+    "test:desktop:oauth": "node scripts/check-desktop-oauth.mjs",
+    "check:repository": "node scripts/check-repository-files.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.4.2",
