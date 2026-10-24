@@ -7,6 +7,7 @@ import {
   Download,
   FileSearch,
   Mail,
+  X,
 } from "lucide-react-native";
 import {
   Button,
@@ -15,12 +16,14 @@ import {
   Confirm,
   Field,
   Heading,
+  IconButton,
   Label,
   Page,
 } from "../components/ui/Primitives";
 import { useTheme, useWide } from "../theme/useTheme";
 import { useApp, readableError } from "../store/app";
 import { usePro } from "../store/pro";
+import { useProAccess, type ProFeature } from "../hooks/useProAccess";
 import {
   billingAuth,
   disconnectBilling,
@@ -44,7 +47,15 @@ export default function ProRoute() {
   const identity = useApp((s) => s.identity);
   return <ProPage key={identity} identity={identity} />;
 }
-function ProPage({ identity }: { identity: string }) {
+export function ProPage({
+  identity,
+  onClose,
+  feature,
+}: {
+  identity: string;
+  onClose?: () => void;
+  feature?: ProFeature;
+}) {
   const { colors } = useTheme(),
     wide = useWide();
   const billing = usePro();
@@ -58,7 +69,7 @@ function ProPage({ identity }: { identity: string }) {
   const [error, setError] = useState<string | null>(null);
   const [disconnect, setDisconnect] = useState(false);
   const operation = useRef(false);
-  const pro = billing.workspace === identity && billing.offlineUntil > 0;
+  const { pro } = useProAccess();
   const snapshot = billing.workspace === identity ? billing.snapshot : null;
   useFocusEffect(
     useCallback(() => {
@@ -94,8 +105,17 @@ function ProPage({ identity }: { identity: string }) {
   return (
     <Page
       title="Subloom Pro"
-      back
-      subtitle="Your daily essentials stay free."
+      back={!onClose}
+      right={
+        onClose ? (
+          <IconButton icon={X} label="Close Subloom Pro" onPress={onClose} />
+        ) : undefined
+      }
+      subtitle={
+        feature
+          ? `Included with Subloom Pro: ${feature}.`
+          : "Your daily essentials stay free."
+      }
       contentMaxWidth={1000}
     >
       <View style={{ gap: 24 }}>

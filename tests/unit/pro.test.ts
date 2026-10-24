@@ -83,6 +83,11 @@ describe("signed local Pro access", () => {
     });
     expect(() => requirePro("guest")).not.toThrow();
     expect(() => requirePro(owner)).toThrow(/Pro/);
+    usePro.setState({ ready: false });
+    expect(() => requirePro("guest")).toThrow(/Pro/);
+    usePro.setState({ ready: true, owner: null });
+    expect(() => requirePro("guest")).toThrow(/Pro/);
+    usePro.setState({ owner });
     usePro.setState({ offlineUntil: Date.now() - 1 });
     expect(() => requirePro("guest")).toThrow(/Pro/);
     usePro.setState(emptyPro);
