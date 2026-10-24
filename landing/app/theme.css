@@ -84,8 +84,6 @@
 .privacy-panel .heading-accent { color: #a1e1be; }
 .button-light, .button-light:hover, .button-light:focus-visible { background: #e1f0de; color: #182d25; }
 .button-light::before { background: #fff; }
-.spotify { color: #182d25; }
-.icloud { color: #30699f; background: #e7eff4; }
 .avatar { color: var(--ink); }
 /* Header utilities remain beside the app action, including in the mobile menu. */
 .nav-utilities { display: flex; align-items: center; gap: 10px; }
