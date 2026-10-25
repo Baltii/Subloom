@@ -2,6 +2,14 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.10.0](https://github.com/Baltii/Subloom/compare/v1.9.0...v1.10.0) (2026-10-25)
+
+
+### Features
+
+* unify app currency and polish settings and updates ([c136800](https://github.com/Baltii/Subloom/commit/c136800c13cfbbab64bd03faec222eac6daddaa9))
+* unify currency displays and polish settings and app updates ([d412527](https://github.com/Baltii/Subloom/commit/d41252762775ee6df670a2f97606642e5b09d3fc))
+
 ## [1.9.0](https://github.com/Baltii/Subloom/compare/v1.8.0...v1.9.0) (2026-10-25)
 
 
