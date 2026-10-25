@@ -2,6 +2,14 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.9.0](https://github.com/Baltii/Subloom/compare/v1.8.0...v1.9.0) (2026-10-25)
+
+
+### Features
+
+* free access, support and friendly private feedback ([08fd9fa](https://github.com/Baltii/Subloom/commit/08fd9fa98daaf82ef2b91e7c23343f875a1ea124))
+* open free access and add friendly private feedback ([82f03e1](https://github.com/Baltii/Subloom/commit/82f03e10320b1fe23885879e4ad10ae2786949d1))
+
 ## [1.8.0](https://github.com/Baltii/Subloom/compare/v1.7.0...v1.8.0) (2026-10-25)
 
 
