@@ -22,3 +22,9 @@ export function mailboxCallbackUnavailable() {
       })
     : null;
 }
+
+/** Legacy clients may still list and revoke addresses, but cannot create new ones. */
+export function requireReceiptAddressActionAvailable(action: string) {
+  if (action === "create")
+    throw new HttpError(410, "Receipt forwarding is no longer available.");
+}

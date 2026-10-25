@@ -91,7 +91,7 @@ const settingsGroups = [
   {
     title: "Tools",
     keywords:
-      "subscription receipt import discovery gmail outlook monthly budgets csv calendar forwarding bank statement transactions",
+      "subscription receipt import discovery gmail outlook monthly budgets csv calendar bank statement transactions",
   },
   {
     title: "App updates",
@@ -998,7 +998,7 @@ function Settings() {
       <Confirm
         visible={confirmDelete}
         title="Delete your account?"
-        body="This permanently deletes your Subloom account and its associated cloud data, revokes forwarding addresses, and clears both account and guest data on this device. It does not cancel billing with your providers."
+        body="This permanently deletes your Subloom account and its associated cloud data, and clears both account and guest data on this device. It does not cancel billing with your providers."
         action="Delete account and data"
         cancelLabel="Keep my account"
         confirmDisabled={deletePhrase !== "DELETE"}

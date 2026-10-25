@@ -10,11 +10,11 @@ export default function Privacy() {
     ],
     [
       "Receipt access is your choice.",
-      "Pasted receipt text is parsed on-device. Forwarded email text is processed transiently by the configured backend. Screenshot OCR sends your selected image to Google Cloud Vision only after you explicitly agree. Subloom does not retain the original image. No AI extraction service receives your data.",
+      "Pasted receipt text is parsed on-device. Screenshot OCR sends your selected image to Google Cloud Vision only after you explicitly agree. Subloom does not retain the original image. No AI extraction service receives your data.",
     ],
     [
       "Permissions appear when relevant.",
-      "Notification permission is requested only when you enable push. The photo picker opens only when you choose a screenshot. Mailbox read access is requested only when you explicitly connect Gmail or Outlook. No bank, card-number, contact, or accessibility access is requested.",
+      "Notification permission is requested only when you enable push. The photo picker opens only when you choose a screenshot. New mailbox connections are currently disabled. No bank, card-number, contact, or accessibility access is requested.",
     ],
     [
       "Connected mailboxes.",
@@ -26,7 +26,7 @@ export default function Privacy() {
     ],
     [
       "You can leave at any time.",
-      "Export your data in Settings. Revoke receipt addresses under Receipt forwarding. Delete your account to remove cloud records and local account/guest data on this device. Other signed-in devices clear access when their session is invalidated; their offline cached data requires local clearing.",
+      "Export your data in Settings. Delete your account to remove cloud records and local account/guest data on this device. Other signed-in devices clear access when their session is invalidated; their offline cached data requires local clearing.",
     ],
     [
       "Reminder privacy.",
