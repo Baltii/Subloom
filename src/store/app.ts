@@ -21,7 +21,7 @@ import { duplicateCandidate, possibleMatch } from "../domain/detection";
 import { loadSnapshot, saveSnapshot } from "../services/storage";
 import { demoSnapshot } from "../services/demo";
 import { canAddSubscriptions, FREE_SUBSCRIPTIONS } from "../domain/pro";
-import { workspaceHasPro } from "./pro";
+import { requirePro, workspaceHasPro } from "./pro";
 import { today } from "../domain/renewal";
 import {
   trackedProSubscription,
@@ -576,6 +576,7 @@ export async function importSubscriptions(
     throw new Error("Import at most 500 subscriptions at once.");
   const parsed = inputs.map((s) => subscriptionSchema.parse(s));
   await commit((data) => {
+    requirePro(identity);
     if (data.demo) throw new Error("Leave demo mode before importing.");
     const now = new Date().toISOString();
     const imported = uniqueCsvRows(parsed, data.subscriptions).map((s) => ({

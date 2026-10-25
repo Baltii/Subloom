@@ -51,7 +51,7 @@ Start with a personal space saved on your device. Connect an account when you wa
 | **A clearer picture of spending** | Compare monthly and yearly estimates, explore category breakdowns, set category budgets, and review recorded price changes. Original currencies stay separate.                                   |
 | **Find the recurring charges**    | Import a bank-exported statement CSV, review and categorize transactions, and confirm recurring-charge suggestions before creating subscriptions.                                                |
 | **Less retyping**                 | Paste receipt text, review the detected details, and confirm what gets saved. Screenshot OCR is available when its optional backend is configured.                                               |
-| **Your data, your choice**        | Track offline, optionally sync through an account, import/export subscription CSVs, and export renewal dates to your calendar. Guest backups and account export/deletion controls are available. |
+| **Your data, your choice**        | Track offline, optionally sync through an account, import/export subscription CSVs with Pro, and export renewal dates to your calendar. Guest backups and account export/deletion controls are available. |
 | **A calmer everyday interface**   | Light, dark, and system appearance; eight accent themes; responsive layouts; accessible controls; and motion that respects reduced-motion preferences.                                           |
 
 Subloom tracks and helps you review subscriptions. Managing or canceling a service still happens with its provider; recording a cancellation in Subloom does not cancel merchant billing.
@@ -108,7 +108,7 @@ npm ci
 npm run dev
 ```
 
-Open **[localhost:8081](http://localhost:8081)**, complete the welcome tour, and choose **Use on this device** to start an empty local workspace. Guest tracking, pasted-text receipt review, and CSV imports need no provider credentials.
+Open **[localhost:8081](http://localhost:8081)**, complete the welcome tour, and choose **Use on this device** to start an empty local workspace. Guest tracking and pasted-text receipt review need no provider credentials. Subscription CSV imports and exports require Pro.
 
 For account sync, add the public app configuration to `.env.local` using [`.env.example`](.env.example) as a reference. Server secrets belong in backend settings, never in `EXPO_PUBLIC_*` variables or committed files.
 

@@ -47,7 +47,7 @@ beforeEach(async () => {
 
 describe("durable free plan limits", () => {
   it("allows ten subscriptions and serializes competing additions at the limit", async () => {
-    await importSubscriptions(rows(9), "guest");
+    for (const input of rows(9)) await saveSubscription(input);
     const results = await Promise.allSettled(
       rows(2).map((s) => saveSubscription(s)),
     );
@@ -56,16 +56,18 @@ describe("durable free plan limits", () => {
     await hydrate("guest");
     expect(useApp.getState().data.subscriptions).toHaveLength(10);
   });
-  it("rejects an oversized CSV import atomically and skips duplicate rows before checking capacity", async () => {
+  it("rejects Free CSV imports atomically and allows Pro imports with duplicate rows skipped", async () => {
     const inputs = rows(11);
-    await expect(importSubscriptions(inputs, "guest")).rejects.toThrow(
-      /10 subscriptions/,
-    );
+    await expect(importSubscriptions(inputs, "guest")).rejects.toThrow(/Pro/);
     expect(useApp.getState().data.subscriptions).toHaveLength(0);
     expect(useApp.getState().data.activity).toHaveLength(0);
-    await importSubscriptions(inputs.slice(0, 10), "guest");
-    await importSubscriptions(inputs.slice(0, 10), "guest");
-    expect(useApp.getState().data.subscriptions).toHaveLength(10);
+    enablePro();
+    await importSubscriptions(inputs, "guest");
+    await importSubscriptions(inputs, "guest");
+    expect(useApp.getState().data.subscriptions).toHaveLength(11);
+    usePro.setState({ offlineUntil: Date.now() - 1 });
+    await expect(importSubscriptions(rows(1), "guest")).rejects.toThrow(/Pro/);
+    expect(useApp.getState().data.subscriptions).toHaveLength(11);
   });
   it("preserves over-limit Pro records after expiry and permits editing and deletion", async () => {
     enablePro();
@@ -85,9 +87,9 @@ describe("durable free plan limits", () => {
     expect(useApp.getState().data.subscriptions).toHaveLength(10);
   });
   it("does not partially merge a guest workspace that would exceed account capacity", async () => {
-    await importSubscriptions(rows(2), "guest");
+    for (const input of rows(2)) await saveSubscription(input);
     await hydrate(userA);
-    await importSubscriptions(rows(9), userA);
+    for (const input of rows(9)) await saveSubscription(input);
     const before = useApp.getState().data;
     await expect(importGuestData()).rejects.toThrow(/10 subscriptions/);
     expect(useApp.getState().data).toBe(before);

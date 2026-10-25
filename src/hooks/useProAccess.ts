@@ -3,6 +3,7 @@ import { useApp } from "../store/app";
 import { usePro, workspaceHasPro } from "../store/pro";
 
 export type ProFeature =
+  | "CSV import & export"
   | "Statement imports"
   | "Transaction exports"
   | "More cards & wallets"

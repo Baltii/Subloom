@@ -6,15 +6,21 @@ import { File } from "expo-file-system";
 import { useApp, importSubscriptions, readableError } from "../store/app";
 import { formatMoney } from "../domain/money";
 import type { Subscription } from "../domain/models";
-import {
-  csvExample,
-  csvSubscriptions,
-  exportCsv,
-  uniqueCsvRows,
-} from "../domain/csv";
+import { csvExample, csvSubscriptions, uniqueCsvRows } from "../domain/csv";
 import { shareText } from "../services/files";
-import { Button, Card, Field, Label, Page } from "../components/ui/Primitives";
+import {
+  Button,
+  Card,
+  Field,
+  Heading,
+  Label,
+  Page,
+} from "../components/ui/Primitives";
+import { ProFeatureBadge } from "../components/pro/ProFeatureBadge";
+import { useProAccess } from "../hooks/useProAccess";
+import { shareSubscriptionCsv } from "../services/subscriptionCsv";
 function Editor({ identity }: { identity: string }) {
+  const { pro, requestPro } = useProAccess();
   const subscriptions = useApp((s) => s.data.subscriptions),
     demo = useApp((s) => s.data.demo);
   const [text, setText] = useState(""),
@@ -22,6 +28,7 @@ function Editor({ identity }: { identity: string }) {
     [error, setError] = useState<string | null>(null),
     [busy, setBusy] = useState(false);
   async function run(action: () => Promise<void>) {
+    if (!requestPro("CSV import & export")) return;
     setBusy(true);
     setError(null);
     try {
@@ -32,6 +39,26 @@ function Editor({ identity }: { identity: string }) {
       setBusy(false);
     }
   }
+  if (!pro)
+    return (
+      <Page
+        title="CSV import & export"
+        subtitle="Move your subscription list between apps with Subloom Pro."
+        back
+      >
+        <Card style={{ gap: 16 }}>
+          <ProFeatureBadge />
+          <Heading size={20}>CSV tools are included in Pro</Heading>
+          <Label>
+            Import subscription lists and export your subscriptions as CSV with
+            Pro. Your JSON data backup in Settings stays free.
+          </Label>
+          <Button onPress={() => requestPro("CSV import & export")}>
+            Explore Pro
+          </Button>
+        </Card>
+      </Page>
+    );
   return (
     <Page
       title="CSV import & export"
@@ -39,18 +66,11 @@ function Editor({ identity }: { identity: string }) {
       back
     >
       <View style={{ gap: 18 }}>
+        <ProFeatureBadge />
         <Button
           variant="secondary"
           loading={busy}
-          onPress={() =>
-            void run(() =>
-              shareText(
-                exportCsv(subscriptions),
-                "subloom-subscriptions.csv",
-                "text/csv",
-              ),
-            )
-          }
+          onPress={() => void run(() => shareSubscriptionCsv(identity))}
         >
           Export subscriptions as CSV
         </Button>
@@ -112,6 +132,7 @@ function Editor({ identity }: { identity: string }) {
             <Button
               disabled={demo || !text.trim() || busy}
               onPress={() => {
+                if (!requestPro("CSV import & export")) return;
                 setError(null);
                 try {
                   setPreview(
