@@ -20,7 +20,7 @@ import { ProFeatureBadge } from "../pro/ProFeatureBadge";
 import { QuickActionsContext } from "../../hooks/useQuickActions";
 import { useApp } from "../../store/app";
 import { useTheme } from "../../theme/useTheme";
-import { Field, Label } from "./Primitives";
+import { Badge, Field, Label } from "./Primitives";
 import { PickerSheet } from "./Selection";
 
 export const toolActions: {
@@ -30,6 +30,7 @@ export const toolActions: {
   icon: LucideIcon;
   keywords?: string;
   proFeature?: ProFeature;
+  soon?: boolean;
   group: string;
 }[] = [
   {
@@ -74,7 +75,9 @@ export const toolActions: {
   },
   {
     title: "Mailbox discovery",
-    detail: "Find subscription receipts in Gmail or Outlook",
+    detail: "Gmail and Outlook receipt discovery · coming soon to Pro",
+    proFeature: "Mailbox discovery",
+    soon: true,
     route: "/mailboxes",
     icon: Mail,
     keywords: "gmail outlook email",
@@ -216,9 +219,13 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
                 accessibilityRole="button"
                 accessibilityLabel={
                   action.title +
-                  (action.proFeature ? ", Pro imports and exports" : "")
+                  (action.proFeature ? ", Pro feature" : "") +
+                  (action.soon ? ", Soon, unavailable" : "")
                 }
+                disabled={action.soon}
+                accessibilityState={{ disabled: Boolean(action.soon) }}
                 onPress={() => {
+                  if (action.soon) return;
                   setOpen(false);
                   if (Platform.OS === "ios")
                     pendingRoute.current = action.route;
@@ -234,7 +241,10 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
                   backgroundColor: pressed ? colors.mint : "transparent",
                 })}
               >
-                <action.icon size={19} color={colors.primary} />
+                <action.icon
+                  size={19}
+                  color={action.soon ? colors.secondary : colors.primary}
+                />
                 <View style={{ flex: 1, gap: 3 }}>
                   <View
                     style={{
@@ -244,16 +254,23 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
                       gap: 8,
                     }}
                   >
-                    <Label bold size={14}>
+                    <Label
+                      bold
+                      size={14}
+                      color={action.soon ? colors.secondary : colors.text}
+                    >
                       {action.title}
                     </Label>
                     {action.proFeature && <ProFeatureBadge />}
+                    {action.soon && <Badge tone="neutral">Soon</Badge>}
                   </View>
                   <Label size={12} color={colors.secondary}>
                     {action.detail}
                   </Label>
                 </View>
-                <ArrowRight size={16} color={colors.secondary} />
+                {!action.soon && (
+                  <ArrowRight size={16} color={colors.secondary} />
+                )}
               </Pressable>
             </View>
           ))

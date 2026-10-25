@@ -4,6 +4,7 @@ import { usePro, workspaceHasPro } from "../store/pro";
 
 export type ProFeature =
   | "CSV import & export"
+  | "Mailbox discovery"
   | "Statement imports"
   | "Transaction exports"
   | "More cards & wallets"

@@ -6,9 +6,12 @@ import {
   tokenRequest,
 } from "../_shared/mailbox-providers.ts";
 import { seal, unseal } from "../_shared/mailbox-crypto.ts";
+import { mailboxCallbackUnavailable } from "../_shared/tool-availability.ts";
 export async function handler(req: Request) {
   if (req.method !== "GET")
     return new Response("Method not allowed", { status: 405 });
+  const unavailable = mailboxCallbackUnavailable();
+  if (unavailable) return unavailable;
   const client = admin();
   let claimed:
     | {
