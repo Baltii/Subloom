@@ -1,5 +1,10 @@
 import { z } from "zod";
 import { currencies, dateSchema } from "../../../src/domain/models.ts";
+export function providerRatesUrl(now = new Date()) {
+  // Some central banks publish tomorrow's local date before UTC has rolled over.
+  // Bound the observation date rather than weakening the future-date validation.
+  return `https://api.frankfurter.dev/v2/rates?base=USD&quotes=${currencies.filter((currency) => currency !== "USD").join(",")}&date=${now.toISOString().slice(0, 10)}`;
+}
 export function parseProviderRates(input: unknown, now = new Date()) {
   const schema = z
     .array(
@@ -11,7 +16,7 @@ export function parseProviderRates(input: unknown, now = new Date()) {
       }),
     )
     .min(1)
-    .max(10);
+    .max(currencies.length);
   const rates = schema.parse(input),
     today = now.toISOString().slice(0, 10);
   if (new Set(rates.map((r) => r.quote)).size !== rates.length)

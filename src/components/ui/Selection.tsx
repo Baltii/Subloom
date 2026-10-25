@@ -226,19 +226,19 @@ export function SelectField<T extends string>({
               : colors.border,
           borderRadius: 12,
           backgroundColor: pressed ? colors.mint : colors.background,
-          minHeight: 52,
-          paddingHorizontal: focused ? 13 : 14,
-          paddingVertical: focused ? 10 : 11,
+          minHeight: compact ? 44 : 52,
+          paddingHorizontal: (compact ? 10 : 14) - (focused ? 1 : 0),
+          paddingVertical: (compact ? 8 : 11) - (focused ? 1 : 0),
           flexDirection: "row",
           alignItems: "center",
-          gap: 10,
+          gap: compact ? 6 : 10,
           opacity: disabled ? 0.5 : 1,
         })}
       >
         {selected?.icon}
         <View style={{ flex: 1, gap: 2 }}>
           <Label
-            size={14}
+            size={compact ? 12 : 14}
             color={selected ? colors.text : colors.secondary}
             bold={Boolean(selected)}
           >
@@ -250,7 +250,7 @@ export function SelectField<T extends string>({
             </Label>
           )}
         </View>
-        <ChevronDown size={17} color={colors.secondary} />
+        <ChevronDown size={compact ? 14 : 17} color={colors.secondary} />
       </Pressable>
       {(error || hint) && (
         <Label

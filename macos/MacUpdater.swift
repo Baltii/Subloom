@@ -20,7 +20,7 @@ import Sparkle
         do { try controller.updater.start() }
         catch { phase = "error"; failure = "Update checks could not start. Reopen Subloom and try again." }
         if phase != "error" {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 30) { [weak self] in _ = self?.check() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in _ = self?.check() }
             timer = Timer.scheduledTimer(withTimeInterval: 24 * 3600, repeats: true) { [weak self] _ in
                 Task { @MainActor in _ = self?.check() }
             }
@@ -64,6 +64,9 @@ import Sparkle
     }
     func updaterDidNotFindUpdate(_ updater: SPUUpdater) {
         phase = "current"; available = nil; failure = nil; publish()
+    }
+    func updater(_ updater: SPUUpdater, willDownloadUpdate item: SUAppcastItem, with request: NSMutableURLRequest) {
+        phase = "downloading"; failure = nil; publish()
     }
     func updater(_ updater: SPUUpdater, didDownloadUpdate item: SUAppcastItem) {
         phase = "ready"; publish()

@@ -22,7 +22,6 @@ import {
 } from "../../components/ui/Primitives";
 import { useTheme, useWide } from "../../theme/useTheme";
 import { useProAccess } from "../../hooks/useProAccess";
-import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
 import { PRO_BILLING_METHODS } from "../../domain/pro";
 
 export default function BillingMethodsRoute() {
@@ -33,8 +32,7 @@ function BillingMethods() {
   const { colors } = useTheme(),
     wide = useWide(),
     methods = useBillingMethods(),
-    data = useApp((state) => state.data),
-    identity = useApp((state) => state.identity);
+    data = useApp((state) => state.data);
   const { pro, requestPro, openPro } = useProAccess();
   const [editing, setEditing] = useState<PaymentSource | "new" | null>(null),
     [removing, setRemoving] = useState<PaymentSource | null>(null),
@@ -51,7 +49,6 @@ function BillingMethods() {
   return (
     <Page
       title="Cards & wallets"
-      subtitle="Know what pays for each subscription."
       contentMaxWidth={1076}
       right={
         <Button
@@ -79,22 +76,6 @@ function BillingMethods() {
       <View
         style={{ width: "100%", maxWidth: 1000, alignSelf: "center", gap: 20 }}
       >
-        <Label color={colors.secondary} size={13}>
-          Save cards and wallets, then assign them to your subscriptions.
-        </Label>
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 8,
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <ProFeatureBadge />
-          <Label size={12} color={colors.secondary}>
-            Up to 50 saved cards & wallets
-          </Label>
-        </View>
         {!pro && (
           <View style={{ gap: 8 }}>
             <Label size={13}>
@@ -114,12 +95,6 @@ function BillingMethods() {
         {data.demo && (
           <Label size={13} color={colors.secondary}>
             Leave the sample workspace to save your own cards and wallets.
-          </Label>
-        )}
-        {identity !== "guest" && (
-          <Label size={12} color={colors.secondary}>
-            Cards and wallets sync with your account. Connect to load or change
-            them.
           </Label>
         )}
         {methods.error && (

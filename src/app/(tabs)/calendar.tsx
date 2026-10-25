@@ -19,11 +19,10 @@ import {
 import {
   calendarEventLabels,
   monthEvents,
-  scheduledCharges,
   type CalendarEvent,
 } from "../../domain/calendarEvents";
 import { dateLabel, today } from "../../domain/renewal";
-import { formatMoney } from "../../domain/money";
+import { useDisplayCurrency } from "../../hooks/useDisplayCurrency";
 import type { Currency } from "../../domain/models";
 import { useTheme, useWide } from "../../theme/useTheme";
 import {
@@ -65,6 +64,7 @@ export default function Calendar() {
   const wide = useWide(),
     reduced = useReducedMotion();
   const data = useApp((state) => state.data);
+  const display = useDisplayCurrency();
   const reference = today(data.preferences.timezone);
   const [month, setMonth] = useState(() => calendarMonth(reference, reference));
   const [selected, setSelected] = useState(reference);
@@ -131,7 +131,10 @@ export default function Calendar() {
     return groups;
   }, [visible]);
   const dayEvents = byDay.get(selected) ?? [];
-  const totals = scheduledCharges(visible);
+  const charges = visible.filter(
+    (event) => event.type === "renewal" || event.type === "trial",
+  );
+  const total = display.total(charges.map((event) => event.subscription));
   function add(date: string) {
     setAddByDate(false);
     router.push({ pathname: "/subscription/new", params: { date } });
@@ -151,7 +154,7 @@ export default function Calendar() {
   return (
     <Page
       title="Your subscription calendar."
-      subtitle={`Renewals and deadlines in ${data.preferences.timezone}. Select a day for details, or add a subscription by date.`}
+      subtitle={data.preferences.timezone.replaceAll("_", " ")}
     >
       <View style={{ gap: 18 }}>
         <View
@@ -251,7 +254,7 @@ export default function Calendar() {
                 />
               </View>
               <View style={{ gap: 8 }}>
-                <Label bold>Currency</Label>
+                <Label bold>Original billing currency</Label>
                 <Chips
                   wrap
                   values={["All", ...currencies] as const}
@@ -260,7 +263,7 @@ export default function Calendar() {
                   onChange={(currency) => update({ ...draft, currency })}
                 />
                 <Label size={12} color={colors.secondary}>
-                  Amounts stay in their original currencies.
+                  Prices are displayed in your app currency: {display.currency}.
                 </Label>
               </View>
             </>
@@ -577,11 +580,11 @@ export default function Calendar() {
                       </Badge>
                       {(event.type === "trial" || event.type === "renewal") && (
                         <Label size={12}>
-                          {formatMoney(
+                          {display.format(
                             event.subscription.amountMinor,
                             event.subscription.currency,
                           )}{" "}
-                          {event.subscription.currency} projected
+                          {display.currency} projected
                         </Label>
                       )}
                     </View>
@@ -603,9 +606,8 @@ export default function Calendar() {
             </Card>
             <View style={{ gap: 10, padding: 4 }}>
               <Heading size={17}>Scheduled charges this month</Heading>
-              {totals.map((total) => (
+              {charges.length ? (
                 <View
-                  key={total.currency}
                   style={{
                     flexDirection: "row",
                     justifyContent: "space-between",
@@ -613,21 +615,21 @@ export default function Calendar() {
                   }}
                 >
                   <Label size={12} color={colors.secondary}>
-                    {total.currency}
+                    {display.currency}
                   </Label>
                   <Label size={14} bold>
-                    {formatMoney(total.amount, total.currency)}
+                    {total === null
+                      ? "Rate unavailable"
+                      : display.format(total)}
                   </Label>
                 </View>
-              ))}
-              {!totals.length && (
+              ) : (
                 <Label size={12} color={colors.secondary}>
                   No projected charges with these filters.
                 </Label>
               )}
               <Label size={11} color={colors.secondary}>
-                Renewals and trial conversions only. Original currencies, kept
-                separate.
+                Renewals and trial conversions, estimated in {display.currency}.
               </Label>
             </View>
             <Button

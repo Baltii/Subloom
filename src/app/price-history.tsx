@@ -5,7 +5,7 @@ import { useApp } from "../store/app";
 import { accountClient } from "../services/supabase";
 import { pricePointSchema } from "../domain/models";
 import { pricePoint, priceDifference } from "../domain/priceHistory";
-import { formatMoney } from "../domain/money";
+import { useDisplayCurrency } from "../hooks/useDisplayCurrency";
 import {
   Button,
   Card,
@@ -14,6 +14,7 @@ import {
   Page,
 } from "../components/ui/Primitives";
 export default function PriceHistory() {
+  const display = useDisplayCurrency();
   const { subscriptionId } = useLocalSearchParams<{
     subscriptionId?: string;
   }>();
@@ -50,7 +51,7 @@ export default function PriceHistory() {
   return (
     <Page
       title="Price history"
-      subtitle="Recorded prices and billing periods. These entries do not verify merchant charges."
+      subtitle={`Recorded prices, estimated in ${display.currency} using current rates.`}
       back
     >
       <View style={{ gap: 18 }}>
@@ -91,8 +92,8 @@ export default function PriceHistory() {
                     return (
                       <View key={p.version} style={{ gap: 4 }}>
                         <Label bold>
-                          {formatMoney(p.amountMinor, p.currency)} {p.currency}{" "}
-                          · {p.intervalCount}{" "}
+                          {display.format(p.amountMinor, p.currency)}{" "}
+                          {display.currency} · {p.intervalCount}{" "}
                           {p.interval === "custom" ? p.customUnit : p.interval}
                         </Label>
                         <Label>
@@ -111,9 +112,9 @@ export default function PriceHistory() {
                                 : (delta > 0
                                     ? "Increase of "
                                     : "Decrease of ") +
-                                  formatMoney(Math.abs(delta), p.currency) +
+                                  display.format(Math.abs(delta), p.currency) +
                                   " " +
-                                  p.currency}
+                                  display.currency}
                           </Label>
                         ) : null}
                       </View>

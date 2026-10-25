@@ -36,7 +36,7 @@ function createUpdateBroker({
   updater.allowDowngrade = false;
   updater.allowPrerelease = false;
   updater.disableWebInstaller = true;
-  updater.disableDifferentialDownload = true;
+  updater.disableDifferentialDownload = false;
   updater.on("error", () => {}); // A rejected check/download is reported through the bounded promise below.
   updater.on("download-progress", (p) =>
     set({ progress: Math.max(0, Math.min(100, Number(p.percent) || 0)) }),

@@ -33,7 +33,7 @@ import {
   currencyOptions,
 } from "../../domain/payments";
 import { type Currency } from "../../domain/models";
-import { formatMoney } from "../../domain/money";
+import { useDisplayCurrency } from "../../hooks/useDisplayCurrency";
 import { chooseStatementCsv } from "../../services/statementImport";
 import { shareText } from "../../services/files";
 import { PaymentSettingState } from "../../components/payments/PaymentSettingState";
@@ -41,6 +41,7 @@ import { requirePro } from "../../store/pro";
 import { useProAccess } from "../../hooks/useProAccess";
 import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
 function Importer() {
+  const display = useDisplayCurrency();
   const ledger = useFeatureSetting(
       "payment_transactions",
       ledgerSchema,
@@ -373,6 +374,10 @@ function Importer() {
         {preview ? (
           <View style={{ gap: 12 }}>
             <Heading size={22}>{preview.length} rows to review</Heading>
+            <Label size={12}>
+              Prices are displayed in {display.currency}. Imported billing
+              currencies stay unchanged.
+            </Label>
             <Label>
               {
                 preview.filter((t) => !savedFingerprints.has(t.fingerprint))
@@ -387,7 +392,7 @@ function Importer() {
                 <Label>
                   {t.date} ·{" "}
                   {t.direction === "debit" ? "Charge" : "Refund / credit"} ·{" "}
-                  {formatMoney(t.amountMinor, t.currency)} {t.currency}
+                  {display.format(t.amountMinor, t.currency)} {display.currency}
                 </Label>
                 <Label size={12}>
                   {t.reference || "No reference supplied"}

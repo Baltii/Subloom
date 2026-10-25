@@ -608,6 +608,7 @@ export function Page({
   children,
   add = false,
   back = false,
+  leadingActions,
   right,
   onRefresh,
   refreshing = false,
@@ -620,6 +621,7 @@ export function Page({
   children: ReactNode;
   add?: boolean;
   back?: boolean;
+  leadingActions?: ReactNode;
   right?: ReactNode;
   onRefresh?: () => void;
   refreshing?: boolean;
@@ -704,6 +706,7 @@ export function Page({
             )}
           </View>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            {leadingActions}
             {quickActions && !back && (
               <IconButton
                 icon={Zap}

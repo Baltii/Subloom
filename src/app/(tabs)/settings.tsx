@@ -15,7 +15,6 @@ import {
   X,
   Activity,
   Sparkles,
-  MessageSquare,
 } from "lucide-react-native";
 import {
   useApp,
@@ -25,27 +24,20 @@ import {
   hydrate,
   notify,
 } from "../../store/app";
-import { moneyInput, parseMoney } from "../../domain/money";
 import { supabase } from "../../services/supabase";
 import { macosBridge } from "../../services/macosBridge";
 import { windowsBridge } from "../../services/windowsBridge";
 import {
   enableWindowsReminders,
   openWindowsNotificationSettings,
-  sendWindowsTestNotification,
   useWindowsNotifications,
 } from "../../services/windowsNotifications";
 import {
   enableMacReminders,
   openMacNotificationSettings,
-  sendMacTestNotification,
   useMacNotifications,
 } from "../../services/macosNotifications";
-import {
-  disableDevice,
-  registerPush,
-  sendTestPush,
-} from "../../services/notifications";
+import { disableDevice, registerPush } from "../../services/notifications";
 import { exportData } from "../../services/export";
 import { clearLocalFeatures } from "../../services/featureSettings";
 import { removeSnapshot } from "../../services/storage";
@@ -80,7 +72,7 @@ const settingsGroups = [
   {
     title: "Account",
     keywords:
-      "login sign in sync import guest pro upgrade trial billing payment subscription",
+      "login sign in sync import guest pro upgrade trial billing payment subscription delete account",
   },
   {
     title: "Preferences",
@@ -89,7 +81,7 @@ const settingsGroups = [
   {
     title: "Reminders",
     keywords:
-      "notification push email trial weekly digest private lock screen time quiet hours renewal threshold mac windows",
+      "notification push email trial weekly digest private lock screen time quiet hours renewal mac windows",
   },
   {
     title: "Tools",
@@ -101,19 +93,14 @@ const settingsGroups = [
     keywords: "version download install update restart release",
   },
   {
-    title: "Support",
+    title: "Support & feedback",
     keywords:
-      "donate donation coffee buy me a coffee buymeacoffee support subloom developer ahmed balti",
-  },
-  {
-    title: "Feedback",
-    keywords:
-      "ideas feedback suggestion request feature bug problem report improve message",
+      "donate donation coffee support developer ideas feedback suggestion feature bug problem report message",
   },
   {
     title: "Data & privacy",
     keywords:
-      "json export download permissions help welcome onboarding tour reset clear delete account mailbox disconnect",
+      "json export download permissions help welcome onboarding tour reset clear",
   },
 ];
 export default function SettingsRoute() {
@@ -126,8 +113,15 @@ function Settings() {
     state = useApp(),
     p = state.data.preferences;
   const params = useLocalSearchParams<{ section?: string }>();
-  const section = settingsGroups.some((group) => group.title === params.section)
-    ? params.section!
+  const requestedSection = ["Support", "Feedback"].includes(
+    params.section || "",
+  )
+    ? "Support & feedback"
+    : params.section;
+  const section = settingsGroups.some(
+    (group) => group.title === requestedSection,
+  )
+    ? requestedSection!
     : "Preferences";
   const [search, setSearch] = useState("");
   const words = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -166,6 +160,7 @@ function Settings() {
         })
         .map((group) => group.title)
     : [section];
+  const isMobile = Platform.OS === "ios" || Platform.OS === "android";
   const isMac = Boolean(macosBridge());
   const isWindows = Boolean(windowsBridge());
   const mac = useMacNotifications();
@@ -173,11 +168,6 @@ function Settings() {
   const [hour, setHour] = useState(String(p.reminderHour)),
     [quietStart, setQuietStart] = useState(String(p.quietStart)),
     [quietEnd, setQuietEnd] = useState(String(p.quietEnd)),
-    [threshold, setThreshold] = useState(
-      p.highRenewalThresholdMinor === null
-        ? ""
-        : moneyInput(p.highRenewalThresholdMinor, p.currency),
-    ),
     [error, setError] = useState<string | null>(null),
     [busy, setBusy] = useState(false),
     [confirmDelete, setConfirmDelete] = useState(false),
@@ -236,7 +226,7 @@ function Settings() {
     );
   }
   return (
-    <Page title="Settings" subtitle="Set up your space, reminders and account.">
+    <Page title="Settings">
       <View style={{ gap: 20 }}>
         <Field
           label="Find a setting or tool"
@@ -444,6 +434,18 @@ function Settings() {
                     )}
                   </View>
                 )}
+                {state.identity !== "guest" && (
+                  <Button
+                    variant="danger"
+                    icon={Trash2}
+                    onPress={() => {
+                      setDeletePhrase("");
+                      setConfirmDelete(true);
+                    }}
+                  >
+                    Delete account and data
+                  </Button>
+                )}
               </Card>
             )}
             {visibleGroups.includes("Preferences") && (
@@ -477,7 +479,6 @@ function Settings() {
                           currency,
                           highRenewalThresholdMinor: null,
                         });
-                        setThreshold("");
                       })
                     }
                   />
@@ -487,8 +488,8 @@ function Settings() {
                   color={colors.secondary}
                   style={{ marginTop: 12 }}
                 >
-                  Original currencies are always preserved. Different currencies
-                  are shown as separate totals.
+                  Home totals use your preferred currency. Original subscription
+                  prices stay unchanged.
                 </Label>
                 <View style={{ marginTop: 24 }}>
                   <SelectField
@@ -534,22 +535,6 @@ function Settings() {
                       Do not disturb can silence banners.
                     </Label>
                     <View style={{ gap: 10, marginVertical: 16 }}>
-                      {windows.enabled && (
-                        <Button
-                          variant="secondary"
-                          loading={busy}
-                          onPress={() =>
-                            void run(async () => {
-                              await sendWindowsTestNotification();
-                              notify(
-                                "Windows accepted the test notification. Check Notification Center if no banner appears.",
-                              );
-                            })
-                          }
-                        >
-                          Send a Windows test notification
-                        </Button>
-                      )}
                       <Button
                         variant="ghost"
                         onPress={() =>
@@ -601,27 +586,6 @@ function Settings() {
                             only appear in Notification Center.
                           </Label>
                         )}
-                      {mac.testDelivered && (
-                        <Label size={12} color={colors.secondary}>
-                          Your test notification reached Notification Center.
-                        </Label>
-                      )}
-                      {mac.enabled && mac.permission === "granted" && (
-                        <Button
-                          variant="secondary"
-                          loading={busy}
-                          onPress={() =>
-                            void run(async () => {
-                              await sendMacTestNotification();
-                              notify(
-                                "Test notification scheduled for about five seconds from now.",
-                              );
-                            })
-                          }
-                        >
-                          Send a Mac test notification
-                        </Button>
-                      )}
                       <Button
                         variant="ghost"
                         onPress={() => void run(openMacNotificationSettings)}
@@ -639,88 +603,72 @@ function Settings() {
                 {state.identity === "guest" && !isMac && !isWindows && (
                   <Badge tone="neutral">Connect an account for delivery</Badge>
                 )}
-                {toggle(
-                  "Mobile push reminders",
-                  "Send reminders to the phones registered to your account.",
-                  p.pushEnabled,
-                  async (enabled) => {
-                    if (enabled && state.identity === "guest")
-                      throw new Error(
-                        "Connect an account before enabling push reminders.",
-                      );
-                    if (enabled && Platform.OS !== "web") await registerPush();
-                    else await disableDevice();
-                    await updatePreferences({ pushEnabled: enabled });
-                  },
-                )}
-                {Platform.OS === "web" ? (
-                  <Label size={12} color={colors.secondary}>
-                    Enable mobile delivery on each iOS or Android device.
-                  </Label>
-                ) : state.identity !== "guest" && p.pushEnabled ? (
-                  <View style={{ gap: 10, marginBottom: 16 }}>
-                    <Label size={12} color={colors.secondary}>
-                      {state.pushDeviceEnabled === null
-                        ? "Checking this device…"
-                        : state.pushDeviceEnabled
-                          ? "This device is registered for push reminders."
-                          : "Push delivery is not enabled on this device yet."}
-                    </Label>
-                    <Button
-                      variant="secondary"
-                      loading={busy}
-                      onPress={() =>
-                        void run(async () => {
-                          await registerPush();
-                          notify(
-                            "This device is registered for push reminders.",
+                {isMobile && (
+                  <>
+                    {toggle(
+                      "Mobile push reminders",
+                      "Send reminders to the phones registered to your account.",
+                      p.pushEnabled,
+                      async (enabled) => {
+                        if (enabled && state.identity === "guest")
+                          throw new Error(
+                            "Connect an account before enabling push reminders.",
                           );
-                        })
-                      }
-                    >
-                      {state.pushDeviceEnabled
-                        ? "Refresh this device’s registration"
-                        : "Enable push on this device"}
-                    </Button>
-                    {state.pushDeviceEnabled && (
-                      <Button
-                        variant="ghost"
-                        loading={busy}
-                        onPress={() =>
-                          void run(async () => {
-                            await syncNow();
-                            await sendTestPush();
-                            notify(
-                              "Test push queued for this device. The server will dispatch it shortly.",
-                            );
-                          })
-                        }
-                      >
-                        Send a test notification
-                      </Button>
+                        if (enabled && Platform.OS !== "web")
+                          await registerPush();
+                        else await disableDevice();
+                        await updatePreferences({ pushEnabled: enabled });
+                      },
                     )}
-                    {state.pushDeviceEnabled && (
-                      <Button
-                        variant="ghost"
-                        loading={busy}
-                        onPress={() =>
-                          void run(async () => {
-                            await disableDevice();
-                            notify(
-                              "Push is off on this device. Your other devices keep their reminders.",
-                            );
-                          })
-                        }
-                      >
-                        Turn off push on this device
-                      </Button>
+                    {state.identity !== "guest" && p.pushEnabled ? (
+                      <View style={{ gap: 10, marginBottom: 16 }}>
+                        <Label size={12} color={colors.secondary}>
+                          {state.pushDeviceEnabled === null
+                            ? "Checking this device…"
+                            : state.pushDeviceEnabled
+                              ? "This device is registered for push reminders."
+                              : "Push delivery is not enabled on this device yet."}
+                        </Label>
+                        <Button
+                          variant="secondary"
+                          loading={busy}
+                          onPress={() =>
+                            void run(async () => {
+                              await registerPush();
+                              notify(
+                                "This device is registered for push reminders.",
+                              );
+                            })
+                          }
+                        >
+                          {state.pushDeviceEnabled
+                            ? "Refresh this device’s registration"
+                            : "Enable push on this device"}
+                        </Button>
+                        {state.pushDeviceEnabled && (
+                          <Button
+                            variant="ghost"
+                            loading={busy}
+                            onPress={() =>
+                              void run(async () => {
+                                await disableDevice();
+                                notify(
+                                  "Push is off on this device. Your other devices keep their reminders.",
+                                );
+                              })
+                            }
+                          >
+                            Turn off push on this device
+                          </Button>
+                        )}
+                      </View>
+                    ) : null}
+                    {state.pushError && (
+                      <Label size={12} color={colors.error}>
+                        {state.pushError}
+                      </Label>
                     )}
-                  </View>
-                ) : null}
-                {state.pushError && (
-                  <Label size={12} color={colors.error}>
-                    {state.pushError}
-                  </Label>
+                  </>
                 )}
                 {toggle(
                   "Email reminders",
@@ -853,41 +801,6 @@ function Settings() {
                     Save reminder timing
                   </Button>
                 </View>
-                <View style={{ marginTop: 24 }}>
-                  <Field
-                    label={
-                      "High renewal threshold · " + p.currency + " (optional)"
-                    }
-                    placeholder="Leave blank to disable"
-                    value={threshold}
-                    onChangeText={setThreshold}
-                    keyboardType="decimal-pad"
-                  />
-                  <Label size={11} color={colors.secondary}>
-                    Flag a scheduled charge at or above this price in your
-                    reminders. Applies only to {p.currency}; no currency
-                    conversions or extra alerts.
-                  </Label>
-                  <View style={{ marginTop: 12 }}>
-                    <Button
-                      small
-                      variant="secondary"
-                      loading={busy}
-                      onPress={() =>
-                        void run(async () => {
-                          await updatePreferences({
-                            highRenewalThresholdMinor: threshold.trim()
-                              ? parseMoney(threshold, p.currency)
-                              : null,
-                          });
-                          notify("Renewal threshold saved.");
-                        })
-                      }
-                    >
-                      Save renewal threshold
-                    </Button>
-                  </View>
-                </View>
               </Card>
             )}
             {visibleGroups.includes("Tools") && (
@@ -933,28 +846,7 @@ function Settings() {
               </Card>
             )}
             {visibleGroups.includes("App updates") && <AppUpdatesCard />}
-            {visibleGroups.includes("Support") && <SupportCard />}
-            {visibleGroups.includes("Feedback") && (
-              <Card style={{ gap: 14 }}>
-                <SectionTitle title="Ideas & feedback" />
-                <Label color={colors.secondary}>
-                  Have an idea, spotted a problem, or just want to share a
-                  thought? Send it privately to my email inbox.
-                </Label>
-                <View style={{ alignItems: "flex-start" }}>
-                  <Button
-                    icon={MessageSquare}
-                    variant="secondary"
-                    onPress={() => router.push("/feedback")}
-                  >
-                    Share feedback
-                  </Button>
-                </View>
-                <Label size={12} color={colors.secondary}>
-                  You can send feedback without creating an account.
-                </Label>
-              </Card>
-            )}
+            {visibleGroups.includes("Support & feedback") && <SupportCard />}
             {visibleGroups.includes("Data & privacy") && (
               <Card style={{ marginTop: 24 }}>
                 <SectionTitle title="Data & privacy" />
@@ -969,12 +861,6 @@ function Settings() {
                   title="Privacy & permissions"
                   detail="What we store and why"
                   onPress={() => router.push("/privacy")}
-                />
-                <LinkRow
-                  icon={Mail}
-                  title="Connected mailbox access"
-                  detail="Remove previously granted Gmail or Outlook access"
-                  onPress={() => router.push("/mailboxes")}
                 />
                 <LinkRow
                   icon={HelpCircle}
@@ -996,18 +882,7 @@ function Settings() {
                   >
                     Clear this device’s data
                   </Button>
-                ) : (
-                  <Button
-                    variant="danger"
-                    icon={Trash2}
-                    onPress={() => {
-                      setDeletePhrase("");
-                      setConfirmDelete(true);
-                    }}
-                  >
-                    Delete account and data
-                  </Button>
-                )}
+                ) : null}
               </Card>
             )}
           </View>

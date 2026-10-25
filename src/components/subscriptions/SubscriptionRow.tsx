@@ -16,6 +16,7 @@ export const SubscriptionRow = memo(function SubscriptionRow({
   eventType,
   showActions = false,
   billingLabel,
+  displayPrice,
 }: {
   subscription: Subscription;
   reference: string;
@@ -23,10 +24,15 @@ export const SubscriptionRow = memo(function SubscriptionRow({
   eventType?: string;
   showActions?: boolean;
   billingLabel?: string;
+  displayPrice?: Pick<Subscription, "amountMinor" | "currency"> | null;
 }) {
   const { colors } = useTheme(),
     wide = useWide(),
     event = nextEvent(s, reference);
+  const price = displayPrice === undefined ? s : displayPrice;
+  const priceText = price
+    ? formatMoney(price.amountMinor, price.currency)
+    : "Rate unavailable";
   return (
     <View>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
@@ -35,9 +41,9 @@ export const SubscriptionRow = memo(function SubscriptionRow({
           accessibilityLabel={
             s.name +
             ", " +
-            formatMoney(s.amountMinor, s.currency) +
+            priceText +
             " " +
-            s.currency +
+            (price?.currency || "") +
             " per " +
             intervalLabel(s) +
             ", " +
@@ -101,15 +107,17 @@ export const SubscriptionRow = memo(function SubscriptionRow({
           )}
           <View style={{ alignItems: "flex-end", gap: 3 }}>
             <Label bold size={14}>
-              {formatMoney(s.amountMinor, s.currency)}
-              {days !== undefined && !wide ? " " + s.currency : ""}
+              {priceText}
+              {price && days !== undefined && !wide ? " " + price.currency : ""}
             </Label>
             <Label size={12} color={colors.secondary}>
               {days !== undefined && !wide
                 ? days === 0
                   ? "Today"
                   : "In " + days + " days"
-                : s.currency + " / " + intervalLabel(s)}
+                : price
+                  ? price.currency + " / " + intervalLabel(s)
+                  : ""}
             </Label>
           </View>
           {wide && !showActions && (

@@ -6,17 +6,18 @@ import {
   providerJson,
   HttpError,
 } from "../_shared/http.ts";
-import { parseProviderRates } from "../_shared/exchange-rates.ts";
+import { parseProviderRates, providerRatesUrl } from "../_shared/exchange-rates.ts";
 export const handler = endpoint(async (req) => {
   requireCron(req);
+  const now = new Date();
   const response = await providerJson(
-    "https://api.frankfurter.dev/v2/rates?base=USD&quotes=EUR,GBP,CAD,AUD,TND,JPY,CHF,AED,INR",
+    providerRatesUrl(now),
     {},
     32000,
   );
   let rows;
   try {
-    rows = parseProviderRates(response);
+    rows = parseProviderRates(response, now);
   } catch {
     throw new HttpError(
       502,

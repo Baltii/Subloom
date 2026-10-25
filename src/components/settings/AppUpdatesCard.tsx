@@ -63,7 +63,7 @@ export function AppUpdatesCard() {
                   ? `${update.availableVersion ? `Subloom ${update.availableVersion}` : "A compatible app update"} is available.`
                   : update.status === "current"
                     ? "You’re up to date."
-                    : "Subloom checks for updates daily. You choose when to install.";
+                    : "Subloom checks on launch. You choose when to install.";
   return (
     <Card>
       <SectionTitle title="App updates" />
@@ -111,7 +111,15 @@ export function AppUpdatesCard() {
         </Label>
       )}
       <View style={{ alignItems: "flex-start", gap: 12 }}>
-        {bootstrap ? (
+        {["checking", "downloading", "installing"].includes(update.status) ? (
+          <Button small loading disabled onPress={() => {}}>
+            {update.status === "downloading"
+              ? `Downloading${update.progress === null ? "…" : ` · ${Math.round(update.progress)}%`}`
+              : update.status === "installing"
+                ? "Installing…"
+                : "Checking for updates…"}
+          </Button>
+        ) : bootstrap ? (
           <Button
             small
             variant="secondary"

@@ -1,3 +1,4 @@
+import { useDisplayCurrency } from "../hooks/useDisplayCurrency";
 import { useCallback, useRef, useState } from "react";
 import { View } from "react-native";
 import { router, useFocusEffect } from "expo-router";
@@ -98,6 +99,7 @@ function PaidProPage({
   const { colors } = useTheme(),
     wide = useWide();
   const billing = usePro();
+  const display = useDisplayCurrency();
   const demo = useApp((s) => s.data.demo);
   const [interval, setInterval] = useState<"month" | "year">("year");
   const [email, setEmail] = useState("");
@@ -219,8 +221,8 @@ function PaidProPage({
                     </Label>
                     <Label bold size={22}>
                       {snapshot.interval === "month"
-                        ? "€2.99 / month"
-                        : "€24 / year"}
+                        ? `${display.format(299, "EUR", true)} / month`
+                        : `${display.format(2400, "EUR", true)} / year`}
                     </Label>
                   </View>
                 )}
@@ -299,9 +301,20 @@ function PaidProPage({
                     gap: 6,
                   }}
                 >
-                  <Heading size={40}>{price}</Heading>
+                  <Heading size={40}>
+                    {display.format(
+                      interval === "month" ? 299 : 2400,
+                      "EUR",
+                      true,
+                    )}
+                  </Heading>
                   <Label color={colors.secondary}>/ {cadence}</Label>
                 </View>
+                {display.currency !== "EUR" && (
+                  <Label size={12} color={colors.secondary}>
+                    Estimate in {display.currency}. Billing is in EUR.
+                  </Label>
+                )}
                 <Label size={13} color={colors.secondary}>
                   {interval === "year"
                     ? "€24 billed once a year."

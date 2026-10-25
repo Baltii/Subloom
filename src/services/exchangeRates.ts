@@ -1,8 +1,9 @@
+import { currencies } from "../domain/models";
 import { z } from "zod";
 import { exchangeRateSchema } from "../domain/exchangeRates";
 import { localSetting } from "./featureSettings";
 import { supabase } from "./supabase";
-const schema = z.array(exchangeRateSchema).max(10);
+const schema = z.array(exchangeRateSchema).max(currencies.length);
 export async function loadExchangeRates() {
   let cached: z.infer<typeof schema> = [];
   try {
@@ -17,11 +18,14 @@ export async function loadExchangeRates() {
       warning:
         "Currency estimates are not available yet. Original amounts are shown.",
     };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
   try {
     const { data, error } = await supabase
       .from("latest_exchange_rates")
       .select("*")
-      .limit(10);
+      .limit(currencies.length)
+      .abortSignal(controller.signal);
     if (error) throw error;
     const rates = schema.parse(data);
     if (!rates.length)
@@ -41,5 +45,7 @@ export async function loadExchangeRates() {
       warning:
         "Could not refresh rates. Showing cached estimates where available.",
     };
+  } finally {
+    clearTimeout(timeout);
   }
 }

@@ -238,7 +238,7 @@ else {
         });
       }
       if (process.platform === "win32" && app.isPackaged && !smokeMode) {
-        const timer = setTimeout(() => void updates.check(), 30000);
+        const timer = setTimeout(() => void updates.check(), 1000);
         timer.unref();
         const interval = setInterval(() => void updates.check(), 24 * 3600000);
         interval.unref();

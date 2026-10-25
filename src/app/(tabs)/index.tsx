@@ -9,9 +9,19 @@ import {
   ShieldCheck,
   Sparkles,
   ArrowUpRight,
+  Plus,
 } from "lucide-react-native";
 import { homeGreeting } from "../../domain/greeting";
-import { useApp } from "../../store/app";
+import { convertedSubscriptions } from "../../domain/exchangeRates";
+import { useDisplayCurrency } from "../../hooks/useDisplayCurrency";
+import { SelectField } from "../../components/ui/Selection";
+import { currencyOptions } from "../../components/ui/pickerOptions";
+import {
+  useApp,
+  updatePreferences,
+  notify,
+  readableError,
+} from "../../store/app";
 import { recurringTotals, formatMoney, annualCost } from "../../domain/money";
 import { dateLabel, today, upcoming } from "../../domain/renewal";
 import { useTheme, useWide } from "../../theme/useTheme";
@@ -23,6 +33,7 @@ import {
   Empty,
   Heading,
   Label,
+  IconButton,
   Page,
   SectionTitle,
 } from "../../components/ui/Primitives";
@@ -35,30 +46,47 @@ import { RenewalChart } from "../../components/ui/RenewalChart";
 import { AnimatedMoney } from "../../components/ui/AnimatedMoney";
 import { syncNow } from "../../services/sync";
 export default function Home() {
-  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const { colors } = useTheme(),
     wide = useWide(),
     data = useApp((s) => s.data);
   const identity = useApp((state) => state.identity);
   const profile = useApp((state) => state.greetingProfile);
-  const totals = useMemo(
-    () => recurringTotals(data.subscriptions),
-    [data.subscriptions],
+  const display = useDisplayCurrency();
+  const { currency, query: rates } = display;
+  const converted = useMemo(
+    () =>
+      convertedSubscriptions(
+        data.subscriptions,
+        currency,
+        rates.data?.rates || [],
+      ),
+    [data.subscriptions, currency, rates.data],
+  );
+  const main = useMemo(
+    () => recurringTotals(converted.subscriptions)[0],
+    [converted.subscriptions],
+  );
+  const complete = converted.missing.length === 0;
+  const displayedSubscriptions = useMemo(
+    () =>
+      new Map(
+        converted.subscriptions.map((subscription) => [
+          subscription.id,
+          subscription,
+        ]),
+      ),
+    [converted.subscriptions],
+  );
+  const hasConversion = data.subscriptions.some(
+    (s) => ["active", "trial"].includes(s.status) && s.currency !== currency,
   );
   const events = useMemo(
     () => upcoming(data.subscriptions, data.preferences.timezone),
     [data.subscriptions, data.preferences.timezone],
   );
-  const main =
-      totals.find((t) => t.currency === selectedCurrency) ||
-      totals.find((t) => t.currency === data.preferences.currency) ||
-      totals[0],
-    currency = main?.currency || data.preferences.currency;
-  const largest = data.subscriptions
-    .filter(
-      (s) => s.currency === currency && ["active", "trial"].includes(s.status),
-    )
+  const largest = converted.subscriptions
+    .filter((s) => ["active", "trial"].includes(s.status))
     .reduce<(typeof data.subscriptions)[number] | undefined>(
       (best, s) => (!best || annualCost(s) > annualCost(best) ? s : best),
       undefined,
@@ -78,7 +106,31 @@ export default function Home() {
         month: "long",
         day: "numeric",
       })}
-      add
+      leadingActions={
+        <View style={{ width: 80 }}>
+          <SelectField
+            label="App currency"
+            testID="home-currency"
+            value={currency}
+            options={currencyOptions}
+            compact
+            searchable
+            onChange={(currency) => {
+              void updatePreferences({
+                currency,
+                highRenewalThresholdMinor: null,
+              }).catch((error) => notify(readableError(error), "error"));
+            }}
+          />
+        </View>
+      }
+      right={
+        <IconButton
+          icon={Plus}
+          label="Add subscription"
+          onPress={() => router.push("/subscription/new")}
+        />
+      }
       refreshing={refreshing}
       onRefresh={() => {
         setRefreshing(true);
@@ -144,18 +196,28 @@ export default function Home() {
                   gap: 8,
                 }}
               >
-                <AnimatedMoney
-                  amountMinor={main?.monthly || 0}
-                  currency={currency}
-                  size={wide ? 54 : 45}
-                  color={colors.heroText}
-                />
+                {complete ? (
+                  <AnimatedMoney
+                    amountMinor={main?.monthly || 0}
+                    currency={currency}
+                    size={wide ? 54 : 45}
+                    color={colors.heroText}
+                  />
+                ) : (
+                  <Label size={wide ? 54 : 45} color={colors.heroText}>
+                    —
+                  </Label>
+                )}
                 <Label color={colors.heroSecondary} size={12}>
                   {currency} / month
                 </Label>
               </View>
               <Label size={12} color={colors.heroSecondary}>
-                {formatMoney(main?.annual || 0, currency)} estimated per year
+                {complete
+                  ? `${formatMoney(main?.annual || 0, currency)} estimated per year`
+                  : rates.isPending
+                    ? "Loading exchange rates…"
+                    : "Total unavailable · missing exchange rates"}
               </Label>
             </View>
             <View
@@ -239,7 +301,7 @@ export default function Home() {
                   }}
                 >
                   <Heading size={28}>
-                    {formatMoney(
+                    {display.format(
                       next.subscription.amountMinor,
                       next.subscription.currency,
                     )}
@@ -289,60 +351,33 @@ export default function Home() {
           </Card>
         </View>
       </AnimatedIn>
-      {totals.length > 1 && (
-        <View
-          style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            gap: 8,
-            marginBottom: 24,
-          }}
-        >
-          {totals.map((total) => (
-            <Pressable
-              key={total.currency}
-              accessibilityRole="button"
-              accessibilityLabel={`Show ${total.currency} spending`}
-              accessibilityState={{ selected: total.currency === currency }}
-              onPress={() => setSelectedCurrency(total.currency)}
-              style={({ pressed }) => ({
-                minHeight: 44,
-                justifyContent: "center",
-                paddingHorizontal: 16,
-                borderRadius: 12,
-                backgroundColor:
-                  total.currency === currency || pressed
-                    ? colors.mint
-                    : colors.surface,
-                borderWidth: 1,
-                borderColor:
-                  total.currency === currency ? colors.primary : colors.border,
-              })}
-            >
-              <Label size={12} bold>
-                {total.currency} · {formatMoney(total.monthly, total.currency)}{" "}
-                / month
-              </Label>
-            </Pressable>
-          ))}
-          <Label
-            size={11}
-            color={colors.secondary}
-            style={{ alignSelf: "center" }}
-          >
-            Currencies stay separate. No exchange rates applied.
+      {!complete && !rates.isPending && (
+        <Card style={{ marginBottom: 24, gap: 12 }}>
+          <Label color={colors.secondary}>
+            Rates for {converted.missing.join(", ")} → {currency} are
+            unavailable. Your original prices are saved.
           </Label>
-        </View>
+          <Button
+            small
+            variant="secondary"
+            loading={rates.isFetching}
+            onPress={() => void rates.refetch()}
+          >
+            Retry exchange rates
+          </Button>
+        </Card>
       )}
       <DashboardActions />
-      <Card style={{ marginBottom: 24 }}>
-        <SectionTitle title="Your next six months" />
-        <RenewalChart
-          subscriptions={data.subscriptions}
-          currency={currency}
-          reference={reference}
-        />
-      </Card>
+      {complete && (
+        <Card style={{ marginBottom: 24 }}>
+          <SectionTitle title="Your next six months" />
+          <RenewalChart
+            subscriptions={converted.subscriptions}
+            currency={currency}
+            reference={reference}
+          />
+        </Card>
+      )}
       {pending.length > 0 && (
         <Pressable
           accessibilityRole="button"
@@ -394,6 +429,10 @@ export default function Home() {
                   >
                     <SubscriptionRow
                       subscription={event.subscription}
+                      displayPrice={
+                        displayedSubscriptions.get(event.subscription.id) ||
+                        null
+                      }
                       reference={reference}
                       days={event.days}
                       eventType={event.type}
@@ -461,9 +500,15 @@ export default function Home() {
           <AnimatedIn delay={100}>
             <Card>
               <SectionTitle title="Where it goes" />
-              {activeCount ? (
+              {!complete ? (
+                <Label size={12} color={colors.secondary}>
+                  Your spending breakdown will appear when exchange rates are
+                  available.
+                </Label>
+              ) : activeCount ? (
                 <CategoryChart
-                  subscriptions={data.subscriptions}
+                  converted={hasConversion}
+                  subscriptions={converted.subscriptions}
                   currency={currency}
                 />
               ) : (
@@ -483,7 +528,7 @@ export default function Home() {
               )}
             </Card>
           </AnimatedIn>
-          {largest && (
+          {complete && largest && (
             <Card style={{ marginTop: 20, gap: 8 }}>
               <Label bold size={13}>
                 Largest recurring commitment

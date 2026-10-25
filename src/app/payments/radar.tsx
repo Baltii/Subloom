@@ -34,13 +34,14 @@ import {
   paymentProfileSchema,
 } from "../../domain/payments";
 import { subscriptionSchema, type Subscription } from "../../domain/models";
-import { formatMoney } from "../../domain/money";
+import { useDisplayCurrency } from "../../hooks/useDisplayCurrency";
 import { advanceRenewal, nextEvent, today } from "../../domain/renewal";
 import { PaymentSettingState } from "../../components/payments/PaymentSettingState";
 import { shareText } from "../../services/files";
 import { useProAccess } from "../../hooks/useProAccess";
 import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
 function Radar() {
+  const display = useDisplayCurrency();
   const { requestPro } = useProAccess();
   const ledger = useFeatureSetting(
       "payment_transactions",
@@ -203,15 +204,18 @@ function Radar() {
                 <Label>
                   {stream.count} charge dates · possible {stream.interval}{" "}
                   payment · latest{" "}
-                  {formatMoney(stream.latest.amountMinor, stream.currency)}{" "}
-                  {stream.currency}
+                  {display.format(stream.latest.amountMinor, stream.currency)}{" "}
+                  {display.currency}
                 </Label>
                 {stream.changeMinor ? (
                   <Label>
                     Latest charge{" "}
                     {stream.changeMinor > 0 ? "increased" : "decreased"} by{" "}
-                    {formatMoney(Math.abs(stream.changeMinor), stream.currency)}{" "}
-                    {stream.currency}.
+                    {display.format(
+                      Math.abs(stream.changeMinor),
+                      stream.currency,
+                    )}{" "}
+                    {display.currency}.
                   </Label>
                 ) : null}
                 {!stream.confirmed &&
@@ -266,7 +270,7 @@ function Radar() {
                 <Label>
                   {t.date} ·{" "}
                   {t.direction === "debit" ? "Charge" : "Refund / credit"} ·{" "}
-                  {formatMoney(t.amountMinor, t.currency)} {t.currency}
+                  {display.format(t.amountMinor, t.currency)} {display.currency}
                 </Label>
                 <Label size={12}>
                   Imported statement
@@ -289,10 +293,14 @@ function Radar() {
                 {difference?.difference ? (
                   <Label>
                     Imported charge is{" "}
-                    {formatMoney(Math.abs(difference.difference), t.currency)}{" "}
-                    {t.currency} {difference.difference > 0 ? "above" : "below"}{" "}
-                    the current recorded subscription price. Review fees, taxes,
-                    and billing period before editing the price.
+                    {display.format(
+                      Math.abs(difference.difference),
+                      t.currency,
+                    )}{" "}
+                    {display.currency}{" "}
+                    {difference.difference > 0 ? "above" : "below"} the current
+                    recorded subscription price. Review fees, taxes, and billing
+                    period before editing the price.
                   </Label>
                 ) : null}
                 <View
@@ -368,7 +376,7 @@ function Radar() {
         title="Match this transaction"
         body={
           selected
-            ? `${selected.merchant} · ${selected.date} · ${formatMoney(selected.amountMinor, selected.currency)} ${selected.currency}. Choose the subscription this record belongs to.`
+            ? `${selected.merchant} · ${selected.date} · ${display.format(selected.amountMinor, selected.currency)} ${display.currency}. Choose the subscription this record belongs to.`
             : ""
         }
         action="Save reviewed match"
@@ -396,7 +404,7 @@ function Radar() {
         title="Track this recurring payment?"
         body={
           track
-            ? `${track.name} · ${formatMoney(track.amountMinor, track.currency)} ${track.currency} · ${track.interval}. Estimated next renewal: ${track.nextRenewal}. You can edit all details after saving.`
+            ? `${track.name} · ${display.format(track.amountMinor, track.currency)} ${display.currency} · ${track.interval}. Estimated next renewal: ${track.nextRenewal}. You can edit all details after saving.`
             : ""
         }
         action="Add reviewed subscription"

@@ -6,10 +6,10 @@ export function profileDisplayName(metadata: unknown): string | null {
     return null;
   const fields = metadata as Record<string, unknown>;
   for (const key of [
-    "full_name",
-    "name",
     "first_name",
     "given_name",
+    "full_name",
+    "name",
     "display_name",
   ]) {
     const value = fields[key];
@@ -29,5 +29,5 @@ export function homeGreeting(
 ) {
   const name =
     identity !== "guest" && profile?.owner === identity ? profile.name : null;
-  return name ? `Hi!, ${name} 👋` : "Hi! 👋";
+  return name ? `Hi, ${name.trim().split(/\s+/)[0]} 👋` : "Hi! 👋";
 }

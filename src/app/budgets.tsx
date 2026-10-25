@@ -7,7 +7,8 @@ import {
   type Currency,
 } from "../domain/models";
 import { budgetsSchema, budgetProgress } from "../domain/budgets";
-import { formatMoney, parseMoney } from "../domain/money";
+import { useDisplayCurrency } from "../hooks/useDisplayCurrency";
+import { parseMoney } from "../domain/money";
 import { useFeatureSetting } from "../hooks/useFeatureSetting";
 import { useApp, readableError } from "../store/app";
 import {
@@ -22,11 +23,12 @@ import {
 } from "../components/ui/Primitives";
 const initial: ReturnType<typeof budgetsSchema.parse> = [];
 export default function Budgets() {
+  const display = useDisplayCurrency();
   const subscriptions = useApp((s) => s.data.subscriptions),
     demo = useApp((s) => s.data.demo);
   const settings = useFeatureSetting("budgets", budgetsSchema, initial);
   const [category, setCategory] = useState<Category>("Music"),
-    [currency, setCurrency] = useState<Currency>("USD"),
+    [currency, setCurrency] = useState<Currency>(display.currency),
     [amount, setAmount] = useState(""),
     [error, setError] = useState<string | null>(null);
   async function save() {
@@ -46,7 +48,7 @@ export default function Budgets() {
   return (
     <Page
       title="Monthly budgets"
-      subtitle="Set a limit for each category. Estimates use your current recurring prices, with currencies kept separate."
+      subtitle="Set a limit for each category. Amounts are estimated in your app currency."
       back
     >
       <View style={{ gap: 20 }}>
@@ -67,8 +69,9 @@ export default function Budgets() {
           <Card key={b.category + b.currency}>
             <View style={{ gap: 12 }}>
               <Heading size={20}>
-                {b.category} · {b.currency}
+                {b.category} · {display.currency}
               </Heading>
+              <Label size={12}>Budget for {b.currency} subscriptions</Label>
               <Badge
                 tone={
                   b.state === "over"
@@ -85,11 +88,11 @@ export default function Budgets() {
                     : "Within budget"}
               </Badge>
               <Label>
-                {formatMoney(b.spent, b.currency)} estimated monthly /{" "}
-                {formatMoney(b.limitMinor, b.currency)} limit
+                {display.format(b.spent, b.currency)} estimated monthly /{" "}
+                {display.format(b.limitMinor, b.currency)} limit
               </Label>
               <Label>
-                {formatMoney(Math.abs(b.remaining), b.currency)}{" "}
+                {display.format(Math.abs(b.remaining), b.currency)}{" "}
                 {b.remaining < 0 ? "over budget" : "remaining"}
               </Label>
               <Button
@@ -130,7 +133,7 @@ export default function Budgets() {
               onChange={setCurrency}
             />
             <Field
-              label="Monthly limit"
+              label={"Monthly limit · " + currency}
               value={amount}
               onChangeText={setAmount}
               keyboardType="decimal-pad"
