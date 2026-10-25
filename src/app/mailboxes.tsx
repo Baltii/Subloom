@@ -1,17 +1,12 @@
-import { ThemedSwitch } from "../components/ui/ThemedSwitch";
 import { useState } from "react";
 import { View } from "react-native";
-import {
-  openAuthBrowser,
-  usesNativeAuthBrowser,
-  authBrowserRedirect,
-} from "../services/authBrowser";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { accountClient } from "../services/supabase";
-import { useApp, readableError } from "../store/app";
-import { syncNow } from "../services/sync";
+import { useApp } from "../store/app";
+import { ProFeatureBadge } from "../components/pro/ProFeatureBadge";
 import {
+  Badge,
   Button,
   Card,
   Confirm,
@@ -19,27 +14,30 @@ import {
   Label,
   Page,
 } from "../components/ui/Primitives";
+
 const connectionSchema = z.object({
   id: z.string().uuid(),
   provider: z.enum(["gmail", "outlook"]),
   status: z.enum(["pending", "connected", "disconnected"]),
-  last_scanned_at: z.string().nullable(),
 });
 function Mailboxes({ identity }: { identity: string }) {
-  const demo = useApp((s) => s.data.demo);
-  const [consent, setConsent] = useState(false),
-    [busy, setBusy] = useState(false),
-    [error, setError] = useState<string | null>(null),
-    [notice, setNotice] = useState<string | null>(null),
-    [disconnect, setDisconnect] = useState<"gmail" | "outlook" | null>(null);
-  async function invoke(body: Record<string, unknown>) {
+  const demo = useApp((state) => state.data.demo);
+  const [disconnect, setDisconnect] = useState<"gmail" | "outlook" | null>(
+    null,
+  );
+  const [notice, setNotice] = useState<string | null>(null);
+  async function invoke(
+    body:
+      | { action: "status" }
+      | { action: "disconnect"; provider: "gmail" | "outlook" },
+  ) {
     const client = await accountClient(identity);
     const { data, error } = await client.functions.invoke("mailbox-connect", {
       body,
     });
     if (error || data?.error)
       throw new Error(
-        "Mailbox action failed. Check the connection, provider credentials and consent, then retry.",
+        "Mailbox access could not be updated. Try again while connected.",
       );
     return data;
   }
@@ -51,164 +49,72 @@ function Mailboxes({ identity }: { identity: string }) {
         .array(connectionSchema)
         .parse((await invoke({ action: "status" })).connections),
   });
-  async function run(action: () => Promise<void>) {
-    setBusy(true);
-    setError(null);
-    setNotice(null);
-    try {
-      await action();
-      await query.refetch();
-    } catch (e) {
-      setError(readableError(e));
-    } finally {
-      setBusy(false);
-    }
-  }
+  const connections =
+    query.data?.filter((connection) => connection.status !== "disconnected") ||
+    [];
   return (
-    <Page
-      title="Mailbox receipt discovery"
-      subtitle="Connect with read-only consent, scan recent receipts, then review every detection."
-      back
-    >
+    <Page title="Mailbox discovery" subtitle="Coming soon to Subloom Pro." back>
       <View style={{ gap: 18 }}>
-        {identity === "guest" || demo ? (
+        <Card style={{ gap: 14 }}>
+          <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+            <ProFeatureBadge />
+            <Badge tone="neutral">Soon</Badge>
+          </View>
+          <Heading size={20}>Mailbox discovery is not available yet</Heading>
           <Label>
-            Sign in with your own verified account to connect a mailbox.
+            Gmail and Outlook receipt discovery will be a Pro feature when it
+            launches. Connecting mailboxes and scanning receipts are currently
+            disabled.
           </Label>
-        ) : (
-          <>
-            <Card>
-              <View style={{ gap: 14 }}>
-                <Label>
-                  Google and Microsoft grant access to read mailbox messages.
-                  Subloom requests read-only access, scans up to 25 matching
-                  messages from the last 30 days when you press Scan, and keeps
-                  extracted receipt candidates, message identifiers and sender
-                  hashes. Attachments are not downloaded. Subscription creation
-                  always needs your review.
-                </Label>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 12,
-                  }}
+        </Card>
+        {identity !== "guest" && !demo && (
+          <Card style={{ gap: 14 }}>
+            <Heading size={18}>Previously connected mailboxes</Heading>
+            <Label>
+              You can still remove access granted before discovery was disabled.
+            </Label>
+            {query.isPending && <Label>Loading existing connections…</Label>}
+            {query.error && (
+              <>
+                <Label accessibilityRole="alert">{query.error.message}</Label>
+                <Button
+                  small
+                  variant="secondary"
+                  onPress={() => void query.refetch()}
                 >
-                  <Label style={{ flex: 1 }}>
-                    I consent to read-only mailbox access for receipt discovery
-                  </Label>
-                  <ThemedSwitch
-                    accessibilityLabel="Consent to read-only mailbox access"
-                    value={consent}
-                    onValueChange={setConsent}
-                  />
-                </View>
+                  Retry loading connections
+                </Button>
+              </>
+            )}
+            {query.isSuccess && !connections.length && (
+              <Label>No mailbox access is currently connected.</Label>
+            )}
+            {connections.map((connection) => (
+              <View key={connection.id} style={{ gap: 8 }}>
+                <Label bold>
+                  {connection.provider === "gmail" ? "Gmail" : "Outlook"}
+                </Label>
+                <Button
+                  variant="secondary"
+                  onPress={() => setDisconnect(connection.provider)}
+                >
+                  {"Disconnect " +
+                    (connection.provider === "gmail" ? "Gmail" : "Outlook")}
+                </Button>
               </View>
-            </Card>
-            <Button
-              variant="secondary"
-              loading={query.isFetching}
-              onPress={() => {
-                void query.refetch();
-              }}
-            >
-              Refresh connections
-            </Button>
-            {query.error ? (
-              <Label accessibilityRole="alert">{query.error.message}</Label>
-            ) : null}
-            {(["gmail", "outlook"] as const).map((provider) => {
-              const connection = query.data?.find(
-                (c) => c.provider === provider,
-              );
-              return (
-                <Card key={provider}>
-                  <View style={{ gap: 14 }}>
-                    <Heading size={20}>
-                      {provider === "gmail" ? "Gmail" : "Outlook"}
-                    </Heading>
-                    <Label>
-                      {connection?.status || "Not connected"}
-                      {connection?.last_scanned_at
-                        ? " · Last scan " +
-                          new Date(connection.last_scanned_at).toLocaleString()
-                        : ""}
-                    </Label>
-                    {connection?.status === "connected" ? (
-                      <>
-                        <Button
-                          loading={busy}
-                          onPress={() =>
-                            void run(async () => {
-                              const result = await invoke({
-                                action: "scan",
-                                provider,
-                              });
-                              await syncNow();
-                              setNotice(
-                                String(result.reviewed) +
-                                  " messages processed. Review detections in Activity.",
-                              );
-                            })
-                          }
-                        >
-                          Scan recent receipts
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          disabled={busy}
-                          onPress={() => setDisconnect(provider)}
-                        >
-                          Disconnect mailbox
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        loading={busy}
-                        disabled={!consent}
-                        onPress={() =>
-                          void run(async () => {
-                            const result = await invoke({
-                              action: "connect",
-                              provider,
-                              consent: true,
-                              returnKind: usesNativeAuthBrowser()
-                                ? "native"
-                                : "web",
-                            });
-                            await openAuthBrowser(
-                              result.url,
-                              authBrowserRedirect("mailboxes"),
-                            );
-                          })
-                        }
-                      >
-                        {"Connect " +
-                          (provider === "gmail" ? "Gmail" : "Outlook")}
-                      </Button>
-                    )}
-                    <Label>
-                      After provider consent, return here and refresh. If a
-                      connection was interrupted, connect again.
-                    </Label>
-                  </View>
-                </Card>
-              );
-            })}
-          </>
+            ))}
+          </Card>
         )}
-        {notice ? (
-          <Label accessibilityLiveRegion="polite">{notice}</Label>
-        ) : null}
-        {error ? <Label accessibilityRole="alert">{error}</Label> : null}
+        {notice && <Label accessibilityLiveRegion="polite">{notice}</Label>}
       </View>
       <Confirm
         visible={!!disconnect}
         title="Disconnect mailbox?"
-        body="Remove Subloom’s stored mailbox access and stop future scans. Existing extracted detections remain until you dismiss or delete account data. For Microsoft, also revoke app consent in your Microsoft account settings if you want the provider grant removed."
+        body="Remove Subloom’s stored mailbox access. Previously extracted detections stay available. For Microsoft, you can also revoke the provider grant in your Microsoft account settings."
         action="Disconnect mailbox"
         onClose={() => setDisconnect(null)}
         onConfirm={async () => {
+          if (!disconnect) return;
           const result = await invoke({
             action: "disconnect",
             provider: disconnect,
@@ -225,6 +131,6 @@ function Mailboxes({ identity }: { identity: string }) {
   );
 }
 export default function MailboxRoute() {
-  const identity = useApp((s) => s.identity);
+  const identity = useApp((state) => state.identity);
   return <Mailboxes key={identity} identity={identity} />;
 }

@@ -22,6 +22,7 @@ import {
   challenge,
 } from "../_shared/mailbox-crypto.ts";
 import { ingestReceipt } from "../_shared/ingestion.ts";
+import { requireMailboxActionAvailable } from "../_shared/tool-availability.ts";
 export const handler = endpoint(async (req) => {
   const { client, user } = await authenticated(req);
   const body = z
@@ -32,6 +33,7 @@ export const handler = endpoint(async (req) => {
       returnKind: z.enum(["web", "native"]).default("web"),
     })
     .parse(JSON.parse(await limited(req, 4096)));
+  requireMailboxActionAvailable(body.action);
   await rateLimit(client, "mailbox:" + user.id, 40, 3600, user.id);
   if (body.action === "status") {
     const { data, error } = await client

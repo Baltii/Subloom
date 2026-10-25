@@ -893,17 +893,21 @@ export function LinkRow({
   badge,
   icon: Icon,
   onPress,
+  disabled = false,
 }: {
   title: string;
   detail?: string;
   badge?: ReactNode;
   icon: LucideIcon;
   onPress: () => void;
+  disabled?: boolean;
 }) {
   const { colors } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={{
         minHeight: 64,
@@ -915,7 +919,7 @@ export function LinkRow({
     >
       <View
         style={{
-          backgroundColor: colors.mint,
+          backgroundColor: disabled ? colors.background : colors.mint,
           width: 38,
           height: 38,
           alignItems: "center",
@@ -923,7 +927,7 @@ export function LinkRow({
           borderRadius: 12,
         }}
       >
-        <Icon size={18} color={colors.primary} />
+        <Icon size={18} color={disabled ? colors.secondary : colors.primary} />
       </View>
       <View style={{ flex: 1 }}>
         <View
@@ -934,7 +938,9 @@ export function LinkRow({
             gap: 8,
           }}
         >
-          <Label bold>{title}</Label>
+          <Label bold color={disabled ? colors.secondary : colors.text}>
+            {title}
+          </Label>
           {badge}
         </View>
         {detail && (
@@ -943,7 +949,7 @@ export function LinkRow({
           </Label>
         )}
       </View>
-      <ChevronRight size={17} color={colors.secondary} />
+      {!disabled && <ChevronRight size={17} color={colors.secondary} />}
     </Pressable>
   );
 }

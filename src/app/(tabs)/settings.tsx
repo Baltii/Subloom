@@ -100,7 +100,7 @@ const settingsGroups = [
   {
     title: "Data & privacy",
     keywords:
-      "json export download permissions help welcome onboarding tour reset clear delete account",
+      "json export download permissions help welcome onboarding tour reset clear delete account mailbox disconnect",
   },
 ];
 export default function SettingsRoute() {
@@ -902,8 +902,12 @@ function Settings() {
                       title={action.title}
                       detail={action.detail}
                       badge={
-                        action.proFeature ? <ProFeatureBadge /> : undefined
+                        <>
+                          {action.proFeature && <ProFeatureBadge />}
+                          {action.soon && <Badge tone="neutral">Soon</Badge>}
+                        </>
                       }
+                      disabled={action.soon}
                       icon={action.icon}
                       onPress={() => router.push(action.route)}
                     />
@@ -925,6 +929,12 @@ function Settings() {
                   title="Privacy & permissions"
                   detail="What we store and why"
                   onPress={() => router.push("/privacy")}
+                />
+                <LinkRow
+                  icon={Mail}
+                  title="Connected mailbox access"
+                  detail="Remove previously granted Gmail or Outlook access"
+                  onPress={() => router.push("/mailboxes")}
                 />
                 <LinkRow
                   icon={HelpCircle}

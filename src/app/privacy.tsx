@@ -18,7 +18,7 @@ export default function Privacy() {
     ],
     [
       "Connected mailboxes.",
-      "Mailbox tokens are encrypted on the backend and are never included in exports. Each scan reads up to 25 recent matching messages without downloading attachments. Message text is processed transiently; only extracted subscription details and minimal evidence metadata remain for your review. Disconnect in Mailboxes to remove stored tokens; Outlook consent can also be revoked in your Microsoft account.",
+      "Mailbox discovery is coming soon to Pro. New connections and scans are disabled. Previously stored mailbox tokens remain encrypted and are never included in exports. Use Connected mailbox access in Settings → Data & privacy to remove stored access. Outlook consent can also be revoked in your Microsoft account.",
     ],
     [
       "Local storage and device privacy.",
