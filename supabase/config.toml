@@ -49,3 +49,9 @@ verify_jwt = false
 verify_jwt = false
 [functions.stripe-webhook]
 verify_jwt = false
+
+[functions.submit-feedback]
+verify_jwt = false
+
+[functions.send-feedback-email]
+verify_jwt = false

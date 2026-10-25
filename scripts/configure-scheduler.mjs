@@ -99,12 +99,12 @@ const jobs = JSON.parse(
     "--linked",
     "--output",
     "json",
-    "select jobname,active from cron.job where jobname in ('subloom-schedule','subloom-deliver','subloom-retention') order by jobname;",
+    "select jobname,active from cron.job where jobname in ('subloom-schedule','subloom-deliver','subloom-retention','subloom-feedback') order by jobname;",
   ]),
 );
 if (
   !Array.isArray(jobs) ||
-  jobs.length !== 3 ||
+  jobs.length !== 4 ||
   jobs.some((job) => !job.active)
 )
   throw new Error("Scheduler job verification failed.");
@@ -122,5 +122,5 @@ writeFileSync(
   ) + "\n",
 );
 console.log(
-  "Three hosted Subloom jobs are active. Cron credentials are stored privately outside the repository.",
+  "Four hosted Subloom jobs are active. Cron credentials are stored privately outside the repository.",
 );

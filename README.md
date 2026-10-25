@@ -44,15 +44,15 @@ Start with a personal space saved on your device. Connect an account when you wa
 
 ## Features
 
-| A little more clarity             | What you can do                                                                                                                                                                                  |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Your subscriptions, together**  | Add catalog services or custom subscriptions, with service-name suggestions, categories, notes, prices, trials, and status controls.                                                             |
-| **Renewals you can see coming**   | Browse a renewal calendar, upcoming charges, and a six-month forecast. Keep month-end dates, leap years, and your timezone in view.                                                              |
-| **A clearer picture of spending** | Compare monthly and yearly estimates, explore category breakdowns, set category budgets, and review recorded price changes. Original currencies stay separate.                                   |
-| **Find the recurring charges**    | Import a bank-exported statement CSV, review and categorize transactions, and confirm recurring-charge suggestions before creating subscriptions.                                                |
-| **Less retyping**                 | Paste receipt text, review the detected details, and confirm what gets saved. Screenshot OCR is available when its optional backend is configured.                                               |
+| A little more clarity             | What you can do                                                                                                                                                                                           |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Your subscriptions, together**  | Add catalog services or custom subscriptions, with service-name suggestions, categories, notes, prices, trials, and status controls.                                                                      |
+| **Renewals you can see coming**   | Browse a renewal calendar, upcoming charges, and a six-month forecast. Keep month-end dates, leap years, and your timezone in view.                                                                       |
+| **A clearer picture of spending** | Compare monthly and yearly estimates, explore category breakdowns, set category budgets, and review recorded price changes. Original currencies stay separate.                                            |
+| **Find the recurring charges**    | Import a bank-exported statement CSV, review and categorize transactions, and confirm recurring-charge suggestions before creating subscriptions.                                                         |
+| **Less retyping**                 | Paste receipt text, review the detected details, and confirm what gets saved. Screenshot OCR is available when its optional backend is configured.                                                        |
 | **Your data, your choice**        | Track offline, optionally sync through an account, import/export subscription CSVs with Pro, and export renewal dates to your calendar. Guest backups and account export/deletion controls are available. |
-| **A calmer everyday interface**   | Light, dark, and system appearance; eight accent themes; responsive layouts; accessible controls; and motion that respects reduced-motion preferences.                                           |
+| **A calmer everyday interface**   | Light, dark, and system appearance; eight accent themes; responsive layouts; accessible controls; and motion that respects reduced-motion preferences.                                                    |
 
 Subloom tracks and helps you review subscriptions. Managing or canceling a service still happens with its provider; recording a cancellation in Subloom does not cancel merchant billing.
 
@@ -74,7 +74,7 @@ Subloom tracks and helps you review subscriptions. Managing or canceling a servi
 | Platform    | Where to start                                                                                                                                                                                                                                                       |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Web app** | [Open Subloom](https://subloom.baltii.tn) — start a local workspace or sign in.                                                                                                                                                                                      |
-| **Website** | [Explore the landing page](https://subloom-landing.baltii.tn).                                                                                                                                                                                                      |
+| **Website** | [Explore the landing page](https://subloom-landing.baltii.tn).                                                                                                                                                                                                       |
 | **Android** | Download a test APK from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `android-apk` artifact in successful [Android workflow runs](https://github.com/Baltii/Subloom/actions/workflows/android-apk.yml).                                    |
 | **Windows** | Download the x64 `.exe` installer from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `windows-x64` artifact in successful [Windows workflow runs](https://github.com/Baltii/Subloom/actions/workflows/windows-exe.yml).                      |
 | **macOS**   | Download an Apple silicon or Intel app ZIP from [GitHub Releases](https://github.com/Baltii/Subloom/releases), or the `macos-arm64` / `macos-x64` artifacts in successful [CI runs](https://github.com/Baltii/Subloom/actions/workflows/ci.yml). Requires macOS 14+. |
@@ -108,7 +108,9 @@ npm ci
 npm run dev
 ```
 
-Open **[localhost:8081](http://localhost:8081)**, complete the welcome tour, and choose **Use on this device** to start an empty local workspace. Guest tracking and pasted-text receipt review need no provider credentials. Subscription CSV imports and exports require Pro.
+Open **[localhost:8081](http://localhost:8081)**, complete the welcome tour, and choose **Use on this device** to start an empty local workspace. Guest tracking and pasted-text receipt review need no provider credentials.
+
+To make all available features free, set `EXPO_PUBLIC_PRO_PLAN_ENABLED=false` in `.env.local`, run `npm run configure:plans` for the backend, then rebuild/reload the app. Set it to `true` to reactivate the retained Free/Pro restrictions. See [plan mode configuration](PLAN_MODE.md) for deployment steps and existing billing management.
 
 For account sync, add the public app configuration to `.env.local` using [`.env.example`](.env.example) as a reference. Server secrets belong in backend settings, never in `EXPO_PUBLIC_*` variables or committed files.
 

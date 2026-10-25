@@ -15,6 +15,7 @@ import {
   X,
   Activity,
   Sparkles,
+  MessageSquare,
 } from "lucide-react-native";
 import {
   useApp,
@@ -66,7 +67,9 @@ import { toolActions } from "../../components/ui/QuickActions";
 import { ThemePicker } from "../../components/ui/ThemePicker";
 import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
 import { ProBadge } from "../../components/pro/ProBadge";
+import { PRO_PLAN_ENABLED } from "../../domain/planMode";
 import { AppUpdatesCard } from "../../components/settings/AppUpdatesCard";
+import { SupportCard } from "../../components/settings/SupportCard";
 import { SelectField } from "../../components/ui/Selection";
 import {
   currencyOptions,
@@ -98,6 +101,16 @@ const settingsGroups = [
     keywords: "version download install update restart release",
   },
   {
+    title: "Support",
+    keywords:
+      "donate donation coffee buy me a coffee buymeacoffee support subloom developer ahmed balti",
+  },
+  {
+    title: "Feedback",
+    keywords:
+      "ideas feedback suggestion request feature bug problem report improve message",
+  },
+  {
     title: "Data & privacy",
     keywords:
       "json export download permissions help welcome onboarding tour reset clear delete account mailbox disconnect",
@@ -124,6 +137,7 @@ function Settings() {
         "Subscriptions",
         "Settings",
         "Data & privacy",
+        "Ideas & feedback",
         "Family workspaces",
         "Team workspaces and SSO",
       ].includes(action.title),
@@ -302,8 +316,12 @@ function Settings() {
                 <SectionTitle title="Account" />
                 <LinkRow
                   icon={Sparkles}
-                  title="Subloom Pro"
-                  detail="Trial, purchases and billing"
+                  title={PRO_PLAN_ENABLED ? "Subloom Pro" : "Free access"}
+                  detail={
+                    PRO_PLAN_ENABLED
+                      ? "Trial, purchases and billing"
+                      : "All available features are included"
+                  }
                   onPress={() => router.push("/pro")}
                 />
                 <LinkRow
@@ -915,6 +933,28 @@ function Settings() {
               </Card>
             )}
             {visibleGroups.includes("App updates") && <AppUpdatesCard />}
+            {visibleGroups.includes("Support") && <SupportCard />}
+            {visibleGroups.includes("Feedback") && (
+              <Card style={{ gap: 14 }}>
+                <SectionTitle title="Ideas & feedback" />
+                <Label color={colors.secondary}>
+                  Have an idea, spotted a problem, or just want to share a
+                  thought? Send it privately to my email inbox.
+                </Label>
+                <View style={{ alignItems: "flex-start" }}>
+                  <Button
+                    icon={MessageSquare}
+                    variant="secondary"
+                    onPress={() => router.push("/feedback")}
+                  >
+                    Share feedback
+                  </Button>
+                </View>
+                <Label size={12} color={colors.secondary}>
+                  You can send feedback without creating an account.
+                </Label>
+              </Card>
+            )}
             {visibleGroups.includes("Data & privacy") && (
               <Card style={{ marginTop: 24 }}>
                 <SectionTitle title="Data & privacy" />

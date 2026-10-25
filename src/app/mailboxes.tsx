@@ -5,6 +5,7 @@ import { z } from "zod";
 import { accountClient } from "../services/supabase";
 import { useApp } from "../store/app";
 import { ProFeatureBadge } from "../components/pro/ProFeatureBadge";
+import { PRO_PLAN_ENABLED } from "../domain/planMode";
 import {
   Badge,
   Button,
@@ -53,7 +54,15 @@ function Mailboxes({ identity }: { identity: string }) {
     query.data?.filter((connection) => connection.status !== "disconnected") ||
     [];
   return (
-    <Page title="Mailbox discovery" subtitle="Coming soon to Subloom Pro." back>
+    <Page
+      title="Mailbox discovery"
+      subtitle={
+        PRO_PLAN_ENABLED
+          ? "Coming soon to Subloom Pro."
+          : "Coming soon to Subloom."
+      }
+      back
+    >
       <View style={{ gap: 18 }}>
         <Card style={{ gap: 14 }}>
           <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
@@ -62,9 +71,10 @@ function Mailboxes({ identity }: { identity: string }) {
           </View>
           <Heading size={20}>Mailbox discovery is not available yet</Heading>
           <Label>
-            Gmail and Outlook receipt discovery will be a Pro feature when it
-            launches. Connecting mailboxes and scanning receipts are currently
-            disabled.
+            {PRO_PLAN_ENABLED
+              ? "Gmail and Outlook receipt discovery will be a Pro feature when it launches."
+              : "Gmail and Outlook receipt discovery is coming soon."}{" "}
+            Connecting mailboxes and scanning receipts are currently disabled.
           </Label>
         </Card>
         {identity !== "guest" && !demo && (

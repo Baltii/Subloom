@@ -8,6 +8,7 @@ import {
   Download,
   Import,
   Mail,
+  MessageSquare,
   Plus,
   ReceiptText,
   Search,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react-native";
 import type { ProFeature } from "../../hooks/useProAccess";
 import { ProFeatureBadge } from "../pro/ProFeatureBadge";
+import { PRO_PLAN_ENABLED } from "../../domain/planMode";
 import { QuickActionsContext } from "../../hooks/useQuickActions";
 import { useApp } from "../../store/app";
 import { useTheme } from "../../theme/useTheme";
@@ -49,7 +51,9 @@ export const toolActions: {
   },
   {
     title: "Transactions",
-    detail: "Review recurring charges · Pro statement imports and exports",
+    detail: PRO_PLAN_ENABLED
+      ? "Review recurring charges · Pro statement imports and exports"
+      : "Review recurring charges · statement imports and exports",
     proFeature: "Statement imports",
     route: "/transactions",
     icon: ReceiptText,
@@ -75,7 +79,9 @@ export const toolActions: {
   },
   {
     title: "Mailbox discovery",
-    detail: "Gmail and Outlook receipt discovery · coming soon to Pro",
+    detail: PRO_PLAN_ENABLED
+      ? "Gmail and Outlook receipt discovery · coming soon to Pro"
+      : "Gmail and Outlook receipt discovery · coming soon",
     proFeature: "Mailbox discovery",
     soon: true,
     route: "/mailboxes",
@@ -112,6 +118,14 @@ export const toolActions: {
     route: "/settings",
     icon: Settings2,
     keywords: "preferences timezone notifications",
+    group: "Manage",
+  },
+  {
+    title: "Ideas & feedback",
+    detail: "Suggest an idea or report a problem privately",
+    route: "/feedback",
+    icon: MessageSquare,
+    keywords: "suggestion feature request bug report improve message",
     group: "Manage",
   },
   {
@@ -212,7 +226,9 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
                 accessibilityRole="button"
                 accessibilityLabel={
                   action.title +
-                  (action.proFeature ? ", Pro feature" : "") +
+                  (PRO_PLAN_ENABLED && action.proFeature
+                    ? ", Pro feature"
+                    : "") +
                   (action.soon ? ", Soon, unavailable" : "")
                 }
                 disabled={action.soon}
