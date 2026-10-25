@@ -1,5 +1,6 @@
+import { ThemedSwitch } from "../../components/ui/ThemedSwitch";
 import { useRef, useState } from "react";
-import { Platform, Pressable, Switch, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   Download,
@@ -208,7 +209,7 @@ function Settings() {
             {detail}
           </Label>
         </View>
-        <Switch
+        <ThemedSwitch
           testID={
             "preference-" + label.toLowerCase().replace(/[^a-z0-9]/g, "-")
           }
@@ -216,7 +217,6 @@ function Settings() {
           value={value}
           onValueChange={(v) => void run(() => change(v))}
           disabled={busy || state.data.demo}
-          trackColor={{ true: colors.primary, false: colors.border }}
         />
       </View>
     );

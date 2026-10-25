@@ -1,5 +1,6 @@
+import { ThemedSwitch } from "../components/ui/ThemedSwitch";
 import { useState } from "react";
-import { Switch, View } from "react-native";
+import { View } from "react-native";
 import { useApp, readableError } from "../store/app";
 import { exportIcs } from "../domain/ics";
 import { shareText } from "../services/files";
@@ -36,7 +37,7 @@ export default function CalendarExport() {
           </Label>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
             <Label style={{ flex: 1 }}>Hide merchant names and prices</Label>
-            <Switch
+            <ThemedSwitch
               accessibilityLabel="Hide merchant names and prices"
               value={privateContent}
               onValueChange={setPrivate}
@@ -65,7 +66,9 @@ export default function CalendarExport() {
             the imported calendar. Reimporting may duplicate events in some
             calendar apps.
           </Label>
-          {exportError || error ? <Label accessibilityRole="alert">{exportError || error}</Label> : null}
+          {exportError || error ? (
+            <Label accessibilityRole="alert">{exportError || error}</Label>
+          ) : null}
         </View>
       </Card>
     </Page>

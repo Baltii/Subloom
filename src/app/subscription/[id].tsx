@@ -1,5 +1,6 @@
+import { ThemedSwitch } from "../../components/ui/ThemedSwitch";
 import { useState } from "react";
-import { View, Linking, Switch } from "react-native";
+import { View, Linking } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ExternalLink,
@@ -287,11 +288,10 @@ export default function Details() {
               <Label style={{ flex: 1 }} size={13}>
                 Enable for this subscription
               </Label>
-              <Switch
+              <ThemedSwitch
                 accessibilityLabel="Enable reminders for this subscription"
                 value={s.reminders?.enabled ?? true}
                 onValueChange={(enabled) => void updateReminder(enabled)}
-                trackColor={{ true: colors.primary, false: colors.border }}
               />
             </View>
             <Label size={12} color={colors.secondary} style={{ marginTop: 17 }}>
