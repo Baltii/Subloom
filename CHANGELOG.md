@@ -2,6 +2,24 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.8.0](https://github.com/Baltii/Subloom/compare/v1.7.0...v1.8.0) (2026-10-25)
+
+
+### Features
+
+* disable Mailbox Discovery with Soon and Pro labels ([0ba4934](https://github.com/Baltii/Subloom/commit/0ba4934619e0eabb1589667764609f4b7a5c1d69))
+* make subscription CSV import and export Pro-only ([27b36f4](https://github.com/Baltii/Subloom/commit/27b36f49b24cf7e2040a2113d4b9d095a14def98))
+* make subscription CSV imports and exports Pro-only ([e7a5964](https://github.com/Baltii/Subloom/commit/e7a5964c3e6078735ced4f1fcd0d256d6347eb0b))
+* mark mailbox discovery as a disabled upcoming Pro tool ([ebb7b5b](https://github.com/Baltii/Subloom/commit/ebb7b5be361a3a39dcf881c8226ea11db2712d6e))
+* remove Receipt forwarding and retire email ingestion ([c7ebd50](https://github.com/Baltii/Subloom/commit/c7ebd505b08c2aefeac2cb42c25a457abc331867))
+* retire receipt forwarding and its ingestion endpoint ([847967c](https://github.com/Baltii/Subloom/commit/847967c0f45b509fc8d6e4db4ce0350954745b04))
+
+
+### Bug Fixes
+
+* match switch thumbs to the selected accent theme ([b2b1ebd](https://github.com/Baltii/Subloom/commit/b2b1ebd1cef39d8cbbfc983ded1d7a1dde546193))
+* match switch thumbs to the selected accent theme ([ae076fb](https://github.com/Baltii/Subloom/commit/ae076fb0a6ca5865a37fc52d151a14ee951dabac))
+
 ## [1.7.0](https://github.com/Baltii/Subloom/compare/v1.6.0...v1.7.0) (2026-10-24)
 
 ### Features
