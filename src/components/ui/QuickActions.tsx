@@ -66,6 +66,7 @@ export const toolActions: {
   {
     title: "CSV import & export",
     detail: "Move your subscription list between apps",
+    proFeature: "CSV import & export",
     route: "/csv",
     icon: Import,
     keywords: "spreadsheet file download",

@@ -24,6 +24,7 @@ import {
   unassignedBillingMethod,
 } from "../../src/domain/billingMethods";
 import type { ProTracking } from "../../src/domain/proTracking";
+import { emptyPro, usePro } from "../../src/store/pro";
 vi.mock("react-native", () => ({ Platform: { OS: "web" } }));
 vi.mock("expo-crypto", () => ({ randomUUID }));
 const disk = new Map<string, string>();
@@ -37,10 +38,20 @@ vi.stubGlobal("localStorage", {
   removeItem: (key: string) => disk.delete(key),
 });
 beforeEach(async () => {
+  usePro.setState(emptyPro);
   disk.clear();
   failWrites = false;
   await hydrate("guest");
 });
+function enableCsvPro() {
+  usePro.setState({
+    ...emptyPro,
+    workspace: useApp.getState().identity,
+    owner: userA,
+    ready: true,
+    offlineUntil: Date.now() + 60000,
+  });
+}
 describe("durable managed Pro tracking", () => {
   function tracking(): ProTracking {
     const purchasedAt = new Date().toISOString();
@@ -379,6 +390,7 @@ describe("durable guest data and offline operation transactions", () => {
 });
 
 it("commits a CSV batch with owned records and rejects a changed identity", async () => {
+  enableCsvPro();
   const state = useApp.getState();
   const input = subscription({
     id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
@@ -396,6 +408,7 @@ it("commits a CSV batch with owned records and rejects a changed identity", asyn
 });
 
 it("keeps a CSV batch atomic when disk persistence fails", async () => {
+  enableCsvPro();
   failWrites = true;
   await expect(importSubscriptions([subscription()], "guest")).rejects.toThrow(
     /Storage is full/,
@@ -404,6 +417,7 @@ it("keeps a CSV batch atomic when disk persistence fails", async () => {
 });
 it("queues every CSV record for account sync with owned identities", async () => {
   await hydrate(userA);
+  enableCsvPro();
   await importSubscriptions([subscription()], userA);
   expect(useApp.getState().data.outbox[0]).toMatchObject({
     entity: "subscription",

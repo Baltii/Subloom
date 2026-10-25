@@ -26,6 +26,11 @@ export function ProFeatures() {
         },
         {
           icon: Download,
+          title: "Move your subscription lists with CSV",
+          body: "Import subscription lists and export your tracked services as CSV with Pro.",
+        },
+        {
+          icon: Download,
           title: "Take your transaction reports with you",
           body: "Export imported transactions as CSV, with original amounts and currencies intact.",
         },
@@ -60,8 +65,8 @@ export function ProFeatures() {
           </Label>
         </View>
         <Label size={13} color={colors.secondary}>
-          Tracking for up to 10 subscriptions, reminders, calendar, JSON backup
-          and basic subscription CSV. Your saved records stay yours if Pro ends.
+          Tracking for up to 10 subscriptions, reminders, calendar and JSON
+          backup. Your saved records stay yours if Pro ends.
         </Label>
       </View>
     </Card>
