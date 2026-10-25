@@ -4,7 +4,7 @@ import * as Crypto from "expo-crypto";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import { useApp, importSubscriptions, readableError } from "../store/app";
-import { formatMoney } from "../domain/money";
+import { useDisplayCurrency } from "../hooks/useDisplayCurrency";
 import type { Subscription } from "../domain/models";
 import { csvExample, csvSubscriptions, uniqueCsvRows } from "../domain/csv";
 import { shareText } from "../services/files";
@@ -20,6 +20,7 @@ import { ProFeatureBadge } from "../components/pro/ProFeatureBadge";
 import { useProAccess } from "../hooks/useProAccess";
 import { shareSubscriptionCsv } from "../services/subscriptionCsv";
 function Editor({ identity }: { identity: string }) {
+  const display = useDisplayCurrency();
   const { pro, requestPro } = useProAccess();
   const subscriptions = useApp((s) => s.data.subscriptions),
     demo = useApp((s) => s.data.demo);
@@ -157,10 +158,14 @@ function Editor({ identity }: { identity: string }) {
               <Label bold>
                 {preview.length} new subscriptions · matching rows skipped
               </Label>
+              <Label size={12}>
+                Prices are displayed in {display.currency}. Imported billing
+                currencies stay unchanged.
+              </Label>
               {preview.map((s) => (
                 <Label key={s.id}>
-                  {s.name} · {formatMoney(s.amountMinor, s.currency)}{" "}
-                  {s.currency} · {s.interval} · {s.status} · next renewal{" "}
+                  {s.name} · {display.format(s.amountMinor, s.currency)}{" "}
+                  {display.currency} · {s.interval} · {s.status} · next renewal{" "}
                   {s.nextRenewal}
                 </Label>
               ))}

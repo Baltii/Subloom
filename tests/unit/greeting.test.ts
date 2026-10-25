@@ -11,6 +11,14 @@ describe("Home greeting", () => {
     );
     expect(profileDisplayName({ given_name: "李" })).toBe("李");
   });
+  it("greets with the given name or the first part of a full name", () => {
+    expect(
+      profileDisplayName({ first_name: "Anaïs", full_name: "Anaïs Martin" }),
+    ).toBe("Anaïs");
+    expect(
+      homeGreeting("alice", { owner: "alice", name: "Alice Martin" }),
+    ).toBe("Hi, Alice 👋");
+  });
   it("ignores absent, malformed and oversized profile metadata", () => {
     for (const value of [
       undefined,
@@ -25,7 +33,7 @@ describe("Home greeting", () => {
   });
   it("never displays another account's name while changing workspaces or signing out", () => {
     const profile = { owner: "alice", name: "Alice" };
-    expect(homeGreeting("alice", profile)).toBe("Hi!, Alice 👋");
+    expect(homeGreeting("alice", profile)).toBe("Hi, Alice 👋");
     expect(homeGreeting("bob", profile)).toBe("Hi! 👋");
     expect(homeGreeting("guest", profile)).toBe("Hi! 👋");
     expect(homeGreeting("alice", null)).toBe("Hi! 👋");

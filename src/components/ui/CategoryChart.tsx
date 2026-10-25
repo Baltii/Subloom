@@ -10,9 +10,11 @@ import { ChartBar } from "./ChartBar";
 export function CategoryChart({
   subscriptions,
   currency,
+  converted = false,
 }: {
   subscriptions: Subscription[];
   currency: Currency;
+  converted?: boolean;
 }) {
   const { colors } = useTheme();
   const [period, setPeriod] = useState<"monthly" | "annual">("monthly");
@@ -98,8 +100,8 @@ export function CategoryChart({
         </Label>
       )}
       <Label size={11} color={colors.secondary}>
-        Estimated {period} costs in {currency}. Active subscriptions and trials;
-        currencies stay separate.
+        Estimated {period} costs in {currency}.
+        {converted ? " Converted with reference rates." : ""}
       </Label>
     </View>
   );

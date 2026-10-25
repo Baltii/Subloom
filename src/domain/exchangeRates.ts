@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { currencies, dateSchema, type Currency } from "./models.ts";
+import {
+  currencies,
+  dateSchema,
+  type Currency,
+  type Subscription,
+} from "./models.ts";
 import { currencyDigits } from "./money.ts";
 export const exchangeRateSchema = z.object({
   base_currency: z.literal("USD"),
@@ -41,4 +46,34 @@ export function convertMinor(
   if (!Number.isSafeInteger(converted))
     throw new Error("Converted estimate is too large.");
   return converted;
+}
+
+/** Display-only copies: stored prices and provider billing are never changed. */
+export function convertedSubscriptions(
+  subscriptions: Subscription[],
+  currency: Currency,
+  rates: ExchangeRate[],
+) {
+  const missing = new Set<Currency>();
+  const converted = subscriptions.flatMap((subscription) => {
+    try {
+      return [
+        {
+          ...subscription,
+          currency,
+          amountMinor: convertMinor(
+            subscription.amountMinor,
+            subscription.currency,
+            currency,
+            rates,
+          ),
+        },
+      ];
+    } catch {
+      if (["active", "trial"].includes(subscription.status))
+        missing.add(subscription.currency);
+      return [];
+    }
+  });
+  return { subscriptions: converted, missing: [...missing] };
 }

@@ -22,6 +22,7 @@ import {
   saveSubscription,
   readableError,
 } from "../../store/app";
+import { useDisplayCurrency } from "../../hooks/useDisplayCurrency";
 import { annualCost, formatMoney } from "../../domain/money";
 import {
   dateLabel,
@@ -53,6 +54,7 @@ import {
 import { PaymentMethodIcon } from "../../components/payments/PaymentMethodIcon";
 export default function Details() {
   const billingMethods = useBillingMethods();
+  const display = useDisplayCurrency();
   const { id } = useLocalSearchParams<{ id: string }>(),
     { colors } = useTheme(),
     wide = useWide(),
@@ -147,10 +149,10 @@ export default function Details() {
             </View>
             <View style={{ marginTop: 28, gap: 6 }}>
               <Heading size={38}>
-                {formatMoney(s.amountMinor, s.currency)}
+                {display.format(s.amountMinor, s.currency)}
               </Heading>
               <Label color={colors.secondary}>
-                {s.currency} / {intervalLabel(s)}
+                {display.currency} / {intervalLabel(s)}
               </Label>
             </View>
             <View style={{ marginTop: 28, gap: 22 }}>
@@ -174,8 +176,17 @@ export default function Details() {
                 {
                   icon: ReceiptText,
                   label: "Estimated annual cost",
-                  value: formatMoney(annualCost(s), s.currency),
+                  value: display.format(annualCost(s), s.currency),
                 },
+                ...(display.currency !== s.currency
+                  ? [
+                      {
+                        icon: ReceiptText,
+                        label: "Original Price",
+                        value: `${formatMoney(s.amountMinor, s.currency)} ${s.currency} / ${intervalLabel(s)}`,
+                      },
+                    ]
+                  : []),
                 {
                   icon: CalendarDays,
                   label: "Started on",

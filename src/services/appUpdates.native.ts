@@ -40,17 +40,18 @@ export function maintainAppUpdates() {
   });
   const check = () => {
     if (
-      Date.now() - lastCheck > 24 * 60 * 60 * 1000 &&
-      !["ready", "available"].includes(useUpdates.getState().status)
+      Date.now() - lastCheck > 60 * 60 * 1000 &&
+      !["ready", "available", "downloading", "installing"].includes(
+        useUpdates.getState().status,
+      )
     )
       void checkAppUpdates();
   };
-  const timer = setTimeout(check, 30_000);
+  void checkAppUpdates();
   const listener = AppState.addEventListener("change", (state) => {
     if (state === "active") check();
   });
   return () => {
-    clearTimeout(timer);
     listener.remove();
   };
 }

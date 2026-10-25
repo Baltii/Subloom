@@ -62,3 +62,6 @@ bun.lockb
 
 # Private release-signing seed; only the verification key is shipped.
 .update-keys/
+
+# Generated from package.json for browser update checks.
+/public/app-version.json

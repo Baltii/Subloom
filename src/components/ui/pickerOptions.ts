@@ -1,16 +1,63 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { categories, currencies, intervals } from "../../domain/models";
 
-const currencyNames: Record<string, string> = {
-  USD: "US dollar",
+const currencyNames: Record<(typeof currencies)[number], string> = {
+  USD: "US Dollar",
   EUR: "Euro",
-  GBP: "British pound",
-  CAD: "Canadian dollar",
-  AUD: "Australian dollar",
-  TND: "Tunisian dinar",
-  JPY: "Japanese yen",
-  CHF: "Swiss franc",
-  AED: "UAE dirham",
-  INR: "Indian rupee",
+  GBP: "British Pound",
+  CAD: "Canadian Dollar",
+  AUD: "Australian Dollar",
+  TND: "Tunisian Dinar",
+  JPY: "Japanese Yen",
+  CHF: "Swiss Franc",
+  AED: "United Arab Emirates Dirham",
+  INR: "Indian Rupee",
+  CNY: "Chinese Yuan",
+  HKD: "Hong Kong Dollar",
+  NZD: "New Zealand Dollar",
+  SGD: "Singapore Dollar",
+  KRW: "South Korean Won",
+  SEK: "Swedish Krona",
+  NOK: "Norwegian Krone",
+  DKK: "Danish Krone",
+  PLN: "Polish Zloty",
+  CZK: "Czech Koruna",
+  HUF: "Hungarian Forint",
+  RON: "Romanian Leu",
+  TRY: "Turkish Lira",
+  BRL: "Brazilian Real",
+  MXN: "Mexican Peso",
+  ZAR: "South African Rand",
+  SAR: "Saudi Riyal",
+  QAR: "Qatari Riyal",
+  KWD: "Kuwaiti Dinar",
+  BHD: "Bahraini Dinar",
+  OMR: "Omani Rial",
+  EGP: "Egyptian Pound",
+  MAD: "Moroccan Dirham",
+  DZD: "Algerian Dinar",
+  JOD: "Jordanian Dinar",
+  IDR: "Indonesian Rupiah",
+  MYR: "Malaysian Ringgit",
+  THB: "Thai Baht",
+  PHP: "Philippine Peso",
+  VND: "Vietnamese Dong",
+  PKR: "Pakistani Rupee",
+  BDT: "Bangladeshi Taka",
+  LKR: "Sri Lankan Rupee",
+  NPR: "Nepalese Rupee",
+  NGN: "Nigerian Naira",
+  KES: "Kenyan Shilling",
+  GHS: "Ghanaian Cedi",
+  UAH: "Ukrainian Hryvnia",
+  ILS: "Israeli New Shekel",
+  ISK: "Icelandic Króna",
+  CLP: "Chilean Peso",
+  COP: "Colombian Peso",
+  PEN: "Peruvian Sol",
+  ARS: "Argentine Peso",
+  XOF: "West African CFA Franc",
+  XAF: "Central African CFA Franc",
 };
 export const currencyOptions = currencies.map((value) => ({
   value,
@@ -39,6 +86,9 @@ export const hourOptions = Array.from({ length: 24 }, (_, hour) => ({
   detail:
     hour < 12 ? `${hour || 12}:00 AM` : `${hour === 12 ? 12 : hour - 12}:00 PM`,
 }));
+export function timezoneOffset(timezone: string, date = new Date()) {
+  return `UTC${Temporal.Instant.fromEpochMilliseconds(date.getTime()).toZonedDateTimeISO(timezone).offset}`;
+}
 export function timezoneOptions(current: string) {
   const supported = (
     Intl as typeof Intl & { supportedValuesOf?: (key: string) => string[] }
@@ -52,11 +102,9 @@ export function timezoneOptions(current: string) {
     "Asia/Dubai",
     "Australia/Sydney",
   ];
-  return [...new Set([current, "UTC", ...supported])]
-    .sort()
-    .map((value) => ({
-      value,
-      label: value.replaceAll("_", " "),
-      detail: value === "UTC" ? "Coordinated Universal Time" : value,
-    }));
+  return [...new Set([current, "UTC", ...supported])].sort().map((value) => ({
+    value,
+    label: `${value.replaceAll("_", " ")} (${timezoneOffset(value)})`,
+    detail: value === "UTC" ? "Coordinated Universal Time" : value,
+  }));
 }

@@ -42,6 +42,8 @@ import { profileDisplayName } from "../domain/greeting";
 import { maintainUpdateDraftProtection } from "../services/updateDraftProtection";
 import { maintainAppUpdates } from "../services/appUpdates";
 import { maintainPro } from "../services/proBilling";
+import { UpdateNotice } from "../components/settings/UpdateNotice";
+import { MobileNotificationNotice } from "../components/settings/MobileNotificationNotice";
 export { ErrorBoundary } from "expo-router";
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -197,6 +199,7 @@ function Shell() {
       ) : (
         <ProAccessProvider>
           <QuickActionsProvider>
+            <MobileNotificationNotice />
             <Stack
               screenOptions={{
                 headerShown: false,
@@ -230,6 +233,7 @@ function Shell() {
               />
             </Stack>
             <Toast />
+            <UpdateNotice />
           </QuickActionsProvider>
         </ProAccessProvider>
       )}

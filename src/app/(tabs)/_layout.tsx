@@ -8,7 +8,7 @@ import {
   CreditCard,
   Settings2,
   Plus,
-  ShieldCheck,
+  Coffee,
   ArrowUpRight,
   Zap,
   type LucideIcon,
@@ -145,16 +145,21 @@ function Sidebar() {
           gap: 10,
         }}
       >
-        <ShieldCheck color={colors.primary} size={20} />
+        <Coffee color={colors.primary} size={20} />
         <Label size={12} bold>
-          A little peace of mind.
+          A little coffee, a big thanks.
         </Label>
         <Label size={11} color={colors.secondary}>
-          Your subscriptions, organized. Your data, always yours.
+          Enjoying Subloom? A small donation helps keep it growing.
         </Label>
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.push("/privacy")}
+          onPress={() =>
+            router.push({
+              pathname: "/settings",
+              params: { section: "Support & feedback" },
+            })
+          }
           style={{
             flexDirection: "row",
             gap: 6,
@@ -163,7 +168,7 @@ function Sidebar() {
           }}
         >
           <Label size={11} color={colors.primary} bold>
-            Our privacy promise
+            Support Subloom
           </Label>
           <ArrowUpRight size={13} color={colors.primary} />
         </Pressable>
@@ -171,7 +176,9 @@ function Sidebar() {
       <Pressable
         testID="sidebar-account"
         accessibilityRole="button"
-        onPress={() => router.push("/settings")}
+        onPress={() =>
+          router.push({ pathname: "/settings", params: { section: "Account" } })
+        }
         style={{
           paddingTop: 25,
           flexDirection: "row",

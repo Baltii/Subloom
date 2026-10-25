@@ -4,6 +4,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Plus, Search, Zap, X } from "lucide-react-native";
 import { useApp } from "../../store/app";
 import { categories } from "../../domain/models";
+import { convertedSubscriptions } from "../../domain/exchangeRates";
+import { useDisplayCurrency } from "../../hooks/useDisplayCurrency";
 import { dateLabel, nextEvent, today, upcoming } from "../../domain/renewal";
 import { useTheme, useWide } from "../../theme/useTheme";
 import { tokens } from "../../theme/tokens";
@@ -48,6 +50,22 @@ function Subscriptions() {
     [sort, setSort] = useState("Renewal date"),
     [timeline, setTimeline] = useState(false);
   const reference = today(data.preferences.timezone);
+  const display = useDisplayCurrency();
+  const { currency, query: rates } = display;
+  const displayedPrices = useMemo(
+    () =>
+      new Map(
+        convertedSubscriptions(
+          data.subscriptions,
+          currency,
+          rates.data?.rates || [],
+        ).subscriptions.map((subscription) => [subscription.id, subscription]),
+      ),
+    [data.subscriptions, currency, rates.data],
+  );
+  const missingRates = data.subscriptions.some(
+    (subscription) => !displayedPrices.has(subscription.id),
+  );
   const filtered = useMemo(() => {
     const list = data.subscriptions.filter(
       (s) =>
@@ -58,16 +76,26 @@ function Subscriptions() {
           (billingMethods.loaded &&
             matchesBillingFilter(s, billingMethods.value, billing))),
     );
-    return list.sort((a, b) =>
-      sort === "Name"
+    return list.sort((a, b) => {
+      if (sort === "Price") {
+        const first = displayedPrices.get(a.id),
+          second = displayedPrices.get(b.id);
+        if (first && second)
+          return (
+            second.amountMinor - first.amountMinor ||
+            a.name.localeCompare(b.name)
+          );
+        if (first || second) return first ? -1 : 1;
+        return (
+          a.currency.localeCompare(b.currency) || b.amountMinor - a.amountMinor
+        );
+      }
+      return sort === "Name"
         ? a.name.localeCompare(b.name)
-        : sort === "Price"
-          ? a.currency.localeCompare(b.currency) ||
-            b.amountMinor - a.amountMinor
-          : (nextEvent(a, reference)?.date || "9999").localeCompare(
-              nextEvent(b, reference)?.date || "9999",
-            ),
-    );
+        : (nextEvent(a, reference)?.date || "9999").localeCompare(
+            nextEvent(b, reference)?.date || "9999",
+          );
+    });
   }, [
     data.subscriptions,
     query,
@@ -78,6 +106,7 @@ function Subscriptions() {
     billing,
     billingMethods.loaded,
     billingMethods.value,
+    displayedPrices,
   ]);
   const billingOptions = [
     { value: "all", label: "All billing methods" },
@@ -290,8 +319,8 @@ function Subscriptions() {
                       onChange={(sort) => update({ ...draft, sort })}
                     />
                     <Label size={12} color={colors.secondary}>
-                      Price sorts within each original currency. Timeline always
-                      follows event dates.
+                      Price sorts highest first in {currency}. Timeline follows
+                      event dates.
                     </Label>
                   </View>
                 </>
@@ -347,7 +376,18 @@ function Subscriptions() {
                 color={colors.secondary}
                 style={{ marginBottom: 16 }}
               >
-                Prices are sorted within each original currency.
+                Prices are sorted highest first in {currency}.
+              </Label>
+            )}
+            {missingRates && (
+              <Label
+                size={12}
+                color={colors.secondary}
+                style={{ marginBottom: 16 }}
+              >
+                {rates.isPending
+                  ? "Converting prices…"
+                  : "Some prices are unavailable until exchange rates can be loaded."}
               </Label>
             )}
             {timeline && (
@@ -394,6 +434,7 @@ function Subscriptions() {
               >
                 <SubscriptionRow
                   subscription={item}
+                  displayPrice={displayedPrices.get(item.id) || null}
                   reference={reference}
                   showActions
                   billingLabel={

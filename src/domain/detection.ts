@@ -112,9 +112,9 @@ export function extractReceipt(
     "Unknown service";
   const currencyCodes = [
     ...new Set(
-      [...text.matchAll(/\b(USD|EUR|GBP|CAD|AUD|TND|JPY|CHF|AED|INR)\b/gi)].map(
-        (m) => m[1]!.toUpperCase(),
-      ),
+      [
+        ...text.matchAll(new RegExp(`\\b(${currencies.join("|")})\\b`, "gi")),
+      ].map((m) => m[1]!.toUpperCase()),
     ),
   ];
   if (text.includes("€") && !currencyCodes.includes("EUR"))
@@ -129,7 +129,10 @@ export function extractReceipt(
       : null;
   const prices = [
     ...text.matchAll(
-      /(?:USD|EUR|GBP|CAD|AUD|TND|JPY|CHF|AED|INR|[$€£¥])\s*([0-9]{1,9}(?:\.[0-9]{1,3})?)/gi,
+      new RegExp(
+        `(?:${currencies.join("|")}|[$€£¥])\\s*([0-9]{1,9}(?:\\.[0-9]{1,3})?)`,
+        "gi",
+      ),
     ),
   ];
   const distinctPrices = [...new Set(prices.map((p) => p[1]))];

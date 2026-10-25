@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Linking, View } from "react-native";
-import { Coffee } from "lucide-react-native";
+import { router } from "expo-router";
+import { Coffee, MessageSquare } from "lucide-react-native";
 import { Button, Card, Label, SectionTitle } from "../ui/Primitives";
 import { useTheme } from "../../theme/useTheme";
 
@@ -22,7 +23,7 @@ export function SupportCard() {
 
   return (
     <Card style={{ gap: 14 }}>
-      <SectionTitle title="Support Subloom" />
+      <SectionTitle title="Support & feedback" />
       <Label color={colors.secondary}>
         Enjoying Subloom? You can support my work with a coffee.
       </Label>
@@ -40,6 +41,20 @@ export function SupportCard() {
           Optional support through Buy Me a Coffee. No Subloom account or
           upgrade is required.
         </Label>
+      </View>
+      <View style={{ gap: 12, marginTop: 10 }}>
+        <Label color={colors.secondary}>
+          Have an idea or need a hand? I’d love to hear from you.
+        </Label>
+        <View style={{ alignItems: "flex-start" }}>
+          <Button
+            icon={MessageSquare}
+            variant="secondary"
+            onPress={() => router.push("/feedback")}
+          >
+            Share feedback
+          </Button>
+        </View>
       </View>
       {error && (
         <Label size={13} color={colors.error} accessibilityLiveRegion="polite">

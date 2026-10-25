@@ -38,11 +38,7 @@ export default function Activity() {
         : a.type === "reminder",
   );
   return (
-    <Page
-      title="The story of your subscriptions."
-      subtitle="A clear trail of what’s coming and what’s changed."
-      add
-    >
+    <Page title="The story of your subscriptions." add>
       <View style={{ marginBottom: 24 }}>
         <Chips
           values={["All", "Detections", "Changes", "Reminders"]}

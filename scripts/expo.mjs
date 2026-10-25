@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { parseEnv } from "node:util";
 import { publicExpoEnvironment } from "./expo-env.mts";
 
@@ -18,6 +18,14 @@ for (const file of [
   if (!existsSync(file)) continue;
   files.push(parseEnv(readFileSync(file, "utf8")));
 }
+// Shipped with each web export so an open browser can discover newer releases.
+mkdirSync("public", { recursive: true });
+writeFileSync(
+  "public/app-version.json",
+  JSON.stringify({
+    version: JSON.parse(readFileSync("package.json", "utf8")).version,
+  }) + "\n",
+);
 const env = publicExpoEnvironment(process.env, files);
 execFileSync(
   process.execPath,
