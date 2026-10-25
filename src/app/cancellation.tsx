@@ -1,5 +1,6 @@
+import { ThemedSwitch } from "../components/ui/ThemedSwitch";
 import { useState } from "react";
-import { Linking, Switch, View } from "react-native";
+import { Linking, View } from "react-native";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useApp, saveSubscription, readableError } from "../store/app";
 import { useFeatureSetting } from "../hooks/useFeatureSetting";
@@ -128,7 +129,7 @@ function Planner({ s }: { s: Subscription }) {
                     }[key]
                   }
                 </Label>
-                <Switch
+                <ThemedSwitch
                   accessibilityLabel={
                     {
                       reviewedBilling: "I reviewed who bills me and the terms",

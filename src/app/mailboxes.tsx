@@ -1,5 +1,6 @@
+import { ThemedSwitch } from "../components/ui/ThemedSwitch";
 import { useState } from "react";
-import { Switch, View } from "react-native";
+import { View } from "react-native";
 import {
   openAuthBrowser,
   usesNativeAuthBrowser,
@@ -96,7 +97,7 @@ function Mailboxes({ identity }: { identity: string }) {
                   <Label style={{ flex: 1 }}>
                     I consent to read-only mailbox access for receipt discovery
                   </Label>
-                  <Switch
+                  <ThemedSwitch
                     accessibilityLabel="Consent to read-only mailbox access"
                     value={consent}
                     onValueChange={setConsent}
