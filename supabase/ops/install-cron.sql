@@ -9,7 +9,7 @@ create extension if not exists pg_net with schema extensions;
 do $$
 declare job record;
 begin
-  for job in select jobid from cron.job where jobname in ('subloom-schedule','subloom-deliver','subloom-retention') loop
+  for job in select jobid from cron.job where jobname in ('subloom-schedule','subloom-deliver','subloom-retention','subloom-feedback') loop
     perform cron.unschedule(job.jobid);
   end loop;
 end $$;
@@ -30,3 +30,11 @@ select cron.schedule('subloom-deliver','* * * * *',$job$
   );
 $job$);
 select cron.schedule('subloom-retention','17 3 * * *','select public.purge_retained_metadata();');
+select cron.schedule('subloom-feedback','* * * * *',$job$
+  select net.http_post(
+    url := (select decrypted_secret from vault.decrypted_secrets where name='subloom_project_url') || '/functions/v1/send-feedback-email',
+    headers := jsonb_build_object('Content-Type','application/json','x-cron-secret',(select decrypted_secret from vault.decrypted_secrets where name='subloom_cron_secret')),
+    body := '{}'::jsonb,
+    timeout_milliseconds := 60000
+  );
+$job$);

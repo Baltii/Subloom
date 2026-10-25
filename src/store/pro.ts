@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { ProTracking } from "../domain/proTracking";
+import { PRO_PLAN_ENABLED } from "../domain/planMode";
 export type ProSnapshot = {
   configured: boolean;
   pro: boolean;
@@ -34,6 +35,10 @@ export const emptyPro: ProState = {
 };
 export const usePro = create<ProState>(() => ({ ...emptyPro }));
 export function workspaceHasPro(workspace: string, now = Date.now()) {
+  return !PRO_PLAN_ENABLED || workspaceHasPaidPro(workspace, now);
+}
+// Membership remains distinct from free access to the same features.
+export function workspaceHasPaidPro(workspace: string, now = Date.now()) {
   const state = usePro.getState();
   return (
     state.ready &&

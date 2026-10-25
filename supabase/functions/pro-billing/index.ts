@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { requirePaidPlans } from "../_shared/plan-mode.ts";
 import {
   authenticated,
   endpoint,
@@ -38,6 +39,7 @@ export const handler = endpoint(async (req) => {
   const body = input.safeParse(parsed);
   if (!body.success) throw new HttpError(400, "Invalid billing request.");
   await rateLimit(client, "pro:" + user.id, 60, 3600, user.id);
+  if (body.data.action === "checkout") await requirePaidPlans(client);
   if (!billingConfigured()) {
     if (body.data.action === "status") {
       return json({

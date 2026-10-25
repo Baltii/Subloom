@@ -6,7 +6,11 @@ export default function Privacy() {
   const sections = [
     [
       "Your data stays yours.",
-      "Subloom stores subscription details, preferences, and the minimum receipt metadata needed for review and duplicate prevention. Guest data stays on your device; account data syncs to your configured Supabase project. Data is never used for advertising.",
+      "Subloom stores subscription details, preferences, and the minimum receipt metadata needed for review and duplicate prevention. Guest tracking data stays on your device; account data syncs to your configured Supabase project. Data is never used for advertising.",
+    ],
+    [
+      "Ideas and feedback.",
+      "Feedback is sent only when you press Send feedback. Your message, its category and title, optional reply email, app version, and platform are emailed to Subloom’s creator through Resend, with a private backup stored in the app’s backend. Your optional email is used as the reply address. Subscription records are not attached. A temporary, keyed network identifier is used to limit spam; raw IP addresses are not stored in the feedback inbox. Feedback is separate from your account and can be sent without signing in.",
     ],
     [
       "Receipt access is your choice.",
@@ -26,7 +30,7 @@ export default function Privacy() {
     ],
     [
       "You can leave at any time.",
-      "Export your data in Settings. Delete your account to remove cloud records and local account/guest data on this device. Other signed-in devices clear access when their session is invalidated; their offline cached data requires local clearing.",
+      "Export your data in Settings. Delete your account to remove synced account records and local account/guest data on this device. Feedback is stored separately from account records in the creator’s private inbox. Other signed-in devices clear access when their session is invalidated; their offline cached data requires local clearing.",
     ],
     [
       "Reminder privacy.",

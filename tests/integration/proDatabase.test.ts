@@ -38,6 +38,8 @@ beforeAll(async () => {
     "20261012132927_subscription_radar.sql",
     "20261023160619_pro_billing.sql",
     "20261024173456_free_plan_limits.sql",
+    "20261025124715_toggle_pro_plan.sql",
+    "20261025124911_restrict_plan_configuration_access.sql",
   ])
     await db.exec(
       readFileSync(
@@ -254,5 +256,126 @@ describe("billing security in PostgreSQL", () => {
     expect(
       (await db.query("select * from pro_trial_history")).rows,
     ).toHaveLength(1);
+  });
+});
+
+describe("reversible paid-plan enforcement", () => {
+  it("keeps mode configuration available only to the backend", async () => {
+    for (const name of ["anon", "authenticated"])
+      await role(name, async () => {
+        await expect(
+          db.query("select public.pro_plan_enabled()"),
+        ).rejects.toThrow(/permission denied/);
+        await expect(
+          db.exec(
+            "update private.plan_configuration set pro_plan_enabled=false",
+          ),
+        ).rejects.toThrow(/permission denied/);
+        await expect(
+          db.exec("select * from private.plan_configuration"),
+        ).rejects.toThrow(/permission denied/);
+        await db.exec(
+          "select set_config('app.pro_plan_enabled','false',false)",
+        );
+      });
+    await role("service_role", async () => {
+      expect(
+        (await db.query("select public.pro_plan_enabled() as enabled")).rows,
+      ).toEqual([{ enabled: true }]);
+      await expect(
+        db.exec("update private.plan_configuration set pro_plan_enabled=false"),
+      ).rejects.toThrow(/permission denied/);
+    });
+  });
+  it("allows unpaid API writes in free mode and restores restrictions while keeping data editable", async () => {
+    const owner = randomUUID();
+    await db.query("insert into auth.users values($1)", [owner]);
+    const sources = (count: number) => ({
+      sources: Array.from({ length: count }, (_, i) => ({
+        id: String(i),
+        kind: "card",
+      })),
+      links: [],
+    });
+    const put = (id: string, version = 1) =>
+      role("authenticated", async () => {
+        await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
+          owner,
+        ]);
+        return db.query("select apply_operation($1::jsonb)", [
+          JSON.stringify({
+            id: randomUUID(),
+            entity: "subscription",
+            entityId: id,
+            action: "put",
+            expectedVersion: version === 1 ? null : version - 1,
+            payload: {
+              subscription: subscription({ id, userId: owner, version }),
+            },
+            createdAt: new Date().toISOString(),
+          }),
+        ]);
+      });
+    await db.exec(
+      "update private.plan_configuration set pro_plan_enabled=false",
+    );
+    try {
+      const ids = Array.from({ length: 12 }, () => randomUUID());
+      for (const id of ids) await put(id);
+      await save("payment_sources", sources(4), 0, owner);
+      await save("payment_transactions", [{ id: "free-import" }], 0, owner);
+      await expect(
+        save("payment_sources", sources(51), 1, owner),
+      ).rejects.toThrow(/50/);
+      await expect(
+        save(
+          "payment_sources",
+          { sources: [{ id: "bad", kind: "invalid" }] },
+          1,
+          owner,
+        ),
+      ).rejects.toThrow(/Invalid/);
+      await expect(
+        save("payment_sources", sources(4), 0, owner),
+      ).rejects.toThrow(/conflict/);
+      expect(
+        (await db.query("select * from pro_billing where user_id=$1", [owner]))
+          .rows,
+      ).toHaveLength(0);
+      await db.exec(
+        "update private.plan_configuration set pro_plan_enabled=true",
+      );
+      await expect(put(randomUUID())).rejects.toThrow(/Pro/);
+      await expect(
+        save("payment_sources", sources(5), 1, owner),
+      ).rejects.toThrow(/Pro/);
+      await expect(
+        save(
+          "payment_transactions",
+          [{ id: "free-import" }, { id: "new" }],
+          1,
+          owner,
+        ),
+      ).rejects.toThrow(/Pro/);
+      await put(ids[0]!, 2);
+      await save("payment_sources", sources(4), 1, owner);
+      await save(
+        "payment_transactions",
+        [{ id: "free-import", ignored: true }],
+        1,
+        owner,
+      );
+      expect(
+        (
+          await db.query("select id from subscriptions where user_id=$1", [
+            owner,
+          ])
+        ).rows,
+      ).toHaveLength(12);
+    } finally {
+      await db.exec(
+        "update private.plan_configuration set pro_plan_enabled=true",
+      );
+    }
   });
 });

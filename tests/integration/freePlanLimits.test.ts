@@ -8,7 +8,12 @@ import {
   deleteSubscription,
   useApp,
 } from "../../src/store/app";
-import { emptyPro, usePro } from "../../src/store/pro";
+import {
+  emptyPro,
+  usePro,
+  workspaceHasPaidPro,
+  workspaceHasPro,
+} from "../../src/store/pro";
 import { writeSetting, readSetting } from "../../src/services/featureSettings";
 import {
   paymentProfileSchema,
@@ -16,6 +21,13 @@ import {
 } from "../../src/domain/payments";
 import { buildBillingMethod } from "../../src/domain/billingMethods";
 import { subscription, userA } from "../fixtures";
+
+const planMode = vi.hoisted(() => ({ enabled: true }));
+vi.mock("../../src/domain/planMode", () => ({
+  get PRO_PLAN_ENABLED() {
+    return planMode.enabled;
+  },
+}));
 
 vi.mock("react-native", () => ({ Platform: { OS: "web" } }));
 vi.mock("expo-crypto", () => ({ randomUUID }));
@@ -40,12 +52,52 @@ function enablePro() {
   });
 }
 beforeEach(async () => {
+  planMode.enabled = true;
   disk.clear();
   usePro.setState(emptyPro);
   await hydrate("guest");
 });
 
 describe("durable free plan limits", () => {
+  it("bypasses paid gates without a license and restores limits without losing records", async () => {
+    planMode.enabled = false;
+    expect(workspaceHasPro("guest")).toBe(true);
+    expect(workspaceHasPro(userA)).toBe(true);
+    expect(workspaceHasPaidPro("guest")).toBe(false);
+    await importSubscriptions(rows(15), "guest");
+    await saveSubscription(rows(1)[0]!);
+    const sources = Array.from({ length: 4 }, () =>
+      buildBillingMethod(
+        {
+          kind: "card",
+          cardBrand: "Visa",
+          walletProvider: "PayPal",
+          last4: "0042",
+          nickname: "",
+        },
+        randomUUID(),
+        new Date().toISOString(),
+      ),
+    );
+    await writeSetting(
+      "guest",
+      "payment_sources",
+      paymentProfileSchema,
+      { sources, links: [] },
+      0,
+    );
+    await hydrate("guest");
+    expect(useApp.getState().data.subscriptions).toHaveLength(16);
+    expect(usePro.getState().snapshot).toBeNull();
+    planMode.enabled = true;
+    await expect(saveSubscription(rows(1)[0]!)).rejects.toThrow(/Pro/);
+    const saved = useApp.getState().data.subscriptions[0]!;
+    await saveSubscription({
+      ...saved,
+      notes: "Editable after switching back",
+    });
+    expect(useApp.getState().data.subscriptions).toHaveLength(16);
+  });
   it("allows ten subscriptions and serializes competing additions at the limit", async () => {
     for (const input of rows(9)) await saveSubscription(input);
     const results = await Promise.allSettled(

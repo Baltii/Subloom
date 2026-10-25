@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useApp } from "../store/app";
 import { usePro, workspaceHasPro } from "../store/pro";
+import { PRO_PLAN_ENABLED } from "../domain/planMode";
 
 export type ProFeature =
   | "CSV import & export"
@@ -36,6 +37,8 @@ export function useProAccess() {
       open(feature);
       return false;
     },
-    openPro: open,
+    openPro(feature: ProFeature) {
+      if (PRO_PLAN_ENABLED) open(feature);
+    },
   };
 }

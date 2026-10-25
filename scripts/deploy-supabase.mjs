@@ -1,7 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { planModeSql } from "./plan-mode.mts";
 
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
+const planMode = planModeSql(process.env.EXPO_PUBLIC_PRO_PLAN_ENABLED);
 const url = new URL(
   process.env.EXPO_PUBLIC_SUPABASE_URL || "http://unconfigured.invalid",
 );
@@ -24,7 +26,10 @@ function run(command) {
       "--output-format",
       "text",
     ],
-    { stdio: "inherit" },
+    {
+      stdio: "inherit",
+      env: { ...process.env, SUPABASE_TELEMETRY_DISABLED: "1" },
+    },
   );
 }
 console.log("Supabase deployment target: " + project);
@@ -50,6 +55,7 @@ run([
   "--fail-on",
   "error",
 ]);
+run(["db", "query", "--linked", planMode.sql]);
 console.log(
   "Schema/functions deployed. Next: npm run test:live. SMTP, provider secrets and scheduled jobs need the setup runbook.",
 );

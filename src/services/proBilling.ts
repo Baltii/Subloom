@@ -7,6 +7,7 @@ import { authStorage, supabase } from "./supabase";
 import { macosBridge } from "./macosBridge";
 import { windowsBridge } from "./windowsBridge";
 import { emptyPro, usePro } from "../store/pro";
+import { PRO_PLAN_ENABLED } from "../domain/planMode";
 import { licenseSchema, verifyProLicense } from "../domain/pro";
 import { proTrackingSchema } from "../domain/proTracking";
 import { reconcileProSubscription, useApp } from "../store/app";
@@ -392,6 +393,8 @@ export async function openProBilling(
   action: "checkout" | "portal",
   interval: "month" | "year" = "month",
 ) {
+  if (action === "checkout" && !PRO_PLAN_ENABLED)
+    throw new Error("Subloom is free to use. No paid plan is needed.");
   const workspace = activeWorkspace;
   if (!workspace || !stripeCheckoutAllowed)
     throw new Error(

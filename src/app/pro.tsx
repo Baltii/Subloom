@@ -15,8 +15,9 @@ import {
 } from "../components/ui/Primitives";
 import { useTheme, useWide } from "../theme/useTheme";
 import { useApp, readableError } from "../store/app";
-import { usePro } from "../store/pro";
-import { useProAccess, type ProFeature } from "../hooks/useProAccess";
+import { usePro, workspaceHasPaidPro } from "../store/pro";
+import { type ProFeature } from "../hooks/useProAccess";
+import { PRO_PLAN_ENABLED } from "../domain/planMode";
 import {
   billingAuth,
   cancelProSubscription,
@@ -30,6 +31,7 @@ import {
 
 import { ProMembershipCard } from "../components/pro/ProMembershipCard";
 import { ProFeatures } from "../components/pro/ProFeatures";
+import { SupportCard } from "../components/settings/SupportCard";
 
 function formatDate(value: string | null) {
   return value
@@ -45,7 +47,46 @@ export default function ProRoute() {
   const identity = useApp((s) => s.identity);
   return <ProPage key={identity} identity={identity} />;
 }
-export function ProPage({
+type ProPageProps = {
+  identity: string;
+  onClose?: () => void;
+  feature?: ProFeature;
+};
+export function ProPage(props: ProPageProps) {
+  const [manageBilling, setManageBilling] = useState(false);
+  if (PRO_PLAN_ENABLED || manageBilling) return <PaidProPage {...props} />;
+  return (
+    <Page
+      title="Free access"
+      back={!props.onClose}
+      right={
+        props.onClose ? (
+          <IconButton
+            icon={X}
+            label="Close free access"
+            onPress={props.onClose}
+          />
+        ) : undefined
+      }
+      subtitle="All available features are included."
+    >
+      <View style={{ gap: 20 }}>
+        <Card>
+          <Heading>Subloom is free to use</Heading>
+          <Label>
+            Track more subscriptions, save cards and wallets, and use imports
+            and exports without a paid plan. No payment is required.
+          </Label>
+          <Button variant="ghost" onPress={() => setManageBilling(true)}>
+            Manage an existing subscription
+          </Button>
+        </Card>
+        <SupportCard />
+      </View>
+    </Page>
+  );
+}
+function PaidProPage({
   identity,
   onClose,
   feature,
@@ -68,7 +109,7 @@ export function ProPage({
   const [disconnect, setDisconnect] = useState(false);
   const [cancel, setCancel] = useState(false);
   const operation = useRef(false);
-  const { pro } = useProAccess();
+  const pro = workspaceHasPaidPro(identity);
   const snapshot = billing.workspace === identity ? billing.snapshot : null;
   const tracked = useApp((s) =>
     s.data.subscriptions.some((item) => item.id === snapshot?.tracking?.id),
@@ -108,7 +149,7 @@ export function ProPage({
         : "Make room for a little more.";
   return (
     <Page
-      title="Subloom Pro"
+      title={PRO_PLAN_ENABLED ? "Subloom Pro" : "Existing billing"}
       back={!onClose}
       right={
         onClose ? (
@@ -116,9 +157,11 @@ export function ProPage({
         ) : undefined
       }
       subtitle={
-        feature
-          ? `Included with Subloom Pro: ${feature}.`
-          : "Your daily essentials stay free."
+        !PRO_PLAN_ENABLED
+          ? "All available features remain free."
+          : feature
+            ? `Included with Subloom Pro: ${feature}.`
+            : "Your daily essentials stay free."
       }
       contentMaxWidth={1000}
     >
@@ -130,19 +173,21 @@ export function ProPage({
             alignItems: wide ? "flex-start" : "stretch",
           }}
         >
-          <View style={{ flex: wide ? 1 : undefined, gap: 24 }}>
-            <ProMembershipCard
-              active={pro}
-              ending={Boolean(snapshot?.cancelAtPeriodEnd)}
-              interval={snapshot?.interval ?? interval}
-              detail={
-                pro
-                  ? status
-                  : "An optional upgrade. Your everyday essentials stay free."
-              }
-            />
-            {wide && <ProFeatures />}
-          </View>
+          {PRO_PLAN_ENABLED && (
+            <View style={{ flex: wide ? 1 : undefined, gap: 24 }}>
+              <ProMembershipCard
+                active={pro}
+                ending={Boolean(snapshot?.cancelAtPeriodEnd)}
+                interval={snapshot?.interval ?? interval}
+                detail={
+                  pro
+                    ? status
+                    : "An optional upgrade. Your everyday essentials stay free."
+                }
+              />
+              {wide && <ProFeatures />}
+            </View>
+          )}
           <Card style={{ flex: wide ? 1 : undefined, gap: 18 }}>
             {pro ? (
               <>
@@ -236,7 +281,7 @@ export function ProPage({
                   </Label>
                 )}
               </>
-            ) : stripeCheckoutAllowed ? (
+            ) : PRO_PLAN_ENABLED && stripeCheckoutAllowed ? (
               <>
                 <Heading size={22}>Choose your plan</Heading>
                 <Chips
@@ -274,8 +319,9 @@ export function ProPage({
               </>
             ) : (
               <Label>
-                Purchases are not available in this build. You can verify your
-                billing email below to restore an existing purchase.
+                {PRO_PLAN_ENABLED
+                  ? "Purchases are not available in this build. You can verify your billing email below to restore an existing purchase."
+                  : "Verify your billing email to manage an existing subscription. No paid plan is needed to use Subloom."}
               </Label>
             )}
 
@@ -283,10 +329,12 @@ export function ProPage({
               <View style={{ gap: 10 }}>
                 <Heading size={18}>Keep your data local</Heading>
                 <Label size={13} color={colors.secondary}>
-                  Verify an email to buy or restore Pro. This creates a billing
-                  identity for receipts and recovery. Your tracked subscriptions
-                  and statements stay on this device; it doesn’t connect your
-                  workspace to cloud sync.
+                  {PRO_PLAN_ENABLED
+                    ? "Verify an email to buy or restore Pro."
+                    : "Verify an email to manage existing billing."}{" "}
+                  This creates a billing identity for receipts and recovery.
+                  Your tracked subscriptions and statements stay on this device;
+                  it doesn’t connect your workspace to cloud sync.
                 </Label>
                 <Field
                   label="Billing email"
@@ -349,38 +397,43 @@ export function ProPage({
                 <Label size={13} color={colors.secondary}>
                   Billing email: {billing.email || "your signed-in account"}
                 </Label>
-                {!pro && snapshot?.configured && stripeCheckoutAllowed && (
-                  <>
-                    <Label size={13}>
-                      {snapshot.trialEligible
-                        ? `7 days free, then ${price}/${cadence}. A payment method is required now. Renews automatically unless you cancel before the trial ends.`
-                        : `Your free trial has already been used. ${price}/${cadence} starts immediately and renews automatically until canceled.`}
-                    </Label>
-                    <Button
-                      loading={busy}
-                      disabled={
-                        demo ||
-                        billing.loading ||
-                        (snapshot.canManage &&
-                          !["none", "canceled", "incomplete_expired"].includes(
-                            snapshot.status,
-                          ))
-                      }
-                      onPress={() =>
-                        void run(async () => {
-                          await openProBilling("checkout", interval);
-                          setMessage(
-                            "Finish checkout in your browser. Your plan and reminders update automatically when you return.",
-                          );
-                        })
-                      }
-                    >
-                      {snapshot.trialEligible
-                        ? "Start 7-day free trial"
-                        : "Subscribe to Pro"}
-                    </Button>
-                  </>
-                )}
+                {PRO_PLAN_ENABLED &&
+                  !pro &&
+                  snapshot?.configured &&
+                  stripeCheckoutAllowed && (
+                    <>
+                      <Label size={13}>
+                        {snapshot.trialEligible
+                          ? `7 days free, then ${price}/${cadence}. A payment method is required now. Renews automatically unless you cancel before the trial ends.`
+                          : `Your free trial has already been used. ${price}/${cadence} starts immediately and renews automatically until canceled.`}
+                      </Label>
+                      <Button
+                        loading={busy}
+                        disabled={
+                          demo ||
+                          billing.loading ||
+                          (snapshot.canManage &&
+                            ![
+                              "none",
+                              "canceled",
+                              "incomplete_expired",
+                            ].includes(snapshot.status))
+                        }
+                        onPress={() =>
+                          void run(async () => {
+                            await openProBilling("checkout", interval);
+                            setMessage(
+                              "Finish checkout in your browser. Your plan and reminders update automatically when you return.",
+                            );
+                          })
+                        }
+                      >
+                        {snapshot.trialEligible
+                          ? "Start 7-day free trial"
+                          : "Subscribe to Pro"}
+                      </Button>
+                    </>
+                  )}
                 {snapshot?.canManage && stripeCheckoutAllowed && (
                   <Button
                     variant="secondary"
@@ -418,7 +471,7 @@ export function ProPage({
                       Cancel subscription
                     </Button>
                   )}
-                {snapshot && !snapshot.configured && (
+                {PRO_PLAN_ENABLED && snapshot && !snapshot.configured && (
                   <Label size={13}>
                     Pro purchases aren’t available yet. Payment setup is still
                     in progress.
@@ -457,7 +510,7 @@ export function ProPage({
             )}
           </Card>
         </View>
-        {!wide && <ProFeatures />}
+        {PRO_PLAN_ENABLED && !wide && <ProFeatures />}
         <Label size={12} color={colors.secondary}>
           Payments are handled by Stripe. Subloom never receives your full
           payment card details. For local workspaces, verify the same billing

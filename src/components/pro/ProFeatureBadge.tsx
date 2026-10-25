@@ -2,9 +2,11 @@ import { View } from "react-native";
 import { Crown } from "lucide-react-native";
 import { Label } from "../ui/Primitives";
 import { useTheme } from "../../theme/useTheme";
+import { PRO_PLAN_ENABLED } from "../../domain/planMode";
 
 export function ProFeatureBadge() {
   const { colors } = useTheme();
+  if (!PRO_PLAN_ENABLED) return null;
   return (
     <View
       accessibilityLabel="Subloom Pro feature"
