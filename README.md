@@ -90,7 +90,7 @@ Android CI APKs use a test signing key and cannot update an EAS/store-signed ins
 - **macOS:** local renewal reminders are implemented; enable them in Settings and grant the macOS notification permission.
 - **Android:** FCM credentials and build configuration are set up. Physical-device notification delivery still needs verification.
 - **iOS:** APNs setup and device-delivery verification remain pending.
-- **Email, OCR, and receipt forwarding:** require their provider configuration and live delivery checks. General-recipient email also needs a verified sender domain.
+- **Email reminders and OCR:** require their provider configuration and live delivery checks. General-recipient email also needs a verified sender domain. Mailbox discovery is disabled and marked as an upcoming Pro feature; receipt forwarding has been retired.
 - **Bank statements:** imported from files you review. Direct bank connections and automatic merchant cancellation are not enabled.
 
 Configure optional providers separately before relying on their integrations.

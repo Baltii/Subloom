@@ -84,13 +84,6 @@ export const toolActions: {
     group: "Import",
   },
   {
-    title: "Receipt forwarding",
-    detail: "Manage your private receipt address",
-    route: "/sources",
-    icon: Mail,
-    group: "Import",
-  },
-  {
     title: "Cards & wallets",
     detail: "Manage billing methods for your subscriptions",
     route: "/billing-methods",

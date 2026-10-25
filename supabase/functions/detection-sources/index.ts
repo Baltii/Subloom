@@ -2,13 +2,12 @@ import { z } from "zod";
 import {
   authenticated,
   endpoint,
-  env,
   HttpError,
   json,
   limited,
   rateLimit,
-  sha256,
 } from "../_shared/http.ts";
+import { requireReceiptAddressActionAvailable } from "../_shared/tool-availability.ts";
 export const handler = endpoint(async (req) => {
   const { client, user } = await authenticated(req);
   const body = z
@@ -17,6 +16,7 @@ export const handler = endpoint(async (req) => {
       id: z.string().uuid().optional(),
     })
     .parse(JSON.parse(await limited(req, 4096)));
+  requireReceiptAddressActionAvailable(body.action);
   await rateLimit(client, "aliases:" + user.id, 20, 3600, user.id);
   if (body.action === "list") {
     const { data, error } = await client
@@ -38,26 +38,6 @@ export const handler = endpoint(async (req) => {
     if (error) throw new HttpError(500, "Could not revoke address.");
     return json({ ok: true });
   }
-  if (!user.email_confirmed_at)
-    throw new HttpError(403, "Verify your account email first.");
-  const domain = env("INBOUND_DOMAIN");
-  if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(domain))
-    throw new HttpError(503, "Receiving domain not configured.");
-  const bytes = crypto.getRandomValues(new Uint8Array(32)),
-    token = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-  const address = "receipts+" + token + "@" + domain;
-  const expires = new Date(Date.now() + 90 * 86_400_000).toISOString();
-  const { data, error } = await client.rpc("create_receipt_alias", {
-    owner: user.id,
-    alias_address: address,
-    hash: await sha256(token),
-    expires,
-  });
-  if (error)
-    throw new HttpError(
-      409,
-      "You can have up to three active addresses. Revoke one before creating another.",
-    );
-  return json({ alias: { id: data, address, expires_at: expires } });
+  throw new HttpError(410, "Receipt forwarding is no longer available.");
 });
 Deno.serve(handler);

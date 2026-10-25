@@ -1,6 +1,7 @@
 import {
   requireMailboxActionAvailable,
   mailboxCallbackUnavailable,
+  requireReceiptAddressActionAvailable,
 } from "../_shared/tool-availability.ts";
 import { HttpError } from "../_shared/http.ts";
 function assert(value: unknown): asserts value {
@@ -21,6 +22,21 @@ Deno.test(
     }
     requireMailboxActionAvailable("status");
     requireMailboxActionAvailable("disconnect");
+  },
+);
+Deno.test(
+  "receipt address creation is retired while legacy cleanup remains available",
+  () => {
+    let denied = false;
+    try {
+      requireReceiptAddressActionAvailable("create");
+    } catch (error) {
+      assert(error instanceof HttpError && error.status === 410);
+      denied = true;
+    }
+    assert(denied);
+    requireReceiptAddressActionAvailable("list");
+    requireReceiptAddressActionAvailable("revoke");
   },
 );
 Deno.test(
