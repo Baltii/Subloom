@@ -9,7 +9,6 @@ import {
 import { enqueue } from "../_shared/delivery.ts";
 import {
   subscriptionNotification,
-  weeklyDigestNotification,
   welcomeNotification,
 } from "../_shared/notification-emails.ts";
 import {
@@ -21,8 +20,9 @@ import {
   isHighRenewal,
   isQuiet,
 } from "../../../src/domain/reminders.ts";
-import { dateLabel, today, upcoming } from "../../../src/domain/renewal.ts";
-import { formatMoney, recurringTotals } from "../../../src/domain/money.ts";
+import { today } from "../../../src/domain/renewal.ts";
+import { weeklyDigest } from "../_shared/weekly-digest.ts";
+import { exchangeRateSchema } from "../../../src/domain/exchangeRates.ts";
 export const handler = endpoint(async (req) => {
   requireCron(req);
   const client = admin(),
@@ -140,24 +140,18 @@ export const handler = endpoint(async (req) => {
         local.hour >= digestHour &&
         !isQuiet(local.hour, p.quietStart, p.quietEnd)
       ) {
-        const events = upcoming(subscriptions, p.timezone, now).filter(
-          (e) => e.days <= 7 && e.type !== "paid_through",
-        );
-        const totals = recurringTotals(subscriptions)
-          .map(
-            (t) =>
-              formatMoney(t.monthly, t.currency) +
-              " " +
-              t.currency +
-              "/month estimated",
-          );
-        const lines = events.map(
-          (e) =>
-            e.subscription.name +
-            " · " +
-            dateLabel(e.date) +
-            " · " +
-            formatMoney(e.subscription.amountMinor, e.subscription.currency),
+        const needsRates = subscriptions.some((s) => s.currency !== p.currency);
+        const { data: rateData, error: rateError } = needsRates
+          ? await client.from("latest_exchange_rates").select("*")
+          : { data: [], error: null };
+        if (rateError) {
+          throw new HttpError(503, "Could not load weekly estimate rates.");
+        }
+        const payload = weeklyDigest(
+          subscriptions,
+          p,
+          exchangeRateSchema.array().parse(rateData || []),
+          now,
         );
         await enqueue(
           client,
@@ -166,7 +160,7 @@ export const handler = endpoint(async (req) => {
             key: "digest:" + owner + ":" + today(p.timezone, now),
             kind: "digest",
             dueAt: now.toISOString(),
-            payload: weeklyDigestNotification(events.length, totals, lines),
+            payload,
           },
           { email: verifiedEmail },
         );

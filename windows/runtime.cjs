@@ -1,6 +1,28 @@
 const path = require("node:path");
 const { statSync } = require("node:fs");
 const APP_URL = "subloom-app://bundle/";
+function notificationLinkPath(value) {
+  if (typeof value !== "string" || value.length > 2048) return null;
+  try {
+    const url = new URL(value),
+      path = url.searchParams.get("path");
+    return url.protocol === "subloom:" &&
+      url.host === "open" &&
+      !url.username &&
+      !url.password &&
+      !url.port &&
+      !url.hash &&
+      ["", "/"].includes(url.pathname) &&
+      typeof path === "string" &&
+      /^\/(?:subscription\/[0-9a-f-]{36}|detection\/[0-9a-f-]{36}|settings)?$/i.test(
+        path,
+      )
+      ? path
+      : null;
+  } catch {
+    return null;
+  }
+}
 function isAppURL(value) {
   try {
     const url = new URL(value);
@@ -119,6 +141,7 @@ function createAuthBroker(openExternal, timeoutMs = 180000) {
   };
 }
 module.exports = {
+  notificationLinkPath,
   APP_URL,
   isAppURL,
   externalURL,

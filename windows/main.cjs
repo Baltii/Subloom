@@ -18,6 +18,7 @@ const {
   externalURL,
   bundledFile,
   createAuthBroker,
+  notificationLinkPath,
 } = require("./runtime.cjs");
 const smokeMode = process.argv
   .find((arg) => /^--smoke-test=(write|read)$/.test(arg))
@@ -51,11 +52,29 @@ const auth = createAuthBroker((url) => {
   ]);
 });
 let window;
+let pendingLink =
+  process.argv.map(notificationLinkPath).find((value) => value !== null) ??
+  null;
+function openNotificationLink(path) {
+  pendingLink = path;
+  if (!window || window.webContents.isLoadingMainFrame()) return;
+  const value = JSON.stringify(path);
+  void window.webContents
+    .executeJavaScript(
+      `window.__subloomPendingNotificationPath=${value};window.dispatchEvent(new CustomEvent('subloom:open-link',{detail:{path:${value}}}))`,
+    )
+    .catch(() => {});
+  pendingLink = null;
+}
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
   app.on("second-instance", (_event, argv) => {
     const callback = argv.find((arg) => arg.startsWith("subloom://"));
-    if (callback) auth.complete(callback);
+    if (callback) {
+      const path = notificationLinkPath(callback);
+      if (path !== null) openNotificationLink(path);
+      else auth.complete(callback);
+    }
     if (window && !smokeMode) {
       if (window.isMinimized()) window.restore();
       window.show();
@@ -335,7 +354,17 @@ else {
           if (mainFrame && !inPlace) notifications.activate(null);
         },
       );
-      await window.loadURL(APP_URL);
+      window.webContents.on("did-finish-load", () => {
+        if (pendingLink !== null) openNotificationLink(pendingLink);
+      });
+      const initialLink = pendingLink;
+      pendingLink = null;
+      await window.loadURL(
+        APP_URL +
+          (initialLink !== null
+            ? "open?path=" + encodeURIComponent(initialLink)
+            : ""),
+      );
       if (smokeMode) {
         const result = await window.webContents
           .executeJavaScript(`(async () => {

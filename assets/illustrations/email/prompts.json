@@ -1,0 +1,168 @@
+{
+  "palette": [
+    "#182D25",
+    "#087C65",
+    "#E1F0DE",
+    "#F8FAF8",
+    "#FFFFFF"
+  ],
+  "preparation": "Trim transparent margins; fit without distortion inside 320×320; add a 32px transparent margin; encode PNG preserving alpha. No artwork content edits.",
+  "assets": [
+    {
+      "name": "subscription-added",
+      "path": "public/email/illustrations/subscription-added.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: A new rounded subscription tile sliding neatly into an emerald organizer, a small raised plus sign on the front tile. The idea is a subscription just added to an organized personal space.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-196fdb14-5c0f-4169-ae2f-8345a0f16af9.png",
+      "sourceSha256": "827759619593e4528d427b193efbf60b3edc87dcc0ab5588551b872434c8c51d",
+      "assetSha256": "42ae4403d52887c70a9a127477a7a4aead329aa16097c170c5a9c0b4321632b3",
+      "width": 384,
+      "height": 384,
+      "bytes": 31183
+    },
+    {
+      "name": "renewal-upcoming",
+      "path": "public/email/illustrations/renewal-upcoming.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: A softly rounded emerald notification bell beside a small porcelain analog clock with mint hands. The idea is a gentle heads-up before a future renewal. No calendar.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-c8e1217a-1d3f-4497-aa13-5a4013524fc6.png",
+      "sourceSha256": "f62c3dd16df281f13aad1b8ede84288dc8e85bbef283cd31a85729203286b330",
+      "assetSha256": "c640c520b9645d1a49306d0c6df660f8a1047537ef74420975db4d307a57bf72",
+      "width": 384,
+      "height": 384,
+      "bytes": 30980
+    },
+    {
+      "name": "renewal-today",
+      "path": "public/email/illustrations/renewal-today.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: One mint coin held inside a sculptural emerald circular renewal arrow, with a small crisp check-shaped hand pointing at the top of the circle. The idea is a recurring payment due today. No bell, no calendar.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-3ce8f68c-8393-4b06-ae98-693a5a7093bf.png",
+      "sourceSha256": "2592571752f4d4e00be571974acb9f35bc1e1e8344851a3faa09cf69c42a377f",
+      "assetSha256": "048ef3cdea90303a6484f714072a836582d615f7312725812ac98d8d57e79129",
+      "width": 384,
+      "height": 384,
+      "bytes": 40084
+    },
+    {
+      "name": "payment-overdue",
+      "path": "public/email/illustrations/payment-overdue.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: An open forest-green wallet containing one porcelain payment slip, beside a small mint clock whose hand has moved just past its marker. The idea is checking the status of a tracked payment after its date, calm rather than alarming. No red crosses, no failure stamp, no magnifier, no calendar.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-a0f5493e-4b5e-4e34-97af-dea83b1dc30d.png",
+      "sourceSha256": "2849b78f213cbdd15830c35d5bcf9efdf78400fa22ee9da7de7e9ea5757436c3",
+      "assetSha256": "6cf5d05f84665175ab027ecdc2e717244c1d187d0ea35981f180e00812485bfb",
+      "width": 384,
+      "height": 384,
+      "bytes": 45552
+    },
+    {
+      "name": "trial-ending",
+      "path": "public/email/illustrations/trial-ending.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: A single beautiful porcelain hourglass with mint-green sand almost entirely in the lower bulb, held by a forest-green curved frame. The idea is a free trial nearing its end. No calendar, no coins.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-4e9cf568-3408-4224-91e3-be46e7041b9e.png",
+      "sourceSha256": "715910136d6ba06f6f0b0aca6cae0773410e3281bea053edb804b29a64f3322d",
+      "assetSha256": "f92bf1c609cc9619244b1d64596c22f714a4794d403f36aae6e4233f488575fe",
+      "width": 384,
+      "height": 384,
+      "bytes": 32354
+    },
+    {
+      "name": "plan-ending",
+      "path": "public/email/illustrations/plan-ending.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: A premium emerald membership ticket with a porcelain inset and a final perforated stub gently separating from its right edge, a short mint ribbon folded at the end. The idea is membership access approaching its end date. No calendar, no hourglass.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-a6a09e60-e505-46c7-ba02-d401b2edb443.png",
+      "sourceSha256": "7b2e0c44f1dcf5720b7db8e6e313efcc6adeed93231a4ce088f8dbc4030bdda9",
+      "assetSha256": "ae23d5d18270074bbab990919f573ed60fd784816c5f9bc3c32fc8797f1d4e21",
+      "width": 384,
+      "height": 384,
+      "bytes": 24853
+    },
+    {
+      "name": "price-change",
+      "path": "public/email/illustrations/price-change.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: Two blank softly rounded price tags of different sizes, one emerald and one porcelain with mint inset, held side by side by a short smooth forest-green loop, plus a small pair of unequal mint coin stacks. The idea is comparing an old price and a new price. No currency symbols, no arrows, no calendar.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-58d02581-7542-4776-9dd1-353670edd9e5.png",
+      "sourceSha256": "5eedc177c17616abe3f337e25e9d6322a70855caed89413f45079aa55af407d7",
+      "assetSha256": "3b2eeb8ca9e12552ab90d712e41c20473ac1ee5532fcadc36135e5fa4de60b81",
+      "width": 384,
+      "height": 384,
+      "bytes": 35513
+    },
+    {
+      "name": "cancellation",
+      "path": "public/email/illustrations/cancellation.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: Two rounded emerald chain links gently disconnected, resting beside a small closed porcelain archive folder with a mint tab. The idea is a subscription cancellation recorded and filed, a calm finished record. No scissors, no checkmark, no coins, no calendar.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-b28fbfe2-535a-43d6-b1aa-3e83b1df97f3.png",
+      "sourceSha256": "9a908bd99255414347bdc32b92dc7643575f889e90fed9864320c907c5ef82ab",
+      "assetSha256": "a018a8db66d59d1673096cecfe0306794689c9aa98dc751803044eea052a1633",
+      "width": 384,
+      "height": 384,
+      "bytes": 28887
+    },
+    {
+      "name": "weekly-digest",
+      "path": "public/email/illustrations/weekly-digest.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: Exactly seven slim porcelain and pale-mint folded paper slips arranged neatly in a small forest-green desk tray, the center slip slightly raised, with an emerald ribbon gathering the group. The idea is the whole coming week collected in one clear summary. No grid, no calendar, no clock.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-2396ed57-cae0-447d-95f6-7b17f67b0168.png",
+      "sourceSha256": "9dc2f4097d53eda4bbe59e962b5cac3ec84678a414cc7ed32da70500ffee085c",
+      "assetSha256": "31f3f47d13b4243a81c2e9dc95b176a7dcd8cea69eec7cc28da36f8c40cba011",
+      "width": 384,
+      "height": 384,
+      "bytes": 34548
+    },
+    {
+      "name": "welcome",
+      "path": "public/email/illustrations/welcome.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: A fresh two-leaf emerald seedling emerging from a small rounded porcelain planter with a mint rim. The idea is a warm fresh start and growing clarity, modest and welcoming. No extra flowers, no logo, no coins, no calendar.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-e2a75976-4e9b-424e-93e1-b97d2e797d37.png",
+      "sourceSha256": "409c0e1db6b494d68fdb6316a42c5b5ea0b323df95996c57543b64062a662b78",
+      "assetSha256": "40e728597379561349e4b75224343cafd93176b65831b67c115c3d606e8910ca",
+      "width": 384,
+      "height": 384,
+      "bytes": 25523
+    },
+    {
+      "name": "receipt-detected",
+      "path": "public/email/illustrations/receipt-detected.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: A porcelain receipt with a gently zigzag lower edge and three short embossed lines, passing through a compact forest-green document scanner with a soft mint scan light. The idea is finding subscription information inside a receipt. No magnifier, no text, no calendar.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-28aa10f8-3756-411e-a116-d53642311bf8.png",
+      "sourceSha256": "91ac5b73353e92c0353a67abd1d7d861de4b51bdce9964eb81356afdb595e863",
+      "assetSha256": "c800c6fb73086790b96d46e73b336e4a49c721c724fc01e093a445e34b8b04a0",
+      "width": 384,
+      "height": 384,
+      "bytes": 35254
+    },
+    {
+      "name": "auth-otp",
+      "path": "public/email/illustrations/auth-otp.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: A small porcelain padlock with an emerald shackle, beside a horizontal mint verification token bearing exactly six simple recessed circular dots. The idea is a private one-time sign-in code. No letters, no numbers, no key, no calendar.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-b49f5434-ec61-43ff-9b96-805700ea5e71.png",
+      "sourceSha256": "ae18c53e5e3e5ffe9f76f659a80e5ba421d22ab95a20209f4c00714365d31e31",
+      "assetSha256": "5688ad1ddf13f5bbbe0128ca462ac104af0dbb99d64df1353ed086adc1e295d2",
+      "width": 384,
+      "height": 384,
+      "bytes": 25530
+    },
+    {
+      "name": "auth-security",
+      "path": "public/email/illustrations/auth-security.png",
+      "prompt": "Use case: stylized-concept. Asset type: small premium Subloom email illustration. Generate one finished isolated 3D clay-render illustration, not an icon sheet or collage. Style: sophisticated friendly minimalist tactile porcelain and matte clay, soft rounded forms, carefully beveled edges, restrained realistic depth, soft studio lighting from upper left, restrained contact shadow only, clear readable silhouette even at 144 pixels. Composition: centered three-quarter view, compact harmonious group, comfortable transparent margin around all sides, entire subject visible, square canvas, no environment. Strict shared brand palette: forest #182D25, emerald #087C65, mint #E1F0DE, cloud #F8FAF8 and white; subtle material shades of these colors only. No lilac, purple, blue, yellow, orange, gold, gradients as decoration, lettering, watermark, background plane, logo or text. Actual transparent background, preserve alpha. Primary subject: A standing emerald shield with a porcelain inner face beside two small mint account-setting slider switches, one set left and one set right. The idea is reviewing a change to protected account settings. No padlock, no checkmark, no calendar.",
+      "generation": "Built-in image_gen.imagegen; transparent_background=true",
+      "sourceFile": "exec-6865ee3f-ff56-45f4-8e8b-483f6f235b14.png",
+      "sourceSha256": "77af230e5b79f20cb0dba54cf98075f8a300c32edab05118d32e113fffe27d0f",
+      "assetSha256": "4349e1d33ceea8612e78785a23814d6928b62c473a858c831b70cd4e4ae07305",
+      "width": 384,
+      "height": 384,
+      "bytes": 33474
+    }
+  ]
+}

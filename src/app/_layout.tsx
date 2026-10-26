@@ -44,6 +44,7 @@ import { maintainAppUpdates } from "../services/appUpdates";
 import { maintainPro } from "../services/proBilling";
 import { UpdateNotice } from "../components/settings/UpdateNotice";
 import { MobileNotificationNotice } from "../components/settings/MobileNotificationNotice";
+import { notificationPath } from "../domain/appLinks";
 export { ErrorBoundary } from "expo-router";
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +52,28 @@ const queryClient = new QueryClient({
   },
 });
 function Session() {
+  const linksReady = useApp((s) => s.hydrated);
+  useEffect(() => {
+    if (Platform.OS !== "web" || !linksReady) return;
+    const open = (event: Event) => {
+      const path = notificationPath(
+        (event as CustomEvent<{ path?: string }>).detail?.path,
+      );
+      if (path) {
+        delete (
+          window as Window & { __subloomPendingNotificationPath?: string }
+        ).__subloomPendingNotificationPath;
+        router.push({ pathname: "/open", params: { path } });
+      }
+    };
+    window.addEventListener("subloom:open-link", open);
+    const path = notificationPath(
+      (window as Window & { __subloomPendingNotificationPath?: string })
+        .__subloomPendingNotificationPath,
+    );
+    if (path) open(new CustomEvent("subloom:open-link", { detail: { path } }));
+    return () => window.removeEventListener("subloom:open-link", open);
+  }, [linksReady]);
   useEffect(() => maintainAppUpdates(), []);
   useEffect(() => maintainUpdateDraftProtection(), []);
   useEffect(() => maintainMacReminders((path) => router.push(path as "/")), []);

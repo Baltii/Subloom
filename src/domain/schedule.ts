@@ -1,7 +1,7 @@
 import { Temporal } from "@js-temporal/polyfill";
-import type { Subscription } from "./models";
-import { dateSchema } from "./models";
-import { nextEvent } from "./renewal";
+import type { Subscription } from "./models.ts";
+import { dateSchema } from "./models.ts";
+import { nextEvent } from "./renewal.ts";
 
 export type BillingEvent = {
   id: string;

@@ -3,6 +3,10 @@ import { admin, env, HttpError } from "./http.ts";
 import { emailTemplate, emailText } from "./email.ts";
 import { emailPresentationSchema } from "./notification-emails.ts";
 import { signPreferencesToken } from "./preferences-token.ts";
+import {
+  appWebBase,
+  notificationWebUrl,
+} from "../../../src/domain/appLinks.ts";
 export const eventSchema = z.object({
   title: z.string().max(160),
   body: z.string().max(3000),
@@ -97,8 +101,8 @@ export async function sendEmail(
   recipient?: { userId: string; issuedAt: string },
 ) {
   const parsed = eventSchema.parse(content),
-    base = Deno.env.get("APP_LINK_BASE") || "subloom://";
-  const url = base.replace(/\/$/, "") + parsed.path;
+    base = appWebBase(Deno.env.get("APP_LINK_BASE"));
+  const url = notificationWebUrl(parsed.path, base);
   const preferencesUrl = optional && recipient
     ? env("SUPABASE_URL") +
       "/functions/v1/email-preferences?token=" +
@@ -114,6 +118,7 @@ export async function sendEmail(
     url,
     preferencesUrl,
     presentation: parsed.email,
+    webBase: base,
   };
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",

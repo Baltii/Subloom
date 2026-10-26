@@ -17,5 +17,6 @@
 <key>SUAllowsAutomaticUpdates</key><false/>
 <key>SUVerifyUpdateBeforeExtraction</key><true/>
 <key>NSPrincipalClass</key><string>NSApplication</string>
+<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLName</key><string>com.subloom.notification</string><key>CFBundleURLSchemes</key><array><string>subloom</string></array></dict></array>
 <key>NSAppTransportSecurity</key><dict><key>NSAllowsLocalNetworking</key><true/></dict>
 </dict></plist>
