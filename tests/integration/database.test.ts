@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { preferences, subscription, userA, userB } from "../fixtures";
 import { extractReceipt } from "../../src/domain/detection";
+import { csvSubscriptions, exportCsv } from "../../src/domain/csv";
 let database: PGlite;
 async function asUser(user: string, sql: string, params: unknown[] = []) {
   await database.exec(
@@ -619,6 +620,48 @@ describe("real PostgreSQL migrations, transactions and RLS", () => {
         )
       ).rows,
     ).toHaveLength(0);
+  });
+  it("syncs CSV imports with precise currencies and trial dates through the authenticated RPC", async () => {
+    const imported = csvSubscriptions(
+      exportCsv([
+        subscription({ currency: "TND", amountMinor: 3125 }),
+        subscription({ currency: "JPY", amountMinor: 2400 }),
+        subscription({
+          status: "trial",
+          trialEnd: "2026-11-02",
+          amountMinor: 0,
+        }),
+      ]),
+      userA,
+      randomUUID,
+    );
+    for (const value of imported) {
+      const result = await asUser(
+        userA,
+        "select apply_operation($1::jsonb) as result",
+        [
+          JSON.stringify(
+            operation("subscription", value.id, { subscription: value }),
+          ),
+        ],
+      );
+      expect(result.rows[0]).toMatchObject({
+        result: { ok: true, version: 1 },
+      });
+      const saved = await asUser(
+        userA,
+        "select data from subscriptions where id=$1",
+        [value.id],
+      );
+      expect(saved.rows[0]).toMatchObject({
+        data: {
+          currency: value.currency,
+          amountMinor: value.amountMinor,
+          status: value.status,
+          trialEnd: value.trialEnd,
+        },
+      });
+    }
   });
   it("cascades account deletion without touching another user", async () => {
     await database.query("delete from auth.users where id=$1", [userA]);

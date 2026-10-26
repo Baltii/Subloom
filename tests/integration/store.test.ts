@@ -436,3 +436,65 @@ it("persists price changes in the same snapshot as subscription edits", async ()
     [1099, 1299],
   );
 });
+it("rejects a malformed trial atomically before creating history or sync operations", async () => {
+  await hydrate(userA);
+  enableCsvPro();
+  const before = useApp.getState().data;
+  await expect(
+    importSubscriptions(
+      [
+        subscription({ id: randomUUID(), name: "Valid row" }),
+        subscription({
+          id: randomUUID(),
+          name: "Trial without end",
+          status: "trial",
+          trialEnd: null,
+        }),
+      ],
+      userA,
+    ),
+  ).rejects.toThrow(/trialEnd/);
+  expect(useApp.getState().data).toEqual(before);
+});
+it("keeps mixed CSV imports durable and idempotent across reload and repeated submission", async () => {
+  const { csvSubscriptions, exportCsv } = await import("../../src/domain/csv");
+  enableCsvPro();
+  const originals = [
+    subscription({
+      name: "CSV three decimals",
+      currency: "TND",
+      amountMinor: 3125,
+    }),
+    subscription({
+      name: "CSV whole units",
+      currency: "JPY",
+      amountMinor: 2400,
+      interval: "yearly",
+    }),
+  ];
+  const incoming = csvSubscriptions(exportCsv(originals), "guest", randomUUID);
+  await Promise.all([
+    importSubscriptions(incoming, "guest"),
+    importSubscriptions(incoming, "guest"),
+  ]);
+  await hydrate("guest");
+  enableCsvPro();
+  await importSubscriptions(incoming, "guest");
+  expect(useApp.getState().data.subscriptions).toHaveLength(2);
+  expect(useApp.getState().data.subscriptions).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        name: "CSV three decimals",
+        amountMinor: 3125,
+        currency: "TND",
+      }),
+      expect.objectContaining({
+        name: "CSV whole units",
+        amountMinor: 2400,
+        currency: "JPY",
+      }),
+    ]),
+  );
+  expect(useApp.getState().data.priceHistory).toHaveLength(2);
+  expect(useApp.getState().data.activity).toHaveLength(2);
+});

@@ -1,5 +1,14 @@
+import { ZodError } from "zod";
 import { subscriptionSchema, type Subscription } from "./models";
 import { moneyInput, parseMoney } from "./money";
+export const csvSubscriptionSchema = subscriptionSchema.refine(
+  (subscription) =>
+    subscription.status !== "trial" || subscription.trialEnd !== null,
+  {
+    path: ["trialEnd"],
+    message: "Trial subscriptions require a trialEnd date.",
+  },
+);
 const columns = [
   "name",
   "category",
@@ -137,7 +146,7 @@ export function csvSubscriptions(
       );
       const currency = subscriptionSchema.shape.currency.parse(r.currency);
       const day = Number(r.nextRenewal?.slice(-2));
-      return subscriptionSchema.parse({
+      return csvSubscriptionSchema.parse({
         id: newId(),
         userId: identity,
         serviceId: null,
@@ -168,7 +177,13 @@ export function csvSubscriptions(
         "CSV row " +
           (index + 2) +
           ": " +
-          (e instanceof Error ? e.message : "Invalid data"),
+          (e instanceof ZodError
+            ? e.issues
+                .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+                .join("; ")
+            : e instanceof Error
+              ? e.message
+              : "Invalid data"),
       );
     }
   });
