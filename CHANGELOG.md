@@ -2,6 +2,14 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.10.1](https://github.com/Baltii/Subloom/compare/v1.10.0...v1.10.1) (2026-10-26)
+
+
+### Bug Fixes
+
+* validate trial dates before importing subscriptions ([e67e1be](https://github.com/Baltii/Subloom/commit/e67e1bec3c8777ed3e3258f661ca5550262fff77))
+* validate trial dates before importing subscriptions ([74e71dc](https://github.com/Baltii/Subloom/commit/74e71dc66ee8420292840700b84ed9115400912b))
+
 ## [1.10.0](https://github.com/Baltii/Subloom/compare/v1.9.0...v1.10.0) (2026-10-25)
 
 
