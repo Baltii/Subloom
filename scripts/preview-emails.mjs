@@ -53,7 +53,7 @@ for (const [name, title, text] of [
     html: readFileSync(
       resolve("supabase/templates/" + name.replaceAll("_", "-") + ".html"),
       "utf8",
-    ).replace("{{ .Token }}", "482619"),
+    ).replace("{{ .Token }}", "48261973"),
   });
 }
 const directory = resolve("build/email-templates");
