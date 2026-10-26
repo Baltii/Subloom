@@ -2,6 +2,19 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.10.1](https://github.com/Baltii/Subloom/compare/v1.10.0...v1.10.1) (2026-10-26)
+
+
+### Bug Fixes
+
+* Make saved cards consistent and responsive with three, two, or one column.
+* Give every email distinct brand-colored artwork and working web/app links.
+* Show actual weekly subscriptions and one estimate in the selected currency.
+* Include the complete geographic timezone list without UTC offset labels.
+* Fit production sign-in codes on small screens.
+* validate trial dates before importing subscriptions ([e67e1be](https://github.com/Baltii/Subloom/commit/e67e1bec3c8777ed3e3258f661ca5550262fff77))
+* validate trial dates before importing subscriptions ([74e71dc](https://github.com/Baltii/Subloom/commit/74e71dc66ee8420292840700b84ed9115400912b))
+
 ## [1.10.0](https://github.com/Baltii/Subloom/compare/v1.9.0...v1.10.0) (2026-10-25)
 
 
