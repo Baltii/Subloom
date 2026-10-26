@@ -16,7 +16,7 @@ import {
   subscriptionSchema,
 } from "../domain/models";
 import { recordPrice, pricePoint } from "../domain/priceHistory";
-import { uniqueCsvRows } from "../domain/csv";
+import { csvSubscriptionSchema, uniqueCsvRows } from "../domain/csv";
 import { duplicateCandidate, possibleMatch } from "../domain/detection";
 import { loadSnapshot, saveSnapshot } from "../services/storage";
 import { demoSnapshot } from "../services/demo";
@@ -574,7 +574,7 @@ export async function importSubscriptions(
 ) {
   if (inputs.length > 500)
     throw new Error("Import at most 500 subscriptions at once.");
-  const parsed = inputs.map((s) => subscriptionSchema.parse(s));
+  const parsed = inputs.map((s) => csvSubscriptionSchema.parse(s));
   await commit((data) => {
     requirePro(identity);
     if (data.demo) throw new Error("Leave demo mode before importing.");

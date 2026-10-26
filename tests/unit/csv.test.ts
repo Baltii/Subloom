@@ -49,3 +49,61 @@ it("skips identical records without overwriting", () => {
     ["a,b", 'd"e'],
   ]);
 });
+it("rejects a trial without an end date before any records can be imported", () => {
+  const input =
+    csvExample.replace("nextRenewal\r\n", "nextRenewal,status\r\n") + ",trial";
+  expect(() => csvSubscriptions(input, "guest", randomUUID)).toThrow(
+    "CSV row 2: trialEnd: Trial subscriptions require a trialEnd date.",
+  );
+});
+it("round trips every supported currency and preserves schedule/status metadata", async () => {
+  const { currencies } = await import("../../src/domain/models");
+  const originals = currencies.map((currency, index) =>
+    subscription({
+      id: randomUUID(),
+      name: `CSV ${currency}`,
+      currency,
+      amountMinor: 12345,
+      interval: "custom",
+      intervalCount: 6,
+      customUnit: "week",
+      anchorDay: 31,
+      status: index % 2 ? "paused" : "canceled",
+      canceledAt: index % 2 ? null : "2026-10-20",
+      paidThrough: index % 2 ? null : "2026-11-20",
+      paymentMethod: "Visa ending 1234",
+      notes: 'Quoted "plan", notes\nSecond line — أداة',
+    }),
+  );
+  const restored = csvSubscriptions(exportCsv(originals), "guest", randomUUID);
+  expect(restored).toHaveLength(currencies.length);
+  originals.forEach((original, index) => {
+    const {
+      id: _id,
+      userId: _owner,
+      serviceId: _service,
+      createdAt: _created,
+      updatedAt: _updated,
+      ...fields
+    } = original;
+    expect(restored[index]).toMatchObject(fields);
+  });
+});
+it("accepts 500 rows and rejects 501, invalid amounts, unsupported currencies and column mismatches", () => {
+  const rows = Array.from({ length: 500 }, (_, index) =>
+    subscription({ id: randomUUID(), name: `CSV service ${index}` }),
+  );
+  expect(csvSubscriptions(exportCsv(rows), "guest", randomUUID)).toHaveLength(
+    500,
+  );
+  expect(() =>
+    csvSubscriptions(exportCsv([...rows, subscription()]), "guest", randomUUID),
+  ).toThrow(/500/);
+  for (const input of [
+    csvExample.replace("10.99", "-10.99"),
+    csvExample.replace("USD", "ZZZ"),
+    csvExample.replace("10.99", "10.999"),
+    csvExample + ",extra",
+  ])
+    expect(() => csvSubscriptions(input, "guest", randomUUID)).toThrow(/row 2/);
+});
