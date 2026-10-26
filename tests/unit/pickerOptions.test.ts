@@ -1,7 +1,6 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import {
   currencyOptions,
-  timezoneOffset,
   timezoneOptions,
 } from "../../src/components/ui/pickerOptions";
 import { currencies } from "../../src/domain/models";
@@ -16,19 +15,31 @@ it("names every supported currency for searchable pickers", () => {
     currencyOptions.find((option) => option.value === "SAR")?.detail,
   ).toMatch(/Saudi/);
 });
-it("labels timezones with signed UTC offsets including fractional hours and daylight saving", () => {
-  expect(timezoneOffset("UTC")).toBe("UTC+00:00");
-  expect(timezoneOffset("Africa/Tunis")).toBe("UTC+01:00");
-  expect(timezoneOffset("Asia/Kolkata")).toBe("UTC+05:30");
-  expect(
-    timezoneOffset("America/New_York", new Date("2026-01-15T12:00:00Z")),
-  ).toBe("UTC-05:00");
-  expect(
-    timezoneOffset("America/New_York", new Date("2026-07-15T12:00:00Z")),
-  ).toBe("UTC-04:00");
-  expect(
-    timezoneOptions("Africa/Tunis").find(
-      (option) => option.value === "Africa/Tunis",
-    )?.label,
-  ).toContain("UTC+01:00");
+it("offers the complete geographic timezone list without UTC offsets on native fallback runtimes", () => {
+  vi.stubGlobal("Intl", { ...Intl, supportedValuesOf: undefined });
+  try {
+    const options = timezoneOptions("Africa/Tunis");
+    expect(options.length).toBeGreaterThan(500);
+    for (const zone of [
+      "Africa/Tunis",
+      "Asia/Kolkata",
+      "Asia/Kathmandu",
+      "Pacific/Chatham",
+      "America/Argentina/Ushuaia",
+      "Antarctica/McMurdo",
+      "America/Coyhaique",
+    ]) {
+      expect(options.some((option) => option.value === zone)).toBe(true);
+    }
+    expect(
+      options.find((option) => option.value === "Africa/Tunis")?.label,
+    ).toBe("Tunis");
+    expect(options.every((option) => !option.label.includes("UTC"))).toBe(true);
+    expect(options.some((option) => option.value === "UTC")).toBe(false);
+    expect(new Set(options.map((option) => option.value)).size).toBe(
+      options.length,
+    );
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });

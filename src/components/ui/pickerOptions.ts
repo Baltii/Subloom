@@ -1,5 +1,5 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { categories, currencies, intervals } from "../../domain/models";
+import { ianaTimezones } from "../../domain/timezones";
 
 const currencyNames: Record<(typeof currencies)[number], string> = {
   USD: "US Dollar",
@@ -86,25 +86,31 @@ export const hourOptions = Array.from({ length: 24 }, (_, hour) => ({
   detail:
     hour < 12 ? `${hour || 12}:00 AM` : `${hour === 12 ? 12 : hour - 12}:00 PM`,
 }));
-export function timezoneOffset(timezone: string, date = new Date()) {
-  return `UTC${Temporal.Instant.fromEpochMilliseconds(date.getTime()).toZonedDateTimeISO(timezone).offset}`;
-}
 export function timezoneOptions(current: string) {
-  const supported = (
-    Intl as typeof Intl & { supportedValuesOf?: (key: string) => string[] }
-  ).supportedValuesOf?.("timeZone") || [
-    "Africa/Tunis",
-    "America/New_York",
-    "America/Los_Angeles",
-    "Europe/London",
-    "Europe/Paris",
-    "Asia/Tokyo",
-    "Asia/Dubai",
-    "Australia/Sydney",
-  ];
-  return [...new Set([current, "UTC", ...supported])].sort().map((value) => ({
-    value,
-    label: `${value.replaceAll("_", " ")} (${timezoneOffset(value)})`,
-    detail: value === "UTC" ? "Coordinated Universal Time" : value,
-  }));
+  let supported: string[] = [];
+  try {
+    supported =
+      (
+        Intl as typeof Intl & { supportedValuesOf?: (key: string) => string[] }
+      ).supportedValuesOf?.("timeZone") || [];
+  } catch {
+    /* Older native runtimes can have only a partial Intl implementation. */
+  }
+  return [...new Set([current, ...ianaTimezones, ...supported])]
+    .filter(
+      (value) =>
+        value === current || (value.includes("/") && !value.startsWith("Etc/")),
+    )
+    .sort()
+    .map((value) => ({
+      value,
+      label:
+        value === "UTC" || value === "Etc/UTC" || value === "GMT"
+          ? "Universal time"
+          : (value.includes("/")
+              ? value.split("/").slice(1).join(" / ")
+              : value
+            ).replaceAll("_", " "),
+      detail: value.replaceAll("_", " ").replaceAll("/", " / "),
+    }));
 }

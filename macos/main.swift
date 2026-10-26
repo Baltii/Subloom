@@ -83,6 +83,32 @@ final class BundleServer {
     var webView: WKWebView!
     var server: BundleServer!
     var bridge: MacBridge!
+    var pendingNotificationPath: String?
+    var interfaceReady = false
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            guard url.scheme == "subloom", url.host == "open", url.user == nil, url.password == nil, url.port == nil, url.fragment == nil,
+                  ["", "/"].contains(url.path), url.absoluteString.utf8.count <= 2048,
+                  let parts = URLComponents(url: url, resolvingAgainstBaseURL: false),
+                  let path = parts.queryItems?.first(where: { $0.name == "path" })?.value,
+                  path.range(of: #"^/(subscription/[0-9a-f-]{36}|detection/[0-9a-f-]{36}|settings)?$"#, options: [.regularExpression, .caseInsensitive]) != nil else { continue }
+            pendingNotificationPath = path
+            deliverNotificationLink()
+            window?.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        }
+    }
+    func deliverNotificationLink() {
+        guard interfaceReady, let path = pendingNotificationPath,
+              let json = try? JSONSerialization.data(withJSONObject: path, options: .fragmentsAllowed),
+              let value = String(data: json, encoding: .utf8) else { return }
+        pendingNotificationPath = nil
+        webView.evaluateJavaScript("window.__subloomPendingNotificationPath=\(value);window.dispatchEvent(new CustomEvent('subloom:open-link',{detail:{path:\(value)}}))", completionHandler: nil)
+    }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        interfaceReady = true
+        deliverNotificationLink()
+    }
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
         let menu = NSMenu(), appItem = NSMenuItem(), appMenu = NSMenu()

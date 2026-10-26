@@ -140,3 +140,30 @@ test("pins Supabase OAuth to the app callback and accepts the browser's root sla
   assert.equal(broker.complete("subloom://auth-callback/?code=windows"), true);
   assert.equal(await result, "subloom://auth-callback/?code=windows");
 });
+
+test("notification links open only known screens and never accept external destinations", () => {
+  const { notificationLinkPath } = require("./runtime.cjs");
+  const id = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+  for (const route of [
+    "/",
+    "/settings",
+    "/subscription/" + id,
+    "/detection/" + id,
+  ]) {
+    assert.equal(
+      notificationLinkPath("subloom://open?path=" + encodeURIComponent(route)),
+      route,
+    );
+  }
+  for (const url of [
+    "https://evil.test/open?path=%2F",
+    "subloom://auth-callback?path=%2F",
+    "subloom://open?path=https://evil.test",
+    "subloom://open?path=%2F%2Fevil.test",
+    "subloom://user@open?path=%2F",
+    "subloom://open?path=%2Fauth-callback",
+    "subloom://open/extra?path=%2F",
+    "subloom://open?path=%2F#bad",
+  ])
+    assert.equal(notificationLinkPath(url), null);
+});

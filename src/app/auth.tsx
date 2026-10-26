@@ -18,6 +18,7 @@ import {
 } from "../components/ui/Primitives";
 import { readableError, useApp } from "../store/app";
 import { importGuestBillingWorkspace } from "../services/guestBillingImport";
+import { pendingNotificationPath } from "../services/notificationLinks";
 export default function Auth() {
   const { colors } = useTheme(),
     identity = useApp((s) => s.identity);
@@ -61,7 +62,15 @@ export default function Auth() {
             >
               Import my guest subscriptions
             </Button>
-            <Button variant="secondary" onPress={() => router.replace("/")}>
+            <Button
+              variant="secondary"
+              onPress={() => {
+                const path = pendingNotificationPath();
+                router.replace(
+                  path ? { pathname: "/open", params: { path } } : "/",
+                );
+              }}
+            >
               Open Subloom
             </Button>
           </>

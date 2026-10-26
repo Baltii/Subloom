@@ -86,13 +86,9 @@ function BankCardFace({
   const { colors } = useTheme();
   const [focused, setFocused] = useState(false),
     [hovered, setHovered] = useState(false);
-  const accented =
-    source.cardBrand === "Mastercard" ||
-    source.cardBrand === "Discover" ||
-    source.cardBrand === "JCB";
-  const background = accented ? colors.hero : colors.surface,
-    ink = accented ? colors.heroText : colors.text,
-    muted = accented ? colors.heroSecondary : colors.secondary;
+  const background = colors.surface,
+    ink = colors.text,
+    muted = colors.secondary;
   return (
     <Pressable
       accessibilityRole="button"
@@ -107,7 +103,7 @@ function BankCardFace({
       onHoverOut={() => setHovered(false)}
       style={({ pressed }) => ({
         aspectRatio: 1.586,
-        padding: 22,
+        padding: 18,
         borderRadius: 22,
         justifyContent: "space-between",
         backgroundColor: background,
@@ -174,16 +170,22 @@ export function SavedBillingMethods({
   onEdit: (source: PaymentSource) => void;
   onRemove: (source: PaymentSource) => void;
 }) {
-  const { width } = useWindowDimensions(),
-    { colors } = useTheme();
+  const { colors } = useTheme();
+  const { width } = useWindowDimensions();
+  const [available, setAvailable] = useState(0);
   const cards = sources.filter((source) => source.kind === "card"),
     wallets = sources.filter((source) => source.kind === "wallet"),
     banks = sources.filter((source) => source.kind === "bank");
-  const beside = width >= 900 && cards.length === 1 && wallets.length > 0;
-  const available = Math.min(width, 1076) - (width >= 900 ? 76 : 44),
-    sectionWidth = beside ? (available - 24) / 2 : available,
-    columns = !beside && sectionWidth >= 650 ? 2 : 1,
-    cardWidth = (sectionWidth - 20 * (columns - 1)) / columns;
+  // Measure the content, including the space taken by desktop navigation.
+  const columns =
+      width >= 1200 && available >= 840
+        ? 3
+        : width >= 768 && available >= 520
+          ? 2
+          : 1,
+    cardWidth = available
+      ? (available - 20 * (columns - 1)) / columns
+      : undefined;
   function actions(source: PaymentSource, card = false) {
     const count = counts.get(source.id) || 0;
     return (
@@ -255,20 +257,30 @@ export function SavedBillingMethods({
     );
   }
   return (
-    <View style={{ gap: 28 }}>
+    <View
+      onLayout={(event) => setAvailable(event.nativeEvent.layout.width)}
+      style={{ gap: 28, width: "100%" }}
+    >
       <View
         style={{
-          flexDirection: beside ? "row" : "column",
+          flexDirection: "column",
           gap: 24,
           alignItems: "flex-start",
         }}
       >
         {cards.length > 0 && (
-          <View style={{ width: beside ? sectionWidth : "100%" }}>
+          <View style={{ width: "100%" }}>
             <Section title="Cards" icon={CreditCard}>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 20 }}>
                 {cards.map((source) => (
-                  <View key={source.id} style={{ width: cardWidth, gap: 12 }}>
+                  <View
+                    key={source.id}
+                    style={{
+                      width: cardWidth ?? "100%",
+                      maxWidth: 480,
+                      gap: 12,
+                    }}
+                  >
                     <BankCardFace
                       source={source}
                       onView={() => onView(source)}
@@ -281,7 +293,7 @@ export function SavedBillingMethods({
           </View>
         )}
         {wallets.length > 0 && (
-          <View style={{ width: beside ? sectionWidth : "100%" }}>
+          <View style={{ width: "100%" }}>
             {walletList(wallets, "Wallets", WalletCards)}
           </View>
         )}

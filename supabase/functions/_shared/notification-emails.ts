@@ -3,6 +3,16 @@ import type { Subscription } from "../../../src/domain/models.ts";
 import { formatMoney } from "../../../src/domain/money.ts";
 import { dateLabel } from "../../../src/domain/renewal.ts";
 
+export const emailSubscriptionSchema = z.object({
+  name: z.string().max(80),
+  serviceId: z.string().max(80).nullable().optional(),
+  date: z.string().max(40),
+  amount: z.string().max(120),
+  cycle: z.string().max(80),
+  kind: z.enum(["renewal", "trial"]),
+  path: z.string().regex(/^\/subscription\/[0-9a-f-]{36}$/i),
+});
+
 export const emailPresentationSchema = z.object({
   template: z.enum([
     "subscription_added",
@@ -24,6 +34,9 @@ export const emailPresentationSchema = z.object({
     z.object({ label: z.string().max(80), value: z.string().max(240) }),
   ).max(12).default([]),
   items: z.array(z.string().max(300)).max(15).default([]),
+  subscriptions: z.array(emailSubscriptionSchema).max(10000).optional(),
+  weeklyTotal: z.string().max(120).optional(),
+  period: z.string().max(80).optional(),
   note: z.string().max(500).optional(),
 });
 export type EmailPresentation = z.infer<typeof emailPresentationSchema>;
@@ -201,12 +214,15 @@ export function subscriptionNotification(
 
 export function weeklyDigestNotification(
   count: number,
-  totals: string[],
-  renewals: string[],
+  total: string,
+  renewals: z.infer<typeof emailSubscriptionSchema>[],
+  period?: string,
 ): NotificationMessage {
-  const body = `${count} scheduled ${
-    count === 1 ? "renewal" : "renewals"
-  } in the next 7 days. Review the week ahead and keep your recurring spending in view.`;
+  const body = count === 0
+    ? "A quiet week ahead. You have no renewals scheduled in the next 7 days."
+    : `${count} ${
+      count === 1 ? "renewal" : "renewals"
+    } coming up in the next 7 days. Here’s your week at a glance.`;
   return {
     title: "Your subscriptions this week.",
     body,
@@ -216,11 +232,11 @@ export function weeklyDigestNotification(
       preview: body,
       action: "Review my week",
       tone: "green",
-      details: totals.slice(0, 12).map((value) => ({
-        label: "Monthly estimate",
-        value,
-      })),
-      items: renewals.slice(0, 15),
+      details: [],
+      items: [],
+      subscriptions: renewals,
+      weeklyTotal: total,
+      period,
       note: count === 0
         ? "No renewals are scheduled in the next 7 days."
         : "Dates and amounts reflect your tracked subscriptions. Check your providers for actual charges.",
