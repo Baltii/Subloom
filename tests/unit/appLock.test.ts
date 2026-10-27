@@ -26,12 +26,16 @@ const protectedConfig = (): LockConfig => ({
 function fixture(initial: LockConfig | null = null) {
   let stored = initial ? JSON.stringify(initial) : null;
   let now = 1_000_000;
+  let recoverySequence = 1;
   const deps = {
     read: vi.fn(async () => stored),
     write: vi.fn(async (value: string) => {
       stored = value;
     }),
     randomSalt: vi.fn(async () => salt),
+    randomRecoveryCode: vi.fn(async () =>
+      String(recoverySequence++).padStart(32, "0"),
+    ),
     derivePin: vi.fn(async (pin: string) =>
       pin === "123456" ? storedHash : "c3".repeat(32),
     ),
@@ -78,9 +82,9 @@ describe("PIN cryptography", () => {
   it("caps retry delays and rejects corrupted or unknown storage formats", () => {
     expect(
       failedPin({ ...protectedConfig(), failures: 99 }, 1000).retryAt,
-    ).toBe(901000);
+    ).toBe(601000);
     expect(
-      lockConfigSchema.safeParse({ ...protectedConfig(), version: 2 }).success,
+      lockConfigSchema.safeParse({ ...protectedConfig(), version: 3 }).success,
     ).toBe(false);
     expect(
       lockConfigSchema.safeParse({
@@ -88,6 +92,21 @@ describe("PIN cryptography", () => {
         pin: { salt, hash: "123456", iterations: 1 },
       }).success,
     ).toBe(false);
+  });
+  it("migrates legacy protection without inventing recovery credentials", () => {
+    const legacy = {
+      version: 1,
+      pin: protectedConfig().pin,
+      passkey: null,
+      failures: 0,
+      retryAt: 0,
+    };
+    expect(lockConfigSchema.parse(legacy)).toMatchObject({
+      version: 2,
+      recoveryHash: null,
+      recoveryFailures: 0,
+      recoveryRetryAt: 0,
+    });
   });
 });
 describe("app protection lifecycle", () => {
@@ -133,7 +152,7 @@ describe("app protection lifecycle", () => {
     await restarted.initialize();
     expect(restarted.state.getState().unlocked).toBe(false);
     await expect(restarted.unlock({ pin: "999999" })).rejects.toThrow(
-      "Incorrect PIN",
+      "PIN isn’t right",
     );
     expect(restarted.state.getState().unlocked).toBe(false);
     await restarted.unlock({ pin: "123456" });
@@ -142,25 +161,31 @@ describe("app protection lifecycle", () => {
       config: { failures: 0 },
     });
   });
-  it("persists escalating cooldowns across restarts and blocks hashing during cooldown", async () => {
+  it("blocks after three incorrect PINs for ten minutes across restarts, then gives three fresh attempts", async () => {
     const { controller, deps, advance } = fixture(protectedConfig());
     await controller.initialize();
-    for (let i = 0; i < 5; i++)
+    for (let i = 0; i < 3; i++)
       await expect(controller.unlock({ pin: "999999" })).rejects.toThrow();
+    expect(controller.state.getState().config.retryAt).toBe(1_600_000);
     const restarted = createLockController(deps);
     await restarted.initialize();
     deps.derivePin.mockClear();
     await expect(restarted.unlock({ pin: "123456" })).rejects.toThrow(
-      "30 seconds",
+      "3 attempts wrong. Try again later.",
     );
     expect(deps.derivePin).not.toHaveBeenCalled();
-    advance(30_000);
-    await expect(restarted.unlock({ pin: "999999" })).rejects.toThrow(
-      "60 seconds",
+    advance(599_999);
+    await expect(restarted.unlock({ pin: "123456" })).rejects.toThrow(
+      "3 attempts wrong",
     );
-    advance(60_000);
-    await restarted.unlock({ pin: "123456" });
+    advance(1);
+    await expect(restarted.unlock({ pin: "999999" })).rejects.toThrow(
+      "2 attempts left",
+    );
+    expect(restarted.state.getState().config.failures).toBe(1);
     expect(restarted.state.getState().config.retryAt).toBe(0);
+    await restarted.unlock({ pin: "123456" });
+    expect(restarted.state.getState().config.failures).toBe(0);
   });
   it("requires verification to disable or replace security settings", async () => {
     const { controller } = fixture(protectedConfig());
@@ -172,7 +197,7 @@ describe("app protection lifecycle", () => {
     await expect(controller.setPin(null)).rejects.toThrow("Verify");
     await expect(
       controller.setPasskey(true, { pin: "999999" }),
-    ).rejects.toThrow("Incorrect");
+    ).rejects.toThrow("PIN isn’t right");
     await controller.setPasskey(true, { pin: "123456" });
     await controller.setPin(null, { passkey: true });
     expect(controller.state.getState().config).toMatchObject({
@@ -206,7 +231,7 @@ describe("app protection lifecycle", () => {
     const restarted = createLockController(deps);
     await restarted.initialize();
     await expect(restarted.unlock({ pin: "123456" })).rejects.toThrow(
-      "Incorrect PIN",
+      "PIN isn’t right",
     );
     await restarted.unlock({ pin: "654321" });
     expect(restarted.state.getState().unlocked).toBe(true);
@@ -254,6 +279,7 @@ describe("app protection lifecycle", () => {
         }),
     );
     const pending = controller.unlock({ pin: "123456" });
+    await vi.waitFor(() => expect(finish).toBeTypeOf("function"));
     controller.lock();
     finish(storedHash);
     await expect(pending).rejects.toThrow("locked during");

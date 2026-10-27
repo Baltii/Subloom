@@ -11,7 +11,9 @@ import { createAppPasskey, verifyAppPasskey } from "./passkeys";
 export const appLock = createLockController({
   read: lockStorage.read,
   write: lockStorage.write,
+  withStorageLock: lockStorage.exclusive,
   randomSalt: async () => bytesToHex(await getRandomBytesAsync(16)),
+  randomRecoveryCode: async () => bytesToHex(await getRandomBytesAsync(16)),
   createPasskey: createAppPasskey,
   verifyPasskey: verifyAppPasskey,
 });

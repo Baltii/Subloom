@@ -30,12 +30,15 @@ vi.mock("react-native", async () => {
     View: container,
     ScrollView: container,
     KeyboardAvoidingView: container,
+    Pressable: container,
     Platform: { OS: "web" },
   };
 });
 vi.mock("lucide-react-native", () => ({
   LockKeyhole: () => null,
   KeyRound: () => null,
+  ArrowLeft: () => null,
+  ChevronRight: () => null,
 }));
 vi.mock("../../src/components/ui/Brand", () => ({ Brand: () => "Subloom" }));
 vi.mock("../../src/components/ui/LoadingSkeleton", () => ({
@@ -45,12 +48,15 @@ vi.mock("../../src/components/ui/Primitives", async () => {
   const { createElement } = await import("react");
   const text = ({ children }: { children?: React.ReactNode }) =>
     createElement("span", null, children);
-  return { Button: text, Label: text, Heading: text };
+  return { Button: text, Label: text, Heading: text, Field: text };
 });
-vi.mock("../../src/components/security/PinField", async () => {
+vi.mock("../../src/components/security/RecoveryCodeNotice", () => ({
+  RecoveryCodeNotice: () => null,
+}));
+vi.mock("../../src/components/security/PinCodeInput", async () => {
   const { createElement } = await import("react");
   return {
-    PinField: ({ label }: { label: string }) =>
+    PinCodeInput: ({ label = "6-digit PIN" }: { label?: string }) =>
       createElement("input", { "aria-label": label, type: "password" }),
   };
 });
@@ -119,9 +125,45 @@ it("renders a masked PIN prompt instead of protected screens on a locked startup
     iterations: PIN_ITERATIONS,
   };
   const html = render();
-  expect(html).toContain("Subloom is locked");
+  expect(html).toContain("Your PIN, and you’re in.");
   expect(html).toContain('type="password"');
-  expect(html).toContain("Your 6-digit PIN");
+  expect(html).toContain("6-digit PIN");
   expect(html).not.toContain(state.config.pin.hash);
+  expect(protectedRenders).toBe(0);
+});
+it("offers two method choices without exposing the PIN input when both methods are enabled", () => {
+  state.ready = true;
+  state.config.pin = {
+    salt: "a1".repeat(16),
+    hash: "b2".repeat(32),
+    iterations: PIN_ITERATIONS,
+  };
+  state.config.passkey = {
+    id: "passkey",
+    publicKey: "public",
+    rpId: "subloom.test",
+    origin: "https://subloom.test",
+    counter: 0,
+  };
+  const html = render();
+  expect(html).toContain("Welcome back.");
+  expect(html).toContain("Passkey");
+  expect(html).toContain("PIN code");
+  expect(html).not.toContain('type="password"');
+  expect(protectedRenders).toBe(0);
+});
+it("shows a ten-minute pause instead of a PIN field while PIN-only protection is blocked", () => {
+  state.ready = true;
+  state.config.pin = {
+    salt: "a1".repeat(16),
+    hash: "b2".repeat(32),
+    iterations: PIN_ITERATIONS,
+  };
+  state.config.failures = 3;
+  state.config.retryAt = Date.now() + 600_000;
+  const html = render();
+  expect(html).toContain("3 attempts wrong. Try again later.");
+  expect(html).toContain("PIN will be available in 10:00");
+  expect(html).not.toContain('type="password"');
   expect(protectedRenders).toBe(0);
 });

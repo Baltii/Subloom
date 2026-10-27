@@ -107,3 +107,20 @@ it("requires a compatible Windows bridge instead of falling back to browser stor
   expect(mocks.readWeb).not.toHaveBeenCalled();
   expect(mocks.writeWeb).not.toHaveBeenCalled();
 });
+it("serializes browser credential changes through an origin-wide Web Lock", async () => {
+  const request = vi.fn(async (_name: string, action: () => Promise<string>) =>
+    action(),
+  );
+  vi.stubGlobal("navigator", { locks: { request } });
+  const action = vi.fn(async () => "verified");
+  expect(await lockStorage.exclusive(action)).toBe("verified");
+  expect(request).toHaveBeenCalledWith(lockStorageKey, action);
+});
+it("does not run a credential change when the browser cannot serialize it safely", async () => {
+  vi.stubGlobal("navigator", {});
+  const action = vi.fn(async () => "unsafe");
+  await expect(lockStorage.exclusive(action)).rejects.toThrow(
+    "updated secure browser",
+  );
+  expect(action).not.toHaveBeenCalled();
+});

@@ -9,20 +9,23 @@ import { useTheme } from "../../theme/useTheme";
 import { useApp } from "../../store/app";
 import { Button, Card, Label, SectionTitle } from "../ui/Primitives";
 import { ThemedSwitch } from "../ui/ThemedSwitch";
-import { PinField } from "../security/PinField";
+import { PinCodeInput } from "../security/PinCodeInput";
+import { RecoveryCodeNotice } from "../security/RecoveryCodeNotice";
 
 type Action =
   | "enable-pin"
   | "change-pin"
   | "disable-pin"
   | "enable-passkey"
-  | "disable-passkey";
+  | "disable-passkey"
+  | "recovery-code";
 const titles: Record<Action, string> = {
   "enable-pin": "Set up your PIN",
   "change-pin": "Change your PIN",
   "disable-pin": "Disable PIN protection",
   "enable-passkey": "Enable passkey protection",
   "disable-passkey": "Disable passkey protection",
+  "recovery-code": "Save a new recovery code",
 };
 export function SecurityCard() {
   const { colors } = useTheme();
@@ -37,6 +40,7 @@ export function SecurityCard() {
     [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null),
     [success, setSuccess] = useState<string | null>(null);
+  const [recoveryCode, setRecoveryCode] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;
     void passkeyAvailable()
@@ -76,10 +80,15 @@ export function SecurityCard() {
         ? { passkey: true }
         : { pin: current };
     try {
-      if (settingPin) await appLock.setPin(pin, proof);
-      else if (action === "disable-pin") await appLock.setPin(null, proof);
-      else await appLock.setPasskey(action === "enable-passkey", proof);
+      let code: string | null;
+      if (action === "recovery-code")
+        code = await appLock.replaceRecoveryCode(proof!);
+      else if (settingPin) code = await appLock.setPin(pin, proof);
+      else if (action === "disable-pin")
+        code = await appLock.setPin(null, proof);
+      else code = await appLock.setPasskey(action === "enable-passkey", proof);
       begin(null);
+      setRecoveryCode(code);
       setSuccess(
         action === "disable-pin"
           ? "PIN protection disabled."
@@ -122,13 +131,13 @@ export function SecurityCard() {
           accessibilityLabel="PIN code protection"
           testID="security-pin-toggle"
           value={Boolean(config.pin)}
-          disabled={busy || demo || Boolean(action)}
+          disabled={busy || demo || Boolean(action) || Boolean(recoveryCode)}
           onValueChange={(enabled) =>
             begin(enabled ? "enable-pin" : "disable-pin")
           }
         />
       </View>
-      {config.pin && !action && (
+      {config.pin && !action && !recoveryCode && (
         <Button
           variant="ghost"
           small
@@ -167,7 +176,8 @@ export function SecurityCard() {
             demo ||
             checking ||
             (!supported && !config.passkey) ||
-            Boolean(action)
+            Boolean(action) ||
+            Boolean(recoveryCode)
           }
           onValueChange={(enabled) =>
             begin(enabled ? "enable-passkey" : "disable-passkey")
@@ -194,25 +204,27 @@ export function SecurityCard() {
           )}
           {settingPin && (
             <>
-              <PinField
+              <PinCodeInput
                 label="New 6-digit PIN"
                 value={pin}
                 onChange={setPin}
                 disabled={busy}
               />
-              <PinField
+              <PinCodeInput
                 label="Confirm new PIN"
-                error={
-                  confirm.length === 6 && pin !== confirm
-                    ? "PINs do not match."
-                    : undefined
-                }
+                invalid={confirm.length === 6 && pin !== confirm}
                 value={confirm}
                 onChange={setConfirm}
                 disabled={busy}
               />
+              {confirm.length === 6 && pin !== confirm && (
+                <Label size={12} color={colors.error}>
+                  PINs do not match.
+                </Label>
+              )}
               <Label size={12} color={colors.secondary}>
-                Keep this PIN somewhere safe. Subloom cannot recover it for you.
+                Keep this PIN somewhere safe. Your recovery code can help if you
+                forget it.
               </Label>
             </>
           )}
@@ -222,8 +234,24 @@ export function SecurityCard() {
               PIN protection enabled as a backup.
             </Label>
           )}
+          {(settingPin || action === "enable-passkey") &&
+            !config.recoveryHash && (
+              <Label size={12} color={colors.secondary}>
+                We’ll give you a recovery code after setup. Save it so you can
+                reset protection if you lose your unlock methods. Without any
+                working method or your recovery code, local data can’t be
+                recovered.
+              </Label>
+            )}
+          {action === "recovery-code" && (
+            <Label size={13} color={colors.secondary}>
+              {config.recoveryHash
+                ? "Your current recovery code will stop working. Verify your PIN or passkey, then save the new code somewhere safe."
+                : "Verify your PIN or passkey to create a recovery code. It lets you set a new PIN if you ever lose access."}
+            </Label>
+          )}
           {protectedApp && config.pin && (
-            <PinField
+            <PinCodeInput
               label="Current PIN"
               value={current}
               onChange={setCurrent}
@@ -272,8 +300,42 @@ export function SecurityCard() {
           {success}
         </Label>
       )}
-      {!action && protectedApp && (
+      {recoveryCode && (
+        <View style={{ marginTop: 20 }}>
+          <RecoveryCodeNotice
+            code={recoveryCode}
+            onDone={() => setRecoveryCode(null)}
+          />
+        </View>
+      )}
+      {!action && protectedApp && !recoveryCode && (
         <View style={{ gap: 12, marginTop: 12 }}>
+          <View
+            style={{
+              gap: 6,
+              paddingTop: 16,
+              marginBottom: 8,
+              borderTopWidth: 1,
+              borderTopColor: colors.border,
+            }}
+          >
+            <Label bold>Recovery code</Label>
+            <Label size={12} color={colors.secondary}>
+              {config.recoveryHash
+                ? "Your backup is ready. If you lose your PIN and passkey, use your saved code to set a new PIN."
+                : "Set up a way back in. Save a recovery code before you need it."}
+            </Label>
+            <Button
+              variant="secondary"
+              disabled={busy || demo}
+              onPress={() => begin("recovery-code")}
+              testID="security-recovery-code"
+            >
+              {config.recoveryHash
+                ? "Replace recovery code"
+                : "Set up recovery code"}
+            </Button>
+          </View>
           <Label size={12} color={colors.secondary}>
             {config.pin && config.passkey
               ? "Either your PIN or passkey can unlock Subloom."

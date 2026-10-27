@@ -82,7 +82,7 @@ const settingsGroups = [
   {
     title: "Security",
     keywords:
-      "app protection lock unlock pin code passkey password biometric face touch privacy device",
+      "app protection lock unlock pin code passkey password biometric face touch privacy device recovery backup reset",
   },
   {
     title: "Reminders",
