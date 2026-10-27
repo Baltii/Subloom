@@ -10,6 +10,7 @@ Protection covers every workspace on the installation, including guest mode and 
 - iOS/Android lock when AppState leaves `active`. Web locks on page visibility changes and page hiding. Desktop shells also send a background event on app/window deactivation.
 - Notification navigation waits until hydration and unlocking complete. Deep links still enter through the same root gate.
 - Locking unmounts protected screens, including open dialogs. Unsaved screen-local form state is discarded; saved data remains intact.
+- Backgrounding also remounts the lock screen, clearing partial PIN/recovery input and any freshly displayed recovery code from its transient state. Copy/save the recovery code before switching away; after a reset, the new PIN still works if the on-screen code was dismissed.
 - Unlocking, changing or disabling security methods requires a valid existing PIN or signed passkey assertion. No unlock flag is persisted.
 - Storage errors or malformed settings keep the app closed and provide a retry action. Verification results arriving after a new background event cannot unlock the app.
 

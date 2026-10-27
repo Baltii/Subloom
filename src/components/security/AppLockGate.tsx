@@ -8,6 +8,7 @@ export function AppLockGate({ children }: { children: ReactNode }) {
   const ready = useAppLock((s) => s.ready),
     unlocked = useAppLock((s) => s.unlocked);
   const loadError = useAppLock((s) => s.error);
+  const lockRevision = useAppLock((s) => s.lockRevision);
   useEffect(() => {
     void appLock.initialize();
   }, []);
@@ -42,7 +43,7 @@ export function AppLockGate({ children }: { children: ReactNode }) {
   // Protected routes and their native modals never mount before verification.
   return (
     <LockScreen
-      key={ready ? "ready" : "loading"}
+      key={ready ? "ready:" + lockRevision : "loading"}
       ready={ready}
       loadError={loadError}
     />

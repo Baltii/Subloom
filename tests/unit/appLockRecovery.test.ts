@@ -276,3 +276,14 @@ it("does not enable protection if a valid recovery code cannot be generated", as
   expect(deps.write).not.toHaveBeenCalled();
   expect(controller.state.getState().config.pin).toBeNull();
 });
+it("invalidates transient lock-screen secrets on backgrounding even when already locked", async () => {
+  const { controller } = fixture();
+  await controller.initialize();
+  const revision = controller.state.getState().lockRevision;
+  controller.lock();
+  const first = controller.state.getState().lockRevision;
+  controller.lock();
+  expect(first).toBeGreaterThan(revision);
+  expect(controller.state.getState().lockRevision).toBeGreaterThan(first);
+  expect(controller.state.getState().unlocked).toBe(false);
+});

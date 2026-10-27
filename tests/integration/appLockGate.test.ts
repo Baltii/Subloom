@@ -79,6 +79,7 @@ beforeEach(() => {
     unlocked: false,
     busy: false,
     error: null,
+    lockRevision: 0,
     config: emptyLockConfig(),
   };
   protectedRenders = 0;

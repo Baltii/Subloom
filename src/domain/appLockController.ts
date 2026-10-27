@@ -35,6 +35,7 @@ export type LockState = {
   busy: boolean;
   config: LockConfig;
   error: string | null;
+  lockRevision: number;
 };
 export function createLockController(deps: Dependencies) {
   const state = createStore<LockState>(() => ({
@@ -43,6 +44,7 @@ export function createLockController(deps: Dependencies) {
     busy: false,
     config: emptyLockConfig(),
     error: null,
+    lockRevision: 0,
   }));
   let epoch = 0,
     working = false;
@@ -82,8 +84,10 @@ export function createLockController(deps: Dependencies) {
     if (!state.getState().ready) return;
     // Even a repeated background event cancels in-flight authentication.
     epoch++;
-    if (hasAppLock(state.getState().config))
-      state.setState({ unlocked: false });
+    state.setState({
+      lockRevision: epoch,
+      ...(hasAppLock(state.getState().config) ? { unlocked: false } : {}),
+    });
   }
   function checkRevision(revision: number) {
     if (revision !== epoch)
