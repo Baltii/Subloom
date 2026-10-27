@@ -49,20 +49,26 @@ function fixture(initial: LockConfig | null = null) {
   };
 }
 describe("PIN cryptography", () => {
-  it("matches a standard PBKDF2-SHA256 implementation with a per-install salt", async () => {
-    const actual = await hashPin("012345", salt);
-    expect(actual).toBe(
-      pbkdf2Sync(
-        "012345",
-        Buffer.from(salt, "hex"),
-        PIN_ITERATIONS,
-        32,
-        "sha256",
-      ).toString("hex"),
-    );
-    expect(actual).not.toContain("012345");
-    expect(await hashPin("012345", "a2".repeat(16))).not.toBe(actual);
-  });
+  // This intentionally runs two full-cost PIN derivations beside the DB tests.
+  // Shared CI runners need more than Vitest's default five-second allowance.
+  it(
+    "matches a standard PBKDF2-SHA256 implementation with a per-install salt",
+    { timeout: 30_000 },
+    async () => {
+      const actual = await hashPin("012345", salt);
+      expect(actual).toBe(
+        pbkdf2Sync(
+          "012345",
+          Buffer.from(salt, "hex"),
+          PIN_ITERATIONS,
+          32,
+          "sha256",
+        ).toString("hex"),
+      );
+      expect(actual).not.toContain("012345");
+      expect(await hashPin("012345", "a2".repeat(16))).not.toBe(actual);
+    },
+  );
   it.each(["12345", "1234567", "abcdef", "12 345", "１２３４５６"])(
     "rejects invalid PIN %s",
     async (pin) => {
