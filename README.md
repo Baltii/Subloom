@@ -56,6 +56,8 @@ Start with a personal space saved on your device. Connect an account when you wa
 
 Subloom tracks and helps you review subscriptions. Managing or canceling a service still happens with its provider; recording a cancellation in Subloom does not cancel merchant billing.
 
+**App protection:** Settings → Security adds a device-local 6-digit PIN and passkeys in supported web browsers. Enable or disable each method, change your PIN, or lock immediately. Protection covers launch and returning from the background. Native apps currently support PIN protection; see [app protection and platform support](APP_PROTECTION.md) for details.
+
 ## A look inside
 
 <p align="center">

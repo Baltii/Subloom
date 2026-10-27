@@ -12,6 +12,7 @@ module.exports = {
     "preload.cjs",
     "runtime.cjs",
     "notifications.cjs",
+    "security.cjs",
     "updates.cjs",
     "updates/**/*",
     "web/**/*",

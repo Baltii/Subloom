@@ -2,6 +2,7 @@ import AppKit
 import WebKit
 import UserNotifications
 import AuthenticationServices
+import Security
 
 @MainActor final class MacBridge: NSObject, WKScriptMessageHandlerWithReply, UNUserNotificationCenterDelegate, ASWebAuthenticationPresentationContextProviding {
     let store: SnapshotStore
@@ -12,6 +13,7 @@ import AuthenticationServices
     var notificationWork: Task<Void, Never>?
     var navigation: [String: String]?
     var authSession: ASWebAuthenticationSession?
+    var backgroundObserver: NSObjectProtocol?
 
     static let bootstrap = """
     Object.defineProperty(window, 'subloomMac', { value: Object.freeze({
@@ -24,6 +26,11 @@ import AuthenticationServices
         self.store = store
         self.workspace = UserDefaults.standard.string(forKey: "subloom.active-workspace")
         super.init(); center.delegate = self
+        backgroundObserver = NotificationCenter.default.addObserver(forName: NSApplication.didResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in
+                _ = try? await self?.webView?.evaluateJavaScript("window.dispatchEvent(new Event('subloom:background'))")
+            }
+        }
     }
     private func identity(_ body: [String: Any]) throws -> String {
         guard let value = body["identity"] as? String, validWorkspace(value) else { throw LocalAppError.invalid("Invalid workspace.") }
@@ -40,6 +47,10 @@ import AuthenticationServices
         // Disk writes remain available even while a notification permission prompt is open.
         do {
             switch op {
+            case "security.read": replyHandler(try readSecurity() ?? NSNull(), nil); return
+            case "security.write":
+                guard let value = body["value"] as? String, value.utf8.count <= 8192 else { throw LocalAppError.invalid("Invalid app protection settings.") }
+                try writeSecurity(value); replyHandler(true, nil); return
             case "update.draft":
                 guard let active = body["active"] as? Bool else { throw LocalAppError.invalid("Invalid update protection request.") }
                 appUpdater?.hasDraft = active; replyHandler(true, nil); return
@@ -92,6 +103,34 @@ import AuthenticationServices
     }
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         webView!.window!
+    }
+    private var securityQuery: [String: Any] {
+        [kSecClass as String: kSecClassGenericPassword,
+         kSecAttrService as String: "com.subloom.app-protection",
+         kSecAttrAccount as String: "device-lock"]
+    }
+    private func readSecurity() throws -> String? {
+        var query = securityQuery
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        if status == errSecItemNotFound { return nil }
+        guard status == errSecSuccess, let data = item as? Data, let value = String(data: data, encoding: .utf8) else {
+            throw LocalAppError.invalid("App protection could not be read from Keychain. Unlock your Mac and retry.")
+        }
+        return value
+    }
+    private func writeSecurity(_ value: String) throws {
+        let data = Data(value.utf8)
+        var status = SecItemUpdate(securityQuery as CFDictionary, [kSecValueData as String: data] as CFDictionary)
+        if status == errSecItemNotFound {
+            var item = securityQuery
+            item[kSecValueData as String] = data
+            item[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            status = SecItemAdd(item as CFDictionary, nil)
+        }
+        guard status == errSecSuccess else { throw LocalAppError.invalid("App protection could not be saved to Keychain. Please retry.") }
     }
     private func openAuth(_ body: [String: Any], reply: @escaping (Any?, String?) -> Void) throws {
         guard authSession == nil else { throw LocalAppError.invalid("A sign-in is already in progress.") }

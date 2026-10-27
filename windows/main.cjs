@@ -7,10 +7,12 @@ const {
   session,
   shell,
   Notification,
+  safeStorage,
 } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
 const { createNotificationBroker } = require("./notifications.cjs");
+const { createSecurityStore } = require("./security.cjs");
 const { pathToFileURL } = require("node:url");
 const {
   APP_URL,
@@ -186,6 +188,30 @@ else {
         auth.cancel();
         window = null;
       });
+      window.on("blur", () => {
+        void window?.webContents
+          .executeJavaScript(
+            "window.dispatchEvent(new Event('subloom:background'))",
+          )
+          .catch(() => {});
+      });
+      const securityStore = createSecurityStore(
+        path.join(app.getPath("userData"), "app-protection.bin"),
+        safeStorage,
+      );
+      for (const action of ["read", "write"]) {
+        ipcMain.handle("subloom:security-" + action, (event, value) => {
+          if (
+            event.sender !== window?.webContents ||
+            event.senderFrame !== window.webContents.mainFrame ||
+            !isAppURL(event.senderFrame.url)
+          )
+            throw new Error("App protection must be managed in Subloom.");
+          return action === "read"
+            ? securityStore.read()
+            : securityStore.write(value);
+        });
+      }
       store.on("will-download", (_event, item) => {
         item.setSaveDialogOptions({
           title: "Save Subloom export",

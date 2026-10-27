@@ -62,6 +62,7 @@ import { ProBadge } from "../../components/pro/ProBadge";
 import { PRO_PLAN_ENABLED } from "../../domain/planMode";
 import { AppUpdatesCard } from "../../components/settings/AppUpdatesCard";
 import { SupportCard } from "../../components/settings/SupportCard";
+import { SecurityCard } from "../../components/settings/SecurityCard";
 import { SelectField } from "../../components/ui/Selection";
 import {
   currencyOptions,
@@ -77,6 +78,11 @@ const settingsGroups = [
   {
     title: "Preferences",
     keywords: "appearance theme dark light system currency region timezone",
+  },
+  {
+    title: "Security",
+    keywords:
+      "app protection lock unlock pin code passkey password biometric face touch privacy device",
   },
   {
     title: "Reminders",
@@ -448,6 +454,7 @@ function Settings() {
                 )}
               </Card>
             )}
+            {visibleGroups.includes("Security") && <SecurityCard />}
             {visibleGroups.includes("Preferences") && (
               <Card style={{ marginTop: 24 }}>
                 <SectionTitle title="Appearance & region" />

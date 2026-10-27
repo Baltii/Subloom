@@ -35,6 +35,7 @@ for (const file of [
   "preload.cjs",
   "runtime.cjs",
   "notifications.cjs",
+  "security.cjs",
   "updates.cjs",
 ])
   cpSync(`windows/${file}`, `${stage}/${file}`);

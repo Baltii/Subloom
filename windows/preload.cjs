@@ -2,6 +2,10 @@ const { contextBridge, ipcRenderer } = require("electron");
 // Expose bounded operations, never Node, arbitrary IPC, or filesystem access.
 contextBridge.exposeInMainWorld("subloomWindows", {
   version: 1,
+  security: {
+    read: () => ipcRenderer.invoke("subloom:security-read"),
+    write: (value) => ipcRenderer.invoke("subloom:security-write", value),
+  },
   openAuth: (url, redirect) =>
     ipcRenderer.invoke("subloom:auth", url, redirect),
   cancelAuth: () => ipcRenderer.invoke("subloom:auth-cancel"),
