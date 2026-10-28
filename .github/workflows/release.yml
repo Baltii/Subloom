@@ -28,10 +28,16 @@ jobs:
       issues: write
       pull-requests: write
     outputs:
-      released: ${{ steps.release.outputs.release_created }}
-      tag: ${{ steps.release.outputs.tag_name }}
-      sha: ${{ steps.release.outputs.sha }}
+      released: ${{ steps.publication.outputs.released }}
+      tag: ${{ steps.publication.outputs.tag }}
+      sha: ${{ steps.publication.outputs.sha }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
       - name: Require public release configuration
         run: |
           test -n "$SUPABASE_URL"
@@ -47,6 +53,13 @@ jobs:
           target-branch: release-candidate
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      - name: Resolve publication, including an already published release
+        id: publication
+        run: node scripts/resolve-release-publication.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CREATED_RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
+          CREATED_RELEASE_SHA: ${{ steps.release.outputs.sha }}
 
   publish-artifacts:
     needs: [verify, version]
