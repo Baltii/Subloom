@@ -9,6 +9,10 @@ on:
         description: Published release tag to build (for example v1.4.0)
         type: string
         required: true
+      verified_run_id:
+        description: Optional successful production run at the release commit; reuse its verified apps
+        type: string
+        default: ''
   workflow_call:
     inputs:
       tag:
@@ -18,6 +22,10 @@ on:
         description: Reuse this run's already verified artifacts only at the same commit
         type: boolean
         default: false
+      verified_run_id:
+        description: Successful production run at the release commit
+        type: string
+        default: ''
     secrets:
       SUBLOOM_UPDATE_SIGNING_SEED:
         required: true
@@ -26,6 +34,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: release-assets-${{ github.event.release.tag_name || inputs.tag }}
@@ -39,22 +48,28 @@ jobs:
     outputs:
       sha: ${{ steps.source.outputs.sha }}
       tag: ${{ steps.source.outputs.tag }}
+      artifacts_run_id: ${{ steps.source.outputs.artifacts_run_id }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: release-candidate
           fetch-depth: 0
           persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
       - name: Resolve and validate release source
         id: source
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
           REUSE_ARTIFACTS: ${{ inputs.reuse_verified == true }}
+          VERIFIED_RUN_ID: ${{ inputs.verified_run_id }}
         run: |
           node --input-type=module <<'JS'
           import { execFileSync } from 'node:child_process';
           import { appendFileSync } from 'node:fs';
+          import { assertVerifiedArtifactRun } from './scripts/release-publication.mts';
           const run = (command, args) => execFileSync(command, args, { encoding: 'utf8' }).trim();
           const tag = process.env.RELEASE_TAG;
           if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Use a stable vX.Y.Z release tag.');
@@ -65,12 +80,21 @@ jobs:
           const manifest = JSON.parse(run('git', ['show', `${sha}:package.json`]));
           if (`v${manifest.version}` !== tag) throw new Error('Release tag and app version differ.');
           if (process.env.REUSE_ARTIFACTS === 'true' && sha !== process.env.GITHUB_SHA) throw new Error('Cannot attach binaries verified at a different commit.');
-          appendFileSync(process.env.GITHUB_OUTPUT, `sha=${sha}\ntag=${tag}\n`);
+          let artifactsRun = '';
+          if (process.env.VERIFIED_RUN_ID) {
+            artifactsRun = process.env.VERIFIED_RUN_ID;
+            if (!/^\d+$/.test(artifactsRun)) throw new Error('Use a numeric verified run ID.');
+            const repository = process.env.GITHUB_REPOSITORY;
+            const info = JSON.parse(run('gh', ['api', `repos/${repository}/actions/runs/${artifactsRun}`]));
+            const artifacts = JSON.parse(run('gh', ['api', `repos/${repository}/actions/runs/${artifactsRun}/artifacts?per_page=100`]));
+            assertVerifiedArtifactRun(info, repository, sha, artifacts.artifacts);
+          } else if (process.env.REUSE_ARTIFACTS === 'true') artifactsRun = process.env.GITHUB_RUN_ID;
+          appendFileSync(process.env.GITHUB_OUTPUT, `sha=${sha}\ntag=${tag}\nartifacts_run_id=${artifactsRun}\n`);
           JS
 
   verify:
     needs: source
-    if: inputs.reuse_verified != true
+    if: needs.source.outputs.artifacts_run_id == ''
     uses: ./.github/workflows/verify.yml
     with:
       ref: ${{ needs.source.outputs.sha }}
@@ -83,7 +107,7 @@ jobs:
     if: >-
       always() && needs.source.result == 'success' &&
       (needs.verify.result == 'success' ||
-       (needs.verify.result == 'skipped' && inputs.reuse_verified == true))
+       (needs.verify.result == 'skipped' && needs.source.outputs.artifacts_run_id != ''))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -97,12 +121,13 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
-      - name: Download only this run's verified apps
+      - name: Download verified apps from the validated release run
         env:
           GH_TOKEN: ${{ github.token }}
+          ARTIFACTS_RUN_ID: ${{ needs.source.outputs.artifacts_run_id || github.run_id }}
         run: |
           for artifact in android-apk windows-x64 macos-arm64 macos-x64; do
-            gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "artifacts/$artifact"
+            gh run download "$ARTIFACTS_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact" --dir "artifacts/$artifact"
           done
       - name: Verify all platform checksums
         run: |
