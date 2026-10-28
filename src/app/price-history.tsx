@@ -35,7 +35,7 @@ export default function PriceHistory() {
           .range(start, start + 499);
         if (result.error)
           throw new Error(
-            "Cloud price history could not load. Check your connection and migration setup.",
+            "Couldn’t load price history. Check your connection and try again.",
           );
         points.push(
           ...(result.data || []).map((row) => pricePointSchema.parse(row.data)),
@@ -68,10 +68,7 @@ export default function PriceHistory() {
           </Card>
         ) : null}
         {data.outbox.length ? (
-          <Label>
-            Local entries may include edits still waiting to sync. Resolve sync
-            conflicts before relying on a price comparison.
-          </Label>
+          <Label>Some price changes are waiting to sync.</Label>
         ) : null}
         {subscriptions.length ? (
           subscriptions.map((s) => {
@@ -99,9 +96,8 @@ export default function PriceHistory() {
                         <Label>
                           {new Date(p.capturedAt).toLocaleDateString()} ·{" "}
                           {p.source === "baseline"
-                            ? "Current-price baseline"
-                            : "Recorded change"}{" "}
-                          · revision {p.version}
+                            ? "Starting price"
+                            : "Price change"}
                         </Label>
                         {previous ? (
                           <Label>

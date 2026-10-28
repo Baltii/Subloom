@@ -60,6 +60,7 @@ import { ThemePicker } from "../../components/ui/ThemePicker";
 import { ProFeatureBadge } from "../../components/pro/ProFeatureBadge";
 import { ProBadge } from "../../components/pro/ProBadge";
 import { PRO_PLAN_ENABLED } from "../../domain/planMode";
+import { usePro } from "../../store/pro";
 import { AppUpdatesCard } from "../../components/settings/AppUpdatesCard";
 import { SupportCard } from "../../components/settings/SupportCard";
 import { SecurityCard } from "../../components/settings/SecurityCard";
@@ -73,7 +74,10 @@ const settingsGroups = [
   {
     title: "Account",
     keywords:
-      "login sign in sync import guest pro upgrade trial billing payment subscription delete account",
+      "login sign in sync import guest delete account" +
+      (PRO_PLAN_ENABLED
+        ? " pro upgrade trial billing payment subscription"
+        : ""),
   },
   {
     title: "Preferences",
@@ -92,7 +96,7 @@ const settingsGroups = [
   {
     title: "Tools",
     keywords:
-      "subscription receipt import discovery gmail outlook monthly budgets csv calendar bank statement transactions",
+      "subscription receipt import monthly budgets csv calendar bank statement transactions",
   },
   {
     title: "App updates",
@@ -105,8 +109,7 @@ const settingsGroups = [
   },
   {
     title: "Data & privacy",
-    keywords:
-      "json export download permissions help welcome onboarding tour reset clear",
+    keywords: "json export download permissions help reset clear",
   },
 ];
 export default function SettingsRoute() {
@@ -118,6 +121,16 @@ function Settings() {
     wide = useWide(),
     state = useApp(),
     p = state.data.preferences;
+  const canManageBilling = usePro(
+    (billing) =>
+      billing.workspace === state.identity &&
+      Boolean(billing.snapshot?.canManage),
+  );
+  const hasExistingBilling =
+    canManageBilling ||
+    state.data.subscriptions.some((subscription) =>
+      Boolean(subscription.proBillingOwner),
+    );
   const params = useLocalSearchParams<{ section?: string }>();
   const requestedSection = ["Support", "Feedback"].includes(
     params.section || "",
@@ -310,22 +323,6 @@ function Settings() {
             {visibleGroups.includes("Account") && (
               <Card>
                 <SectionTitle title="Account" />
-                <LinkRow
-                  icon={Sparkles}
-                  title={PRO_PLAN_ENABLED ? "Subloom Pro" : "Free access"}
-                  detail={
-                    PRO_PLAN_ENABLED
-                      ? "Trial, purchases and billing"
-                      : "All available features are included"
-                  }
-                  onPress={() => router.push("/pro")}
-                />
-                <LinkRow
-                  icon={Activity}
-                  title="Recent activity"
-                  detail="Subscription changes and reminders"
-                  onPress={() => router.push("/activity")}
-                />
                 <View
                   style={{
                     flexDirection: "row",
@@ -356,6 +353,24 @@ function Settings() {
                     </Label>
                   </View>
                 </View>
+                {(PRO_PLAN_ENABLED || hasExistingBilling) && (
+                  <LinkRow
+                    icon={Sparkles}
+                    title={
+                      PRO_PLAN_ENABLED
+                        ? "Subloom Pro"
+                        : "Manage existing billing"
+                    }
+                    detail="Plan and billing"
+                    onPress={() => router.push("/pro")}
+                  />
+                )}
+                <LinkRow
+                  icon={Activity}
+                  title="Recent activity"
+                  detail="Subscription changes and reminders"
+                  onPress={() => router.push("/activity")}
+                />
                 {state.data.demo ? (
                   <Button onPress={() => void run(leaveDemo)}>
                     Start with my own subscriptions
@@ -523,23 +538,21 @@ function Settings() {
                   <>
                     {toggle(
                       "Windows notifications",
-                      "Local reminders on this laptop, including guest subscriptions.",
+                      "Reminders on this PC, without an account.",
                       windows.enabled,
                       enableWindowsReminders,
                     )}
                     <Label size={12} color={colors.secondary}>
                       {windows.enabled
                         ? `${windows.pending} upcoming reminders ready on this laptop.`
-                        : "Enable Windows notifications to receive subscription reminders."}
+                        : "Notifications are off."}
                     </Label>
                     <Label
                       size={11}
                       color={colors.secondary}
                       style={{ marginTop: 8 }}
                     >
-                      Keep Subloom open or minimized for reminders. They stop
-                      when you quit the app. Windows notification settings and
-                      Do not disturb can silence banners.
+                      Keep Subloom open or minimized to receive reminders.
                     </Label>
                     <View style={{ gap: 10, marginVertical: 16 }}>
                       <Button
@@ -573,16 +586,7 @@ function Settings() {
                         ? "Notifications are blocked in System Settings."
                         : mac.enabled
                           ? `${mac.pending} upcoming reminders scheduled on this Mac.`
-                          : "Enable Mac notifications to schedule reminders locally."}
-                    </Label>
-                    <Label
-                      size={11}
-                      color={colors.secondary}
-                      style={{ marginTop: 8 }}
-                    >
-                      Up to 48 upcoming alerts stay scheduled when Subloom is
-                      closed. Open the app periodically to refresh them. Focus
-                      can silence banners.
+                          : "Notifications are off."}
                     </Label>
                     <View style={{ gap: 10, marginVertical: 16 }}>
                       {mac.enabled &&
@@ -636,22 +640,22 @@ function Settings() {
                               ? "This device is registered for push reminders."
                               : "Push delivery is not enabled on this device yet."}
                         </Label>
-                        <Button
-                          variant="secondary"
-                          loading={busy}
-                          onPress={() =>
-                            void run(async () => {
-                              await registerPush();
-                              notify(
-                                "This device is registered for push reminders.",
-                              );
-                            })
-                          }
-                        >
-                          {state.pushDeviceEnabled
-                            ? "Refresh this device’s registration"
-                            : "Enable push on this device"}
-                        </Button>
+                        {!state.pushDeviceEnabled && (
+                          <Button
+                            variant="secondary"
+                            loading={busy}
+                            onPress={() =>
+                              void run(async () => {
+                                await registerPush();
+                                notify(
+                                  "Push reminders enabled on this device.",
+                                );
+                              })
+                            }
+                          >
+                            Enable push on this device
+                          </Button>
+                        )}
                         {state.pushDeviceEnabled && (
                           <Button
                             variant="ghost"
@@ -813,13 +817,6 @@ function Settings() {
             {visibleGroups.includes("Tools") && (
               <Card>
                 <SectionTitle title="Subscription tools" />
-                <Label
-                  color={colors.secondary}
-                  size={13}
-                  style={{ marginBottom: 14 }}
-                >
-                  Import records and manage your subscriptions.
-                </Label>
                 {tools
                   .filter((action) =>
                     words.every((word) =>
@@ -840,12 +837,8 @@ function Settings() {
                       title={action.title}
                       detail={action.detail}
                       badge={
-                        <>
-                          {action.proFeature && <ProFeatureBadge />}
-                          {action.soon && <Badge tone="neutral">Soon</Badge>}
-                        </>
+                        action.proFeature ? <ProFeatureBadge /> : undefined
                       }
-                      disabled={action.soon}
                       icon={action.icon}
                       onPress={() => router.push(action.route)}
                     />
@@ -871,15 +864,9 @@ function Settings() {
                 />
                 <LinkRow
                   icon={HelpCircle}
-                  title="Help & setup"
-                  detail="Answers and integration status"
+                  title="Help"
+                  detail="Using Subloom"
                   onPress={() => router.push("/help")}
-                />
-                <LinkRow
-                  icon={HelpCircle}
-                  title="Welcome tour"
-                  detail="A quick hello to Subloom"
-                  onPress={() => router.push("/onboarding?tour=1")}
                 />
                 {state.identity === "guest" ? (
                   <Button

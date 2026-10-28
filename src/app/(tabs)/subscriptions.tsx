@@ -162,7 +162,7 @@ function Subscriptions() {
               <View style={{ flex: 1, gap: 6 }}>
                 <Heading size={wide ? 30 : 27}>Subscriptions</Heading>
                 <Label size={13} color={colors.secondary}>
-                  {data.subscriptions.length} subscriptions. One clear picture.
+                  {data.subscriptions.length} subscriptions
                 </Label>
               </View>
               <View

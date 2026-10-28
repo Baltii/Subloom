@@ -1,9 +1,8 @@
 import { ThemedSwitch } from "../../components/ui/ThemedSwitch";
 import { useState } from "react";
-import { View, Linking } from "react-native";
+import { View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  ExternalLink,
   CircleHelp,
   Pencil,
   Pause,
@@ -30,7 +29,6 @@ import {
   nextEvent,
   today,
 } from "../../domain/renewal";
-import { cancellationInstructions } from "../../domain/cancellationInstructions";
 import { useTheme, useWide } from "../../theme/useTheme";
 import {
   Badge,
@@ -74,13 +72,9 @@ export default function Details() {
         />
       </Page>
     );
-  const instructions = cancellationInstructions(s.serviceId),
-    paymentSource = billingMethods.loaded
+  const paymentSource = billingMethods.loaded
       ? billingSource(s, billingMethods.value)
       : undefined,
-    detection = data.candidates.find(
-      (c) => c.state === "confirmed" && c.matchedSubscriptionId === s.id,
-    ),
     event = nextEvent(s, today(data.preferences.timezone));
   async function updateReminder(enabled: boolean) {
     if (!s) return;
@@ -99,7 +93,6 @@ export default function Details() {
   return (
     <Page
       title={s.name}
-      subtitle="Renewals, reminders and your tracking details."
       back
       right={
         <Button
@@ -234,9 +227,6 @@ export default function Details() {
                 </View>
               ))}
             </View>
-          </Card>
-          <Card style={{ marginTop: 20 }}>
-            <SectionTitle title="Details" />
             <Button
               small
               variant="ghost"
@@ -245,6 +235,9 @@ export default function Details() {
             >
               Manage cards & wallets
             </Button>
+          </Card>
+          <Card style={{ marginTop: 20 }}>
+            <SectionTitle title="Details" />
             {billingMethods.error && (
               <Button
                 small
@@ -254,13 +247,6 @@ export default function Details() {
                 Reload billing method
               </Button>
             )}
-            <Button
-              small
-              variant="ghost"
-              onPress={() => router.push("/transactions")}
-            >
-              Review imported transactions
-            </Button>
             <Label size={12} color={colors.secondary}>
               Category
             </Label>
@@ -273,16 +259,6 @@ export default function Details() {
                 ? "Subloom Pro billing · updates automatically"
                 : s.source.replace("_", " ")}
             </Label>
-            {detection && (
-              <Label
-                size={11}
-                color={colors.secondary}
-                style={{ marginBottom: 16 }}
-              >
-                Parser confidence at import:{" "}
-                {Math.round(detection.confidence * 100)}% · confirmed by you.
-              </Label>
-            )}
             <Label size={12} color={colors.secondary}>
               Notes
             </Label>
@@ -334,13 +310,21 @@ export default function Details() {
                 }}
               />
             </View>
-            <Label size={11} color={colors.secondary} style={{ marginTop: 16 }}>
-              Connect an account and enable a delivery channel in Settings to
-              receive server reminders.
-            </Label>
+            <Button
+              small
+              variant="ghost"
+              onPress={() =>
+                router.push({
+                  pathname: "/settings",
+                  params: { section: "Reminders" },
+                })
+              }
+            >
+              Notification settings
+            </Button>
           </Card>
           <Card style={{ marginTop: 20, gap: 14 }}>
-            <Heading size={18}>Make it work for you.</Heading>
+            <SectionTitle title="Manage subscription" />
             {s.proBillingOwner ? (
               <>
                 <Label size={13} color={colors.secondary}>
@@ -365,19 +349,6 @@ export default function Details() {
                 >
                   How to cancel
                 </Button>
-                {instructions.websiteUrl && (
-                  <Button
-                    variant="secondary"
-                    icon={ExternalLink}
-                    onPress={() =>
-                      void Linking.openURL(instructions.websiteUrl!).catch(() =>
-                        setError("Could not open the provider link."),
-                      )
-                    }
-                  >
-                    Visit website
-                  </Button>
-                )}
                 <Label size={11} color={colors.secondary}>
                   To cancel billing, visit your provider. Recording a
                   cancellation here only updates Subloom.

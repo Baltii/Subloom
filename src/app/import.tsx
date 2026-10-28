@@ -2,12 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import {
-  FileText,
-  ImagePlus,
-  ScanText,
-  ShieldCheck,
-} from "lucide-react-native";
+import { FileText, ImagePlus, ScanText } from "lucide-react-native";
 import * as Crypto from "expo-crypto";
 import {
   Button,
@@ -44,22 +39,17 @@ export default function ImportReceipt() {
     }
   }
   return (
-    <Page
-      title="Find it in a receipt."
-      subtitle="A little less typing. You stay in control."
-      back
-    >
+    <Page title="Import a receipt" back>
       <View
         style={{ maxWidth: 740, alignSelf: "center", width: "100%", gap: 20 }}
       >
         <Card style={{ gap: 14 }}>
           <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
             <ScanText size={22} color={colors.primary} />
-            <Heading size={19}>Choose how to import.</Heading>
+            <Heading size={19}>Choose a receipt</Heading>
           </View>
           <Label color={colors.secondary} size={13}>
-            Paste confirmation text, import a text file, or choose a screenshot.
-            We’ll suggest the details for you to review.
+            Upload a receipt or paste its text below.
           </Label>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
             <Button
@@ -76,7 +66,7 @@ export default function ImportReceipt() {
                 })
               }
             >
-              Text receipt
+              Choose text file
             </Button>
             <Button
               variant="secondary"
@@ -89,7 +79,7 @@ export default function ImportReceipt() {
                 })
               }
             >
-              Screenshot
+              Choose screenshot
             </Button>
           </View>
         </Card>
@@ -102,10 +92,9 @@ export default function ImportReceipt() {
               cachePolicy="none"
             />
             <Label size={12} color={colors.secondary}>
-              Reading this screenshot sends it to your Subloom backend and
-              Google Cloud Vision. It is processed transiently and is not stored
-              by Subloom. Google’s processing terms apply. Continue only if you
-              agree.
+              This image is sent to Google Cloud Vision for text recognition.
+              Subloom does not store it. Continue if you agree to Google’s
+              processing terms.
             </Label>
             <Button
               loading={busy}
@@ -116,7 +105,7 @@ export default function ImportReceipt() {
                 })
               }
             >
-              Read screenshot with my consent
+              Agree and read screenshot
             </Button>
           </Card>
         )}
@@ -124,9 +113,7 @@ export default function ImportReceipt() {
           <Field
             testID="receipt-text"
             label="Receipt text"
-            placeholder={
-              "Paste a subscription confirmation here…\n\nInclude the service, amount, currency, billing period, and renewal date if available."
-            }
+            placeholder="Paste a subscription receipt…"
             multiline
             numberOfLines={9}
             style={{ minHeight: 230, textAlignVertical: "top" }}
@@ -134,10 +121,6 @@ export default function ImportReceipt() {
             onChangeText={setText}
             maxLength={100_000}
           />
-          <Label size={11} color={colors.secondary}>
-            Dates are recognized when written as YYYY-MM-DD. Ambiguous
-            currencies and missing details stay open for your review.
-          </Label>
           {error && (
             <Label color={colors.error} size={12} style={{ marginTop: 14 }}>
               {error}
@@ -168,14 +151,10 @@ export default function ImportReceipt() {
             </Button>
           </View>
         </Card>
-        <View style={{ flexDirection: "row", gap: 9 }}>
-          <ShieldCheck color={colors.primary} size={17} />
-          <Label size={11} color={colors.secondary} style={{ flex: 1 }}>
-            Pasted text is parsed on your device. Only the extracted details
-            sync after you connect an account. Nothing is added to your
-            subscriptions without confirmation.
-          </Label>
-        </View>
+        <Label size={12} color={colors.secondary}>
+          Pasted text stays on your device. Review details before adding a
+          subscription.
+        </Label>
       </View>
     </Page>
   );

@@ -14,11 +14,11 @@ export default function Help() {
     ],
     [
       "What works offline?",
-      "Tracking, changes, settings, spending estimates, text receipt extraction, and review work on this device. Connected accounts queue changes until a successful sync. Server reminders need a configured backend and are based on the last synced information.",
+      "Tracking, changes, settings, spending estimates, text receipt extraction, and review work on this device. Connected accounts queue changes until a successful sync. Email and push reminders use your last synced information.",
     ],
     [
       "How do reminders work?",
-      "Connect an account, enable push in a native development build or email, and choose your reminder days/time. Server jobs handle delivery when the app is closed. On Mac, guest workspaces can enable local system reminders in Settings; opening the app refreshes their schedule.",
+      "Choose your reminder days and time in Settings → Reminders. Email and mobile push need an account. Mac and Windows reminders also work without one; keep Subloom open or minimized on Windows.",
     ],
     [
       "Why is a receipt missing details?",
@@ -34,7 +34,7 @@ export default function Help() {
     ],
   ];
   return (
-    <Page title="A little help." subtitle="Good questions. Clear answers." back>
+    <Page title="Help" back>
       <View
         style={{ maxWidth: 750, width: "100%", alignSelf: "center", gap: 18 }}
       >

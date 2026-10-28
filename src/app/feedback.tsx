@@ -43,7 +43,6 @@ const topics = [
     value: "idea",
     label: "An idea",
     icon: Lightbulb,
-    hint: "A wish, a ‘what if’, or a small improvement. I’d love to hear it.",
     placeholder: "I wish Subloom could…",
     action: "Send my idea",
   },
@@ -51,7 +50,6 @@ const topics = [
     value: "problem",
     label: "A problem",
     icon: Bug,
-    hint: "Something feeling off? Tell me what happened, and I’ll take a look.",
     placeholder: "I was trying to… but then…",
     action: "Share the problem",
   },
@@ -59,7 +57,6 @@ const topics = [
     value: "feedback",
     label: "Just a thought",
     icon: MessageCircle,
-    hint: "What feels good? What could feel better? There’s room for both.",
     placeholder: "Something I’ve noticed…",
     action: "Share my thought",
   },
@@ -174,12 +171,7 @@ function FeedbackForm() {
     }
   }
   return (
-    <Page
-      title="Ideas & feedback"
-      subtitle="Make yourself at home. I’m listening."
-      back
-      contentMaxWidth={850}
-    >
+    <Page title="Ideas & feedback" back contentMaxWidth={850}>
       {sent ? (
         <Card style={{ gap: 16, alignItems: "center", paddingVertical: 30 }}>
           <Conversation sent />
@@ -219,14 +211,10 @@ function FeedbackForm() {
           <View style={{ flexDirection: "row", gap: 16, alignItems: "center" }}>
             <View style={{ flex: 1, gap: 8 }}>
               <Heading size={23}>What’s on your mind?</Heading>
-              <Label size={14} color={colors.secondary}>
-                An idea, a little hiccup, or a ‘what if’. Tell me in your own
-                words.
-              </Label>
             </View>
             <Conversation />
           </View>
-          <Card>
+          <Card style={{ gap: 18 }}>
             <View
               accessibilityLabel="What would you like to share?"
               style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}
@@ -280,14 +268,6 @@ function FeedbackForm() {
                 </Pressable>
               ))}
             </View>
-            <Label
-              size={13}
-              color={colors.secondary}
-              accessibilityLiveRegion="polite"
-              style={{ minHeight: 54, paddingTop: 12, paddingBottom: 12 }}
-            >
-              {selected.hint}
-            </Label>
             <Field
               label={kind === "problem" ? "What happened?" : "Your thought"}
               placeholder={selected.placeholder}
@@ -305,7 +285,7 @@ function FeedbackForm() {
               hint={
                 message.length > 3600
                   ? `${message.length} / 4000 characters`
-                  : "A sentence or two is plenty to get started."
+                  : undefined
               }
             />
             <Field
@@ -341,8 +321,7 @@ function FeedbackForm() {
             </View>
             {!backendConfigured ? (
               <Label color={colors.error} style={{ marginBottom: 12 }}>
-                Feedback isn’t available in this build yet. Your thought can
-                stay here while you reconnect.
+                Feedback is unavailable right now. Please try again later.
               </Label>
             ) : null}
             {error ? (

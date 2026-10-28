@@ -109,9 +109,8 @@ export function SecurityCard() {
     <Card style={{ marginTop: 24 }}>
       <SectionTitle title="App protection" />
       <Label color={colors.secondary} size={13}>
-        Require a PIN or passkey when Subloom opens or returns from the
-        background. These settings apply to this device only, including guest
-        mode.
+        Lock Subloom when it opens or returns from the background. Applies to
+        this device.
       </Label>
       <View
         style={{
@@ -164,7 +163,7 @@ export function SecurityCard() {
               ? "Checking passkey support…"
               : supported
                 ? "Unlock with your device or password manager."
-                : "Unavailable in this app build. Use PIN protection here; passkeys are available in supported web browsers."}
+                : "Not available on this device. Use a PIN instead."}
           </Label>
         </View>
         <ThemedSwitch

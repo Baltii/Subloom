@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
 import { Search } from "lucide-react-native";
-import { catalog, searchServices, type Service } from "../../domain/catalog";
+import { searchServices, type Service } from "../../domain/catalog";
+import { PRO_PLAN_ENABLED } from "../../domain/planMode";
 import { categories, type Category } from "../../domain/models";
 import { useTheme } from "../../theme/useTheme";
 import { Button, Card, Chips, Field, Heading, Label } from "../ui/Primitives";
@@ -23,7 +24,7 @@ export function ServicePicker({
   const [category, setCategory] = useState<Category | "All">("All");
   const [limit, setLimit] = useState(12);
   const matches = useMemo(
-    () => searchServices(search, category),
+    () => searchServices(search, category, PRO_PLAN_ENABLED),
     [search, category],
   );
   const Container = presentation === "sheet" ? View : Card;
@@ -31,19 +32,13 @@ export function ServicePicker({
     <Container
       style={{ marginBottom: presentation === "card" ? 22 : 0, gap: 16 }}
     >
-      {presentation === "card" && (
-        <Heading size={18}>Find your service.</Heading>
-      )}
-      <Label size={12} color={colors.secondary}>
-        {catalog.length} services, or add your own. Your price and billing dates
-        are always up to you.
-      </Label>
+      {presentation === "card" && <Heading size={18}>Choose a service</Heading>}
       <Field
         autoFocus={autoFocus}
         label="Find a service"
         testID="service-search"
         leading={<Search size={17} color={colors.secondary} />}
-        placeholder="Search a name, category, or alias…"
+        placeholder="Search services…"
         maxLength={80}
         value={search}
         onChangeText={(value) => {
@@ -100,8 +95,7 @@ export function ServicePicker({
       </View>
       {!matches.length && (
         <Label color={colors.secondary} size={12}>
-          No service matches this search. Clear the filter or add a custom
-          service below.
+          No matching services. Add your own below.
         </Label>
       )}
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>

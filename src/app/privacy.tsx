@@ -1,12 +1,20 @@
-import { Card, Heading, Label, Page } from "../components/ui/Primitives";
+import {
+  Card,
+  Heading,
+  Label,
+  LinkRow,
+  Page,
+} from "../components/ui/Primitives";
 import { View } from "react-native";
+import { router } from "expo-router";
+import { Mail } from "lucide-react-native";
 import { useTheme } from "../theme/useTheme";
 export default function Privacy() {
   const { colors } = useTheme();
   const sections = [
     [
       "Your data stays yours.",
-      "Subloom stores subscription details, preferences, and the minimum receipt metadata needed for review and duplicate prevention. Guest tracking data stays on your device; account data syncs to your configured Supabase project. Data is never used for advertising.",
+      "Subloom stores subscription details, preferences, and the minimum receipt metadata needed for review and duplicate prevention. Guest tracking data stays on your device; account data syncs securely across your devices. Data is never used for advertising.",
     ],
     [
       "Ideas and feedback.",
@@ -22,11 +30,11 @@ export default function Privacy() {
     ],
     [
       "Connected mailboxes.",
-      "Mailbox discovery is coming soon to Pro. New connections and scans are disabled. Previously stored mailbox tokens remain encrypted and are never included in exports. Use Connected mailbox access in Settings → Data & privacy to remove stored access. Outlook consent can also be revoked in your Microsoft account.",
+      "New mailbox connections and scans are disabled. Previously stored access tokens remain encrypted and are never included in exports. You can remove stored access below. Outlook consent can also be revoked in your Microsoft account.",
     ],
     [
       "Local storage and device privacy.",
-      "On iOS and Android, account tokens use SecureStore and tracking data uses app-private SQLite. The Mac app stores tracking and financial feature data in private files in its sandbox; account sessions use WebKit storage. Device backups and unlocked devices may expose local financial data. The web preview uses browser storage and should be used on a trusted device.",
+      "On iOS and Android, account tokens use SecureStore and tracking data uses app-private SQLite. The Mac app stores tracking and financial feature data in private files in its sandbox; account sessions use WebKit storage. Device backups and unlocked devices may expose local financial data. The web app uses browser storage and should be used on a trusted device.",
     ],
     [
       "You can leave at any time.",
@@ -38,11 +46,7 @@ export default function Privacy() {
     ],
   ];
   return (
-    <Page
-      title="Private by design."
-      subtitle="A clear explanation, without the fine-print feeling."
-      back
-    >
+    <Page title="Privacy & permissions" back>
       <View
         style={{ maxWidth: 750, width: "100%", alignSelf: "center", gap: 18 }}
       >
@@ -52,6 +56,13 @@ export default function Privacy() {
             <Label color={colors.secondary} size={13}>
               {body}
             </Label>
+            {title === "Connected mailboxes." && (
+              <LinkRow
+                icon={Mail}
+                title="Manage previous mailbox access"
+                onPress={() => router.push("/mailboxes")}
+              />
+            )}
           </Card>
         ))}
       </View>

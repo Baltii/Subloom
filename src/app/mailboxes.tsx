@@ -4,10 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { accountClient } from "../services/supabase";
 import { useApp } from "../store/app";
-import { ProFeatureBadge } from "../components/pro/ProFeatureBadge";
-import { PRO_PLAN_ENABLED } from "../domain/planMode";
 import {
-  Badge,
   Button,
   Card,
   Confirm,
@@ -54,35 +51,12 @@ function Mailboxes({ identity }: { identity: string }) {
     query.data?.filter((connection) => connection.status !== "disconnected") ||
     [];
   return (
-    <Page
-      title="Mailbox discovery"
-      subtitle={
-        PRO_PLAN_ENABLED
-          ? "Coming soon to Subloom Pro."
-          : "Coming soon to Subloom."
-      }
-      back
-    >
+    <Page title="Mailbox access" back>
       <View style={{ gap: 18 }}>
-        <Card style={{ gap: 14 }}>
-          <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-            <ProFeatureBadge />
-            <Badge tone="neutral">Soon</Badge>
-          </View>
-          <Heading size={20}>Mailbox discovery is not available yet</Heading>
-          <Label>
-            {PRO_PLAN_ENABLED
-              ? "Gmail and Outlook receipt discovery will be a Pro feature when it launches."
-              : "Gmail and Outlook receipt discovery is coming soon."}{" "}
-            Connecting mailboxes and scanning receipts are currently disabled.
-          </Label>
-        </Card>
+        <Label>Manage access you previously granted to Subloom.</Label>
         {identity !== "guest" && !demo && (
           <Card style={{ gap: 14 }}>
-            <Heading size={18}>Previously connected mailboxes</Heading>
-            <Label>
-              You can still remove access granted before discovery was disabled.
-            </Label>
+            <Heading size={18}>Connected mailboxes</Heading>
             {query.isPending && <Label>Loading existing connections…</Label>}
             {query.error && (
               <>
@@ -114,6 +88,9 @@ function Mailboxes({ identity }: { identity: string }) {
               </View>
             ))}
           </Card>
+        )}
+        {(identity === "guest" || demo) && (
+          <Label>Sign in to manage previously connected mailboxes.</Label>
         )}
         {notice && <Label accessibilityLiveRegion="polite">{notice}</Label>}
       </View>

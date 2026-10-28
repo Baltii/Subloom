@@ -40,8 +40,8 @@ export default function Auth() {
   }
   return (
     <Page
-      title="A home for your subscriptions."
-      subtitle="Connect an account to sync across your devices."
+      title="Connect an account"
+      subtitle="Sync your subscriptions across devices."
       back
     >
       <Card
@@ -78,9 +78,8 @@ export default function Auth() {
           <>
             <Heading size={21}>Your local space works right now.</Heading>
             <Label color={colors.secondary}>
-              Account sync needs the Supabase project configuration described in
-              the setup guide. All tracking and text receipt imports work
-              without an account.
+              Account sign-in is unavailable right now. You can keep using
+              Subloom on this device.
             </Label>
             <Button onPress={() => router.back()}>
               Continue on this device
@@ -125,7 +124,7 @@ export default function Auth() {
             )}
             <Label color={colors.secondary} size={13}>
               {sent
-                ? "Enter the one-time code from your email. Your guest data stays safe until you choose to import it."
+                ? "Enter the code from your email."
                 : "We’ll email you a one-time code. No password to remember."}
             </Label>
             <Field
@@ -196,8 +195,7 @@ export default function Auth() {
         <View style={{ flexDirection: "row", gap: 8 }}>
           <ShieldCheck size={15} color={colors.primary} />
           <Label color={colors.secondary} size={11} style={{ flex: 1 }}>
-            Guest data is never discarded when you sign in. It only moves to
-            your account with your permission.
+            Your local subscriptions stay saved until you choose to import them.
           </Label>
         </View>
       </Card>

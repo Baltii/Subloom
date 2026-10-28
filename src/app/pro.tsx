@@ -32,7 +32,6 @@ import {
 
 import { ProMembershipCard } from "../components/pro/ProMembershipCard";
 import { ProFeatures } from "../components/pro/ProFeatures";
-import { SupportCard } from "../components/settings/SupportCard";
 
 function formatDate(value: string | null) {
   return value
@@ -54,38 +53,7 @@ type ProPageProps = {
   feature?: ProFeature;
 };
 export function ProPage(props: ProPageProps) {
-  const [manageBilling, setManageBilling] = useState(false);
-  if (PRO_PLAN_ENABLED || manageBilling) return <PaidProPage {...props} />;
-  return (
-    <Page
-      title="Free access"
-      back={!props.onClose}
-      right={
-        props.onClose ? (
-          <IconButton
-            icon={X}
-            label="Close free access"
-            onPress={props.onClose}
-          />
-        ) : undefined
-      }
-      subtitle="All available features are included."
-    >
-      <View style={{ gap: 20 }}>
-        <Card>
-          <Heading>Subloom is free to use</Heading>
-          <Label>
-            Track more subscriptions, save cards and wallets, and use imports
-            and exports without a paid plan. No payment is required.
-          </Label>
-          <Button variant="ghost" onPress={() => setManageBilling(true)}>
-            Manage an existing subscription
-          </Button>
-        </Card>
-        <SupportCard />
-      </View>
-    </Page>
-  );
+  return <PaidProPage {...props} />;
 }
 function PaidProPage({
   identity,
@@ -160,7 +128,7 @@ function PaidProPage({
       }
       subtitle={
         !PRO_PLAN_ENABLED
-          ? "All available features remain free."
+          ? undefined
           : feature
             ? `Included with Subloom Pro: ${feature}.`
             : "Your daily essentials stay free."
@@ -334,7 +302,7 @@ function PaidProPage({
               <Label>
                 {PRO_PLAN_ENABLED
                   ? "Purchases are not available in this build. You can verify your billing email below to restore an existing purchase."
-                  : "Verify your billing email to manage an existing subscription. No paid plan is needed to use Subloom."}
+                  : "Verify your billing email to manage an existing subscription."}
               </Label>
             )}
 
@@ -486,8 +454,7 @@ function PaidProPage({
                   )}
                 {PRO_PLAN_ENABLED && snapshot && !snapshot.configured && (
                   <Label size={13}>
-                    Pro purchases aren’t available yet. Payment setup is still
-                    in progress.
+                    Pro purchases are currently unavailable.
                   </Label>
                 )}
                 {identity === "guest" && (
@@ -525,11 +492,10 @@ function PaidProPage({
         </View>
         {PRO_PLAN_ENABLED && !wide && <ProFeatures />}
         <Label size={12} color={colors.secondary}>
-          Payments are handled by Stripe. Subloom never receives your full
-          payment card details. For local workspaces, verify the same billing
-          email on another device to restore Pro; local records need a separate
-          backup. Verified Pro access works offline for up to 72 hours, bounded
-          by your trial or paid period.
+          Payments are handled by Stripe. Subloom never receives your full card
+          details.
+          {PRO_PLAN_ENABLED &&
+            " Verified Pro access works offline for up to 72 hours, within your trial or paid period."}
         </Label>
       </View>
       <Confirm

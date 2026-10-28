@@ -63,30 +63,34 @@ function Editor({ identity }: { identity: string }) {
   return (
     <Page
       title="CSV import & export"
-      subtitle="Review every row before importing. Existing subscriptions are never overwritten."
+      subtitle="Review subscriptions before importing."
       back
     >
       <View style={{ gap: 18 }}>
         <ProFeatureBadge />
-        <Button
-          variant="secondary"
-          loading={busy}
-          onPress={() => void run(() => shareSubscriptionCsv(identity))}
-        >
-          Export subscriptions as CSV
-        </Button>
-        <Button
-          variant="ghost"
-          loading={busy}
-          onPress={() =>
-            void run(() =>
-              shareText(csvExample, "subloom-example.csv", "text/csv"),
-            )
-          }
-        >
-          Download example CSV
-        </Button>
-        <Card>
+        <Card style={{ gap: 12 }}>
+          <Heading size={18}>Export subscriptions</Heading>
+          <Button
+            variant="secondary"
+            loading={busy}
+            onPress={() => void run(() => shareSubscriptionCsv(identity))}
+          >
+            Export subscriptions as CSV
+          </Button>
+        </Card>
+        <Card style={{ gap: 14 }}>
+          <Heading size={18}>Import subscriptions</Heading>
+          <Button
+            variant="ghost"
+            loading={busy}
+            onPress={() =>
+              void run(() =>
+                shareText(csvExample, "subloom-example.csv", "text/csv"),
+              )
+            }
+          >
+            Download example CSV
+          </Button>
           <Field
             label="CSV content"
             multiline
@@ -187,9 +191,7 @@ function Editor({ identity }: { identity: string }) {
         ) : null}
         {error ? <Label accessibilityRole="alert">{error}</Label> : null}
         <Label>
-          Maximum 500 rows. Currency amounts use decimal points. Download the
-          example for supported headers. Spreadsheet formulas are escaped on
-          export.
+          Up to 500 rows. Use the example CSV for column names and formatting.
         </Label>
       </View>
     </Page>

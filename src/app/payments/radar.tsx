@@ -352,9 +352,8 @@ function Radar() {
           </Button>
         ) : null}
         <Label size={13}>
-          Imports are user-supplied records. A missing charge does not prove
-          payment failed. Matching never changes subscription prices, renewal
-          dates, or cancellation status automatically.
+          Imported records don’t verify payment. Matching leaves your
+          subscription prices, dates and status unchanged.
         </Label>
         {error ? <Label accessibilityRole="alert">{error}</Label> : null}
       </View>
