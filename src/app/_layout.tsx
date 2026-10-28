@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Platform, View } from "react-native";
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -45,6 +45,8 @@ import { maintainPro } from "../services/proBilling";
 import { UpdateNotice } from "../components/settings/UpdateNotice";
 import { MobileNotificationNotice } from "../components/settings/MobileNotificationNotice";
 import { notificationPath } from "../domain/appLinks";
+import { AppLockGate } from "../components/security/AppLockGate";
+import { appLock, useAppLock } from "../services/appLock";
 export { ErrorBoundary } from "expo-router";
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,7 +54,33 @@ const queryClient = new QueryClient({
   },
 });
 function Session() {
-  const linksReady = useApp((s) => s.hydrated);
+  const hydratedForLinks = useApp((s) => s.hydrated);
+  const unlocked = useAppLock((s) => s.ready && s.unlocked);
+  const linksReady = hydratedForLinks && unlocked;
+  const [pendingNavigation, setPendingNavigation] = useState<{
+    path: string;
+    open?: boolean;
+  } | null>(null);
+  const navigateAfterUnlock = useCallback(
+    (path: string) => setPendingNavigation({ path }),
+    [],
+  );
+  useEffect(() => {
+    if (!linksReady || !pendingNavigation) return;
+    // Wait for the protected navigator to mount after the unlock render.
+    const timer = setTimeout(() => {
+      if (!appLock.state.getState().unlocked || !useApp.getState().hydrated)
+        return;
+      if (pendingNavigation.open)
+        router.push({
+          pathname: "/open",
+          params: { path: pendingNavigation.path },
+        });
+      else router.push(pendingNavigation.path as "/");
+      setPendingNavigation(null);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [linksReady, pendingNavigation]);
   useEffect(() => {
     if (Platform.OS !== "web" || !linksReady) return;
     const open = (event: Event) => {
@@ -63,7 +91,7 @@ function Session() {
         delete (
           window as Window & { __subloomPendingNotificationPath?: string }
         ).__subloomPendingNotificationPath;
-        router.push({ pathname: "/open", params: { path } });
+        setPendingNavigation({ path, open: true });
       }
     };
     window.addEventListener("subloom:open-link", open);
@@ -76,10 +104,13 @@ function Session() {
   }, [linksReady]);
   useEffect(() => maintainAppUpdates(), []);
   useEffect(() => maintainUpdateDraftProtection(), []);
-  useEffect(() => maintainMacReminders((path) => router.push(path as "/")), []);
   useEffect(
-    () => maintainWindowsReminders((path) => router.push(path as "/")),
-    [],
+    () => maintainMacReminders(navigateAfterUnlock),
+    [navigateAfterUnlock],
+  );
+  useEffect(
+    () => maintainWindowsReminders(navigateAfterUnlock),
+    [navigateAfterUnlock],
   );
   const identity = useApp((s) => s.identity),
     outboxRevision = useApp((s) => s.data.outbox.at(-1)?.id ?? "empty"),
@@ -164,8 +195,8 @@ function Session() {
   );
   useEffect(() => {
     if (hydrated && Platform.OS !== "web")
-      return installNotificationNavigation((path) => router.push(path as "/"));
-  }, [hydrated]);
+      return installNotificationNavigation(navigateAfterUnlock);
+  }, [hydrated, navigateAfterUnlock]);
   useEffect(() => {
     if (!hydrated || identity === "guest") return;
     return watchAccountChanges(identity, () => {
@@ -199,67 +230,69 @@ function Shell() {
       <StatusBar style={isDark ? "light" : "dark"} />
       <BrowserStyles />
       <Session />
-      {!hydrated ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 24,
-            padding: 32,
-          }}
-        >
-          <Brand />
-          {error ? (
-            <>
-              <Label color={colors.error}>{error}</Label>
-              <Button onPress={() => void hydrate()}>Retry loading</Button>
-            </>
-          ) : (
-            <LoadingSkeleton />
-          )}
-        </View>
-      ) : (
-        <ProAccessProvider>
-          <QuickActionsProvider>
-            <MobileNotificationNotice />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: colors.background },
-                animation: reduced ? "none" : "slide_from_right",
-                animationDuration: tokens.motion.normal,
-              }}
-            >
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="onboarding" />
-              <Stack.Screen
-                name="subscription/new"
-                options={{
-                  presentation: "modal",
-                  animation: reduced ? "none" : "slide_from_bottom",
+      <AppLockGate>
+        {!hydrated ? (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 24,
+              padding: 32,
+            }}
+          >
+            <Brand />
+            {error ? (
+              <>
+                <Label color={colors.error}>{error}</Label>
+                <Button onPress={() => void hydrate()}>Retry loading</Button>
+              </>
+            ) : (
+              <LoadingSkeleton />
+            )}
+          </View>
+        ) : (
+          <ProAccessProvider>
+            <QuickActionsProvider>
+              <MobileNotificationNotice />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: colors.background },
+                  animation: reduced ? "none" : "slide_from_right",
+                  animationDuration: tokens.motion.normal,
                 }}
-              />
-              <Stack.Screen
-                name="subscription/edit"
-                options={{
-                  presentation: "modal",
-                  animation: reduced ? "none" : "slide_from_bottom",
-                }}
-              />
-              <Stack.Screen
-                name="import"
-                options={{
-                  presentation: "modal",
-                  animation: reduced ? "none" : "slide_from_bottom",
-                }}
-              />
-            </Stack>
-            <Toast />
-            <UpdateNotice />
-          </QuickActionsProvider>
-        </ProAccessProvider>
-      )}
+              >
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="onboarding" />
+                <Stack.Screen
+                  name="subscription/new"
+                  options={{
+                    presentation: "modal",
+                    animation: reduced ? "none" : "slide_from_bottom",
+                  }}
+                />
+                <Stack.Screen
+                  name="subscription/edit"
+                  options={{
+                    presentation: "modal",
+                    animation: reduced ? "none" : "slide_from_bottom",
+                  }}
+                />
+                <Stack.Screen
+                  name="import"
+                  options={{
+                    presentation: "modal",
+                    animation: reduced ? "none" : "slide_from_bottom",
+                  }}
+                />
+              </Stack>
+              <Toast />
+              <UpdateNotice />
+            </QuickActionsProvider>
+          </ProAccessProvider>
+        )}
+      </AppLockGate>
     </SafeAreaView>
   );
 }

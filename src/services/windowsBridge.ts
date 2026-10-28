@@ -10,6 +10,10 @@ type NotificationStatus = {
 
 type WindowsBridge = {
   version: number;
+  security?: {
+    read: () => Promise<string | null>;
+    write: (value: string) => Promise<void>;
+  };
   openAuth: (url: string, redirect: string) => Promise<string>;
   cancelAuth?: () => Promise<void>;
   updates?: {
