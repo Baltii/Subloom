@@ -2,6 +2,14 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.11.1](https://github.com/Baltii/Subloom/compare/v1.11.0...v1.11.1) (2026-10-28)
+
+
+### Bug Fixes
+
+* publish installers when the release already exists ([efc3cb5](https://github.com/Baltii/Subloom/commit/efc3cb50abfffca2845ccb9d1f92384029bba8b8))
+* recover app downloads for already published releases ([a363b45](https://github.com/Baltii/Subloom/commit/a363b4506060a4a6ff7cab3238012c579eba46a5))
+
 ## [1.11.0](https://github.com/Baltii/Subloom/compare/v1.10.1...v1.11.0) (2026-10-28)
 
 
