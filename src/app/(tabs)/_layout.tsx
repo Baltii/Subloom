@@ -8,7 +8,6 @@ import {
   CreditCard,
   Settings2,
   Plus,
-  Coffee,
   ArrowUpRight,
   Zap,
   type LucideIcon,
@@ -139,19 +138,10 @@ function Sidebar() {
       <View style={{ flex: 1 }} />
       <View
         style={{
-          padding: 16,
-          borderRadius: 14,
-          backgroundColor: colors.background,
-          gap: 10,
+          paddingHorizontal: 8,
+          paddingVertical: 12,
         }}
       >
-        <Coffee color={colors.primary} size={20} />
-        <Label size={12} bold>
-          A little coffee, a big thanks.
-        </Label>
-        <Label size={11} color={colors.secondary}>
-          Enjoying Subloom? A small donation helps keep it growing.
-        </Label>
         <Pressable
           accessibilityRole="button"
           onPress={() =>

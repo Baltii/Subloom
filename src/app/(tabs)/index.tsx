@@ -5,8 +5,6 @@ import {
   ArrowRight,
   CalendarDays,
   Layers2,
-  ReceiptText,
-  ShieldCheck,
   Sparkles,
   ArrowUpRight,
   Plus,
@@ -38,7 +36,6 @@ import {
   SectionTitle,
 } from "../../components/ui/Primitives";
 import { FinancialArt } from "../../components/ui/FinancialArt";
-import { DashboardActions } from "../../components/ui/DashboardActions";
 import { SubscriptionRow } from "../../components/subscriptions/SubscriptionRow";
 import { ServiceIcon } from "../../components/subscriptions/ServiceIcon";
 import { CategoryChart } from "../../components/ui/CategoryChart";
@@ -240,14 +237,6 @@ export default function Home() {
                   {activeCount === 1 ? "subscription" : "subscriptions"}
                 </Label>
               </View>
-              <View
-                style={{ flexDirection: "row", gap: 6, alignItems: "center" }}
-              >
-                <ShieldCheck size={15} color={colors.heroSecondary} />
-                <Label size={11} color={colors.heroSecondary}>
-                  All in one place
-                </Label>
-              </View>
             </View>
           </View>
           <Card
@@ -367,7 +356,6 @@ export default function Home() {
           </Button>
         </Card>
       )}
-      <DashboardActions />
       {complete && (
         <Card style={{ marginBottom: 24 }}>
           <SectionTitle title="Your next six months" />
@@ -481,11 +469,6 @@ export default function Home() {
                       " in the next 7 days."
                     : "A quieter week ahead."}
                 </Label>
-                <Label size={11} color={colors.secondary}>
-                  {week.length
-                    ? "A good time to make sure they still work for you."
-                    : "No scheduled renewals in the next 7 days."}
-                </Label>
                 {week.some((e) => e.type === "trial") && (
                   <Label size={11} color={colors.warning}>
                     A free trial ends this week. Review it before billing
@@ -542,49 +525,7 @@ export default function Home() {
               </Label>
             </Card>
           )}
-          <Card style={{ marginTop: 20, padding: 22 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 9,
-                alignItems: "center",
-                marginBottom: 9,
-              }}
-            >
-              <ReceiptText size={18} color={colors.primary} />
-              <Label bold size={13}>
-                Less typing. More tracking.
-              </Label>
-            </View>
-            <Label size={12} color={colors.secondary}>
-              Import a receipt and we’ll help you find the subscription details.
-            </Label>
-            <View style={{ marginTop: 17 }}>
-              <Button
-                small
-                variant="secondary"
-                onPress={() => router.push("/import")}
-                icon={ArrowRight}
-              >
-                Import a receipt
-              </Button>
-            </View>
-          </Card>
         </View>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          gap: 7,
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 32,
-        }}
-      >
-        <ShieldCheck size={13} color={colors.faint} />
-        <Label size={10} color={colors.secondary}>
-          Made for a clearer financial life.
-        </Label>
       </View>
     </Page>
   );

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Pressable, View, type TextInputProps } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import { suggestServices, type Service } from "../../domain/catalog";
+import { PRO_PLAN_ENABLED } from "../../domain/planMode";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { useTheme } from "../../theme/useTheme";
 import { Field, Label } from "../ui/Primitives";
@@ -28,7 +29,10 @@ export function ServiceNameField({
   const [dismissed, setDismissed] = useState(false);
   const query = value.trim();
   const settledQuery = useDebouncedValue(query);
-  const matches = useMemo(() => suggestServices(settledQuery), [settledQuery]);
+  const matches = useMemo(
+    () => suggestServices(settledQuery, PRO_PLAN_ENABLED),
+    [settledQuery],
+  );
   // Hide outdated matches immediately while the latest keystroke is settling.
   const show =
     edited &&
@@ -46,7 +50,6 @@ export function ServiceNameField({
         inputRef={inputRef}
         error={error}
         editable={!disabled}
-        hint="Choose a matching service below, or keep your own name."
         onChangeText={(next) => {
           setEdited(true);
           setDismissed(false);
@@ -61,7 +64,7 @@ export function ServiceNameField({
           props.onSubmitEditing?.(event);
         }}
       />
-      {show && (
+      {show && matches.length > 0 && (
         <View
           testID="service-name-suggestions"
           style={{ marginBottom: 20, gap: 8 }}
@@ -71,9 +74,7 @@ export function ServiceNameField({
             color={colors.secondary}
             accessibilityLiveRegion="polite"
           >
-            {matches.length
-              ? `Matching services (${matches.length})`
-              : "No matching services. Keep this as a custom name."}
+            Matching services ({matches.length})
           </Label>
           {matches.length > 0 && (
             <View

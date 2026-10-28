@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { InteractiveSurface } from "./InteractiveSurface";
-import { Check, Monitor, Moon, Palette, Sun } from "lucide-react-native";
+import { Check, Monitor, Moon, Sun } from "lucide-react-native";
 import type { AccentTheme, Preferences } from "../../domain/models";
 import { accentThemes } from "../../theme/palettes";
 import { useTheme, useWide } from "../../theme/useTheme";
@@ -22,17 +22,9 @@ export function ThemePicker({
   const wide = useWide();
   return (
     <View style={{ gap: 20 }}>
-      <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
-        <Palette size={20} color={colors.primary} />
-        <View style={{ flex: 1 }}>
-          <Label bold size={16}>
-            Make it yours
-          </Label>
-          <Label size={13} color={colors.secondary}>
-            Eight colors. Your kind of Subloom.
-          </Label>
-        </View>
-      </View>
+      <Label bold size={13}>
+        Accent color
+      </Label>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
         {accentThemes.map(({ id, name, swatch }) => {
           const selected = accentTheme === id;
@@ -157,9 +149,6 @@ function AppearancePicker({
           </InteractiveSurface>
         ))}
       </View>
-      <Label size={12} color={colors.secondary}>
-        System follows your device. Your accent stays the same.
-      </Label>
     </View>
   );
 }

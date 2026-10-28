@@ -374,11 +374,6 @@ export function SubscriptionForm({
           adds more
         </Label>
       )}
-      <Label size={12} color={colors.secondary} style={{ textAlign: "center" }}>
-        {identity === "guest"
-          ? "Saves on this device"
-          : "Saves locally and queues secure sync"}
-      </Label>
     </View>
   );
   const content = (
@@ -625,7 +620,7 @@ export function SubscriptionForm({
             disabled={busy}
             onPress={() => setAdvanced(!advanced)}
           >
-            {advanced ? "Hide optional details" : "More details (optional)"}
+            {advanced ? "Hide optional details" : "More details"}
           </Button>
         </View>
         {advanced && (

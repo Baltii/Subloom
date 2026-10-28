@@ -154,8 +154,8 @@ export function RenewalChart({
         )}
       </View>
       <Label size={11} color={colors.secondary}>
-        Upcoming charges in {currency}, starting today. Trials assume conversion
-        at the recorded price. These are projections, not payment history.
+        Projected charges in {currency}, including trials at their renewal
+        price.
       </Label>
     </View>
   );

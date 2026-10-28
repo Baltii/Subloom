@@ -751,11 +751,13 @@ const searchIndex = catalog.map((service) => ({
 export function searchServices(
   query: string,
   category: Category | "All" = "All",
+  proPlanEnabled = true,
 ): Service[] {
   const terms = normalizeSearch(query.slice(0, 80)).split(" ").filter(Boolean);
   return searchIndex
     .filter(
       ({ service, text }) =>
+        (proPlanEnabled || service.id !== "subloom-pro") &&
         (category === "All" || service.category === category) &&
         terms.every((term) => text.includes(term)),
     )
@@ -763,11 +765,18 @@ export function searchServices(
 }
 
 // Inline name suggestions intentionally match prefixes, not category/substring search.
-export function suggestServices(query: string): Service[] {
+export function suggestServices(
+  query: string,
+  proPlanEnabled = true,
+): Service[] {
   const prefix = normalizeSearch(query.slice(0, 80));
   if (!prefix) return [];
   return searchIndex
-    .filter(({ names }) => names.some((name) => name.startsWith(prefix)))
+    .filter(
+      ({ service, names }) =>
+        (proPlanEnabled || service.id !== "subloom-pro") &&
+        names.some((name) => name.startsWith(prefix)),
+    )
     .map(({ service }) => service)
     .sort((a, b) => a.name.localeCompare(b.name))
     .slice(0, 6);

@@ -7,7 +7,6 @@ import {
   CreditCard,
   Download,
   Import,
-  Mail,
   MessageSquare,
   Plus,
   ReceiptText,
@@ -22,7 +21,7 @@ import { PRO_PLAN_ENABLED } from "../../domain/planMode";
 import { QuickActionsContext } from "../../hooks/useQuickActions";
 import { useApp } from "../../store/app";
 import { useTheme } from "../../theme/useTheme";
-import { Badge, Field, Label } from "./Primitives";
+import { Field, Label } from "./Primitives";
 import { PickerSheet } from "./Selection";
 
 export const toolActions: {
@@ -32,7 +31,6 @@ export const toolActions: {
   icon: LucideIcon;
   keywords?: string;
   proFeature?: ProFeature;
-  soon?: boolean;
   group: string;
 }[] = [
   {
@@ -51,9 +49,7 @@ export const toolActions: {
   },
   {
     title: "Transactions",
-    detail: PRO_PLAN_ENABLED
-      ? "Review recurring charges · Pro statement imports and exports"
-      : "Review recurring charges · statement imports and exports",
+    detail: "Review recurring charges and import statements",
     proFeature: "Statement imports",
     route: "/transactions",
     icon: ReceiptText,
@@ -75,18 +71,6 @@ export const toolActions: {
     route: "/csv",
     icon: Import,
     keywords: "spreadsheet file download",
-    group: "Import",
-  },
-  {
-    title: "Mailbox discovery",
-    detail: PRO_PLAN_ENABLED
-      ? "Gmail and Outlook receipt discovery · coming soon to Pro"
-      : "Gmail and Outlook receipt discovery · coming soon",
-    proFeature: "Mailbox discovery",
-    soon: true,
-    route: "/mailboxes",
-    icon: Mail,
-    keywords: "gmail outlook email",
     group: "Import",
   },
   {
@@ -191,7 +175,6 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
       <PickerSheet
         visible={open}
         title="Quick actions"
-        description="Jump to a subscription, import, or setting."
         onClose={() => setOpen(false)}
         onDismiss={() => {
           if (pendingRoute.current) {
@@ -226,15 +209,9 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
                 accessibilityRole="button"
                 accessibilityLabel={
                   action.title +
-                  (PRO_PLAN_ENABLED && action.proFeature
-                    ? ", Pro feature"
-                    : "") +
-                  (action.soon ? ", Soon, unavailable" : "")
+                  (PRO_PLAN_ENABLED && action.proFeature ? ", Pro feature" : "")
                 }
-                disabled={action.soon}
-                accessibilityState={{ disabled: Boolean(action.soon) }}
                 onPress={() => {
-                  if (action.soon) return;
                   setOpen(false);
                   if (Platform.OS === "ios")
                     pendingRoute.current = action.route;
@@ -250,10 +227,7 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
                   backgroundColor: pressed ? colors.mint : "transparent",
                 })}
               >
-                <action.icon
-                  size={19}
-                  color={action.soon ? colors.secondary : colors.primary}
-                />
+                <action.icon size={19} color={colors.primary} />
                 <View style={{ flex: 1, gap: 3 }}>
                   <View
                     style={{
@@ -263,23 +237,16 @@ export function QuickActionsProvider({ children }: { children: ReactNode }) {
                       gap: 8,
                     }}
                   >
-                    <Label
-                      bold
-                      size={14}
-                      color={action.soon ? colors.secondary : colors.text}
-                    >
+                    <Label bold size={14} color={colors.text}>
                       {action.title}
                     </Label>
                     {action.proFeature && <ProFeatureBadge />}
-                    {action.soon && <Badge tone="neutral">Soon</Badge>}
                   </View>
                   <Label size={12} color={colors.secondary}>
                     {action.detail}
                   </Label>
                 </View>
-                {!action.soon && (
-                  <ArrowRight size={16} color={colors.secondary} />
-                )}
+                <ArrowRight size={16} color={colors.secondary} />
               </Pressable>
             </View>
           ))

@@ -44,6 +44,25 @@ describe("service catalog", () => {
     expect(searchServices("a service that does not exist")).toEqual([]);
     expect(searchServices(" ")).toHaveLength(catalog.length);
   });
+  it("hides Pro from free-only discovery while preserving existing service records", () => {
+    expect(searchServices("Subloom", "All", false)).toEqual([]);
+    expect(
+      searchServices("", "Productivity", false).map((s) => s.id),
+    ).not.toContain("subloom-pro");
+    expect(suggestServices("Subloom", false)).toEqual([]);
+    expect(searchServices("Spotify", "All", false).map((s) => s.id)).toContain(
+      "spotify",
+    );
+    expect(serviceFor("subloom-pro")?.name).toBe("Subloom Pro");
+  });
+  it("offers Pro in service search and name suggestions when paid plans are enabled", () => {
+    expect(searchServices("Subloom", "All", true).map((s) => s.id)).toEqual([
+      "subloom-pro",
+    ]);
+    expect(suggestServices("Subloom", true).map((s) => s.id)).toEqual([
+      "subloom-pro",
+    ]);
+  });
   it("keeps multicolor SVG gradient references local to each brand", () => {
     expect(serviceArtwork.figma).toContain('fill="#0acf83"');
     const allIds = new Set<string>();

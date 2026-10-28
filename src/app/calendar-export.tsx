@@ -24,16 +24,15 @@ export default function CalendarExport() {
   return (
     <Page
       title="Renewals in your calendar"
-      subtitle="Export scheduled renewals, trial endings and paid-through dates for the next year."
+      subtitle="Export renewal and trial dates for the next year."
       back
     >
       <Card>
         <View style={{ gap: 18 }}>
           <Label bold>{result.count} calendar events</Label>
           <Label>
-            All-day dates follow your Subloom timezone (
-            {data.preferences.timezone}). Paused and expired subscriptions are
-            excluded.
+            Timezone: {data.preferences.timezone}. Paused and expired
+            subscriptions are excluded.
           </Label>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
             <Label style={{ flex: 1 }}>Hide merchant names and prices</Label>
@@ -61,10 +60,8 @@ export default function CalendarExport() {
             Export calendar file
           </Button>
           <Label>
-            Import the .ics file into Google Calendar, Apple Calendar or
-            Outlook. This is a snapshot; later changes in Subloom do not update
-            the imported calendar. Reimporting may duplicate events in some
-            calendar apps.
+            Open the file in your calendar app. Later changes won’t sync
+            automatically; importing it again may duplicate events.
           </Label>
           {exportError || error ? (
             <Label accessibilityRole="alert">{exportError || error}</Label>
