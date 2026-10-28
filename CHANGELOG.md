@@ -2,6 +2,22 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.11.0](https://github.com/Baltii/Subloom/compare/v1.10.1...v1.11.0) (2026-10-28)
+
+
+### Features
+
+* add app protection with method choice and trusted recovery ([784ce82](https://github.com/Baltii/Subloom/commit/784ce827ee3cea7851fa7830fe68c5e5fe1b4586))
+* add device-local PIN and web passkey app protection ([b50cca3](https://github.com/Baltii/Subloom/commit/b50cca3ee2c51ccb694bb56bb54f1a62c7342c89))
+* redesign app unlock and add trusted recovery codes ([9d22b2e](https://github.com/Baltii/Subloom/commit/9d22b2ec7a6b710ee1d9bcc40c8b0a8ce9d95137))
+
+
+### Bug Fixes
+
+* clean up production app UI and free-only discovery ([06856dd](https://github.com/Baltii/Subloom/commit/06856dd1dbef0f68380a3dce7339ae330cc81d4a))
+* clean up production UI and hide disabled Pro options ([59b2830](https://github.com/Baltii/Subloom/commit/59b2830117bc401042fcaa65c033f0658526e508))
+* clear transient recovery secrets when app backgrounds ([56feabb](https://github.com/Baltii/Subloom/commit/56feabb9bbaf0029535532cf25d55a55ecee9840))
+
 ## [1.10.1](https://github.com/Baltii/Subloom/compare/v1.10.0...v1.10.1) (2026-10-26)
 
 
