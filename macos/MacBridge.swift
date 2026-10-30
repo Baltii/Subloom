@@ -3,6 +3,7 @@ import WebKit
 import UserNotifications
 import AuthenticationServices
 import Security
+import WidgetKit
 
 @MainActor final class MacBridge: NSObject, WKScriptMessageHandlerWithReply, UNUserNotificationCenterDelegate, ASWebAuthenticationPresentationContextProviding {
     let store: SnapshotStore
@@ -47,6 +48,11 @@ import Security
         // Disk writes remain available even while a notification permission prompt is open.
         do {
             switch op {
+            case "widget.replace":
+                guard let value = body["value"] as? String else { throw LocalAppError.invalid("Invalid widget data.") }
+                try ReminderWidgetStore.write(value)
+                WidgetCenter.shared.reloadTimelines(ofKind: "SubloomNextReminder")
+                replyHandler(true, nil); return
             case "security.read": replyHandler(try readSecurity() ?? NSNull(), nil); return
             case "security.write":
                 guard let value = body["value"] as? String, value.utf8.count <= 8192 else { throw LocalAppError.invalid("Invalid app protection settings.") }

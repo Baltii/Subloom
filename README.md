@@ -58,6 +58,8 @@ Subloom tracks and helps you review subscriptions. Managing or canceling a servi
 
 **App protection:** Settings → Security adds a device-local 6-digit PIN and passkeys in supported web browsers. Choose how to unlock, enter six PIN digits for automatic verification, and save a recovery code to reset protection if you lose access. Three wrong PINs pause PIN entry for ten minutes while other enabled methods remain available. Protection covers launch and returning from the background. Native apps currently support PIN protection; see [app protection and platform support](APP_PROTECTION.md) for details.
 
+**Next reminder widgets:** Android home-screen and macOS small/medium widgets show the next renewal or trial ending, its date, countdown and original-currency amount. Tap to open the subscription. Privacy mode and app protection hide details. See the [widget setup and build guide](WIDGETS.md); Android device testing remains pending.
+
 ## A look inside
 
 <p align="center">

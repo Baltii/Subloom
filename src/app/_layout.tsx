@@ -36,6 +36,7 @@ import {
   installNotificationNavigation,
   maintainPushRegistration,
 } from "../services/notifications";
+import { maintainWidgets } from "../services/widgets";
 import { maintainMacReminders } from "../services/macosNotifications";
 import { maintainWindowsReminders } from "../services/windowsNotifications";
 import { profileDisplayName } from "../domain/greeting";
@@ -91,7 +92,15 @@ function Session() {
         delete (
           window as Window & { __subloomPendingNotificationPath?: string }
         ).__subloomPendingNotificationPath;
-        setPendingNavigation({ path, open: true });
+        // Known local destinations can open immediately after unlock. Missing
+        // records still use the sync handoff for notification/email links.
+        const local =
+          path === "/" ||
+          path === "/settings" ||
+          useApp
+            .getState()
+            .data.subscriptions.some((s) => path === `/subscription/${s.id}`);
+        setPendingNavigation({ path, open: !local });
       }
     };
     window.addEventListener("subloom:open-link", open);
@@ -102,6 +111,7 @@ function Session() {
     if (path) open(new CustomEvent("subloom:open-link", { detail: { path } }));
     return () => window.removeEventListener("subloom:open-link", open);
   }, [linksReady]);
+  useEffect(() => maintainWidgets(), []);
   useEffect(() => maintainAppUpdates(), []);
   useEffect(() => maintainUpdateDraftProtection(), []);
   useEffect(
