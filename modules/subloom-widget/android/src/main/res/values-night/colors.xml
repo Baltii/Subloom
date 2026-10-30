@@ -1,0 +1,7 @@
+<resources>
+ <color name="subloom_widget_background">#101A16</color>
+ <color name="subloom_widget_text">#E7F2E9</color>
+ <color name="subloom_widget_secondary">#A0B4A5</color>
+ <color name="subloom_widget_accent">#70D2AD</color>
+ <color name="subloom_widget_trial">#EAC187</color>
+</resources>

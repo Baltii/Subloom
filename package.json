@@ -1,6 +1,6 @@
 {
   "name": "subloom",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
@@ -32,7 +32,8 @@
     "test:windows": "node --test windows/*.test.cjs",
     "test:windows:app": "node scripts/test-windows.mjs",
     "test:desktop:oauth": "node scripts/check-desktop-oauth.mjs",
-    "check:repository": "node scripts/check-repository-files.mjs"
+    "check:repository": "node scripts/check-repository-files.mjs",
+    "test:macos:widget": "node scripts/test-macos-widget.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.4.2",

@@ -25,6 +25,11 @@ export default function OpenNotification() {
   const params = useLocalSearchParams<{ path?: string }>();
   const path = notificationPath(params.path) ?? "/";
   const identity = useApp((s) => s.identity);
+  const localSubscription = useApp((s) =>
+    s.data.subscriptions.some(
+      (subscription) => path === `/subscription/${subscription.id}`,
+    ),
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const installed =
@@ -37,7 +42,10 @@ export default function OpenNotification() {
       .then(() => {
         if (
           alive &&
-          (identity !== "guest" || path === "/" || path === "/settings")
+          (identity !== "guest" ||
+            localSubscription ||
+            path === "/" ||
+            path === "/settings")
         ) {
           clearNotificationPath();
           router.replace(path as "/");
@@ -49,7 +57,7 @@ export default function OpenNotification() {
     return () => {
       alive = false;
     };
-  }, [path, installed, identity]);
+  }, [path, installed, identity, localSubscription]);
   async function continueHere() {
     setBusy(true);
     setError(null);
@@ -90,7 +98,7 @@ export default function OpenNotification() {
             Open in the app
           </Button>
         ) : null}
-        {identity === "guest" && path !== "/settings" ? (
+        {identity === "guest" && !localSubscription && path !== "/settings" ? (
           <>
             <Label>
               Sign in with the account that received this email to see your

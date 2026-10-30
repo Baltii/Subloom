@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/subloom_widget_root"
+ android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
+ android:padding="14dp" android:background="@drawable/subloom_widget_background">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="top">
+  <TextView android:id="@+id/subloom_widget_name" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+   android:text="Subloom" android:textSize="17sp" android:fontFamily="sans-serif-medium" android:maxLines="2" android:ellipsize="end" android:textColor="@color/subloom_widget_text" />
+  <ImageView android:layout_width="26dp" android:layout_height="26dp" android:layout_marginStart="8dp"
+   android:src="@drawable/subloom_widget_bloom" android:importantForAccessibility="no" />
+ </LinearLayout>
+ <LinearLayout android:layout_width="1dp" android:layout_height="0dp" android:layout_weight="1" android:minHeight="3dp" />
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+  <TextView android:id="@+id/subloom_widget_event" android:layout_width="wrap_content" android:layout_height="wrap_content"
+   android:text="Open Subloom to get started" android:textSize="12sp" android:maxLines="2" android:ellipsize="end" android:textColor="@color/subloom_widget_secondary" />
+  <TextView android:id="@+id/subloom_widget_date" android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:layout_marginTop="2dp" android:textSize="26sp" android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end" android:textColor="@color/subloom_widget_text" android:visibility="gone" />
+ </LinearLayout>
+ <TextView android:id="@+id/subloom_widget_countdown" android:layout_width="match_parent" android:layout_height="wrap_content"
+  android:layout_marginTop="4dp" android:textSize="13sp" android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end" android:textColor="@color/subloom_widget_accent" android:visibility="gone" />
+ <LinearLayout android:layout_width="1dp" android:layout_height="0dp" android:layout_weight="1" android:minHeight="3dp" />
+ <TextView android:id="@+id/subloom_widget_amount" android:layout_width="match_parent" android:layout_height="wrap_content"
+  android:textSize="15sp" android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end" android:textColor="@color/subloom_widget_text" />
+</LinearLayout>

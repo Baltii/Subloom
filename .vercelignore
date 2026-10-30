@@ -9,8 +9,8 @@ build
 coverage
 dist
 docs
-ios
-android
+/ios
+/android
 macos
 supabase/.temp
 node_modules

@@ -2,6 +2,20 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.12.0](https://github.com/Baltii/Subloom/compare/v1.11.0...v1.12.0) (2026-10-30)
+
+### Features
+
+* Add Android home-screen and macOS small/medium widgets for the next subscription renewal or trial ending.
+* Show a separate action label, date, countdown and original-currency amount with Subloom branding and light/dark themes.
+* Advance widget reminders offline and preserve privacy and workspace separation.
+
+### Bug Fixes
+
+* Preserve automated installer publication for already published releases.
+* Open available subscription links directly, including device-local guest records.
+* Build macOS widgets as native Xcode extensions and provide scoped shared storage for ad-hoc builds.
+
 ## [1.11.0](https://github.com/Baltii/Subloom/compare/v1.10.1...v1.11.0) (2026-10-28)
 
 

@@ -7,8 +7,8 @@ coverage/
 .env
 .env.local
 *.log
-ios/
-android/
+/ios/
+/android/
 .DS_Store
 supabase/.temp/
 supabase/.branches/
