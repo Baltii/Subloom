@@ -2,6 +2,12 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.12.1](https://github.com/Baltii/Subloom/compare/v1.12.0...v1.12.1) (2026-10-30)
+
+### Bug Fixes
+
+* Declare the Android widget module’s required version metadata so Expo can configure its release publication and build the APK.
+
 ## [1.12.0](https://github.com/Baltii/Subloom/compare/v1.11.0...v1.12.0) (2026-10-30)
 
 ### Features
