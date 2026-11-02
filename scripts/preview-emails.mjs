@@ -53,7 +53,8 @@ for (const [name, title, text] of [
     html: readFileSync(
       resolve("supabase/templates/" + name.replaceAll("_", "-") + ".html"),
       "utf8",
-    ).replace("{{ .Token }}", "48261973"),
+    ).replaceAll("{{ .SiteURL }}", "https://app.subloom.tn")
+      .replace("{{ .Token }}", "48261973"),
   });
 }
 const directory = resolve("build/email-templates");

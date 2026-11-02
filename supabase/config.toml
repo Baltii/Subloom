@@ -15,6 +15,16 @@ enable_signup = true
 [auth.email]
 enable_signup = true
 enable_confirmations = true
+
+# Local Auth: use the same OTP HTML as the hosted templates.
+# Hosted Supabase templates must be updated in Authentication > Email Templates.
+[auth.email.template.magic_link]
+subject = "Your Subloom sign-in code"
+content_path = "./supabase/templates/auth-otp.html"
+
+[auth.email.template.confirmation]
+subject = "Your Subloom sign-in code"
+content_path = "./supabase/templates/auth-otp.html"
 [functions.inbound-receipt]
 verify_jwt = false
 [functions.email-status]
