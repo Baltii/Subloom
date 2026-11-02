@@ -10,7 +10,7 @@ major_version = 17
 [auth]
 enabled = true
 site_url = "http://localhost:8081"
-additional_redirect_urls = ["http://localhost:8081/auth-callback", "subloom://auth-callback"]
+additional_redirect_urls = ["http://localhost:8081/auth-callback", "https://app.subloom.tn/auth-callback", "subloom://auth-callback", "subloom://mailboxes"]
 enable_signup = true
 [auth.email]
 enable_signup = true

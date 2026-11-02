@@ -64,7 +64,7 @@ cpSync(resolve("public/email"), resolve(directory, "email"), {
 for (const preview of previews) {
   writeFileSync(
     resolve(directory, preview.name + ".html"),
-    preview.html.replaceAll("https://subloom.baltii.tn/email/", "/email/"),
+    preview.html.replaceAll("https://app.subloom.tn/email/", "/email/"),
   );
   writeFileSync(resolve(directory, preview.name + ".txt"), preview.text);
 }

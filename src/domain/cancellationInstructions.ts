@@ -21,8 +21,8 @@ function guide(
 // Keep uncertain menu paths general rather than presenting guessed labels as facts.
 const guides: Record<string, CancellationInstructions> = {
   "subloom-pro": guide(
-    "https://subloom.baltii.tn/pro",
-    "https://subloom.baltii.tn/pro",
+    "https://app.subloom.tn/pro",
+    "https://app.subloom.tn/pro",
     [
       "Open Subloom Pro in Settings using the account or verified billing email used for your purchase.",
       "Choose Cancel subscription and confirm that you want to stop renewal.",

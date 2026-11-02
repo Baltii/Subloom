@@ -1,4 +1,4 @@
-export const APP_WEB_URL = "https://subloom.baltii.tn";
+export const APP_WEB_URL = "https://app.subloom.tn";
 
 /** Email links can only navigate to known, non-mutating application screens. */
 export function notificationPath(value: unknown): string | null {

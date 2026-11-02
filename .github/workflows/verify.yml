@@ -32,6 +32,7 @@ jobs:
       - run: npm ci
       - name: Validate GitHub workflows
         run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+      - run: node scripts/check-domains.mjs
       - run: npm run check
       - run: npm run test:windows
       - run: node scripts/build-brand.mjs --check
