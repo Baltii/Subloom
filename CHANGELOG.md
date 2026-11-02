@@ -2,6 +2,13 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.12.2](https://github.com/Baltii/Subloom/compare/v1.12.1...v1.12.2) (2026-11-02)
+
+
+### Bug Fixes
+
+* **domains:** migrate app links and auth templates to app.subloom.tn ([f20e5c7](https://github.com/Baltii/Subloom/commit/f20e5c73fd07af922fb36b6ad81553e91c8d161b))
+
 ## [1.12.1](https://github.com/Baltii/Subloom/compare/v1.12.0...v1.12.1) (2026-10-30)
 
 ### Bug Fixes
