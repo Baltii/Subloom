@@ -204,7 +204,7 @@ Deno.test("provider receives structured HTML and equivalent plain text, retainin
       },
     );
     assert(payload?.html.includes("Review my week"));
-    assert(payload?.html.includes("https://subloom.baltii.tn/open?path=%2F"));
+    assert(payload?.html.includes("https://app.subloom.tn/open?path=%2F"));
     assert(!payload?.html.includes("subloom://"));
     assert(!payload?.html.includes("Monthly estimate"));
     assert(payload?.html.includes("Spotify"));
@@ -231,7 +231,7 @@ Deno.test("email links have a working HTTPS fallback even with legacy custom-sch
   ) {
     assert(
       notificationWebUrl(path, base) ===
-        "https://subloom.baltii.tn/open?path=" + encodeURIComponent(path),
+        "https://app.subloom.tn/open?path=" + encodeURIComponent(path),
     );
   }
   assert(

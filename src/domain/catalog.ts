@@ -18,7 +18,7 @@ export const catalog: Service[] = [
     color: "#087C65",
     background: "#E1F0DE",
     glyph: "subloom",
-    managementUrl: "https://subloom.baltii.tn/pro",
+    managementUrl: "https://app.subloom.tn/pro",
     aliases: ["Subloom", "Subloom Premium"],
   },
   {

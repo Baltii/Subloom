@@ -2,7 +2,7 @@
 
 Settings → Feedback opens the Ideas & feedback form. It is also searchable in Quick actions. Guests and signed-in users can submit without Pro or a GitHub account.
 
-The form uses a topic, one message field, and an optional reply email. Its short inbox title is generated from the message, so people do not need to write a separate subject. The website at [Ideas & feedback](https://subloom-landing.baltii.tn/feedback) uses the same public endpoint and private email delivery, with a `website@` version label.
+The form uses a topic, one message field, and an optional reply email. Its short inbox title is generated from the message, so people do not need to write a separate subject. The website at [Ideas & feedback](https://subloom.tn/feedback) uses the same public endpoint and private email delivery, with a `website@` version label.
 
 Submissions contain a category (`idea`, `problem`, or `feedback`), title, message, optional reply email, app version and platform. The app does not attach account IDs, subscription records, screenshots or logs. Submissions are separate from synced account data and are not automatically included in account deletion or account exports.
 
