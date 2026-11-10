@@ -21,6 +21,8 @@ import { tokens } from "../../theme/tokens";
 import { useApp } from "../../store/app";
 import { useQuickActions } from "../../hooks/useQuickActions";
 import { ProBadge } from "../../components/pro/ProBadge";
+import { AssistantPreferenceProvider } from "../../components/assistant/AssistantPreference";
+import { AssistantBubble } from "../../components/assistant/AssistantBubble";
 const navigation: {
   path: "/" | "/subscriptions" | "/calendar" | "/billing-methods" | "/settings";
   title: string;
@@ -214,6 +216,13 @@ function Sidebar() {
   );
 }
 export default function TabLayout() {
+  return (
+    <AssistantPreferenceProvider>
+      <WorkspaceTabs />
+    </AssistantPreferenceProvider>
+  );
+}
+function WorkspaceTabs() {
   const insets = useSafeAreaInsets();
   const reduced = useReducedMotion();
   const { colors } = useTheme(),
@@ -302,6 +311,9 @@ export default function TabLayout() {
             }}
           />
         </Tabs>
+        <AssistantBubble
+          bottom={wide ? 24 : bottomTabLayout(insets.bottom).height + 14}
+        />
       </View>
     </View>
   );

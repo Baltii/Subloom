@@ -62,6 +62,10 @@ export const useApp = create<AppState>(() => ({
 }));
 let writes: Promise<unknown> = Promise.resolve();
 let hydrationGeneration = 0;
+export function suspendWorkspace() {
+  hydrationGeneration++;
+  useApp.setState({ hydrated: false });
+}
 export function notify(message: string, tone: "success" | "error" = "success") {
   useApp.setState((state) => ({
     toast: message,
@@ -102,10 +106,14 @@ export async function hydrate(identity = "guest") {
 export function commit(
   update: (data: Snapshot) => Snapshot,
   identity = useApp.getState().identity,
+  requireActiveWorkspace = false,
 ): Promise<void> {
   const work = writes.then(async () => {
     const state = useApp.getState();
-    if (state.identity !== identity)
+    if (
+      state.identity !== identity ||
+      (requireActiveWorkspace && (!state.hydrated || state.data.demo))
+    )
       throw new Error(
         "The account changed. Please retry in the current workspace.",
       );
@@ -197,10 +205,22 @@ function checkSubscriptionCapacity(
 export async function saveSubscription(
   input: Subscription,
   candidateId?: string,
+  expectedVersion?: number,
+  expectedIdentity?: string,
 ) {
-  await commit((data) => {
-    const previous = data.subscriptions.find((s) => s.id === input.id),
-      now = new Date().toISOString();
+  const update = (data: Snapshot) => {
+    const previous = data.subscriptions.find((s) => s.id === input.id);
+    if (
+      expectedIdentity !== undefined &&
+      previous &&
+      previous.userId !== expectedIdentity
+    )
+      throw new Error("This subscription belongs to another workspace.");
+    if (expectedVersion !== undefined && previous?.version !== expectedVersion)
+      throw new Error(
+        "That subscription changed. Review the latest details before saving.",
+      );
+    const now = new Date().toISOString();
     const subscription = subscriptionSchema.parse({
       ...input,
       userId: useApp.getState().identity,
@@ -306,7 +326,8 @@ export async function saveSubscription(
       activity: [event, ...data.activity].slice(0, 500),
       outbox: queue(data, operation),
     };
-  });
+  };
+  await commit(update, expectedIdentity, expectedIdentity !== undefined);
   notify(
     candidateId ? "Receipt confirmed. You’re all set." : "Subscription saved.",
   );
@@ -442,18 +463,25 @@ export async function deleteSubscription(id: string) {
   });
   notify("Subscription deleted.");
 }
-export async function updatePreferences(changes: Partial<Preferences>) {
-  await commit((data) => {
-    const preferences = preferencesSchema.parse({
-      ...data.preferences,
-      ...changes,
-    });
-    return {
-      ...data,
-      preferences,
-      outbox: queue(data, op("preferences", "preferences", preferences)),
-    };
-  });
+export async function updatePreferences(
+  changes: Partial<Preferences>,
+  expectedIdentity?: string,
+) {
+  await commit(
+    (data) => {
+      const preferences = preferencesSchema.parse({
+        ...data.preferences,
+        ...changes,
+      });
+      return {
+        ...data,
+        preferences,
+        outbox: queue(data, op("preferences", "preferences", preferences)),
+      };
+    },
+    expectedIdentity,
+    expectedIdentity !== undefined,
+  );
 }
 export async function addCandidate(input: Candidate): Promise<string> {
   let id = input.id;
