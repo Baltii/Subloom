@@ -2,6 +2,20 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.13.0](https://github.com/Baltii/Subloom/compare/v1.12.2...v1.13.0) (2026-11-10)
+
+
+### Features
+
+* **assistant:** add workspace-scoped chat and offline quick actions ([7cc88f2](https://github.com/Baltii/Subloom/commit/7cc88f2b30d0e415aa01ad52cdff4f21d4eddd51))
+* **assistant:** scope chat to the active workspace ([103f4ee](https://github.com/Baltii/Subloom/commit/103f4ee870cb051d044c57b03bdfe16aea815e09))
+
+
+### Bug Fixes
+
+* **assistant:** require a non-anonymous cloud account ([8a4fd41](https://github.com/Baltii/Subloom/commit/8a4fd41982d75b1808dbab1821d9c3643c9b505c))
+* **auth:** remove Apple sign-in ([b9c75ef](https://github.com/Baltii/Subloom/commit/b9c75ef536ea013fda61e9ac2d926caaa6ab46b3))
+
 ## [1.12.2](https://github.com/Baltii/Subloom/compare/v1.12.1...v1.12.2) (2026-11-02)
 
 
