@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { router } from "expo-router";
 import { Mail, ShieldCheck } from "lucide-react-native";
 import { z } from "zod";
-import { signInSocial } from "../services/oauth";
+import { signInWithGoogle } from "../services/oauth";
 import { cancelAuthBrowser } from "../services/authBrowser";
 import { windowsBridge } from "../services/windowsBridge";
 import { supabase } from "../services/supabase";
@@ -91,22 +91,13 @@ export default function Auth() {
               {sent ? "Check your inbox." : "Sign in with your email."}
             </Heading>
             {!sent ? (
-              <View style={{ gap: 12 }}>
-                <Button
-                  variant="secondary"
-                  loading={busy}
-                  onPress={() => void run(() => signInSocial("google"))}
-                >
-                  Continue with Google
-                </Button>
-                <Button
-                  variant="secondary"
-                  loading={busy}
-                  onPress={() => void run(() => signInSocial("apple"))}
-                >
-                  Continue with Apple
-                </Button>
-              </View>
+              <Button
+                variant="secondary"
+                loading={busy}
+                onPress={() => void run(signInWithGoogle)}
+              >
+                Continue with Google
+              </Button>
             ) : null}
             {busy && windowsBridge()?.cancelAuth && (
               <View style={{ gap: 10 }}>
