@@ -21,7 +21,7 @@ import { Manrope_600SemiBold } from "@expo-google-fonts/manrope/600SemiBold";
 import { Manrope_700Bold } from "@expo-google-fonts/manrope/700Bold";
 import NetInfo from "@react-native-community/netinfo";
 import { useReducedMotion } from "react-native-reanimated";
-import { useApp, hydrate, readableError } from "../store/app";
+import { useApp, hydrate, readableError, suspendWorkspace } from "../store/app";
 import { supabase, startSessionRefresh } from "../services/supabase";
 import { syncNow, watchAccountChanges } from "../services/sync";
 import { tokens } from "../theme/tokens";
@@ -167,6 +167,10 @@ function Session() {
     })().catch((error) => useApp.setState({ error: readableError(error) }));
     const auth = supabase?.auth.onAuthStateChange((_event, session) => {
       const revision = ++authRevision;
+      const nextIdentity = session?.user.id || "guest";
+      const workspace = useApp.getState();
+      if (alive && (workspace.identity !== nextIdentity || !workspace.hydrated))
+        suspendWorkspace();
       // Defer storage work outside the auth callback to avoid Supabase auth-lock deadlocks.
       setTimeout(() => {
         if (alive && revision === authRevision) {
@@ -179,7 +183,6 @@ function Session() {
                 }
               : null,
           });
-          const nextIdentity = session?.user.id || "guest";
           if (
             useApp.getState().identity !== nextIdentity ||
             !useApp.getState().hydrated

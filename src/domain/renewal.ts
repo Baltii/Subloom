@@ -56,7 +56,17 @@ export function advanceRenewal(
     .toString();
 }
 export function nextEvent(
-  s: Subscription,
+  s: Pick<
+    Subscription,
+    | "status"
+    | "paidThrough"
+    | "trialEnd"
+    | "nextRenewal"
+    | "interval"
+    | "intervalCount"
+    | "customUnit"
+    | "anchorDay"
+  >,
   reference: DateOnly,
 ): { date: DateOnly; type: "renewal" | "trial" | "paid_through" } | null {
   if (s.status === "paused" || s.status === "expired") return null;

@@ -21,6 +21,10 @@ export default function Privacy() {
       "Feedback is sent only when you press Send feedback. Your message, its category and title, optional reply email, app version, and platform are emailed to Subloom’s creator through Resend, with a private backup stored in the app’s backend. Your optional email is used as the reply address. Subscription records are not attached. A temporary, keyed network identifier is used to limit spam; raw IP addresses are not stored in the feedback inbox. Feedback is separate from your account and can be sent without signing in.",
     ],
     [
+      "Optional assistant.",
+      "Guest quick actions run on your device using your local workspace. If you enable cloud chat while signed in, Subloom sends the text you type and the current date to Groq to interpret the request. Groq may temporarily retain messages for reliability or abuse monitoring. Subloom looks up saved records in your current workspace and asks you to confirm changes. Keep sensitive information out of chat.",
+    ],
+    [
       "Receipt access is your choice.",
       "Pasted receipt text is parsed on-device. Screenshot OCR sends your selected image to Google Cloud Vision only after you explicitly agree. Subloom does not retain the original image. No AI extraction service receives your data.",
     ],

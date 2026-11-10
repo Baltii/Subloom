@@ -14,7 +14,7 @@
     "test:watch": "vitest",
     "export:web": "node scripts/expo.mjs export --platform web",
     "check": "npm run check:repository && npm run typecheck && npm run lint && npm test",
-    "test:backend": "deno test --allow-env --allow-net --config supabase/functions/deno.json supabase/functions/tests",
+    "test:backend": "deno test --allow-env --allow-net --allow-sys=hostname --config supabase/functions/deno.json supabase/functions/tests",
     "check:backend": "deno check --config supabase/functions/deno.json supabase/functions/*/index.ts",
     "format": "prettier --write src tests docs *.ts *.json",
     "test:live": "node scripts/live-smoke.mjs",

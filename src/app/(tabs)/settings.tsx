@@ -64,6 +64,7 @@ import { usePro } from "../../store/pro";
 import { AppUpdatesCard } from "../../components/settings/AppUpdatesCard";
 import { SupportCard } from "../../components/settings/SupportCard";
 import { SecurityCard } from "../../components/settings/SecurityCard";
+import { AssistantSettings } from "../../components/assistant/AssistantPreference";
 import { SelectField } from "../../components/ui/Selection";
 import {
   currencyOptions,
@@ -97,6 +98,10 @@ const settingsGroups = [
     title: "Tools",
     keywords:
       "subscription receipt import monthly budgets csv calendar bank statement transactions",
+  },
+  {
+    title: "AI assistant",
+    keywords: "ai chat assistant groq quick actions bubble",
   },
   {
     title: "App updates",
@@ -470,6 +475,7 @@ function Settings() {
               </Card>
             )}
             {visibleGroups.includes("Security") && <SecurityCard />}
+            {visibleGroups.includes("AI assistant") && <AssistantSettings />}
             {visibleGroups.includes("Preferences") && (
               <Card style={{ marginTop: 24 }}>
                 <SectionTitle title="Appearance & region" />

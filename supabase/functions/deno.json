@@ -1,7 +1,10 @@
 {
   "imports": {
+    "@ai-sdk/groq": "npm:@ai-sdk/groq@4.0.78",
     "@supabase/supabase-js": "npm:@supabase/supabase-js@2.117.3",
+    "ai": "npm:ai@7.0.166",
     "zod": "npm:zod@3.25.76",
+    "zod/v4": "npm:zod@3.25.76/v4",
     "@js-temporal/polyfill": "npm:@js-temporal/polyfill@0.5.1",
     "svix": "npm:svix@1.99.1",
     "stripe": "npm:stripe@23.0.0"
