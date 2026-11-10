@@ -31,6 +31,9 @@ const instructions = [
 
 const handler = endpoint(async (req) => {
   const { user, client } = await authenticated(req);
+  if (user.is_anonymous) {
+    throw new HttpError(401, "Sign in to a cloud account to use cloud chat.");
+  }
   const key = Deno.env.get("GROQ_API_KEY")?.trim();
   if (!key) {
     throw new HttpError(503, "AI chat hasn’t been configured for this server.");

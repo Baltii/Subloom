@@ -18,6 +18,7 @@ Deno.test("assistant sends only validated requests to the pinned Groq model", as
   let handler: ((request: Request) => Promise<Response>) | undefined;
   let allowed = true;
   let dailyAllowed = true;
+  let anonymous = false;
   let status = 200;
   let action = { kind: "subscription", name: "Spotify" };
   const requests: { headers: Headers; body: string }[] = [];
@@ -32,7 +33,9 @@ Deno.test("assistant sends only validated requests to the pinned Groq model", as
         input instanceof Request ? input.url : input.toString(),
       );
       if (url.pathname === "/auth/v1/user") {
-        return Promise.resolve(Response.json({ id: userId }));
+        return Promise.resolve(
+          Response.json({ id: userId, is_anonymous: anonymous }),
+        );
       }
       if (url.pathname === "/rest/v1/rpc/take_rate_limit") {
         const body = JSON.parse(String(init?.body));
@@ -97,6 +100,12 @@ Deno.test("assistant sends only validated requests to the pinned Groq model", as
       (await send("Spotify", false)).status === 401,
       "Require authentication",
     );
+    anonymous = true;
+    assert(
+      (await send()).status === 401,
+      "Require a non-anonymous cloud account",
+    );
+    anonymous = false;
     Deno.env.delete("GROQ_API_KEY");
     assert((await send()).status === 503, "Require server configuration");
     Deno.env.set("GROQ_API_KEY", env.GROQ_API_KEY);
