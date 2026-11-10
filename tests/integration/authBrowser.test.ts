@@ -4,7 +4,7 @@ import {
   usesNativeAuthBrowser,
   cancelAuthBrowser,
 } from "../../src/services/authBrowser";
-import { authRedirect, signInSocial } from "../../src/services/oauth";
+import { authRedirect, signInWithGoogle } from "../../src/services/oauth";
 
 const mocks = vi.hoisted(() => ({
   browser: vi.fn(),
@@ -41,7 +41,7 @@ it("returns Mac OAuth to the app's PKCE session rather than the external browser
   mocks.exchange.mockResolvedValue({ error: null });
   expect(usesNativeAuthBrowser()).toBe(true);
   expect(authRedirect()).toBe("subloom://auth-callback");
-  await signInSocial("google");
+  await signInWithGoogle();
   expect(request).toHaveBeenCalledWith({
     op: "auth.open",
     url: "https://provider.test/authorize",
@@ -97,7 +97,7 @@ it("returns Windows OAuth to the app profile and reuses the mailbox callback tra
   mocks.exchange.mockResolvedValue({ error: null });
   expect(usesNativeAuthBrowser()).toBe(true);
   expect(authRedirect()).toBe("subloom://auth-callback");
-  await signInSocial("google");
+  await signInWithGoogle();
   expect(openAuth).toHaveBeenCalledWith(
     "https://provider.test/authorize",
     "subloom://auth-callback",

@@ -31,19 +31,19 @@ export async function openSignIn(url: string) {
   const callback = await openAuthBrowser(url, authRedirect());
   if (callback) await finishSignIn(callback);
 }
-export async function signInSocial(provider: "google" | "apple") {
+export async function signInWithGoogle() {
   if (!supabase)
     throw new Error("Account sign-in needs Supabase configuration.");
   if (starting) throw new Error("A sign-in is already in progress.");
   starting = true;
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
+      provider: "google",
       options: { redirectTo: authRedirect(), skipBrowserRedirect: true },
     });
     if (error || !data.url)
       throw new Error(
-        "This provider is unavailable. Check its Supabase configuration or use an email code.",
+        "Google sign-in is unavailable. You can still use an email code.",
       );
     await openSignIn(data.url);
   } finally {

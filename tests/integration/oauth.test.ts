@@ -1,5 +1,5 @@
 import {
-  signInSocial,
+  signInWithGoogle,
   finishSignIn,
   signInOrganization,
 } from "../../src/services/oauth";
@@ -34,7 +34,7 @@ beforeEach(() => {
   });
 });
 it("requests PKCE redirect and exchanges the native code once", async () => {
-  await signInSocial("google");
+  await signInWithGoogle();
   expect(mocks.provider).toHaveBeenCalledWith({
     provider: "google",
     options: {
@@ -45,14 +45,16 @@ it("requests PKCE redirect and exchanges the native code once", async () => {
   await finishSignIn("subloom://auth-callback?code=native-code");
   expect(mocks.exchange).toHaveBeenCalledTimes(1);
 });
-it("reports cancel and unavailable providers without discarding local data", async () => {
+it("reports cancellation and unavailable Google sign-in", async () => {
   mocks.browser.mockResolvedValue({ type: "cancel" });
-  await expect(signInSocial("apple")).rejects.toThrow(/canceled/);
+  await expect(signInWithGoogle()).rejects.toThrow(/canceled/);
   mocks.provider.mockResolvedValue({
     data: { url: null },
     error: new Error("not enabled"),
   });
-  await expect(signInSocial("google")).rejects.toThrow(/unavailable/);
+  await expect(signInWithGoogle()).rejects.toThrow(
+    /Google sign-in is unavailable/,
+  );
 });
 it("reports exchange failures and permits another attempt", async () => {
   mocks.exchange.mockResolvedValue({ error: new Error("expired") });
