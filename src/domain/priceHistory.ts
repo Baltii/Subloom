@@ -33,10 +33,14 @@ export function recordPrice(
   next: Subscription,
 ): PricePoint[] {
   if (previous && !priceChanged(previous, next)) return history;
-  const before =
-    previous && !history.some((p) => p.subscriptionId === previous.id)
-      ? [pricePoint(previous, "baseline")]
-      : [];
+  const before: PricePoint[] = [];
+  if (previous && !history.some((p) => p.subscriptionId === previous.id)) {
+    const timestamp = new Date(previous.updatedAt);
+    const capturedAt = Number.isNaN(timestamp.getTime())
+      ? next.updatedAt
+      : timestamp.toISOString();
+    before.push(pricePoint(previous, "baseline", capturedAt));
+  }
   return [...history, ...before, pricePoint(next)];
 }
 export function priceDifference(previous: PricePoint, current: PricePoint) {

@@ -1,14 +1,23 @@
 import { randomUUID } from "expo-crypto";
 import type { Href } from "expo-router";
-import type { AssistantAction } from "../domain/assistantProtocol";
+import type {
+  AssistantAction,
+  AssistantBillingChange,
+} from "../domain/assistantProtocol";
+import {
+  assistantSubscriptionRows,
+  editAssistantSubscription,
+} from "../domain/assistantSubscriptionEdits";
 import {
   billingMethodLabel,
   billingReference,
+  buildBillingMethod,
   subscriptionBillingLabel,
+  subscriptionBillingValue,
   unassignedBillingMethod,
 } from "../domain/billingMethods";
 import { quickAddDates } from "../domain/calendarEvents";
-import { catalog } from "../domain/catalog";
+import { savedServiceForName } from "../domain/customServices";
 import {
   dateSchema,
   type Preferences,
@@ -16,8 +25,11 @@ import {
 } from "../domain/models";
 import { formatMoney, parseMoney } from "../domain/money";
 import {
+  cardBrands,
   emptyPaymentProfile,
   paymentProfileSchema,
+  removePaymentSource,
+  walletProviders,
   type PaymentProfile,
   type PaymentSource,
 } from "../domain/payments";
@@ -29,8 +41,14 @@ import {
   today,
   upcoming,
 } from "../domain/renewal";
-import { saveSubscription, updatePreferences, useApp } from "../store/app";
-import { readSetting } from "./featureSettings";
+import {
+  deleteSubscription,
+  saveSubscription,
+  updatePreferences,
+  useApp,
+} from "../store/app";
+import { readSetting, writeSetting } from "./featureSettings";
+import { assistantAnalytics } from "./assistantAnalytics";
 
 type Row = { label: string; value: string };
 export type AssistantReply = {
@@ -40,7 +58,7 @@ export type AssistantReply = {
   awaitingDetails?: boolean;
   next?:
     | { label: string; route: Href }
-    | { label: string; run: () => Promise<string> };
+    | { label: string; run: () => Promise<string>; danger?: boolean };
 };
 
 function assistantWorkspace(identity: string) {
@@ -54,9 +72,13 @@ function billingMatches(profile: PaymentProfile, label: string) {
   const sources = profile.sources.filter((item) => item.kind !== "bank");
   const exact = (text: string) =>
     sources.filter((item) =>
-      [item.name, billingMethodLabel(item), item.walletProvider].some(
-        (name) => name && normalize(name) === text,
-      ),
+      [
+        item.name,
+        billingMethodLabel(item),
+        item.walletProvider,
+        item.cardBrand,
+        item.last4,
+      ].some((name) => name && normalize(name) === text),
     );
   const query = normalize(label);
   const matches = exact(query);
@@ -120,16 +142,20 @@ function preferencesReply(
   };
 }
 
-async function billingMethods(identity: string) {
+async function billingSetting(identity: string) {
   assistantWorkspace(identity);
-  const { value } = await readSetting(
+  const setting = await readSetting(
     identity,
     "payment_sources",
     paymentProfileSchema,
     emptyPaymentProfile,
   );
   assistantWorkspace(identity);
-  return value;
+  return setting;
+}
+
+async function billingMethods(identity: string) {
+  return (await billingSetting(identity)).value;
 }
 
 async function verifiedBillingReference(
@@ -150,6 +176,141 @@ async function verifiedBillingReference(
   return billingReference(source.id);
 }
 
+async function resolveBillingChange(
+  action: AssistantBillingChange,
+  identity: string,
+  subscriptions: Subscription[],
+): Promise<AssistantReply> {
+  if (action.operation !== "add" && !action.method?.trim())
+    return ask(
+      "Which saved card or wallet should I " +
+        (action.operation === "edit" ? "edit" : "remove") +
+        "?",
+    );
+  const reviewed = await billingSetting(identity);
+  const matches =
+    action.operation !== "add" && action.method
+      ? billingMatches(reviewed.value, action.method)
+      : [];
+  const [source] = matches;
+  if (action.operation !== "add" && !source)
+    return ask("I couldn’t find that card or wallet. What is its saved label?");
+  if (matches.length > 1)
+    return ask(
+      "Which saved payment label should I use?",
+      matches
+        .slice(0, 5)
+        .map((item) => ({ label: billingMethodLabel(item), value: item.kind })),
+    );
+  const save = async (value: PaymentProfile) => {
+    const latest = await billingSetting(identity);
+    if (
+      latest.version !== reviewed.version ||
+      JSON.stringify(latest.value) !== JSON.stringify(reviewed.value)
+    )
+      throw new Error(
+        "Your payment methods changed. Ask again to review the latest version.",
+      );
+    assistantWorkspace(identity);
+    await writeSetting(
+      identity,
+      "payment_sources",
+      paymentProfileSchema,
+      value,
+      reviewed.version,
+    );
+  };
+  if (action.operation === "delete" && source) {
+    const links = subscriptions.filter(
+      (item) =>
+        subscriptionBillingValue(item, reviewed.value) ===
+        billingReference(source.id),
+    ).length;
+    return {
+      title: billingMethodLabel(source),
+      text: "Remove this saved payment label from Subloom?",
+      rows: [{ label: "Linked subscriptions", value: String(links) }],
+      next: {
+        label: "Remove payment method",
+        danger: true,
+        run: async () => {
+          await save(removePaymentSource(reviewed.value, source.id));
+          return "The payment method was removed from Subloom.";
+        },
+      },
+    };
+  }
+  const type = source?.kind ?? action.type;
+  if (type !== "card" && type !== "wallet")
+    return ask("Is this a card or a wallet?");
+  if (source && action.type && source.kind !== action.type)
+    return ask(
+      "Choose an existing label of that type, or ask to add a new payment method.",
+    );
+  const brand = action.brand?.trim().toLowerCase();
+  const cardBrand =
+    brand && type === "card"
+      ? cardBrands.find((item) => item.toLowerCase() === brand)
+      : (source?.cardBrand ?? "Other card");
+  const walletProvider =
+    brand && type === "wallet"
+      ? walletProviders.find((item) => item.toLowerCase() === brand)
+      : (source?.walletProvider ?? "Other wallet");
+  const last4 = action.last4 ?? source?.last4 ?? "";
+  const nickname = action.name ?? source?.name ?? "";
+  if (!cardBrand || !walletProvider)
+    return ask(
+      "Which card brand or wallet provider is it? You can say “other” and give it a nickname.",
+    );
+  if (type === "card" && !/^\d{4}$/.test(last4))
+    return ask("What are the last four digits of the card?");
+  if (
+    !nickname.trim() &&
+    (type === "wallet"
+      ? walletProvider === "Other wallet"
+      : cardBrand === "Other card")
+  )
+    return ask("What nickname should I use for this payment method?");
+  if (
+    source &&
+    action.name === null &&
+    action.brand === null &&
+    action.last4 === null
+  )
+    return ask(
+      "Which detail should I change, such as the nickname or card brand?",
+    );
+  let next: PaymentSource;
+  try {
+    next = buildBillingMethod(
+      { kind: type, cardBrand, walletProvider, nickname, last4 },
+      source?.id ?? randomUUID(),
+      new Date().toISOString(),
+      source,
+    );
+  } catch {
+    return ask("Check the nickname and payment details, then try again.");
+  }
+  return {
+    title: source ? billingMethodLabel(source) : "New payment method",
+    text: "Review this saved payment label.",
+    rows: [{ label: "Label", value: billingMethodLabel(next) }],
+    next: {
+      label: source ? "Save payment method" : "Add payment method",
+      run: async () => {
+        await save({
+          ...reviewed.value,
+          sources: [
+            ...reviewed.value.sources.filter((item) => item.id !== next.id),
+            next,
+          ],
+        });
+        return "The payment method was saved in Subloom.";
+      },
+    },
+  };
+}
+
 export async function resolveAssistantAction(
   action: AssistantAction,
   identity: string,
@@ -163,12 +324,30 @@ export async function resolveAssistantAction(
   switch (action.kind) {
     case "help":
       return {
-        text: "I can look up subscriptions, check upcoming renewals, draft a new plan, and help with appearance, currency, reminders, and saved payment labels.",
+        text: "Ask what you’ll spend next month, add or edit a subscription, manage a saved card or wallet, or change display and reminder settings.",
       };
     case "clarify":
       return ask(
         "Tell me one thing you’d like to do and include the saved name if it’s about a subscription or wallet.",
       );
+    case "analytics": {
+      if (!action.subscription)
+        return assistantAnalytics(action, subscriptions, reference);
+      const matches = matchName(subscriptions, action.subscription, (item) => [
+        item.name,
+      ]);
+      if (matches.length !== 1)
+        return ask(
+          "Which saved subscription should I use?",
+          matches.slice(0, 5).map((item) => ({
+            label: item.name,
+            value: formatMoney(item.amountMinor, item.currency),
+          })),
+        );
+      return assistantAnalytics(action, matches, reference);
+    }
+    case "payment_method":
+      return resolveBillingChange(action, identity, subscriptions);
     case "list_subscriptions":
       return {
         text: subscriptions.length
@@ -210,6 +389,8 @@ export async function resolveAssistantAction(
     }
     case "open_reminders":
     case "subscription":
+    case "edit_subscription":
+    case "delete_subscription":
     case "assign_billing": {
       if (action.kind === "open_reminders" && action.subscription === null)
         return {
@@ -234,6 +415,129 @@ export async function resolveAssistantAction(
             value: formatMoney(item.amountMinor, item.currency),
           })),
         );
+      if (action.kind === "delete_subscription") {
+        return {
+          title: subscription.name,
+          text: "Delete this subscription and its price history from Subloom? To stop future charges, cancel with the provider.",
+          rows: [
+            {
+              label: "Price",
+              value:
+                formatMoney(subscription.amountMinor, subscription.currency) +
+                " · " +
+                intervalLabel(subscription),
+            },
+          ],
+          next: {
+            label: "Delete subscription",
+            danger: true,
+            run: async () => {
+              assistantWorkspace(identity);
+              await deleteSubscription(
+                subscription.id,
+                subscription.version,
+                identity,
+              );
+              return subscription.name + " was deleted from Subloom.";
+            },
+          },
+        };
+      }
+      if (action.kind === "edit_subscription") {
+        if (
+          subscription.proBillingOwner &&
+          (!action.changes.length ||
+            action.changes.some(
+              ({ field }) =>
+                ![
+                  "notes",
+                  "paymentMethod",
+                  "reminderDays",
+                  "remindersEnabled",
+                ].includes(field),
+            ))
+        )
+          return {
+            text: "Open Subloom Pro to manage this plan’s billing.",
+            next: { label: "Open Subloom Pro", route: "/pro" },
+          };
+        if (!action.changes.length)
+          return {
+            text: "Tell me which field to change, or open the full edit form.",
+            awaitingDetails: true,
+            next: {
+              label: "Open subscription form",
+              route: {
+                pathname: "/subscription/edit",
+                params: { id: subscription.id },
+              },
+            },
+          };
+        const payment = action.changes.find(
+          ({ field }) => field === "paymentMethod",
+        );
+        const methods = payment?.value
+          ? billingMatches(await billingMethods(identity), payment.value)
+          : [];
+        if (payment?.value && methods.length !== 1)
+          return ask(
+            "Which saved card or wallet should I use?",
+            methods.slice(0, 5).map((item) => ({
+              label: billingMethodLabel(item),
+              value: item.kind,
+            })),
+          );
+        const [method] = methods;
+        const referenceValue = payment
+          ? method
+            ? billingReference(method.id)
+            : unassignedBillingMethod
+          : undefined;
+        let changed: Subscription;
+        try {
+          changed = editAssistantSubscription(
+            subscription,
+            action.changes,
+            reference,
+            referenceValue,
+          );
+        } catch (error) {
+          return ask(
+            error instanceof Error
+              ? error.message
+              : "Check the subscription details and try again.",
+          );
+        }
+        const rows = assistantSubscriptionRows(subscription, changed);
+        if (payment && changed.paymentMethod !== subscription.paymentMethod)
+          rows.push({
+            label: "Payment method",
+            value: method ? billingMethodLabel(method) : "Not assigned",
+          });
+        if (!rows.length)
+          return {
+            text: "Those details already match " + subscription.name + ".",
+          };
+        return {
+          title: subscription.name,
+          text: "Review these subscription changes.",
+          rows,
+          next: {
+            label: "Save subscription changes",
+            run: async () => {
+              if (method) await verifiedBillingReference(identity, method);
+              assistantWorkspace(identity);
+              await saveSubscription(
+                changed,
+                undefined,
+                subscription.version,
+                identity,
+              );
+              return changed.name + " was updated in Subloom.";
+            },
+          },
+        };
+      }
       if (action.kind === "open_reminders") {
         return {
           text:
@@ -358,8 +662,21 @@ export async function resolveAssistantAction(
       const explicitRenewal = dateSchema.safeParse(action.renewal).data;
       if (start && !startDate)
         return ask("What is the valid start date for this plan?");
-      const cadence = interval && {
-        interval,
+      const custom = action.details?.some(
+        ({ field, value }) => field === "interval" && value === "custom",
+      );
+      const frequency: Subscription["interval"] | null = custom
+        ? "custom"
+        : interval;
+      if (
+        custom &&
+        !["intervalCount", "customUnit"].every((key) =>
+          action.details?.some(({ field }) => field === key),
+        )
+      )
+        return ask("How often does this bill? For example, every two weeks.");
+      const cadence = frequency && {
+        interval: frequency,
         intervalCount: 1,
         customUnit: "day" as const,
         anchorDay: Number(
@@ -384,7 +701,7 @@ export async function resolveAssistantAction(
         !name?.trim() && "subscription name",
         amount === null && "price",
         !currency && "currency code (such as USD, EUR or TND)",
-        !interval && "billing frequency",
+        !frequency && "billing frequency",
         !renewal && "next renewal or start date",
       ].filter(Boolean);
       if (
@@ -416,9 +733,7 @@ export async function resolveAssistantAction(
         return ask(
           "That amount is above Subloom’s supported range. What is the price on your plan?",
         );
-      const service = catalog.find(
-        (item) => item.name.toLowerCase() === name.trim().toLowerCase(),
-      );
+      const service = savedServiceForName(name, preferences.customServices);
       const dates = {
         ...quickAddDates(renewal, reference),
         ...(startDate ? { startDate } : {}),
@@ -439,23 +754,87 @@ export async function resolveAssistantAction(
             value: item.kind,
           })),
         );
-      const id = randomUUID();
+      const now = new Date().toISOString();
+      const base: Subscription = {
+        id: randomUUID(),
+        userId: identity,
+        serviceId: service?.id || null,
+        name: name.trim(),
+        category: service?.category || "Other",
+        amountMinor,
+        currency,
+        ...cadence,
+        ...dates,
+        trialEnd: null,
+        canceledAt: null,
+        paidThrough: null,
+        status: "active",
+        paymentMethod: source
+          ? billingReference(source.id)
+          : unassignedBillingMethod,
+        notes: "",
+        source: "manual",
+        reminders: null,
+        createdAt: now,
+        updatedAt: now,
+        version: 0,
+      };
+      let draft: Subscription;
+      try {
+        draft = action.details?.length
+          ? editAssistantSubscription(base, action.details, reference)
+          : base;
+      } catch (error) {
+        return ask(
+          error instanceof Error ? error.message : "Check the draft details.",
+        );
+      }
+      const changedCadence =
+        draft.intervalCount !== cadence.intervalCount ||
+        draft.customUnit !== cadence.customUnit;
+      if (changedCadence && startDate && !explicitRenewal) {
+        draft.nextRenewal =
+          nextEvent(
+            {
+              ...draft,
+              status: "active",
+              trialEnd: null,
+              nextRenewal: advanceRenewal(startDate, draft),
+            },
+            reference,
+          )?.date ?? draft.nextRenewal;
+      }
       return {
         text: "Check these details before adding the subscription.",
-        title: name.trim(),
+        title: draft.name,
         rows: [
           {
             label: "Price",
             value:
-              formatMoney(amountMinor, currency) + " · " + cadence.interval,
+              formatMoney(draft.amountMinor, draft.currency) +
+              " · " +
+              (draft.interval === "custom" || draft.intervalCount > 1
+                ? intervalLabel(draft)
+                : draft.interval),
           },
-          { label: "Start date", value: localDate(dates.startDate) },
-          { label: "Next renewal", value: localDate(renewal) },
+          { label: "Start date", value: localDate(draft.startDate) },
+          { label: "Next renewal", value: localDate(draft.nextRenewal) },
           {
             label: "Payment method",
             value: source ? billingMethodLabel(source) : "Not assigned",
           },
-          { label: "Category", value: service?.category || "Other" },
+          { label: "Category", value: draft.category },
+          ...assistantSubscriptionRows(base, draft).filter(
+            ({ label }) =>
+              ![
+                "Name",
+                "Price",
+                "Category",
+                "Start date",
+                "Next renewal",
+                "Billing schedule",
+              ].includes(label),
+          ),
         ],
         next: {
           label: "Add subscription",
@@ -464,47 +843,31 @@ export async function resolveAssistantAction(
               ? await verifiedBillingReference(identity, source)
               : unassignedBillingMethod;
             const current = assistantWorkspace(identity);
-            if (current.subscriptions.some((item) => item.id === id))
-              return name.trim() + " was added.";
+            if (current.subscriptions.some((item) => item.id === draft.id))
+              return draft.name + " was added.";
             if (
               current.subscriptions.some(
                 (item) =>
                   item.userId === identity &&
-                  item.name.toLowerCase() === name.trim().toLowerCase() &&
-                  item.amountMinor === amountMinor &&
-                  item.currency === currency &&
-                  item.interval === cadence.interval &&
-                  item.nextRenewal === renewal,
+                  item.name.toLowerCase() === draft.name.toLowerCase() &&
+                  item.amountMinor === draft.amountMinor &&
+                  item.currency === draft.currency &&
+                  item.interval === draft.interval &&
+                  item.intervalCount === draft.intervalCount &&
+                  item.customUnit === draft.customUnit &&
+                  item.nextRenewal === draft.nextRenewal,
               )
             )
               throw new Error(
                 "A subscription with those details is already saved.",
               );
-            const now = new Date().toISOString();
-            const draft: Subscription = {
-              id,
-              userId: identity,
-              serviceId: service?.id || null,
-              name: name.trim(),
-              category: service?.category || "Other",
-              amountMinor,
-              currency,
-              ...cadence,
-              ...dates,
-              trialEnd: null,
-              canceledAt: null,
-              paidThrough: null,
-              status: "active",
-              paymentMethod,
-              notes: "",
-              source: "manual",
-              reminders: null,
-              createdAt: now,
-              updatedAt: now,
-              version: 0,
-            };
-            await saveSubscription(draft, undefined, undefined, identity);
-            return name.trim() + " was added.";
+            await saveSubscription(
+              { ...draft, paymentMethod },
+              undefined,
+              undefined,
+              identity,
+            );
+            return draft.name + " was added.";
           },
         },
       };

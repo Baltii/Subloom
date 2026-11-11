@@ -20,7 +20,7 @@ Deno.test("assistant sends only validated requests to the pinned Groq model", as
   let dailyAllowed = true;
   let anonymous = false;
   let status = 200;
-  let action = { kind: "subscription", name: "Spotify" };
+  let action: Record<string, unknown> = { kind: "subscription", name: "Spotify" };
   const requests: { headers: Headers; body: string }[] = [];
 
   try {
@@ -84,14 +84,14 @@ Deno.test("assistant sends only validated requests to the pinned Groq model", as
     await import("../assistant-chat/index.ts");
     assert(handler, "Assistant route registered");
     const route = handler;
-    const send = (message = "When does Spotify renew?", signedIn = true) =>
+    const send = (message = "When does Spotify renew?", signedIn = true, protocol?: 2) =>
       route(
         new Request(
           "https://example.supabase.test/functions/v1/assistant-chat",
           {
             method: "POST",
             headers: signedIn ? { Authorization: "Bearer fixture-user" } : {},
-            body: JSON.stringify({ messages: [message], today: "2026-11-10" }),
+            body: JSON.stringify({ messages: [message], today: "2026-11-10", protocol }),
           },
         ),
       );
@@ -181,6 +181,13 @@ Deno.test("assistant sends only validated requests to the pinned Groq model", as
     status = 429;
     assert((await send()).status === 429, "Surface provider rate limits");
     assert(requests.slice().length === 3, "Send one model request per attempt");
+    status = 200;
+    action = { kind: "analytics", metric: "spending", period: "next_month", from: null, through: null, subscription: null };
+    assert((await send("What will I spend next month?")).status === 502,
+      "Keep expanded replies out of older clients");
+    const expanded = await send("What will I spend next month?", true, 2);
+    assert(expanded.status === 200, "Support expanded actions in the updated client");
+    assert((await expanded.json()).action.period === "next_month", "Return a calendar-period forecast action");
   } finally {
     globalThis.fetch = originalFetch;
     Deno.serve = originalServe;

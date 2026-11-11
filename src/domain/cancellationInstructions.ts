@@ -1,4 +1,5 @@
-import { serviceFor } from "./catalog";
+import { additionalCancellationGuides } from "./catalogExpansion.ts";
+import { serviceFor } from "./catalog.ts";
 
 export type CancellationInstructions = {
   websiteUrl: string | null;
@@ -20,6 +21,7 @@ function guide(
 // Original summaries of first-party guidance. No remote HTML or user-derived URLs.
 // Keep uncertain menu paths general rather than presenting guessed labels as facts.
 const guides: Record<string, CancellationInstructions> = {
+  ...additionalCancellationGuides,
   "subloom-pro": guide(
     "https://app.subloom.tn/pro",
     "https://app.subloom.tn/pro",

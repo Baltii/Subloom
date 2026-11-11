@@ -1,3 +1,4 @@
+import { rememberCustomService } from "../domain/customServices";
 import { create } from "zustand";
 import { ZodError } from "zod";
 import * as Crypto from "expo-crypto";
@@ -207,6 +208,7 @@ export async function saveSubscription(
   candidateId?: string,
   expectedVersion?: number,
   expectedIdentity?: string,
+  options?: { saveService?: boolean },
 ) {
   const update = (data: Snapshot) => {
     const previous = data.subscriptions.find((s) => s.id === input.id);
@@ -221,8 +223,23 @@ export async function saveSubscription(
         "That subscription changed. Review the latest details before saving.",
       );
     const now = new Date().toISOString();
+    const remembered = options?.saveService
+      ? rememberCustomService(
+          data.preferences.customServices,
+          input,
+          "custom:" + Crypto.randomUUID(),
+        )
+      : null;
+    const preferences =
+      remembered && remembered.services !== data.preferences.customServices
+        ? preferencesSchema.parse({
+            ...data.preferences,
+            customServices: remembered.services,
+          })
+        : data.preferences;
     const subscription = subscriptionSchema.parse({
       ...input,
+      serviceId: remembered?.serviceId ?? input.serviceId,
       userId: useApp.getState().identity,
       updatedAt: now,
       version: (previous?.version ?? 0) + 1,
@@ -315,6 +332,7 @@ export async function saveSubscription(
         );
     return {
       ...data,
+      preferences,
       priceHistory: recordPrice(data.priceHistory, previous, subscription),
       subscriptions: [
         subscription,
@@ -324,7 +342,13 @@ export async function saveSubscription(
         ? data.candidates.map((c) => (c.id === candidateId ? confirmed : c))
         : data.candidates,
       activity: [event, ...data.activity].slice(0, 500),
-      outbox: queue(data, operation),
+      outbox:
+        preferences === data.preferences
+          ? queue(data, operation)
+          : queue(
+              { ...data, outbox: queue(data, operation) },
+              op("preferences", "preferences", preferences),
+            ),
     };
   };
   await commit(update, expectedIdentity, expectedIdentity !== undefined);
@@ -419,9 +443,22 @@ export async function changeStatus(
         : "Tracking resumed.",
   );
 }
-export async function deleteSubscription(id: string) {
-  await commit((data) => {
+export async function deleteSubscription(
+  id: string,
+  expectedVersion?: number,
+  expectedIdentity?: string,
+) {
+  const update = (data: Snapshot) => {
     const subscription = data.subscriptions.find((s) => s.id === id);
+    if (
+      (expectedIdentity !== undefined &&
+        subscription?.userId !== expectedIdentity) ||
+      (expectedVersion !== undefined &&
+        subscription?.version !== expectedVersion)
+    )
+      throw new Error(
+        "That subscription changed. Review it again before deleting.",
+      );
     if (!subscription) return data;
     const event = activity(
       "deleted",
@@ -460,7 +497,8 @@ export async function deleteSubscription(id: string) {
           ? [...pending, op("preferences", "preferences", preferences)]
           : pending,
     };
-  });
+  };
+  await commit(update, expectedIdentity, expectedIdentity !== undefined);
   notify("Subscription deleted.");
 }
 export async function updatePreferences(
@@ -547,10 +585,28 @@ export async function importGuestData(
       "Leave the sample workspace before importing your own data.",
     );
   await commit((data) => {
+    let services = data.preferences.customServices;
+    const serviceIds = new Map<string, string>();
+    for (const service of guest.preferences.customServices) {
+      const remembered = rememberCustomService(services, service, service.id);
+      services = [...remembered.services];
+      serviceIds.set(service.id, remembered.serviceId);
+    }
+    const preferences = guest.preferences.customServices.length
+      ? preferencesSchema.parse({
+          ...data.preferences,
+          customServices: services,
+        })
+      : data.preferences;
     const existing = new Set(data.subscriptions.map((s) => s.id));
     const imported = guest.subscriptions
       .filter((s) => !existing.has(s.id))
-      .map((s) => ({ ...s, userId: useApp.getState().identity, version: 1 }));
+      .map((s) => ({
+        ...s,
+        serviceId: serviceIds.get(s.serviceId ?? "") ?? s.serviceId,
+        userId: useApp.getState().identity,
+        version: 1,
+      }));
     checkSubscriptionCapacity(data.subscriptions, [
       ...data.subscriptions,
       ...imported,
@@ -559,6 +615,7 @@ export async function importGuestData(
     const candidates = guest.candidates.filter((c) => !candidateIds.has(c.id));
     return {
       ...data,
+      preferences,
       onboarded: true,
       subscriptions: [...data.subscriptions, ...imported],
       priceHistory: [
@@ -568,6 +625,9 @@ export async function importGuestData(
       candidates: [...data.candidates, ...candidates],
       outbox: [
         ...data.outbox,
+        ...(preferences !== data.preferences
+          ? [op("preferences", "preferences", preferences)]
+          : []),
         ...imported.map((s) =>
           op("subscription", s.id, {
             subscription: s,

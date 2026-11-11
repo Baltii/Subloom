@@ -1,6 +1,7 @@
 import { createGroq } from "@ai-sdk/groq";
 import { APICallError, generateText, NoObjectGeneratedError, Output } from "ai";
 import {
+  assistantLegacyResponseSchema,
   assistantRequestSchema,
   assistantResponseSchema,
   containsAssistantSecret,
@@ -27,6 +28,12 @@ const instructions = [
   "Use reminder_delivery only for an explicit request to turn trial or email reminders on or off. A timing change never changes email or trial reminders.",
   "Use list_billing to list saved payment labels and manage_billing to open the screen for creating, editing or removing them. Use assign_billing to link a named subscription to a named saved method. Use null only for an explicit request to unlink.",
   "Use clarify if the request is ambiguous or asks for multiple unrelated actions. Use help for greetings and requests outside Subloom.",
+].join("\n");
+
+const expandedInstructions = [
+  "Prefer analytics for totals, spending, dated renewals, trials, category breakdowns, and most expensive subscriptions. If the user asks how much they will spend next month, return analytics with metric spending and period next_month. Calendar month periods are calendar boundaries, never the next 30 days. Use dates only when both ends are specified or can be resolved from the local date. through is inclusive. Use recurring for an average monthly or annual cost, not a calendar forecast.",
+  "Use edit_subscription for changing a saved subscription, delete_subscription for removing tracking, and assign_billing for assigning or clearing a saved payment method. Never treat cancellation as deletion. For a price edit such as ‘change Spotify to 8 EUR’, use changes [{field:price,value:8},{field:currency,value:EUR}]. Preserve the rest. Use an empty changes list to open the full edit form. Use normalized ISO dates, amount in major units, valid enum values, and comma-separated numeric offsets for reminderDays. Use empty string only to clear notes, trialEnd, paidThrough, or paymentMethod. For a correction during a new draft, keep the earlier add_subscription details and update the requested fields; no request has saved yet.",
+  "Use payment_method for add, edit, and delete of a card or wallet label. method is the current saved label, name is the new nickname, brand is the card brand or wallet provider, and last4 is only the last four digits of a card. Leave unknown fields null. Never ask for credentials, a full card number, or a security code. Opening the payment settings alone uses manage_billing.",
 ].join("\n");
 
 const handler = endpoint(async (req) => {
@@ -60,16 +67,20 @@ const handler = endpoint(async (req) => {
   await rateLimit(client, "assistant-chat:" + user.id, 20, 3600, user.id);
   await rateLimit(client, "assistant-chat:daily", 500, 86400);
   const groq = createGroq({ apiKey: key });
+  const expanded = request.data.protocol === 2;
   try {
     const { output } = await generateText({
       model: groq(model),
-      system: instructions + "\nLocal date: " + request.data.today,
+      system: instructions + (expanded ? "\n" + expandedInstructions : "") +
+        "\nLocal date: " + request.data.today,
       messages: request.data.messages.map((content) => ({
         role: "user",
         content,
       })),
       output: Output.object({
-        schema: assistantResponseSchema,
+        schema: expanded
+          ? assistantResponseSchema
+          : assistantLegacyResponseSchema,
         name: "subloom_action",
       }),
       providerOptions: {

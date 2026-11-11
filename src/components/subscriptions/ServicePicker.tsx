@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
 import { Search } from "lucide-react-native";
 import { searchServices, type Service } from "../../domain/catalog";
+import { useServiceCatalog } from "../../hooks/useServiceCatalog";
 import { PRO_PLAN_ENABLED } from "../../domain/planMode";
 import { categories, type Category } from "../../domain/models";
 import { useTheme } from "../../theme/useTheme";
@@ -20,12 +21,13 @@ export function ServicePicker({
   onSelect: (service: Service | null, customName?: string) => void;
 }) {
   const { colors } = useTheme();
+  const personal = useServiceCatalog();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<Category | "All">("All");
   const [limit, setLimit] = useState(12);
   const matches = useMemo(
-    () => searchServices(search, category, PRO_PLAN_ENABLED),
-    [search, category],
+    () => searchServices(search, category, PRO_PLAN_ENABLED, personal),
+    [search, category, personal],
   );
   const Container = presentation === "sheet" ? View : Card;
   return (

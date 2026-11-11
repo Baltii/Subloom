@@ -24,3 +24,15 @@ it("avoids comparisons across currency or billing terms", () => {
     priceDifference(a, pricePoint(subscription({ interval: "yearly" }))),
   ).toBeNull();
 });
+it("accepts legacy date-only timestamps when a saved price is edited", () => {
+  const previous = subscription({ updatedAt: "2026-01-01" });
+  const next = {
+    ...previous,
+    amountMinor: 800,
+    version: 2,
+    updatedAt: "2026-11-11T12:00:00Z",
+  };
+  const points = recordPrice([], previous, next);
+  expect(points[0]?.capturedAt).toBe("2026-01-01T00:00:00.000Z");
+  expect(points[1]?.amountMinor).toBe(800);
+});
