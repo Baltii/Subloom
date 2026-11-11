@@ -19,6 +19,17 @@ it("keeps PR checks but never starts installers unless explicitly requested", ()
 it("gates a single installer build on a merged release and reuses verified installers", () => {
   const release = workflow("release");
   expect(release.jobs.version.needs).toBeUndefined();
+  const releaseSteps = release.jobs.version.steps;
+  expect(
+    releaseSteps.find((step: { id?: string }) => step.id === "release").with[
+      "skip-github-pull-request"
+    ],
+  ).toBe(true);
+  const prepare = releaseSteps.find((step: { name?: string }) =>
+    step.name?.startsWith("Prepare the next release PR"),
+  );
+  expect(prepare.with["skip-github-release"]).toBe(true);
+  expect(prepare.if).toContain("steps.publication.outputs.pending != 'true'");
   expect(release.jobs.verify.needs).toBe("version");
   expect(release.jobs.verify.if).toBe(
     "needs.version.outputs.released == 'true'",

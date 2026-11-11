@@ -11,6 +11,10 @@ on:
         description: Optional successful production run at the release commit; reuse its verified apps
         type: string
         default: ''
+      source_sha:
+        description: Exact merged version commit for recovering a draft without a tag
+        type: string
+        default: ''
   workflow_call:
     inputs:
       tag:
@@ -68,6 +72,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
           REUSE_ARTIFACTS: ${{ inputs.reuse_verified == true }}
           VERIFIED_RUN_ID: ${{ inputs.verified_run_id }}
+          RELEASE_SOURCE_SHA: ${{ inputs.source_sha }}
         run: |
           node --input-type=module <<'JS'
           import { execFileSync } from 'node:child_process';
@@ -76,8 +81,21 @@ jobs:
           const run = (command, args) => execFileSync(command, args, { encoding: 'utf8' }).trim();
           const tag = process.env.RELEASE_TAG;
           if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Use a stable vX.Y.Z release tag.');
-          const release = JSON.parse(run('gh', ['release', 'view', tag, '--repo', process.env.GITHUB_REPOSITORY, '--json', 'tagName,isDraft,isPrerelease']));
+          const release = JSON.parse(run('gh', ['release', 'view', tag, '--repo', process.env.GITHUB_REPOSITORY, '--json', 'tagName,isDraft,isPrerelease,targetCommitish']));
           if (release.isPrerelease || release.tagName !== tag) throw new Error('Expected a stable release or its draft.');
+          // Explicit draft recovery can run after the production branch moved.
+          // Freeze only the draft's immutable, version-matching ancestor commit.
+          try { run('git', ['rev-parse', `refs/tags/${tag}^{commit}`]); }
+          catch {
+            const target = process.env.RELEASE_SOURCE_SHA || release.targetCommitish;
+            if (!release.isDraft || !/^[a-f0-9]{40}$/.test(target)) throw new Error('The draft needs an exact source commit.');
+            if (/^[a-f0-9]{40}$/.test(release.targetCommitish) && target !== release.targetCommitish) throw new Error('Recovery source differs from the draft source.');
+            run('git', ['merge-base', '--is-ancestor', target, 'origin/release-candidate']);
+            const manifest = JSON.parse(run('git', ['show', `${target}:package.json`]));
+            if (`v${manifest.version}` !== tag) throw new Error('Draft source and version differ.');
+            run('gh', ['api', `repos/${process.env.GITHUB_REPOSITORY}/git/refs`, '--method', 'POST', '-f', `ref=refs/tags/${tag}`, '-f', `sha=${target}`]);
+            run('git', ['tag', tag, target]);
+          }
           const sha = run('git', ['rev-parse', `refs/tags/${tag}^{commit}`]);
           run('git', ['merge-base', '--is-ancestor', sha, 'origin/release-candidate']);
           const manifest = JSON.parse(run('git', ['show', `${sha}:package.json`]));

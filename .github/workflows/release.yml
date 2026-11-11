@@ -39,6 +39,7 @@ jobs:
           target-branch: release-candidate
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          skip-github-pull-request: true
       - name: Resolve this release commit, including a draft from a previous attempt
         id: publication
         run: node scripts/resolve-release-publication.mjs
@@ -47,6 +48,14 @@ jobs:
           CREATED_RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
           CREATED_RELEASE_SHA: ${{ steps.release.outputs.sha }}
           ALLOW_DRAFT_RELEASE: 'true'
+      - name: Prepare the next release PR only after draft/tag resolution
+        if: steps.publication.outputs.released != 'true' && steps.publication.outputs.pending != 'true'
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          target-branch: release-candidate
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          skip-github-release: true
 
   verify:
     needs: version

@@ -7,7 +7,7 @@ import { expect, it } from "vitest";
 const sha = "a".repeat(40);
 const tag = "v" + JSON.parse(readFileSync("package.json", "utf8")).version;
 
-function publication(draft: boolean, target = sha) {
+function publication(draft: boolean, target = sha, missingStatus = 422) {
   const directory = mkdtempSync(join(tmpdir(), "subloom-release-test-"));
   const output = join(directory, "outputs");
   const calls = join(directory, "calls");
@@ -25,7 +25,7 @@ if (path.includes('/releases?')) {
   fs.writeFileSync(${JSON.stringify(marker)}, 'created'); console.log('{}');
 } else if (path.includes('/commits/')) {
   if (${draft} && !fs.existsSync(${JSON.stringify(marker)})) {
-    console.error('HTTP 404: Not Found'); process.exit(1);
+    console.error('gh: No commit found for SHA: '+${JSON.stringify(tag)}+' (HTTP '+${missingStatus}+')'); process.exit(1);
   }
   console.log(JSON.stringify({sha:${JSON.stringify(sha)}}));
 } else { console.error('Unexpected API path: '+path); process.exit(2); }
@@ -94,10 +94,21 @@ it("recovers an existing published release without rewriting its tag", () => {
   expect(result.calls.some((args) => args.includes("POST"))).toBe(false);
 });
 
-it("does not create a draft tag at another commit or a moving branch", () => {
-  for (const target of ["b".repeat(40), "release-candidate"]) {
-    const result = publication(true, target);
-    expect(result.error).toBeDefined();
-    expect(result.calls.some((args) => args.includes("POST"))).toBe(false);
-  }
+it("defers an earlier draft without creating another release PR or rewriting its tag", () => {
+  const result = publication(true, "b".repeat(40));
+  expect(result.error).toBeUndefined();
+  expect(result.output).toBe("released=false\npending=true\n");
+  expect(result.calls.some((args) => args.includes("POST"))).toBe(false);
+});
+
+it("rejects a moving draft target and never creates a tag for it", () => {
+  const result = publication(true, "release-candidate");
+  expect(result.error).toBeDefined();
+  expect(result.calls.some((args) => args.includes("POST"))).toBe(false);
+});
+
+it("also handles a missing tag reported as HTTP 404", () => {
+  const result = publication(true, sha, 404);
+  expect(result.error).toBeUndefined();
+  expect(result.output).toContain("released=true");
 });

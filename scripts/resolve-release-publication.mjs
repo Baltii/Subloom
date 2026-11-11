@@ -33,17 +33,33 @@ if (release) {
     tagSha = api(`repos/${repository}/commits/${tag}`).sha;
   } catch (error) {
     if (
-      !String(error.stderr).includes("HTTP 404") ||
+      !(
+        String(error.stderr).includes("HTTP 404") ||
+        (String(error.stderr).includes("HTTP 422") &&
+          String(error.stderr).includes("No commit found for SHA"))
+      ) ||
       !release.draft ||
       process.env.ALLOW_DRAFT_RELEASE !== "true"
     )
       throw error;
     // GitHub drafts can exist before their tag does. Freeze that tag at the
     // merged version commit before any platform checks out or builds it.
-    const source = draftTagSource(
-      process.env.CREATED_RELEASE_SHA || release.target_commitish,
-      process.env.GITHUB_SHA || "",
-    );
+    const target = process.env.CREATED_RELEASE_SHA || release.target_commitish;
+    if (!/^[a-f0-9]{40}$/.test(target))
+      throw new Error(
+        "A draft needs an immutable source commit before recovery.",
+      );
+    if (target !== process.env.GITHUB_SHA) {
+      appendFileSync(
+        process.env.GITHUB_OUTPUT,
+        "released=false\npending=true\n",
+      );
+      console.log(
+        "An earlier draft needs recovery before preparing another release PR.",
+      );
+      process.exit(0);
+    }
+    const source = draftTagSource(target, process.env.GITHUB_SHA || "");
     api(`repos/${repository}/git/refs`, [
       "--method",
       "POST",
