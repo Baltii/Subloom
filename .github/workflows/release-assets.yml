@@ -1,12 +1,10 @@
 name: Attach release apps
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag:
-        description: Published release tag to build (for example v1.4.0)
+        description: Draft or published release tag to recover (for example v1.15.0)
         type: string
         required: true
       verified_run_id:
@@ -42,7 +40,7 @@ concurrency:
 
 jobs:
   source:
-    name: Resolve the published production release
+    name: Resolve the exact production release
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
@@ -74,7 +72,7 @@ jobs:
           const tag = process.env.RELEASE_TAG;
           if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Use a stable vX.Y.Z release tag.');
           const release = JSON.parse(run('gh', ['release', 'view', tag, '--repo', process.env.GITHUB_REPOSITORY, '--json', 'tagName,isDraft,isPrerelease']));
-          if (release.isDraft || release.isPrerelease || release.tagName !== tag) throw new Error('Expected a published stable release.');
+          if (release.isPrerelease || release.tagName !== tag) throw new Error('Expected a stable release or its draft.');
           const sha = run('git', ['rev-parse', `refs/tags/${tag}^{commit}`]);
           run('git', ['merge-base', '--is-ancestor', sha, 'origin/release-candidate']);
           const manifest = JSON.parse(run('git', ['show', `${sha}:package.json`]));
@@ -98,6 +96,7 @@ jobs:
     uses: ./.github/workflows/verify.yml
     with:
       ref: ${{ needs.source.outputs.sha }}
+      build_installers: true
     secrets:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
@@ -148,4 +147,5 @@ jobs:
         run: |
           gh release upload "$RELEASE_TAG" artifacts/android-apk/* artifacts/windows-x64/* artifacts/macos-arm64/* artifacts/macos-x64/* --repo "$GITHUB_REPOSITORY" --clobber
           gh release upload "$RELEASE_TAG" artifacts/updates/* --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$RELEASE_TAG" --draft=false --latest --repo "$GITHUB_REPOSITORY"
           echo "Attached Android APK, Windows x64 installer and both Mac apps from $RELEASE_SHA to $RELEASE_TAG." >> "$GITHUB_STEP_SUMMARY"

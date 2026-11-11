@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   assertVerifiedArtifactRun,
+  draftTagSource,
   releaseArtifacts,
   selectPublication,
 } from "../../scripts/release-publication.mts";
@@ -10,6 +11,29 @@ const otherSha = "b".repeat(40);
 const release = { tag_name: "v1.11.0", draft: false, prerelease: false };
 
 describe("release publication recovery", () => {
+  it("allows an internal draft at its exact commit without exposing it as published", () => {
+    expect(
+      selectPublication({
+        release: { ...release, draft: true },
+        tagSha: sha,
+        currentSha: sha,
+        allowDraft: true,
+      }),
+    ).toEqual({ tag: release.tag_name, sha });
+    expect(
+      selectPublication({
+        release: { ...release, draft: true },
+        tagSha: sha,
+        currentSha: otherSha,
+        allowDraft: true,
+      }),
+    ).toBeNull();
+    expect(draftTagSource(sha, sha)).toBe(sha);
+    expect(() => draftTagSource(otherSha, sha)).toThrow(/exact release commit/);
+    expect(() => draftTagSource("release-candidate", sha)).toThrow(
+      /exact release commit/,
+    );
+  });
   it("publishes an existing stable release at the verified commit even without new-release outputs", () => {
     expect(
       selectPublication({ release, tagSha: sha, currentSha: sha }),

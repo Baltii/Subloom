@@ -22,7 +22,7 @@ export default function Privacy() {
     ],
     [
       "Optional assistant.",
-      "Guest quick actions run on your device using your local workspace. If you enable cloud chat while signed in, Subloom sends the text you type and the current date to Groq to interpret the request. Groq may temporarily retain messages for reliability or abuse monitoring. Subloom looks up saved records in your current workspace and asks you to confirm changes. Keep sensitive information out of chat.",
+      "Guest quick actions run on your device using your local workspace. If you enable cloud chat while signed in, Subloom sends your messages, recent conversation context (including replies, clarification questions, and summaries of requested actions), and the current date to Groq. Saved record lists and payment profiles are not attached. Groq may temporarily retain messages for reliability or abuse monitoring. Subloom looks up saved records in your current workspace and asks you to confirm changes. Chat context stays in memory and clears when the assistant is unloaded or you switch accounts. Keep sensitive information out of chat.",
     ],
     [
       "Receipt access is your choice.",

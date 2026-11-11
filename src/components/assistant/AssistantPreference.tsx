@@ -142,7 +142,7 @@ export function AssistantSettings() {
             ? "Quick actions run on this device and use this local workspace."
             : !supabase
               ? "Cloud chat is unavailable in this build."
-              : "Groq interprets your typed messages and may retain them for reliability or abuse monitoring. Subloom looks up saved records in your current workspace."}
+              : "Groq receives your messages and recent conversation context to understand follow-ups, and may retain them for reliability or abuse monitoring. Subloom looks up saved records in your current workspace and asks you to review changes."}
       </Label>
       {identity === "guest" && !demo && supabase && (
         <Button variant="secondary" small onPress={() => router.push("/auth")}>

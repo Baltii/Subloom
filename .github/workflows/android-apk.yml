@@ -72,7 +72,7 @@ jobs:
         # lint after adding expo-updates. Bound memory and exit on OOM instead of
         # leaving a broken daemon alive until the whole job times out.
         run: >-
-          ./gradlew :app:assembleRelease --no-daemon --max-workers=2
+          ./gradlew :app:assembleRelease --build-cache --no-daemon --max-workers=2
           '-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=2g -XX:+ExitOnOutOfMemoryError -Dfile.encoding=UTF-8'
           -PreactNativeArchitectures=arm64-v8a,x86_64
       - name: Package APK and checksum

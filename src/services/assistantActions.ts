@@ -49,6 +49,8 @@ import {
 } from "../store/app";
 import { readSetting, writeSetting } from "./featureSettings";
 import { assistantAnalytics } from "./assistantAnalytics";
+import { loadExchangeRates } from "./exchangeRates";
+import { emptyLedger, ledgerSchema } from "../domain/radar";
 
 type Row = { label: string; value: string };
 export type AssistantReply = {
@@ -322,6 +324,8 @@ export async function resolveAssistantAction(
   );
   const reference = today(preferences.timezone);
   switch (action.kind) {
+    case "reply":
+      return { text: action.text, awaitingDetails: action.awaitingDetails };
     case "help":
       return {
         text: "Ask what you’ll spend next month, add or edit a subscription, manage a saved card or wallet, or change display and reminder settings.",
@@ -331,12 +335,10 @@ export async function resolveAssistantAction(
         "Tell me one thing you’d like to do and include the saved name if it’s about a subscription or wallet.",
       );
     case "analytics": {
-      if (!action.subscription)
-        return assistantAnalytics(action, subscriptions, reference);
-      const matches = matchName(subscriptions, action.subscription, (item) => [
-        item.name,
-      ]);
-      if (matches.length !== 1)
+      const matches = action.subscription
+        ? matchName(subscriptions, action.subscription, (item) => [item.name])
+        : subscriptions;
+      if (action.subscription && matches.length !== 1)
         return ask(
           "Which saved subscription should I use?",
           matches.slice(0, 5).map((item) => ({
@@ -344,7 +346,32 @@ export async function resolveAssistantAction(
             value: formatMoney(item.amountMinor, item.currency),
           })),
         );
-      return assistantAnalytics(action, matches, reference);
+      const [exchange, ledger] = await Promise.all([
+        matches.some((item) => item.currency !== preferences.currency)
+          ? loadExchangeRates()
+          : Promise.resolve({ rates: [], warning: null }),
+        action.metric === "remaining"
+          ? readSetting(
+              identity,
+              "payment_transactions",
+              ledgerSchema,
+              emptyLedger,
+            )
+          : Promise.resolve({ value: emptyLedger }),
+      ]);
+      const latest = assistantWorkspace(identity);
+      // A preference or subscription edit during the fetch must not yield an
+      // answer assembled from two different versions of the workspace.
+      if (latest !== data)
+        throw new Error(
+          "Your workspace changed. Ask again to use the latest data.",
+        );
+      return assistantAnalytics(action, matches, reference, {
+        currency: preferences.currency,
+        rates: exchange.rates,
+        ratesWarning: exchange.warning,
+        transactions: ledger.value,
+      });
     }
     case "payment_method":
       return resolveBillingChange(action, identity, subscriptions);

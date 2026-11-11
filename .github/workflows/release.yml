@@ -13,14 +13,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  verify:
-    if: github.ref == 'refs/heads/release-candidate'
-    uses: ./.github/workflows/verify.yml
-    secrets:
-      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-
   version:
-    needs: verify
+    name: Prepare release PR or resolve merged release
+    if: github.ref == 'refs/heads/release-candidate'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -38,28 +33,30 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
-      - name: Require public release configuration
-        run: |
-          test -n "$SUPABASE_URL"
-          test -n "$SUPABASE_KEY"
-          test -n "$EAS_PROJECT"
-        env:
-          SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
-          SUPABASE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
-          EAS_PROJECT: ${{ vars.EXPO_PUBLIC_EAS_PROJECT_ID }}
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
           target-branch: release-candidate
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-      - name: Resolve publication, including an already published release
+      - name: Resolve this release commit, including a draft from a previous attempt
         id: publication
         run: node scripts/resolve-release-publication.mjs
         env:
           GH_TOKEN: ${{ github.token }}
           CREATED_RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
           CREATED_RELEASE_SHA: ${{ steps.release.outputs.sha }}
+          ALLOW_DRAFT_RELEASE: 'true'
+
+  verify:
+    needs: version
+    if: needs.version.outputs.released == 'true'
+    uses: ./.github/workflows/verify.yml
+    with:
+      ref: ${{ needs.version.outputs.sha }}
+      build_installers: true
+    secrets:
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
   publish-artifacts:
     needs: [verify, version]
@@ -70,8 +67,6 @@ jobs:
     uses: ./.github/workflows/release-assets.yml
     with:
       tag: ${{ needs.version.outputs.tag }}
-      # Reuse the current run only when its verified commit is the release.
-      # Historical releases are rebuilt at their exact tag instead.
       reuse_verified: ${{ needs.version.outputs.sha == github.sha }}
     secrets:
       SUBLOOM_UPDATE_SIGNING_SEED: ${{ secrets.SUBLOOM_UPDATE_SIGNING_SEED }}

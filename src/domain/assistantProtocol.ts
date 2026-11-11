@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { currencies } from "./models.ts";
+import { currencies, dateSchema } from "./models.ts";
 
 const name = z.string().min(1).max(80);
 const hour = z.number().int().min(0).max(23).nullable();
@@ -10,11 +10,40 @@ const date = z
 const emptyAction = <T extends string>(kind: T) =>
   z.strictObject({ kind: z.literal(kind) });
 
-export const assistantRequestSchema = z.strictObject({
+const requestFields = {
   messages: z.array(z.string().min(1).max(800)).min(1).max(4),
-  today: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  protocol: z.literal(2).optional(),
-});
+  today: z.string().refine((value) => dateSchema.safeParse(value).success),
+};
+const conversationMessageSchema = z.discriminatedUnion("role", [
+  z.strictObject({
+    role: z.literal("user"),
+    content: z.string().min(1).max(800),
+  }),
+  z.strictObject({
+    role: z.literal("assistant"),
+    content: z.string().min(1).max(1600),
+  }),
+]);
+export type AssistantMessage = z.infer<typeof conversationMessageSchema>;
+
+export const assistantRequestSchema = z.union([
+  z.strictObject({ ...requestFields, protocol: z.literal(2).optional() }),
+  z
+    .strictObject({
+      ...requestFields,
+      protocol: z.literal(3),
+      conversation: z.array(conversationMessageSchema).min(1).max(12),
+    })
+    .refine(
+      ({ conversation, messages }) =>
+        conversation.at(-1)?.role === "user" &&
+        conversation.at(-1)?.content === messages.at(-1) &&
+        conversation.reduce(
+          (size, message) => size + message.content.length,
+          0,
+        ) <= 10_000,
+    ),
+]);
 
 const legacyActions = [
   emptyAction("help"),
@@ -104,58 +133,105 @@ export const assistantLegacyResponseSchema = z.strictObject({
   action: z.discriminatedUnion("kind", legacyActions),
 });
 
+const analyticsAction = z.strictObject({
+  kind: z.literal("analytics"),
+  metric: z.enum([
+    "spending",
+    "renewals",
+    "trials",
+    "by_category",
+    "most_expensive",
+    "recurring",
+  ]),
+  period: z.enum([
+    "this_month",
+    "next_month",
+    "this_year",
+    "next_year",
+    "dates",
+  ]),
+  from: date,
+  through: date,
+  subscription: name.nullable(),
+});
+
+const conversationalAnalyticsAction = analyticsAction.extend({
+  metric: z.enum([...analyticsAction.shape.metric.options, "remaining"]),
+  period: z.enum([
+    ...analyticsAction.shape.period.options,
+    "this_week",
+    "next_week",
+    "next_7_days",
+    "today",
+    "tomorrow",
+  ]),
+});
+
+const expandedActions = [
+  ...legacyActions,
+  z.strictObject({
+    kind: z.literal("edit_subscription"),
+    subscription: name.nullable(),
+    changes: z
+      .array(
+        z.strictObject({
+          field: z.enum(subscriptionEditFields),
+          value: z.string().max(800),
+        }),
+      )
+      .max(16),
+  }),
+  z.strictObject({
+    kind: z.literal("delete_subscription"),
+    subscription: name.nullable(),
+  }),
+  z.strictObject({
+    kind: z.literal("payment_method"),
+    operation: z.enum(["add", "edit", "delete"]),
+    method: name.nullable(),
+    type: z.enum(["card", "wallet"]).nullable(),
+    name: z.string().max(60).nullable(),
+    brand: z.string().max(60).nullable(),
+    last4: z
+      .string()
+      .regex(/^\d{4}$/)
+      .nullable(),
+  }),
+  analyticsAction,
+] as const;
+
+export const assistantV2ResponseSchema = z.strictObject({
+  action: z.discriminatedUnion("kind", expandedActions),
+});
+
+const conversationalReply = z.strictObject({
+  kind: z.literal("reply"),
+  text: z.string().trim().min(1).max(1200),
+  awaitingDetails: z.boolean(),
+});
+
 export const assistantResponseSchema = z.strictObject({
   action: z.discriminatedUnion("kind", [
-    ...legacyActions,
-    z.strictObject({
-      kind: z.literal("edit_subscription"),
-      subscription: name.nullable(),
-      changes: z
-        .array(
-          z.strictObject({
-            field: z.enum(subscriptionEditFields),
-            value: z.string().max(800),
-          }),
-        )
-        .max(16),
-    }),
-    z.strictObject({
-      kind: z.literal("delete_subscription"),
-      subscription: name.nullable(),
-    }),
-    z.strictObject({
-      kind: z.literal("payment_method"),
-      operation: z.enum(["add", "edit", "delete"]),
-      method: name.nullable(),
-      type: z.enum(["card", "wallet"]).nullable(),
-      name: z.string().max(60).nullable(),
-      brand: z.string().max(60).nullable(),
-      last4: z
-        .string()
-        .regex(/^\d{4}$/)
-        .nullable(),
-    }),
-    z.strictObject({
-      kind: z.literal("analytics"),
-      metric: z.enum([
-        "spending",
-        "renewals",
-        "trials",
-        "by_category",
-        "most_expensive",
-        "recurring",
-      ]),
-      period: z.enum([
-        "this_month",
-        "next_month",
-        "this_year",
-        "next_year",
-        "dates",
-      ]),
-      from: date,
-      through: date,
-      subscription: name.nullable(),
-    }),
+    conversationalAnalyticsAction,
+    ...expandedActions.filter(
+      (action) => action.shape.kind.value !== "analytics",
+    ),
+    conversationalReply,
+  ]),
+});
+
+// New clients receive a specific reply when no data action fits. Keep the
+// generic actions only in the older protocol and the on-device guest parser.
+export const assistantConversationResponseSchema = z.strictObject({
+  action: z.discriminatedUnion("kind", [
+    conversationalReply,
+    conversationalAnalyticsAction,
+    ...expandedActions.filter(
+      (action) =>
+        action.shape.kind.value !== "help" &&
+        action.shape.kind.value !== "clarify" &&
+        action.shape.kind.value !== "analytics",
+    ),
   ]),
 });
 

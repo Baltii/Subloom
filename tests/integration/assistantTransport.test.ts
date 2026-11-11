@@ -132,6 +132,58 @@ it("does not retry unrelated validation failures", async () => {
   ).rejects.toThrow();
   expect(mocks.invoke).toHaveBeenCalledTimes(1);
 });
+it("sends conversational turns and negotiates v2 only for an older backend", async () => {
+  const conversation = [
+    { role: "user", content: "Help me track a plan" },
+    { role: "assistant", content: "Which service would you like to track?" },
+    { role: "user", content: "Spotify" },
+  ] as const;
+  const conversational = {
+    messages: ["Help me track a plan", "Spotify"],
+    today: request.today,
+    protocol: 3,
+    conversation: [...conversation],
+  } as const;
+  mocks.invoke.mockResolvedValueOnce({
+    data: null,
+    error: new FunctionsHttpError(
+      Response.json(
+        { error: "Check your message and try again." },
+        { status: 400 },
+      ),
+    ),
+  });
+  await interpretAssistantRequest(
+    identity,
+    {
+      ...conversational,
+      messages: [...conversational.messages],
+      conversation: [...conversational.conversation],
+    },
+    new AbortController().signal,
+  );
+  expect(mocks.invoke.mock.calls[0]?.[1].body).toEqual(conversational);
+  expect(mocks.invoke.mock.calls[1]?.[1].body).toEqual({
+    messages: conversational.messages,
+    today: request.today,
+    protocol: 2,
+  });
+});
+it("returns a tailored model question without replacing it with a canned reply", async () => {
+  const action = {
+    kind: "reply",
+    text: "Which subscription would you like to change?",
+    awaitingDetails: true,
+  };
+  mocks.invoke.mockResolvedValue({ data: { action }, error: null });
+  await expect(
+    interpretAssistantRequest(
+      identity,
+      payload(),
+      new AbortController().signal,
+    ),
+  ).resolves.toEqual(action);
+});
 it("rejects redirecting local requests and cancels replies after an account switch", async () => {
   vi.stubEnv(
     "EXPO_PUBLIC_ASSISTANT_DEV_URL",

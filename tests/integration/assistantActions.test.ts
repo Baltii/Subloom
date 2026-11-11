@@ -20,6 +20,7 @@ const mocks = vi.hoisted(() => ({
   preferences: vi.fn(),
   read: vi.fn(),
   write: vi.fn(),
+  rates: vi.fn(),
 }));
 vi.mock("expo-crypto", () => ({
   randomUUID: () => "520ebabe-b585-49a0-b967-c09b2a56cce5",
@@ -33,6 +34,9 @@ vi.mock("../../src/store/app", () => ({
 vi.mock("../../src/services/featureSettings", () => ({
   readSetting: mocks.read,
   writeSetting: mocks.write,
+}));
+vi.mock("../../src/services/exchangeRates", () => ({
+  loadExchangeRates: mocks.rates,
 }));
 
 const identity = "94a5ae49-a5b8-4076-acc5-16e47da52116";
@@ -72,6 +76,20 @@ beforeEach(() => {
     hydrated: true,
     data: snapshot,
   }));
+  mocks.rates.mockResolvedValue({
+    rates: [
+      {
+        base_currency: "USD",
+        quote_currency: "EUR",
+        rate: "0.9",
+        as_of: "2026-11-10",
+        fetched_at: "2026-11-10T00:00:00Z",
+        provider: "frankfurter",
+      },
+    ],
+    warning: null,
+  });
+  mocks.read.mockResolvedValue({ value: [], version: 0 });
 });
 it("keeps the provider response limited to recognized actions and catches card numbers", () => {
   expect(
@@ -105,6 +123,21 @@ it("shows saved subscription data and leaves ambiguous matches read-only", async
   expect(ambiguous.rows).toHaveLength(2);
   expect(ambiguous.title).toBe("Matching records");
   expect(mocks.save).not.toHaveBeenCalled();
+});
+it("displays a conversational answer or clarification without executing a write", async () => {
+  const action = {
+    kind: "reply",
+    text: "Do you want help finding renewals or setting reminders?",
+    awaitingDetails: true,
+  } as const;
+  expect(await resolveAssistantAction(action, identity)).toEqual({
+    text: action.text,
+    awaitingDetails: true,
+  });
+  expect(mocks.save).not.toHaveBeenCalled();
+  expect(mocks.remove).not.toHaveBeenCalled();
+  expect(mocks.preferences).not.toHaveBeenCalled();
+  expect(mocks.write).not.toHaveBeenCalled();
 });
 it("asks for missing purchase details, then saves only a confirmed draft", async () => {
   const request = {
@@ -410,10 +443,9 @@ it("totals the next calendar month without including the current month’s charg
     const reply = await resolveAssistantAction(action, identity);
     expect(reply.title).toBe("Estimated spending · December 2026");
     expect(reply.rows).toEqual([
-      { label: "EUR total", value: "€5.00" },
-      { label: "USD total", value: "$20.00" },
+      { label: "Total · USD", value: "$25.56" },
       { label: "ChatGPT", value: "Dec 2, 2026 · $20.00" },
-      { label: "Netflix", value: "Dec 9, 2026 · €5.00" },
+      { label: "Netflix", value: "Dec 9, 2026 · $5.56" },
     ]);
     expect(assistantLegacyResponseSchema.safeParse({ action }).success).toBe(
       false,
@@ -422,6 +454,107 @@ it("totals the next calendar month without including the current month’s charg
   } finally {
     vi.useRealTimers();
   }
+});
+
+it("uses the workspace timezone and recorded payments for the remaining-month answer", async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-11-10T23:30:00Z"));
+  try {
+    snapshot.preferences.timezone = "Africa/Tunis";
+    snapshot.preferences.currency = "EUR";
+    snapshot.subscriptions = [
+      {
+        ...spotify,
+        name: "Earlier",
+        nextRenewal: "2026-11-10",
+        anchorDay: 10,
+        amountMinor: 5000,
+      },
+      {
+        ...spotify,
+        name: "Paid today",
+        nextRenewal: "2026-11-11",
+        anchorDay: 11,
+        amountMinor: 1000,
+      },
+      {
+        ...spotify,
+        id: "b0e0d0c0-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        name: "Later",
+        nextRenewal: "2026-11-20",
+        anchorDay: 20,
+        amountMinor: 2000,
+      },
+      {
+        ...spotify,
+        userId: "foreign",
+        name: "Other workspace",
+        nextRenewal: "2026-11-20",
+        anchorDay: 20,
+      },
+    ];
+    mocks.read.mockResolvedValue({
+      value: [
+        {
+          subscriptionId: spotify.id,
+          date: "2026-11-11",
+          currency: "USD",
+          amountMinor: 1000,
+          direction: "debit",
+          ignored: false,
+        },
+      ],
+      version: 1,
+    });
+    const result = await resolveAssistantAction(
+      interpretLocalAssistant("How much REST TO PAY this month?", false),
+      identity,
+    );
+    expect(result.title).toBe(
+      "Remaining scheduled payments · Nov 11, 2026 to Nov 30, 2026",
+    );
+    expect(result.rows).toEqual([
+      { label: "Total · EUR", value: "€18.00" },
+      { label: "Later", value: "Nov 20, 2026 · €18.00" },
+    ]);
+    expect(mocks.read).toHaveBeenCalledWith(
+      identity,
+      "payment_transactions",
+      expect.anything(),
+      [],
+    );
+    expect(mocks.save).not.toHaveBeenCalled();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it("discards an analytics result if the account changes while loading exchange rates", async () => {
+  snapshot.subscriptions = [{ ...spotify, currency: "EUR" }];
+  mocks.rates.mockImplementation(async () => {
+    mocks.getState.mockReturnValue({
+      identity: "guest",
+      hydrated: true,
+      data: snapshot,
+    });
+    return { rates: [], warning: null };
+  });
+  await expect(
+    resolveAssistantAction(
+      interpretLocalAssistant("What will I spend next month?", false),
+      identity,
+    ),
+  ).rejects.toThrow(/workspace changed/);
+});
+
+it("does not report an unpaid balance when the recorded-payment lookup fails", async () => {
+  mocks.read.mockRejectedValue(new Error("Could not load recorded payments"));
+  await expect(
+    resolveAssistantAction(
+      interpretLocalAssistant("What is left to pay this month?", false),
+      identity,
+    ),
+  ).rejects.toThrow(/recorded payments/);
 });
 
 it("reviews a Spotify price edit and deletion before writing the exact saved version", async () => {

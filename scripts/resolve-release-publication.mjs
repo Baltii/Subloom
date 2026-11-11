@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { appendFileSync, readFileSync } from "node:fs";
-import { selectPublication } from "./release-publication.mts";
+import { draftTagSource, selectPublication } from "./release-publication.mts";
 
 const repository = process.env.GITHUB_REPOSITORY;
 if (repository !== "Baltii/Subloom")
@@ -10,9 +10,9 @@ const createdTag = process.env.CREATED_RELEASE_TAG || "";
 const tag = createdTag || `v${version}`;
 if (!/^v\d+\.\d+\.\d+$/.test(tag))
   throw new Error("Invalid stable release tag.");
-const api = (path) =>
+const api = (path, args = []) =>
   JSON.parse(
-    execFileSync("gh", ["api", path], {
+    execFileSync("gh", ["api", path, ...args], {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     }),
@@ -23,12 +23,41 @@ try {
 } catch (error) {
   if (!String(error.stderr).includes("HTTP 404")) throw error;
 }
+let tagSha = null;
+if (release) {
+  try {
+    tagSha = api(`repos/${repository}/commits/${tag}`).sha;
+  } catch (error) {
+    if (
+      !String(error.stderr).includes("HTTP 404") ||
+      !release.draft ||
+      process.env.ALLOW_DRAFT_RELEASE !== "true"
+    )
+      throw error;
+    // GitHub drafts can exist before their tag does. Freeze that tag at the
+    // merged version commit before any platform checks out or builds it.
+    const source = draftTagSource(
+      process.env.CREATED_RELEASE_SHA || release.target_commitish,
+      process.env.GITHUB_SHA || "",
+    );
+    api(`repos/${repository}/git/refs`, [
+      "--method",
+      "POST",
+      "-f",
+      `ref=refs/tags/${tag}`,
+      "-f",
+      `sha=${source}`,
+    ]);
+    tagSha = api(`repos/${repository}/commits/${tag}`).sha;
+  }
+}
 const publication = selectPublication({
   release,
-  tagSha: release ? api(`repos/${repository}/commits/${tag}`).sha : null,
+  tagSha,
   currentSha: process.env.GITHUB_SHA || "",
   createdTag,
   createdSha: process.env.CREATED_RELEASE_SHA || "",
+  allowDraft: process.env.ALLOW_DRAFT_RELEASE === "true",
 });
 appendFileSync(
   process.env.GITHUB_OUTPUT,

@@ -1,4 +1,4 @@
-name: Verify app and installable artifacts
+name: Verify app, optionally build release installers
 
 on:
   workflow_call:
@@ -7,6 +7,10 @@ on:
         description: Exact source commit to verify and package
         type: string
         default: ''
+      build_installers:
+        description: Build platform installers only for a merged release or explicit recovery
+        type: boolean
+        default: false
     secrets:
       GOOGLE_SERVICES_JSON:
         description: Firebase Android client configuration
@@ -51,6 +55,8 @@ jobs:
           EXPO_PUBLIC_PRO_PLAN_ENABLED: ${{ vars.EXPO_PUBLIC_PRO_PLAN_ENABLED || 'false' }}
 
   macos:
+    if: inputs.build_installers
+    needs: app
     name: Mac build (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 25
@@ -106,6 +112,7 @@ jobs:
           retention-days: 14
 
   android:
+    if: inputs.build_installers
     name: Android APK
     needs: app
     uses: ./.github/workflows/android-apk.yml
@@ -115,6 +122,8 @@ jobs:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
   windows:
+    if: inputs.build_installers
+    needs: app
     name: Windows installer
     uses: ./.github/workflows/windows-exe.yml
     with:
