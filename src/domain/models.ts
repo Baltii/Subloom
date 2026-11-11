@@ -164,7 +164,21 @@ export const candidateSchema = z.object({
   createdAt: z.string(),
 });
 export type Candidate = z.infer<typeof candidateSchema>;
+export const customServiceSchema = z
+  .object({
+    id: z
+      .string()
+      .regex(
+        /^custom:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      ),
+    name: z.string().trim().min(1).max(80),
+    category: z.enum(categories),
+  })
+  .strict();
+export type CustomService = z.infer<typeof customServiceSchema>;
+
 export const preferencesSchema = z.object({
+  customServices: z.array(customServiceSchema).max(200).default([]),
   accentTheme: z
     .enum([
       "green",
@@ -262,6 +276,7 @@ export type Snapshot = {
 };
 export function defaultPreferences(): Preferences {
   return {
+    customServices: [],
     appearance: "system",
     accentTheme: "green",
     currency: "USD",

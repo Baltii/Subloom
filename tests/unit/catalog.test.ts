@@ -13,7 +13,7 @@ describe("service catalog", () => {
   it("preserves existing identifiers and has unique valid entries", () => {
     expect(serviceFor("spotify")?.name).toBe("Spotify");
     expect(serviceFor("microsoft")?.name).toBe("Microsoft 365");
-    expect(catalog.length).toBeGreaterThan(60);
+    expect(catalog.length).toBeGreaterThan(100);
     expect(new Set(catalog.map((service) => service.id)).size).toBe(
       catalog.length,
     );

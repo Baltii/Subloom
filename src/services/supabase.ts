@@ -76,15 +76,20 @@ export const supabase =
       })
     : null;
 // Each sync run keeps its original JWT if the global Auth session changes mid-request.
-export async function accountClient(identity: string) {
-  if (!supabase || !url || !key || identity === "guest")
+export async function accountAccessToken(identity: string) {
+  if (!supabase || identity === "guest")
     throw new Error("Sign in to sync your account.");
   const { data, error } = await supabase.auth.getSession();
   if (error || data.session?.user.id !== identity)
     throw new Error("Your account session changed. Sign in again to sync.");
+  return data.session.access_token;
+}
+export async function accountClient(identity: string) {
+  if (!url || !key) throw new Error("Sign in to sync your account.");
+  const token = await accountAccessToken(identity);
   return createClient(url, key, {
     global: {
-      headers: { Authorization: "Bearer " + data.session.access_token },
+      headers: { Authorization: "Bearer " + token },
     },
     auth: {
       persistSession: false,

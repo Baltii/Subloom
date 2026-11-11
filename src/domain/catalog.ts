@@ -1,3 +1,4 @@
+import { additionalCatalog } from "./catalogExpansion.ts";
 import type { Category } from "./models.ts";
 export type Service = {
   id: string;
@@ -8,8 +9,9 @@ export type Service = {
   glyph: string;
   managementUrl: string | null;
   aliases?: readonly string[];
+  custom?: boolean;
 };
-// No suggested prices. Provider links only go to first-party account pages.
+// No suggested prices. Provider links stay on first-party websites.
 export const catalog: Service[] = [
   {
     id: "subloom-pro",
@@ -722,6 +724,7 @@ export const catalog: Service[] = [
     aliases: ["meditation"],
     managementUrl: null,
   },
+  ...additionalCatalog,
 ];
 
 const byId = new Map(catalog.map((service) => [service.id, service]));
@@ -736,25 +739,29 @@ function normalizeSearch(value: string) {
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
 }
-const searchIndex = catalog.map((service) => ({
-  service,
-  names: [service.name, ...(service.aliases ?? [])].map(normalizeSearch),
-  text: normalizeSearch(
-    [
-      service.name,
-      service.id,
-      service.category,
-      ...(service.aliases ?? []),
-    ].join(" "),
-  ),
-}));
+function indexServices(services: readonly Service[]) {
+  return services.map((service) => ({
+    service,
+    names: [service.name, ...(service.aliases ?? [])].map(normalizeSearch),
+    text: normalizeSearch(
+      [
+        service.name,
+        service.id,
+        service.category,
+        ...(service.aliases ?? []),
+      ].join(" "),
+    ),
+  }));
+}
+const searchIndex = indexServices(catalog);
 export function searchServices(
   query: string,
   category: Category | "All" = "All",
   proPlanEnabled = true,
+  personal: readonly Service[] = [],
 ): Service[] {
   const terms = normalizeSearch(query.slice(0, 80)).split(" ").filter(Boolean);
-  return searchIndex
+  return [...indexServices(personal), ...searchIndex]
     .filter(
       ({ service, text }) =>
         (proPlanEnabled || service.id !== "subloom-pro") &&
@@ -768,10 +775,11 @@ export function searchServices(
 export function suggestServices(
   query: string,
   proPlanEnabled = true,
+  personal: readonly Service[] = [],
 ): Service[] {
   const prefix = normalizeSearch(query.slice(0, 80));
   if (!prefix) return [];
-  return searchIndex
+  return [...indexServices(personal), ...searchIndex]
     .filter(
       ({ service, names }) =>
         (proPlanEnabled || service.id !== "subloom-pro") &&

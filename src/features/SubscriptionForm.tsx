@@ -1,6 +1,6 @@
 import { useUpdateDraft } from "../hooks/useUpdateDraft";
 import { useEffect, useRef, useState } from "react";
-import { View, Platform } from "react-native";
+import { View, Platform, Pressable } from "react-native";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,7 +10,13 @@ import {
   type NavigationAction,
 } from "expo-router/react-navigation";
 import * as Crypto from "expo-crypto";
-import { Check, ChevronDown, ChevronUp, Plus } from "lucide-react-native";
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Search,
+} from "lucide-react-native";
 import {
   categories,
   currencies,
@@ -19,6 +25,7 @@ import {
   type Candidate,
   type Subscription,
 } from "../domain/models";
+import { savedServiceForName } from "../domain/customServices";
 import { catalog, serviceFor, type Service } from "../domain/catalog";
 import { moneyInput, parseMoney } from "../domain/money";
 import { quickAddDates } from "../domain/calendarEvents";
@@ -35,7 +42,8 @@ import {
   Page,
 } from "../components/ui/Primitives";
 import { DateField } from "../components/ui/DateField";
-import { SelectField } from "../components/ui/Selection";
+import { PickerSheet, SelectField } from "../components/ui/Selection";
+import { ServicePicker } from "../components/subscriptions/ServicePicker";
 import {
   currencyOptions,
   categoryOptions,
@@ -130,9 +138,11 @@ export function SubscriptionForm({
     [error, setError] = useState<string | null>(null),
     [advanced, setAdvanced] = useState(false),
     [addingBillingMethod, setAddingBillingMethod] = useState(false),
+    [choosingService, setChoosingService] = useState(false),
     [pendingNavigation, setPendingNavigation] =
       useState<NavigationAction | null>(null),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [saveService, setSaveService] = useState(false);
   const currency =
     initial?.currency ||
     candidate?.currency ||
@@ -198,14 +208,14 @@ export function SubscriptionForm({
     getFieldState,
     setValue,
   ]);
-  useUpdateDraft(isDirty || busy);
+  useUpdateDraft(isDirty || saveService || busy);
   const saved = useRef(false);
-  usePreventRemove(isDirty, ({ data }) => {
+  usePreventRemove(isDirty || saveService, ({ data }) => {
     if (saved.current) navigation.dispatch(data.action);
     else setPendingNavigation(data.action);
   });
   useEffect(() => {
-    if (Platform.OS !== "web" || !isDirty) return;
+    if (Platform.OS !== "web" || (!isDirty && !saveService)) return;
     function protectDraft(event: BeforeUnloadEvent) {
       if (!saved.current) {
         event.preventDefault();
@@ -214,12 +224,18 @@ export function SubscriptionForm({
     }
     window.addEventListener("beforeunload", protectDraft);
     return () => window.removeEventListener("beforeunload", protectDraft);
-  }, [isDirty]);
+  }, [isDirty, saveService]);
+  const name = useWatch({ control, name: "name" });
+  const knownService = savedServiceForName(name, preferences.customServices);
+  const canRememberService =
+    !initial && !knownService && name.trim().length > 0;
   const interval = useWatch({ control, name: "interval" }),
     status = useWatch({ control, name: "status" }),
     chosenCurrency = useWatch({ control, name: "currency" });
   function chooseService(service: Service | null, customName?: string) {
+    setChoosingService(false);
     setServiceId(service?.id ?? null);
+    setSaveService(false);
     setValue("name", service?.name ?? customName ?? "", {
       shouldDirty: true,
       shouldValidate: true,
@@ -307,7 +323,10 @@ export function SubscriptionForm({
       const subscription: Subscription = {
         id,
         userId: useApp.getState().identity,
-        serviceId,
+        serviceId:
+          serviceId ??
+          savedServiceForName(values.name, preferences.customServices)?.id ??
+          null,
         name: values.name,
         category: values.category,
         amountMinor: parseMoney(values.amount, values.currency),
@@ -333,7 +352,13 @@ export function SubscriptionForm({
         updatedAt: now,
         version: initial?.version || 0,
       };
-      await saveSubscription(subscription, candidate?.id);
+      await saveSubscription(
+        subscription,
+        candidate?.id,
+        initial?.version,
+        formIdentity.current,
+        { saveService: canRememberService && saveService },
+      );
       saved.current = true;
       router.replace({ pathname: "/subscription/[id]", params: { id } });
     } catch (e) {
@@ -423,6 +448,77 @@ export function SubscriptionForm({
             />
           )}
         />
+        <View
+          style={{ alignItems: "flex-start", marginTop: -12, marginBottom: 16 }}
+        >
+          <Button
+            small
+            variant="ghost"
+            icon={Search}
+            testID="browse-services"
+            disabled={busy}
+            onPress={() => setChoosingService(true)}
+          >
+            Browse services
+          </Button>
+        </View>
+        {canRememberService && (
+          <Pressable
+            testID="save-custom-service"
+            accessibilityRole="checkbox"
+            accessibilityLabel="Save this new subscription"
+            aria-checked={saveService}
+            {...(Platform.OS === "web"
+              ? {
+                  onKeyDown: (event: {
+                    key: string;
+                    repeat: boolean;
+                    preventDefault: () => void;
+                  }) => {
+                    if (event.key === " ") {
+                      event.preventDefault();
+                      if (!busy && !event.repeat)
+                        setSaveService((value) => !value);
+                    }
+                  },
+                }
+              : {})}
+            accessibilityState={{ checked: saveService, disabled: busy }}
+            disabled={busy}
+            onPress={() => setSaveService((value) => !value)}
+            style={({ pressed }) => ({
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 12,
+              minHeight: 48,
+              marginBottom: 20,
+              opacity: busy ? 0.5 : 1,
+              backgroundColor: pressed ? colors.mint : "transparent",
+              borderRadius: 10,
+            })}
+          >
+            <View
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 6,
+                borderWidth: 1.5,
+                borderColor: saveService ? colors.primary : colors.secondary,
+                backgroundColor: saveService ? colors.primary : "transparent",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {saveService && <Check size={15} color={colors.onPrimary} />}
+            </View>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Label>Save this new subscription</Label>
+              <Label size={12} color={colors.secondary}>
+                Reuse this service from your saved list.
+              </Label>
+            </View>
+          </Pressable>
+        )}
         <View style={{ flexDirection: "row", gap: 16 }}>
           <View style={{ flex: 1 }}>
             {field(
@@ -661,6 +757,20 @@ export function SubscriptionForm({
         )}
         {!page && saveBar}
       </Card>
+      <PickerSheet
+        visible={choosingService}
+        title="Choose a service"
+        onClose={() => setChoosingService(false)}
+      >
+        {choosingService && (
+          <ServicePicker
+            selected={serviceId}
+            onSelect={chooseService}
+            presentation="sheet"
+            autoFocus
+          />
+        )}
+      </PickerSheet>
       {addingBillingMethod && (
         <BillingMethodEditor
           sources={billingMethods.value.sources}

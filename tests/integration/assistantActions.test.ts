@@ -1,5 +1,6 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import {
+  assistantLegacyResponseSchema,
   assistantResponseSchema,
   containsCardNumber,
   mergeAssistantDraft,
@@ -15,8 +16,10 @@ import { resolveAssistantAction } from "../../src/services/assistantActions";
 const mocks = vi.hoisted(() => ({
   getState: vi.fn(),
   save: vi.fn(),
+  remove: vi.fn(),
   preferences: vi.fn(),
   read: vi.fn(),
+  write: vi.fn(),
 }));
 vi.mock("expo-crypto", () => ({
   randomUUID: () => "520ebabe-b585-49a0-b967-c09b2a56cce5",
@@ -24,10 +27,12 @@ vi.mock("expo-crypto", () => ({
 vi.mock("../../src/store/app", () => ({
   useApp: { getState: mocks.getState },
   saveSubscription: mocks.save,
+  deleteSubscription: mocks.remove,
   updatePreferences: mocks.preferences,
 }));
 vi.mock("../../src/services/featureSettings", () => ({
   readSetting: mocks.read,
+  writeSetting: mocks.write,
 }));
 
 const identity = "94a5ae49-a5b8-4076-acc5-16e47da52116";
@@ -359,4 +364,182 @@ it("keeps reminder timing separate from delivery settings", async () => {
     },
     identity,
   );
+});
+
+it("totals the next calendar month without including the current month’s charges", async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-11-10T12:00:00Z"));
+  try {
+    snapshot.preferences.timezone = "Africa/Tunis";
+    snapshot.subscriptions = [
+      {
+        ...spotify,
+        name: "Gym membership",
+        interval: "yearly",
+        amountMinor: 3000,
+        nextRenewal: "2026-11-28",
+        anchorDay: 28,
+      },
+      {
+        ...spotify,
+        name: "ChatGPT",
+        amountMinor: 2000,
+        nextRenewal: "2026-12-02",
+        anchorDay: 2,
+      },
+      {
+        ...spotify,
+        name: "Netflix",
+        amountMinor: 500,
+        currency: "EUR",
+        nextRenewal: "2026-12-09",
+        anchorDay: 9,
+      },
+      {
+        ...spotify,
+        userId: "foreign",
+        name: "Foreign plan",
+        nextRenewal: "2026-12-12",
+        anchorDay: 12,
+      },
+    ];
+    const action = interpretLocalAssistant(
+      "tell me how much i will spend next month",
+      false,
+    );
+    const reply = await resolveAssistantAction(action, identity);
+    expect(reply.title).toBe("Estimated spending · December 2026");
+    expect(reply.rows).toEqual([
+      { label: "EUR total", value: "€5.00" },
+      { label: "USD total", value: "$20.00" },
+      { label: "ChatGPT", value: "Dec 2, 2026 · $20.00" },
+      { label: "Netflix", value: "Dec 9, 2026 · €5.00" },
+    ]);
+    expect(assistantLegacyResponseSchema.safeParse({ action }).success).toBe(
+      false,
+    );
+    expect(assistantResponseSchema.safeParse({ action }).success).toBe(true);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it("reviews a Spotify price edit and deletion before writing the exact saved version", async () => {
+  const edit = await resolveAssistantAction(
+    interpretLocalAssistant("change the price of Spotify to 8 euro", false),
+    identity,
+  );
+  expect(edit.rows).toEqual([{ label: "Price", value: "€8.00 · EUR" }]);
+  expect(mocks.save).not.toHaveBeenCalled();
+  if (!edit.next || !("run" in edit.next))
+    throw new Error("Expected edit confirmation.");
+  await edit.next.run();
+  expect(mocks.save).toHaveBeenCalledWith(
+    expect.objectContaining({
+      id: spotify.id,
+      amountMinor: 800,
+      currency: "EUR",
+      nextRenewal: spotify.nextRenewal,
+    }),
+    undefined,
+    spotify.version,
+    identity,
+  );
+  const removal = await resolveAssistantAction(
+    interpretLocalAssistant("delete my Spotify subscription", false),
+    identity,
+  );
+  expect(mocks.remove).not.toHaveBeenCalled();
+  if (!removal.next || !("run" in removal.next))
+    throw new Error("Expected delete confirmation.");
+  expect(removal.next.danger).toBe(true);
+  await removal.next.run();
+  expect(mocks.remove).toHaveBeenCalledWith(
+    spotify.id,
+    spotify.version,
+    identity,
+  );
+});
+
+it("revises an already-complete add draft when the user corrects its start date", async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-11-10T12:00:00Z"));
+  try {
+    snapshot.preferences.timezone = "UTC";
+    snapshot.subscriptions = [];
+    const initial = interpretLocalAssistant(
+      "Add Spotify for 5 euro per month, started on 10 November 2026",
+      false,
+    );
+    if (initial.kind !== "add_subscription")
+      throw new Error("Expected a new draft.");
+    const before = await resolveAssistantAction(initial, identity);
+    expect(before.rows).toContainEqual({
+      label: "Start date",
+      value: "Nov 10, 2026",
+    });
+    const update = interpretLocalAssistant("it been started from 7 nov", true, {
+      today: "2026-11-10",
+      pending: initial,
+    });
+    const revised = await resolveAssistantAction(
+      mergeAssistantDraft(update, initial),
+      identity,
+    );
+    expect(revised.rows).toContainEqual({
+      label: "Start date",
+      value: "Nov 7, 2026",
+    });
+    expect(revised.rows).toContainEqual({
+      label: "Next renewal",
+      value: "Dec 7, 2026",
+    });
+    expect(revised.rows).toContainEqual({
+      label: "Price",
+      value: "€5.00 · monthly",
+    });
+    expect(mocks.save).not.toHaveBeenCalled();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it("adds, edits, and removes payment labels through reviewed, versioned saves", async () => {
+  let record = { value: { sources: [], links: [] }, version: 0 };
+  mocks.read.mockImplementation(async () => record);
+  mocks.write.mockImplementation(
+    async (_identity, _key, _schema, value, version) => {
+      expect(version).toBe(record.version);
+      record = { value, version: version + 1 };
+      return record.version;
+    },
+  );
+  const confirm = async (command: string, label: string) => {
+    const reply = await resolveAssistantAction(
+      interpretLocalAssistant(command, false),
+      identity,
+    );
+    if (!reply.next || !("run" in reply.next))
+      throw new Error("Expected payment confirmation: " + reply.text);
+    expect(reply.next.label).toBe(label);
+    await reply.next.run();
+  };
+  await confirm(
+    "add a Visa card ending in 1234 called Travel",
+    "Add payment method",
+  );
+  expect(record.value.sources).toEqual([
+    expect.objectContaining({
+      name: "Travel",
+      cardBrand: "Visa",
+      last4: "1234",
+    }),
+  ]);
+  await confirm("rename my Travel card to Daily", "Save payment method");
+  expect(record.value.sources).toEqual([
+    expect.objectContaining({ name: "Daily", last4: "1234" }),
+  ]);
+  await confirm("remove my Daily card", "Remove payment method");
+  expect(record.value.sources).toEqual([]);
+  expect(mocks.write).toHaveBeenCalledTimes(3);
 });

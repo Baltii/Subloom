@@ -68,7 +68,7 @@ function AssistantWorkspace({
     let active = true;
     void localSetting(identity, settingKey)
       .then((stored) => {
-        if (active) setEnabled(stored === "true");
+        if (active) setEnabled(stored === null || stored === "true");
       })
       .catch(() => {
         if (active) setError("Couldn’t load this setting.");

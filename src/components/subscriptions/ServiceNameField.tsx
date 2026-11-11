@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Pressable, View, type TextInputProps } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import { suggestServices, type Service } from "../../domain/catalog";
+import { useServiceCatalog } from "../../hooks/useServiceCatalog";
 import { PRO_PLAN_ENABLED } from "../../domain/planMode";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { useTheme } from "../../theme/useTheme";
@@ -25,13 +26,14 @@ export function ServiceNameField({
   error?: string;
 }) {
   const { colors } = useTheme();
+  const personal = useServiceCatalog();
   const [edited, setEdited] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const query = value.trim();
   const settledQuery = useDebouncedValue(query);
   const matches = useMemo(
-    () => suggestServices(settledQuery, PRO_PLAN_ENABLED),
-    [settledQuery],
+    () => suggestServices(settledQuery, PRO_PLAN_ENABLED, personal),
+    [settledQuery, personal],
   );
   // Hide outdated matches immediately while the latest keystroke is settling.
   const show =
@@ -116,6 +118,7 @@ export function ServiceNameField({
                     <Label bold>{service.name}</Label>
                     <Label size={12} color={colors.secondary}>
                       {service.category}
+                      {service.custom ? " · Saved service" : ""}
                     </Label>
                   </View>
                   <ChevronRight size={17} color={colors.secondary} />

@@ -14,7 +14,8 @@ import {
 import Animated, {
   cancelAnimation,
   Easing,
-  FadeInUp,
+  FadeIn,
+  FadeInDown,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -39,7 +40,9 @@ import { useAssistantPreference } from "./AssistantPreference";
 import {
   containsAssistantSecret,
   mergeAssistantDraft,
-  type AssistantDraft,
+  mergeBillingDraft,
+  mergeSubscriptionEdit,
+  type AssistantAction,
 } from "../../domain/assistantProtocol";
 import { interpretLocalAssistant } from "../../domain/localAssistant";
 import { today } from "../../domain/renewal";
@@ -53,45 +56,89 @@ import { useTheme } from "../../theme/useTheme";
 import { tokens } from "../../theme/tokens";
 import { Button, Heading, Label } from "../ui/Primitives";
 
-type Turn =
+type Turn = { createdAt: number } & (
   | { id: number; role: "user"; text: string }
   | {
       id: number;
       role: "assistant";
       reply: AssistantReply;
       state?: "saved" | "error";
-    };
+    }
+);
 const suggestions = [
-  { text: "What renews next?", Icon: CalendarDays },
-  { text: "Help me add a subscription", Icon: Plus },
-  { text: "Switch to dark mode", Icon: SlidersHorizontal },
+  {
+    text: "Next month’s spending",
+    prompt: "What will I spend next month?",
+    Icon: CalendarDays,
+  },
+  {
+    text: "Add a subscription",
+    prompt: "Help me add a subscription",
+    Icon: Plus,
+  },
+  {
+    text: "Change my theme",
+    prompt: "Switch to dark mode",
+    Icon: SlidersHorizontal,
+  },
 ];
 
 function TypingDot({ delay, color }: { delay: number; color: string }) {
-  const opacity = useSharedValue(0.35);
+  const progress = useSharedValue(0);
   const reduced = useReducedMotion();
   useEffect(() => {
+    progress.value = 0;
     if (!reduced)
-      opacity.value = withDelay(
+      progress.value = withDelay(
         delay,
         withRepeat(
           withSequence(
-            withTiming(1, { duration: 320 }),
-            withTiming(0.35, { duration: 480 }),
+            withTiming(1, { duration: 300, easing: Easing.inOut(Easing.sin) }),
+            withTiming(0, { duration: 300, easing: Easing.inOut(Easing.sin) }),
+            withDelay(360, withTiming(0, { duration: 0 })),
           ),
           -1,
         ),
       );
-    return () => cancelAnimation(opacity);
-  }, [delay, opacity, reduced]);
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+    return () => cancelAnimation(progress);
+  }, [delay, progress, reduced]);
+  const style = useAnimatedStyle(() => ({
+    opacity: reduced ? 0.65 : 0.4 + progress.value * 0.6,
+    transform: [{ translateY: reduced ? 0 : -3 * progress.value }],
+  }));
   return (
     <Animated.View
       style={[
-        { width: 5, height: 5, borderRadius: 3, backgroundColor: color },
+        { width: 6, height: 6, borderRadius: 3, backgroundColor: color },
         style,
       ]}
     />
+  );
+}
+
+function MessageTime({
+  createdAt,
+  color,
+}: {
+  createdAt: number;
+  color: string;
+}) {
+  const date = new Date(createdAt);
+  return (
+    <Label
+      testID="assistant-message-time"
+      size={11}
+      color={color}
+      accessibilityLabel={date.toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })}
+    >
+      {date.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}
+    </Label>
   );
 }
 
@@ -123,10 +170,12 @@ function AssistantChat({
   const request = useRef<AbortController | null>(null);
   const operation = useRef(false);
   const followup = useRef<string[]>([]);
-  const pendingDraft = useRef<AssistantDraft | undefined>(undefined);
+  const pendingAction = useRef<AssistantAction | undefined>(undefined);
+  const lastSubscription = useRef<string | undefined>(undefined);
   const sequence = useRef(0);
   const scroll = useRef<ScrollView>(null);
   const navigation = useRef<Href | null>(null);
+  const nearBottom = useRef(true);
   const launcher = useRef<View>(null);
   const mounted = useRef(true);
   useEffect(() => {
@@ -141,7 +190,7 @@ function AssistantChat({
     const id = ++sequence.current;
     setTurns((previous) => [
       ...previous.slice(-29),
-      { id, role: "assistant", reply, state },
+      { id, role: "assistant", reply, state, createdAt: Date.now() },
     ]);
     setPending(reply.next && "run" in reply.next ? id : null);
   }
@@ -171,35 +220,63 @@ function AssistantChat({
     const timeout = setTimeout(() => controller.abort(), 22_000);
     const context = [...followup.current.slice(-3), text];
     const id = ++sequence.current;
+    nearBottom.current = true;
     setTurns((previous) => [
       ...previous.slice(-29),
-      { id, role: "user", text },
+      { id, role: "user", text, createdAt: Date.now() },
     ]);
     setDraft("");
     setPending(null);
     setBusy("reply");
     try {
+      const previous = pendingAction.current;
+      const date = today(snapshot.data.preferences.timezone);
+      const local = interpretLocalAssistant(
+        text,
+        previous?.kind === "add_subscription",
+        {
+          today: date,
+          subscription: lastSubscription.current,
+          pending: previous,
+        },
+      );
       const action =
-        identity === "guest"
-          ? interpretLocalAssistant(text, Boolean(pendingDraft.current))
-          : await interpretAssistantRequest(
-              identity,
-              {
-                messages: context,
-                today: today(snapshot.data.preferences.timezone),
-              },
-              controller.signal,
-            );
+        previous && /^(?:confirm|save it|yes,? save)[.!]?$/i.test(text)
+          ? previous
+          : identity === "guest" || local.kind !== "help"
+            ? local
+            : await interpretAssistantRequest(
+                identity,
+                { messages: context, today: date, protocol: 2 },
+                controller.signal,
+              );
       if (controller.signal.aborted)
         throw new Error("The assistant took too long. Try again.");
-      const resolved = mergeAssistantDraft(action, pendingDraft.current);
+      const withDraft = mergeAssistantDraft(
+        action,
+        previous?.kind === "add_subscription" ? previous : undefined,
+      );
+      const withEdit = mergeSubscriptionEdit(
+        withDraft,
+        previous?.kind === "edit_subscription" ? previous : undefined,
+      );
+      const resolved = mergeBillingDraft(
+        withEdit,
+        previous?.kind === "payment_method" ? previous : undefined,
+      );
       const reply = await resolveAssistantAction(resolved, identity);
       if (!mounted.current) return;
-      pendingDraft.current =
-        reply.awaitingDetails && resolved.kind === "add_subscription"
-          ? resolved
-          : undefined;
-      followup.current = reply.awaitingDetails ? context : [];
+      const ongoing =
+        reply.awaitingDetails || (reply.next && "run" in reply.next);
+      pendingAction.current = ongoing ? resolved : undefined;
+      followup.current = ongoing ? context : [];
+      if (
+        resolved.kind === "subscription" &&
+        reply.next &&
+        "route" in reply.next &&
+        reply.title
+      )
+        lastSubscription.current = reply.title;
       append(reply);
     } catch (error) {
       if (mounted.current) {
@@ -228,7 +305,21 @@ function AssistantChat({
     setBusy("apply");
     try {
       const text = await run();
-      if (mounted.current) append({ text }, "saved");
+      if (mounted.current) {
+        const confirmed = pendingAction.current;
+        if (confirmed?.kind === "add_subscription")
+          lastSubscription.current = confirmed.name ?? undefined;
+        if (confirmed?.kind === "edit_subscription")
+          lastSubscription.current =
+            confirmed.changes.find(({ field }) => field === "name")?.value ??
+            confirmed.subscription ??
+            undefined;
+        if (confirmed?.kind === "delete_subscription")
+          lastSubscription.current = undefined;
+        pendingAction.current = undefined;
+        followup.current = [];
+        append({ text }, "saved");
+      }
     } catch (error) {
       if (mounted.current) append({ text: readableError(error) }, "error");
     } finally {
@@ -310,14 +401,16 @@ function AssistantChat({
             entering={
               reduced
                 ? undefined
-                : FadeInUp.duration(230).easing(Easing.out(Easing.cubic))
+                : FadeInDown.duration(240).easing(
+                    Easing.bezier(0.16, 1, 0.3, 1),
+                  )
             }
             style={[
               styles.panel,
               {
-                width: desktop ? 438 : undefined,
+                width: desktop ? 440 : undefined,
                 height: Math.min(
-                  desktop ? 590 : 650,
+                  desktop ? 640 : 680,
                   height - insets.top - insets.bottom - 28,
                 ),
                 maxHeight: "100%",
@@ -327,22 +420,13 @@ function AssistantChat({
             ]}
           >
             <View style={[styles.header, { borderColor: colors.border }]}>
-              <View
-                style={[styles.headerIcon, { backgroundColor: colors.mint }]}
-              >
-                <MessageCircle
-                  size={19}
-                  color={colors.primary}
-                  strokeWidth={1.9}
-                />
-              </View>
-              <View style={{ flex: 1, gap: 2 }}>
-                <Heading size={18}>Subloom assistant</Heading>
-                <Label size={12} color={colors.secondary}>
-                  {identity === "guest"
-                    ? "On-device quick actions"
-                    : "Subscriptions & quick actions"}
-                </Label>
+              <MessageCircle
+                size={21}
+                color={colors.primary}
+                strokeWidth={1.8}
+              />
+              <View style={{ flex: 1 }}>
+                <Heading size={18}>Subloom</Heading>
               </View>
               <Pressable
                 accessibilityRole="button"
@@ -359,20 +443,28 @@ function AssistantChat({
             <ScrollView
               ref={scroll}
               keyboardShouldPersistTaps="handled"
-              onContentSizeChange={() =>
-                scroll.current?.scrollToEnd({
-                  animated: !reduced && turns.length > 1,
-                })
-              }
+              showsVerticalScrollIndicator={false}
+              scrollEventThrottle={100}
+              onScroll={({
+                nativeEvent: { contentOffset, contentSize, layoutMeasurement },
+              }) => {
+                nearBottom.current =
+                  contentSize.height -
+                    layoutMeasurement.height -
+                    contentOffset.y <
+                  72;
+              }}
+              onContentSizeChange={() => {
+                if (nearBottom.current)
+                  scroll.current?.scrollToEnd({
+                    animated: !reduced && turns.length > 1,
+                  });
+              }}
               contentContainerStyle={styles.thread}
             >
               {turns.length === 0 && (
                 <View style={styles.empty}>
-                  <Heading size={24}>What can I help with?</Heading>
-                  <Label size={14} color={colors.secondary}>
-                    Look up a renewal, add a plan, or change a setting in a few
-                    words.
-                  </Label>
+                  <Heading size={26}>How can I help?</Heading>
                   <View
                     style={{
                       marginTop: 10,
@@ -380,11 +472,11 @@ function AssistantChat({
                       borderColor: colors.border,
                     }}
                   >
-                    {suggestions.map(({ text, Icon }) => (
+                    {suggestions.map(({ text, prompt, Icon }) => (
                       <Pressable
                         key={text}
                         accessibilityRole="button"
-                        onPress={() => void send(text)}
+                        onPress={() => void send(prompt)}
                         style={({ pressed }) => [
                           styles.suggestion,
                           {
@@ -408,16 +500,24 @@ function AssistantChat({
               {turns.map((turn) => (
                 <Animated.View
                   key={turn.id}
-                  entering={reduced ? undefined : FadeInUp.duration(180)}
+                  entering={reduced ? undefined : FadeIn.duration(180)}
                 >
                   {turn.role === "user" ? (
-                    <View
-                      style={[
-                        styles.userBubble,
-                        { backgroundColor: colors.mint },
-                      ]}
-                    >
-                      <Label size={14}>{turn.text}</Label>
+                    <View style={styles.userTurn}>
+                      <View
+                        style={[
+                          styles.userBubble,
+                          { backgroundColor: colors.mint },
+                        ]}
+                      >
+                        <Label size={15} selectable>
+                          {turn.text}
+                        </Label>
+                      </View>
+                      <MessageTime
+                        createdAt={turn.createdAt}
+                        color={colors.secondary}
+                      />
                     </View>
                   ) : (
                     <View accessibilityLiveRegion="polite" style={{ gap: 10 }}>
@@ -432,7 +532,8 @@ function AssistantChat({
                           <Check size={16} color={colors.success} />
                         )}
                         <Label
-                          size={14}
+                          size={15}
+                          selectable
                           style={{ flex: 1 }}
                           color={
                             turn.state === "error" ? colors.error : colors.text
@@ -496,6 +597,9 @@ function AssistantChat({
                           <View style={styles.actions}>
                             <Button
                               small
+                              variant={
+                                turn.reply.next.danger ? "danger" : "primary"
+                              }
                               onPress={() => {
                                 const next = turn.reply.next;
                                 if (next && "run" in next) void apply(next.run);
@@ -506,26 +610,32 @@ function AssistantChat({
                             <Button
                               small
                               variant="ghost"
-                              onPress={() => setPending(null)}
+                              onPress={() => {
+                                pendingAction.current = undefined;
+                                followup.current = [];
+                                setPending(null);
+                              }}
                             >
                               Dismiss
                             </Button>
                           </View>
                         )}
+                      <MessageTime
+                        createdAt={turn.createdAt}
+                        color={colors.secondary}
+                      />
                     </View>
                   )}
                 </Animated.View>
               ))}
-              {busy && (
+              {busy && open && (
                 <View
                   accessibilityLiveRegion="polite"
                   accessibilityLabel={
                     busy === "reply" ? "Preparing a reply" : "Saving changes"
                   }
-                  style={[
-                    styles.typing,
-                    { backgroundColor: colors.background },
-                  ]}
+                  testID="assistant-typing"
+                  style={styles.typing}
                 >
                   {[0, 120, 240].map((delay) => (
                     <TypingDot
@@ -534,9 +644,6 @@ function AssistantChat({
                       color={colors.primary}
                     />
                   ))}
-                  <Label size={12} color={colors.secondary}>
-                    {busy === "reply" ? "Preparing a reply" : "Saving changes"}
-                  </Label>
                 </View>
               )}
             </ScrollView>
@@ -553,7 +660,7 @@ function AssistantChat({
                 <TextInput
                   testID="assistant-input"
                   accessibilityLabel="Message Subloom assistant"
-                  placeholder="Ask or make a change…"
+                  placeholder="Message Subloom…"
                   placeholderTextColor={colors.secondary}
                   value={draft}
                   onChangeText={setDraft}
@@ -566,6 +673,7 @@ function AssistantChat({
                   accessibilityRole="button"
                   accessibilityLabel="Send message"
                   disabled={!!busy || !draft.trim()}
+                  accessibilityState={{ disabled: !!busy || !draft.trim() }}
                   onPress={() => void send(draft)}
                   style={({ pressed }) => [
                     styles.send,
@@ -580,11 +688,6 @@ function AssistantChat({
                   <ArrowUp size={19} color={colors.onPrimary} />
                 </Pressable>
               </View>
-              <Label size={11} color={colors.secondary}>
-                {identity === "guest"
-                  ? "This chat stays on this device."
-                  : "Groq processes typed messages. Keep personal details and card numbers out of chat."}
-              </Label>
             </View>
           </Animated.View>
         </KeyboardAvoidingView>
@@ -608,7 +711,6 @@ const styles = StyleSheet.create({
   panel: {
     overflow: "hidden",
     borderRadius: 23,
-    borderWidth: 1,
     elevation: 8,
     boxShadow: "0 12px 35px #102C2330",
   },
@@ -621,36 +723,34 @@ const styles = StyleSheet.create({
     gap: 11,
     borderBottomWidth: 1,
   },
-  headerIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
   },
-  thread: { padding: 17, gap: 18 },
-  empty: { paddingTop: 12, paddingBottom: 8, gap: 8 },
+  thread: { padding: 20, gap: 24, flexGrow: 1 },
+  empty: { paddingTop: 28, paddingBottom: 16, gap: 16 },
   suggestion: {
-    minHeight: 47,
+    minHeight: 52,
     paddingHorizontal: 4,
     borderBottomWidth: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: 11,
   },
-  userBubble: {
+  userTurn: {
     alignSelf: "flex-end",
     maxWidth: "88%",
-    paddingVertical: 9,
+    alignItems: "flex-end",
+    gap: 5,
+  },
+  userBubble: {
+    paddingVertical: 11,
     paddingHorizontal: 13,
-    borderRadius: 15,
+    borderRadius: 16,
+    borderBottomRightRadius: 5,
   },
   summary: { padding: 12, borderWidth: 1, borderRadius: 13, gap: 5 },
   summaryRow: {
@@ -671,11 +771,11 @@ const styles = StyleSheet.create({
   typing: {
     alignSelf: "flex-start",
     paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 12,
+    paddingVertical: 13,
+    minHeight: 36,
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
   },
   composer: {
     borderTopWidth: 1,
@@ -699,9 +799,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 11,
   },
   send: {
-    width: 44,
-    height: 44,
-    borderRadius: 13,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },

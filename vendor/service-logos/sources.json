@@ -384,6 +384,253 @@
       "slug": "google",
       "source": "https://partnermarketinghub.withgoogle.com",
       "guidelines": "https://about.google/brand-resource-center/brand-elements/"
+    },
+    {
+      "id": "starz",
+      "title": "STARZ",
+      "slug": "starz",
+      "source": "https://www.starz.com/takethelead",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "mubi",
+      "title": "MUBI",
+      "slug": "mubi",
+      "source": "https://mubi.com",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "plex",
+      "title": "Plex",
+      "slug": "plex",
+      "source": "https://brand.plex.tv",
+      "package": "simple-icons@16.35.0",
+      "guidelines": "https://brand.plex.tv"
+    },
+    {
+      "id": "dazn",
+      "title": "DAZN",
+      "slug": "dazn",
+      "source": "https://media.dazn.com/en/assets/",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "youtubemusic",
+      "title": "YouTube Music",
+      "slug": "youtubemusic",
+      "source": "https://partnermarketinghub.withgoogle.com/#/brands",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "amazonmusic",
+      "title": "Amazon Music",
+      "slug": "amazonmusic",
+      "source": "https://music.amazon.com",
+      "package": "simple-icons@11.15.0",
+      "guidelines": "https://artists.amazonmusic.com/brand-guidelines"
+    },
+    {
+      "id": "appleone",
+      "title": "Apple",
+      "slug": "apple",
+      "source": "https://www.apple.com",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "applearcade",
+      "title": "Apple Arcade",
+      "slug": "applearcade",
+      "source": "https://www.apple.com/apple-arcade",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "xbox",
+      "title": "Xbox",
+      "slug": "xbox",
+      "source": "https://www.xbox.com/en-US/consoles",
+      "package": "simple-icons@11.15.0"
+    },
+    {
+      "id": "playstation",
+      "title": "PlayStation",
+      "slug": "playstation",
+      "source": "https://www.playstation.com/en-us/",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "eaplay",
+      "title": "EA",
+      "slug": "ea",
+      "source": "https://www.ea.com",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "ubisoftplus",
+      "title": "Ubisoft",
+      "slug": "ubisoft",
+      "source": "https://www.ubisoft.com/en-US/company/overview.aspx",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "nintendoswitch",
+      "title": "Nintendo Switch",
+      "slug": "nintendoswitch",
+      "source": "https://www.nintendo.com/switch/",
+      "package": "simple-icons@11.15.0"
+    },
+    {
+      "id": "geforcenow",
+      "title": "NVIDIA",
+      "slug": "nvidia",
+      "source": "https://www.nvidia.com/en-us",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "canva",
+      "title": "Canva",
+      "slug": "canva",
+      "source": "https://www.canva.com",
+      "package": "simple-icons@11.15.0"
+    },
+    {
+      "id": "slack",
+      "title": "Slack",
+      "slug": "slack",
+      "source": "https://slack.com/brand-guidelines",
+      "package": "simple-icons@11.15.0",
+      "guidelines": "https://slack.com/brand-guidelines"
+    },
+    {
+      "id": "airtable",
+      "title": "Airtable",
+      "slug": "airtable",
+      "source": "https://airtable.com/newsroom",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "loom",
+      "title": "Loom",
+      "slug": "loom",
+      "source": "https://www.loom.com/press",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "calendly",
+      "title": "Calendly",
+      "slug": "calendly",
+      "source": "https://calendly.com/newsroom",
+      "package": "simple-icons@16.35.0",
+      "guidelines": "https://calendly.com/newsroom"
+    },
+    {
+      "id": "claude",
+      "title": "Claude",
+      "slug": "claude",
+      "source": "https://claude.ai",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "perplexity",
+      "title": "Perplexity",
+      "slug": "perplexity",
+      "source": "https://www.perplexity.ai",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "cursor",
+      "title": "Cursor",
+      "slug": "cursor",
+      "source": "https://cursor.com/brand",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "elevenlabs",
+      "title": "ElevenLabs",
+      "slug": "elevenlabs",
+      "source": "https://elevenlabs.io/brand",
+      "package": "simple-icons@16.35.0",
+      "guidelines": "https://elevenlabs.io/brand"
+    },
+    {
+      "id": "mistral",
+      "title": "Mistral AI",
+      "slug": "mistralai",
+      "source": "https://chat.mistral.ai",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "expressvpn",
+      "title": "ExpressVPN",
+      "slug": "expressvpn",
+      "source": "https://www.expressvpn.com/press",
+      "package": "simple-icons@16.35.0",
+      "guidelines": "https://www.expressvpn.com/press"
+    },
+    {
+      "id": "protonmail",
+      "title": "Proton Mail",
+      "slug": "protonmail",
+      "source": "https://proton.me/media/kit",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "bitdefender",
+      "title": "Bitdefender",
+      "slug": "bitdefender",
+      "source": "https://brand.bitdefender.com",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "norton",
+      "title": "Norton",
+      "slug": "norton",
+      "source": "https://us.norton.com",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "dashlane",
+      "title": "Dashlane",
+      "slug": "dashlane",
+      "source": "https://brandfolder.com/dashlane/brandkitpartners",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "adguard",
+      "title": "AdGuard",
+      "slug": "adguard",
+      "source": "https://adguard.com/en/media-materials.html",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "deepl",
+      "title": "DeepL",
+      "slug": "deepl",
+      "source": "https://www.deepl.com/press.html",
+      "package": "simple-icons@16.35.0"
+    },
+    {
+      "id": "tuta",
+      "title": "Tuta",
+      "slug": "tuta",
+      "source": "https://github.com/tutao/tutanota/blob/65d087b1bc2cb7aee46e7a46431303483d2da986/resources/favicon/logo-favicon.svg",
+      "package": "simple-icons@16.35.0",
+      "guidelines": "https://tuta.com/press"
+    },
+    {
+      "id": "linkedin",
+      "title": "LinkedIn",
+      "slug": "linkedin",
+      "source": "https://brand.linkedin.com",
+      "package": "simple-icons@11.15.0",
+      "guidelines": "https://brand.linkedin.com/policies"
+    },
+    {
+      "id": "medium",
+      "title": "Medium",
+      "slug": "medium",
+      "source": "https://medium.design/logos-and-brand-guidelines-f1a01a733592",
+      "package": "simple-icons@16.35.0",
+      "guidelines": "https://medium.design/logos-and-brand-guidelines-f1a01a733592"
     }
   ],
   "additionalAssets": [
@@ -442,6 +689,30 @@
       "license": "Apache-2.0 (collection); brand trademarks belong to their respective owners",
       "licenseFile": "DASHBOARD-ICONS-LICENSE",
       "modifications": "Bundled as SVG XML into serviceArtwork.ts; geometry and brand colors preserved."
+    },
+    {
+      "id": "disneyplus",
+      "asset": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/d767d7327db7f8ebd3715b552523f61889eea41c/svg/disney-plus.svg",
+      "source": "https://www.disneyplus.com",
+      "license": "Apache-2.0 (collection); brand trademarks belong to their respective owners",
+      "licenseFile": "DASHBOARD-ICONS-LICENSE",
+      "modifications": "Bundled SVG; local gradient identifiers prefixed with service id."
+    },
+    {
+      "id": "hulu",
+      "asset": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/d767d7327db7f8ebd3715b552523f61889eea41c/svg/hulu.svg",
+      "source": "https://www.hulu.com",
+      "license": "Apache-2.0 (collection); brand trademarks belong to their respective owners",
+      "licenseFile": "DASHBOARD-ICONS-LICENSE",
+      "modifications": "Bundled SVG; local gradient identifiers prefixed with service id."
+    },
+    {
+      "id": "fastmail",
+      "asset": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/d767d7327db7f8ebd3715b552523f61889eea41c/svg/fastmail.svg",
+      "source": "https://app.fastmail.com",
+      "license": "Apache-2.0 (collection); brand trademarks belong to their respective owners",
+      "licenseFile": "DASHBOARD-ICONS-LICENSE",
+      "modifications": "Bundled SVG; local gradient identifiers prefixed with service id."
     }
   ]
 }

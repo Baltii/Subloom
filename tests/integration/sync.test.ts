@@ -8,6 +8,7 @@ import {
 } from "../../src/services/sync";
 import {
   emptySnapshot,
+  preferencesSchema,
   type Operation,
   type Snapshot,
 } from "../../src/domain/models";
@@ -56,6 +57,13 @@ function client(owner: string) {
       await beforeWrite?.();
       const state = cloud.get(owner)!;
       if (!applied.has(operation.id)) {
+        if (operation.entity === "preferences") {
+          state.preferences = preferencesSchema.parse(operation.payload);
+          state.onboarded = true;
+          applied.add(operation.id);
+          revisions.set(owner, (revisions.get(owner) ?? 0) + 1);
+          return { error: null, data: { ok: true } };
+        }
         const row = state.subscriptions.find(
           (s) => s.id === operation.entityId,
         );
@@ -302,4 +310,30 @@ describe("account sync under concurrency and intermittent connectivity", () => {
       vi.useRealTimers();
     }
   });
+});
+
+it("restores private saved services with their subscription on a second device", async () => {
+  await saveSubscription(
+    subscription({
+      name: "Local coding club",
+      serviceId: null,
+      category: "Education",
+    }),
+    undefined,
+    undefined,
+    userA,
+    { saveService: true },
+  );
+  await syncNow();
+  const template = useApp.getState().data.preferences.customServices[0]!;
+  expect(cloud.get(userA)!.preferences.customServices).toEqual([template]);
+  disk.delete("subloom:v1:" + userA);
+  await hydrate(userA);
+  expect(useApp.getState().data.preferences.customServices).toEqual([]);
+  await syncNow();
+  expect(useApp.getState().data.preferences.customServices).toEqual([template]);
+  expect(useApp.getState().data.subscriptions[0]?.serviceId).toBe(template.id);
+  await hydrate(userB);
+  await syncNow();
+  expect(useApp.getState().data.preferences.customServices).toEqual([]);
 });

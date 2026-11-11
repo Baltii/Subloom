@@ -498,3 +498,137 @@ it("keeps mixed CSV imports durable and idempotent across reload and repeated su
   expect(useApp.getState().data.priceHistory).toHaveLength(2);
   expect(useApp.getState().data.activity).toHaveLength(2);
 });
+
+describe("private saved custom services", () => {
+  it("atomically saves a reusable service with a subscription and retains it after deletion", async () => {
+    await saveSubscription(
+      subscription({
+        name: "Local coding club",
+        serviceId: null,
+        category: "Education",
+      }),
+      undefined,
+      undefined,
+      "guest",
+      { saveService: true },
+    );
+    const data = useApp.getState().data;
+    expect(data.preferences.customServices).toHaveLength(1);
+    expect(data.preferences.customServices[0]).toMatchObject({
+      name: "Local coding club",
+      category: "Education",
+    });
+    expect(data.subscriptions[0]?.serviceId).toBe(
+      data.preferences.customServices[0]?.id,
+    );
+    expect(data.outbox).toEqual([]);
+    await deleteSubscription(data.subscriptions[0]!.id);
+    await hydrate("guest");
+    expect(useApp.getState().data.preferences.customServices).toHaveLength(1);
+    await hydrate(userA);
+    expect(useApp.getState().data.preferences.customServices).toEqual([]);
+  });
+  it("does not create a reusable service without the opt-in or after a failed disk write", async () => {
+    await saveSubscription(
+      subscription({ name: "Unsaved provider", serviceId: null }),
+    );
+    expect(useApp.getState().data.preferences.customServices).toEqual([]);
+    failWrites = true;
+    await expect(
+      saveSubscription(
+        subscription({
+          id: randomUUID(),
+          name: "Failed provider",
+          serviceId: null,
+        }),
+        undefined,
+        undefined,
+        "guest",
+        { saveService: true },
+      ),
+    ).rejects.toThrow(/Storage is full/);
+    expect(useApp.getState().data.preferences.customServices).toEqual([]);
+    expect(useApp.getState().data.subscriptions).toHaveLength(1);
+  });
+  it("deduplicates saved names and queues owned preference data alongside a cloud subscription", async () => {
+    await hydrate(userA);
+    await saveSubscription(
+      subscription({ name: " Local coding club ", serviceId: null }),
+      undefined,
+      undefined,
+      userA,
+      { saveService: true },
+    );
+    const id = useApp.getState().data.preferences.customServices[0]!.id;
+    await saveSubscription(
+      subscription({
+        id: randomUUID(),
+        name: "local CODING club",
+        serviceId: null,
+      }),
+      undefined,
+      undefined,
+      userA,
+      { saveService: true },
+    );
+    const data = useApp.getState().data;
+    expect(data.preferences.customServices).toHaveLength(1);
+    expect(data.subscriptions.every((s) => s.serviceId === id)).toBe(true);
+    expect(
+      data.outbox.filter((op) => op.entity === "preferences"),
+    ).toHaveLength(1);
+    expect(
+      data.outbox.find((op) => op.entity === "preferences")?.payload,
+    ).toMatchObject({ customServices: [{ id }] });
+    await expect(
+      saveSubscription(
+        subscription({
+          id: randomUUID(),
+          name: "Another service",
+          serviceId: null,
+        }),
+        undefined,
+        undefined,
+        userB,
+        { saveService: true },
+      ),
+    ).rejects.toThrow();
+    expect(useApp.getState().data.preferences.customServices).toHaveLength(1);
+  });
+});
+
+it("imports guest saved services only with an explicit workspace import and remaps matching names", async () => {
+  await saveSubscription(
+    subscription({
+      name: "Local coding club",
+      serviceId: null,
+      category: "Education",
+    }),
+    undefined,
+    undefined,
+    "guest",
+    { saveService: true },
+  );
+  const guestId = useApp.getState().data.preferences.customServices[0]!.id;
+  await hydrate(userA);
+  expect(useApp.getState().data.preferences.customServices).toEqual([]);
+  await saveSubscription(
+    subscription({
+      id: randomUUID(),
+      name: "Local coding club",
+      serviceId: null,
+      category: "Education",
+    }),
+    undefined,
+    undefined,
+    userA,
+    { saveService: true },
+  );
+  const ownId = useApp.getState().data.preferences.customServices[0]!.id;
+  expect(guestId).not.toBe(ownId);
+  await importGuestData(userA);
+  expect(useApp.getState().data.preferences.customServices).toHaveLength(1);
+  expect(
+    useApp.getState().data.subscriptions.every((s) => s.serviceId === ownId),
+  ).toBe(true);
+});
