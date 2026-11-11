@@ -7,18 +7,26 @@ export const releaseArtifacts = [
   "macos-x64",
 ] as const;
 
+export function draftTagSource(target: string, currentSha: string) {
+  if (!commit.test(target) || target !== currentSha)
+    throw new Error("A draft tag must point to this exact release commit.");
+  return target;
+}
+
 export function selectPublication({
   release,
   tagSha,
   currentSha,
   createdTag,
   createdSha,
+  allowDraft = false,
 }: {
   release: { tag_name: string; draft: boolean; prerelease: boolean } | null;
   tagSha: string | null;
   currentSha: string;
   createdTag?: string;
   createdSha?: string;
+  allowDraft?: boolean;
 }) {
   if (!commit.test(currentSha))
     throw new Error("Invalid release source commit.");
@@ -27,7 +35,11 @@ export function selectPublication({
       throw new Error("The newly created release could not be found.");
     return null;
   }
-  if (!stableTag.test(release.tag_name) || release.draft || release.prerelease)
+  if (
+    !stableTag.test(release.tag_name) ||
+    (release.draft && !allowDraft) ||
+    release.prerelease
+  )
     throw new Error("Expected a published stable release.");
   if (!tagSha || !commit.test(tagSha))
     throw new Error("Invalid release tag commit.");

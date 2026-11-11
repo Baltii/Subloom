@@ -78,8 +78,9 @@ export async function interpretAssistantRequest(
   const invoke = (body: AssistantRequest) =>
     client.functions.invoke("assistant-chat", { body, signal });
   let { data, error } = await invoke(request);
-  if (
-    request.protocol === 2 &&
+  let version = request.protocol;
+  while (
+    version &&
     error instanceof FunctionsHttpError &&
     error.context.status === 400
   ) {
@@ -89,11 +90,13 @@ export async function interpretAssistantRequest(
       .catch(() => null);
     if (body?.error === "Check your message and try again.") {
       checkWorkspace(identity, signal);
+      version = version === 3 ? 2 : undefined;
       ({ data, error } = await invoke({
         messages: request.messages,
         today: request.today,
+        ...(version ? { protocol: version } : {}),
       }));
-    }
+    } else break;
   }
   if (error) {
     throw new Error(

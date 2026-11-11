@@ -43,7 +43,12 @@ import {
   mergeBillingDraft,
   mergeSubscriptionEdit,
   type AssistantAction,
+  type AssistantMessage,
 } from "../../domain/assistantProtocol";
+import {
+  assistantActionContext,
+  assistantConversation,
+} from "../../domain/assistantConversation";
 import { interpretLocalAssistant } from "../../domain/localAssistant";
 import { today } from "../../domain/renewal";
 import { interpretAssistantRequest } from "../../services/assistant";
@@ -170,6 +175,7 @@ function AssistantChat({
   const request = useRef<AbortController | null>(null);
   const operation = useRef(false);
   const followup = useRef<string[]>([]);
+  const conversation = useRef<AssistantMessage[]>([]);
   const pendingAction = useRef<AssistantAction | undefined>(undefined);
   const lastSubscription = useRef<string | undefined>(undefined);
   const sequence = useRef(0);
@@ -217,7 +223,7 @@ function AssistantChat({
     operation.current = true;
     const controller = new AbortController();
     request.current = controller;
-    const timeout = setTimeout(() => controller.abort(), 22_000);
+    const timeout = setTimeout(() => controller.abort(), 35_000);
     const context = [...followup.current.slice(-3), text];
     const id = ++sequence.current;
     nearBottom.current = true;
@@ -231,23 +237,31 @@ function AssistantChat({
     try {
       const previous = pendingAction.current;
       const date = today(snapshot.data.preferences.timezone);
-      const local = interpretLocalAssistant(
-        text,
-        previous?.kind === "add_subscription",
-        {
-          today: date,
-          subscription: lastSubscription.current,
-          pending: previous,
-        },
-      );
+      const transcript = assistantConversation(conversation.current, {
+        role: "user",
+        content: text,
+      });
       const action =
         previous && /^(?:confirm|save it|yes,? save)[.!]?$/i.test(text)
           ? previous
-          : identity === "guest" || local.kind !== "help"
-            ? local
+          : identity === "guest"
+            ? interpretLocalAssistant(
+                text,
+                previous?.kind === "add_subscription",
+                {
+                  today: date,
+                  subscription: lastSubscription.current,
+                  pending: previous,
+                },
+              )
             : await interpretAssistantRequest(
                 identity,
-                { messages: context, today: date, protocol: 2 },
+                {
+                  messages: context,
+                  today: date,
+                  protocol: 3,
+                  conversation: transcript,
+                },
                 controller.signal,
               );
       if (controller.signal.aborted)
@@ -265,11 +279,25 @@ function AssistantChat({
         previous?.kind === "payment_method" ? previous : undefined,
       );
       const reply = await resolveAssistantAction(resolved, identity);
+      if (controller.signal.aborted)
+        throw new Error("The assistant took too long. Try again.");
       if (!mounted.current) return;
       const ongoing =
         reply.awaitingDetails || (reply.next && "run" in reply.next);
-      pendingAction.current = ongoing ? resolved : undefined;
+      pendingAction.current = ongoing
+        ? resolved.kind === "reply"
+          ? previous
+          : resolved
+        : undefined;
       followup.current = ongoing ? context : [];
+      conversation.current = assistantConversation(
+        transcript,
+        assistantActionContext(
+          resolved,
+          reply,
+          Boolean(reply.next && "run" in reply.next),
+        ),
+      );
       if (
         resolved.kind === "subscription" &&
         reply.next &&
@@ -318,6 +346,11 @@ function AssistantChat({
           lastSubscription.current = undefined;
         pendingAction.current = undefined;
         followup.current = [];
+        conversation.current = assistantConversation(conversation.current, {
+          role: "assistant",
+          content:
+            "The user confirmed the reviewed action and the app saved it successfully. Do not repeat that action unless asked.",
+        });
         append({ text }, "saved");
       }
     } catch (error) {
@@ -613,6 +646,14 @@ function AssistantChat({
                               onPress={() => {
                                 pendingAction.current = undefined;
                                 followup.current = [];
+                                conversation.current = assistantConversation(
+                                  conversation.current,
+                                  {
+                                    role: "assistant",
+                                    content:
+                                      "The user dismissed the pending action. It was not saved. Do not resume it unless asked.",
+                                  },
+                                );
                                 setPending(null);
                               }}
                             >

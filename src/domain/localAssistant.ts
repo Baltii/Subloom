@@ -104,22 +104,33 @@ function readAnalytics(text: string): AssistantAction | null {
     )
   )
     return null;
-  const range = /\b(next|this) (month|year)\b/i.exec(text);
-  const metric =
-    /\b(?:average|recurring)\b/i.test(text) &&
-    /\b(?:cost|spend|spending|average|total)\b/i.test(text)
+  const range = /\b(next|this) (week|month|year)\b/i.exec(text);
+  const rollingWeek = /\b(?:next|coming) (?:7|seven) days\b/i.test(text);
+  const day = /\b(today|tomorrow)\b/i.exec(text)?.[1]?.toLowerCase();
+  const remaining =
+    /\b(?:rest to pay|remaining|left to pay|still (?:have to |need to )?pay|yet to pay|unpaid)\b/i.test(
+      text,
+    );
+  const metric = remaining
+    ? "remaining"
+    : /\b(?:average|recurring)\b/i.test(text) &&
+        /\b(?:cost|spend|spending|average|total)\b/i.test(text)
       ? "recurring"
       : /\b(?:by category|categories)\b/i.test(text) &&
           /\b(?:spend|spending|cost|breakdown)\b/i.test(text)
         ? "by_category"
         : /\b(?:most expensive|highest cost|biggest expense)\b/i.test(text)
           ? "most_expensive"
-          : /\b(?:trial|trials)\b/i.test(text) && range
+          : /\b(?:trial|trials)\b/i.test(text) && (range || rollingWeek || day)
             ? "trials"
-            : /\b(?:renew|renews|renewal|renewals)\b/i.test(text) && range
+            : /\b(?:renew|renews|renewal|renewals)\b/i.test(text) &&
+                (range || rollingWeek || day)
               ? "renewals"
               : /\b(?:spend|spending|pay|total|cost)\b/i.test(text) &&
-                  (range || /\bhow much am i spending\b/i.test(text))
+                  (range ||
+                    rollingWeek ||
+                    day ||
+                    /\bhow much am i spending\b/i.test(text))
                 ? "spending"
                 : null;
   if (!metric) return null;
@@ -133,15 +144,23 @@ function readAnalytics(text: string): AssistantAction | null {
     from: null,
     through: null,
     subscription: scopedName(
-      /\b(?:on|for) (.+?) (?:next|this) (?:month|year)\b/i.exec(text)?.[1],
+      /\b(?:on|for) (.+?) (?:next|this) (?:week|month|year)\b/i.exec(text)?.[1],
     ),
-    period: annual
-      ? next
-        ? "next_year"
-        : "this_year"
-      : next
-        ? "next_month"
-        : "this_month",
+    period: rollingWeek
+      ? "next_7_days"
+      : day === "today" || day === "tomorrow"
+        ? day
+        : range?.[2]?.toLowerCase() === "week"
+          ? next
+            ? "next_week"
+            : "this_week"
+          : annual
+            ? next
+              ? "next_year"
+              : "this_year"
+            : next
+              ? "next_month"
+              : "this_month",
   };
 }
 
