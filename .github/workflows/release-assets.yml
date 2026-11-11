@@ -41,6 +41,11 @@ concurrency:
 jobs:
   source:
     name: Resolve the exact production release
+    # Draft release visibility requires push access; this token only reads its
+    # metadata here. Publishing remains in the separate publish job.
+    permissions:
+      contents: write
+      actions: read
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
