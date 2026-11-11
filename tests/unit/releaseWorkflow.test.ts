@@ -39,6 +39,7 @@ it("keeps releases draft until complete and prevents publication events from reb
     JSON.parse(readFileSync("release-please-config.json", "utf8")).draft,
   ).toBe(true);
   const assets = workflow("release-assets");
+  expect(assets.jobs.source.permissions.contents).toBe("write");
   expect(assets.on.release).toBeUndefined();
   const steps = assets.jobs.publish.steps;
   const upload = steps.find((step: { run?: string }) =>

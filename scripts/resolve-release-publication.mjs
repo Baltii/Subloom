@@ -17,11 +17,15 @@ const api = (path, args = []) =>
       stdio: ["ignore", "pipe", "pipe"],
     }),
   );
+// The by-tag endpoint is for published releases. Listing with the workflow's
+// push permission also exposes drafts, including drafts without a Git tag yet.
 let release = null;
-try {
-  release = api(`repos/${repository}/releases/tags/${tag}`);
-} catch (error) {
-  if (!String(error.stderr).includes("HTTP 404")) throw error;
+for (let page = 1; !release; page++) {
+  const releases = api(
+    `repos/${repository}/releases?per_page=100&page=${page}`,
+  );
+  release = releases.find((candidate) => candidate.tag_name === tag) ?? null;
+  if (releases.length < 100) break;
 }
 let tagSha = null;
 if (release) {
