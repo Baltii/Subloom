@@ -34,8 +34,8 @@ again. Successful platform artifacts can be reused while still retained.
 **Attach release apps** is an explicit recovery workflow, not a release-published
 trigger. Supply the stable tag. With `verified_run_id`, it accepts only a complete,
 successful production release run at that exact commit; without it, recovery
-verifies and builds at the tag before uploading. A draft must have a tag pointing
-to its exact version commit. Keep failed drafts unpublished until all checks and
+verifies and builds at the tag before uploading. If the draft has no tag yet, provide `source_sha` as the exact merged version
+commit; recovery checks its version and production ancestry before creating the tag. Keep failed drafts unpublished until all checks and
 any required backend deployment have succeeded. Never reuse artifacts from a PR or a different
 commit, or publish a partially attached release.
 
