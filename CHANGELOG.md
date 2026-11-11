@@ -2,6 +2,13 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.15.0](https://github.com/Baltii/Subloom/compare/v1.14.0...v1.15.0) (2026-11-11)
+
+
+### Features
+
+* improve AI chat and build installers once per release ([9056e6f](https://github.com/Baltii/Subloom/commit/9056e6fa55e3b3002ee27433398bb7f905fa5d04))
+
 ## [1.14.0](https://github.com/Baltii/Subloom/compare/v1.13.0...v1.14.0) (2026-11-11)
 
 
