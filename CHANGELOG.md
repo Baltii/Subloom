@@ -2,6 +2,44 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.14.0](https://github.com/Baltii/Subloom/compare/v1.13.0...v1.14.0) (2026-11-11)
+
+
+### Features
+
+* **assistant:** add calendar-month and yearly forecasts, category breakdowns, and original-currency spending totals ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **assistant:** add calendar-month and yearly forecasts, category breakdowns, and original-currency spending totals ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **assistant:** add reviewed subscription edits and deletion, card and wallet management, and payment-method assignment ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **assistant:** add reviewed subscription edits and deletion, card and wallet management, and payment-method assignment ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **assistant:** support theme, accent, currency, and reminder changes through chat ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **assistant:** support theme, accent, currency, and reminder changes through chat ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **catalog:** add 37 providers to reach 104 entries with bundled brand logos and first-party cancellation guidance ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **catalog:** add 37 providers to reach 104 entries with bundled brand logos and first-party cancellation guidance ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **chat:** enable the assistant bubble by default while preserving explicit opt-outs ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **chat:** enable the assistant bubble by default while preserving explicit opt-outs ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **chat:** simplify the conversation UI with message timestamps, smooth typing dots, and reduced-motion support ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **chat:** simplify the conversation UI with message timestamps, smooth typing dots, and reduced-motion support ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* expand AI chat actions and the subscription service catalogue ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* expand AI chat actions and the subscription service catalogue ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **subscriptions:** browse services by name or category and reuse private saved custom services ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **subscriptions:** browse services by name or category and reuse private saved custom services ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **sync:** sync custom service templates with account preferences and import guest templates only on request ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **sync:** sync custom service templates with account preferences and import guest templates only on request ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+
+
+### Bug Fixes
+
+* **assistant:** discard cloud replies after workspace changes and retain identity and version checks for reviewed writes ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **assistant:** discard cloud replies after workspace changes and retain identity and version checks for reviewed writes ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **assistant:** keep next-month forecasts inside calendar boundaries instead of including current-month renewals ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **assistant:** keep next-month forecasts inside calendar boundaries instead of including current-month renewals ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **assistant:** retain pending subscription details and accept corrections after showing the confirmation preview ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **assistant:** retain pending subscription details and accept corrections after showing the confirmation preview ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **subscriptions:** preserve price history when editing records with legacy date-only timestamps ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **subscriptions:** preserve price history when editing records with legacy date-only timestamps ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+* **subscriptions:** save subscriptions and custom templates atomically, deduplicate names, and support keyboard and screen-reader checkbox interaction ([f5d3442](https://github.com/Baltii/Subloom/commit/f5d344259301a1076956e4268cf456a9441b847e))
+* **subscriptions:** save subscriptions and custom templates atomically, deduplicate names, and support keyboard and screen-reader checkbox interaction ([e25ff90](https://github.com/Baltii/Subloom/commit/e25ff90b81db56c1de253d2326d44442d4e05e1b))
+
 ## [1.13.0](https://github.com/Baltii/Subloom/compare/v1.12.2...v1.13.0) (2026-11-10)
 
 
