@@ -28,7 +28,11 @@ import {
 import { savedServiceForName } from "../domain/customServices";
 import { catalog, serviceFor, type Service } from "../domain/catalog";
 import { moneyInput, parseMoney } from "../domain/money";
-import { quickAddDates } from "../domain/calendarEvents";
+import {
+  renewalFromStart,
+  subscriptionDateDefaults,
+  subscriptionRenewalAnchor,
+} from "../domain/subscriptionDates";
 import { today } from "../domain/renewal";
 import { saveSubscription, readableError, useApp } from "../store/app";
 import {
@@ -46,9 +50,9 @@ import { PickerSheet, SelectField } from "../components/ui/Selection";
 import { ServicePicker } from "../components/subscriptions/ServicePicker";
 import {
   currencyOptions,
-  categoryOptions,
   intervalOptions,
 } from "../components/ui/pickerOptions";
+import { categoryOptions } from "../components/subscriptions/CategoryIcon";
 import { ServiceNameField } from "../components/subscriptions/ServiceNameField";
 import { useTheme, useWide } from "../theme/useTheme";
 import { FREE_SUBSCRIPTIONS } from "../domain/pro";
@@ -106,6 +110,28 @@ const formSchema = z
         path: ["trialEnd"],
         message: "Enter the date your trial ends.",
       });
+    if (values.nextRenewal < values.startDate)
+      context.addIssue({
+        code: "custom",
+        path: ["nextRenewal"],
+        message: "Renewal must be on or after the start date.",
+      });
+    if (values.status === "trial" && values.trialEnd < values.startDate)
+      context.addIssue({
+        code: "custom",
+        path: ["trialEnd"],
+        message: "Trial must end on or after the start date.",
+      });
+    if (
+      values.status === "trial" &&
+      dateSchema.safeParse(values.trialEnd).success &&
+      values.nextRenewal < values.trialEnd
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["nextRenewal"],
+        message: "Renewal must be on or after the trial ends.",
+      });
   });
 type Values = z.input<typeof formSchema>;
 export function SubscriptionForm({
@@ -128,9 +154,14 @@ export function SubscriptionForm({
     preferences = useApp((s) => s.data.preferences),
     identity = useApp((s) => s.identity);
   const formIdentity = useRef(identity);
-  const dateDefaults = quickAddDates(
+  const dateDefaults = subscriptionDateDefaults({
+    initial,
+    candidate,
     defaultRenewalDate,
-    today(preferences.timezone),
+    reference: today(preferences.timezone),
+  });
+  const [automaticRenewal, setAutomaticRenewal] = useState(
+    dateDefaults.automaticRenewal,
   );
   const [serviceId, setServiceId] = useState(
       initial?.serviceId || candidate?.serviceId || null,
@@ -153,6 +184,7 @@ export function SubscriptionForm({
     handleSubmit,
     setFocus,
     getFieldState,
+    getValues,
     formState: { errors, isDirty },
   } = useForm<Values, unknown, z.output<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -176,14 +208,8 @@ export function SubscriptionForm({
         (candidate ? "" : "monthly"),
       intervalCount: String(initial?.intervalCount || 1),
       customUnit: initial?.customUnit || "day",
-      nextRenewal:
-        initial?.nextRenewal ||
-        candidate?.nextRenewal ||
-        (candidate ? "" : dateDefaults.nextRenewal),
-      startDate:
-        initial?.startDate ||
-        candidate?.chargeDate ||
-        (candidate ? today(preferences.timezone) : dateDefaults.startDate),
+      nextRenewal: dateDefaults.nextRenewal,
+      startDate: dateDefaults.startDate,
       trialEnd: initial?.trialEnd || candidate?.trialEnd || "",
       status: initial?.status || (candidate?.trialEnd ? "trial" : "active"),
       paymentMethod: initial?.paymentMethod || unassignedBillingMethod,
@@ -232,6 +258,44 @@ export function SubscriptionForm({
   const interval = useWatch({ control, name: "interval" }),
     status = useWatch({ control, name: "status" }),
     chosenCurrency = useWatch({ control, name: "currency" });
+  function updateSchedule(
+    ...[name, value]: {
+      [
+        K in
+          | "startDate"
+          | "interval"
+          | "intervalCount"
+          | "customUnit"
+          | "status"
+          | "trialEnd"
+      ]: [K, Values[K]];
+    }[
+      | "startDate"
+      | "interval"
+      | "intervalCount"
+      | "customUnit"
+      | "status"
+      | "trialEnd"]
+  ) {
+    const previous = getValues();
+    const values = { ...previous, [name]: value };
+    setValue(name, value, { shouldDirty: true, shouldValidate: true });
+    if (name === "interval" && value !== previous.interval) {
+      values.intervalCount = "1";
+      setValue("intervalCount", "1", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+    if (automaticRenewal) {
+      const renewal = renewalFromStart(values);
+      if (renewal)
+        setValue("nextRenewal", renewal, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+    }
+  }
   function chooseService(service: Service | null, customName?: string) {
     setChoosingService(false);
     setServiceId(service?.id ?? null);
@@ -258,7 +322,11 @@ export function SubscriptionForm({
             testID={"subscription-" + name}
             label={label}
             value={f.value}
-            onChangeText={f.onChange}
+            onChangeText={
+              name === "intervalCount"
+                ? (value) => updateSchedule("intervalCount", value)
+                : f.onChange
+            }
             onBlur={f.onBlur}
             inputRef={f.ref}
             error={errors[name]?.message}
@@ -283,7 +351,12 @@ export function SubscriptionForm({
             label={label}
             disabled={busy}
             value={f.value}
-            onChange={f.onChange}
+            onChange={(value) => {
+              if (name === "nextRenewal") {
+                setAutomaticRenewal(false);
+                f.onChange(value);
+              } else updateSchedule(name, value);
+            }}
             onBlur={f.onBlur}
             inputRef={f.ref}
             error={errors[name]?.message}
@@ -336,10 +409,11 @@ export function SubscriptionForm({
         customUnit: values.customUnit,
         startDate: values.startDate,
         nextRenewal: values.nextRenewal,
-        anchorDay:
-          initial && initial.nextRenewal === values.nextRenewal
-            ? initial.anchorDay
-            : Number(values.nextRenewal.slice(-2)),
+        anchorDay: subscriptionRenewalAnchor({
+          ...values,
+          automaticRenewal,
+          initial,
+        }),
         status: values.status,
         trialEnd: values.status === "trial" ? values.trialEnd : null,
         canceledAt: initial?.canceledAt || null,
@@ -462,6 +536,23 @@ export function SubscriptionForm({
             Browse services
           </Button>
         </View>
+        <View style={{ marginTop: 22 }}>
+          <Controller
+            control={control}
+            name="category"
+            render={({ field: f }) => (
+              <SelectField
+                disabled={busy}
+                label="Category"
+                value={f.value}
+                onChange={f.onChange}
+                options={categoryOptions}
+                testID="subscription-category"
+                searchable
+              />
+            )}
+          />
+        </View>
         {canRememberService && (
           <Pressable
             testID="save-custom-service"
@@ -553,22 +644,6 @@ export function SubscriptionForm({
             />
           </View>
         </View>
-        <Controller
-          control={control}
-          name="interval"
-          render={({ field: f }) => (
-            <SelectField
-              disabled={busy}
-              label="Billing frequency"
-              value={f.value}
-              onChange={f.onChange}
-              options={intervalOptions}
-              testID="subscription-interval"
-              placeholder="Choose frequency"
-              error={errors.interval?.message}
-            />
-          )}
-        />
         <View style={{ marginTop: 20, marginBottom: 4 }}>
           <Controller
             control={control}
@@ -641,6 +716,22 @@ export function SubscriptionForm({
             Add a card or wallet
           </Button>
         </View>
+        <Controller
+          control={control}
+          name="interval"
+          render={({ field: f }) => (
+            <SelectField
+              disabled={busy}
+              label="Billing frequency"
+              value={f.value}
+              onChange={(value) => updateSchedule("interval", value)}
+              options={intervalOptions}
+              testID="subscription-interval"
+              placeholder="Choose frequency"
+              error={errors.interval?.message}
+            />
+          )}
+        />
         {interval === "custom" && (
           <View style={{ marginTop: 16 }}>
             {field("intervalCount", "Repeat every", {
@@ -654,14 +745,49 @@ export function SubscriptionForm({
                   disabled={busy}
                   values={["day", "week", "month", "year"] as const}
                   selected={f.value}
-                  onChange={f.onChange}
+                  onChange={(value) => updateSchedule("customUnit", value)}
                 />
               )}
             />
           </View>
         )}
         <View style={{ marginTop: 22 }}>
-          {dateField("nextRenewal", "Next renewal")}
+          <View style={{ flexDirection: "row", gap: wide ? 16 : 10 }}>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              {dateField("startDate", "Start date")}
+            </View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              {dateField("nextRenewal", "Renewal date")}
+            </View>
+          </View>
+          <View style={{ marginBottom: 20, gap: 6 }}>
+            <Label size={12} color={colors.secondary}>
+              {automaticRenewal
+                ? status === "trial"
+                  ? "Renewal follows the trial end date when provided. You can change it."
+                  : "Renewal follows your start date and billing frequency. You can change it."
+                : "Your custom renewal date is kept when other details change."}
+            </Label>
+            {!automaticRenewal && (
+              <Button
+                small
+                variant="ghost"
+                disabled={busy}
+                onPress={() => {
+                  const renewal = renewalFromStart(getValues());
+                  if (renewal) {
+                    setAutomaticRenewal(true);
+                    setValue("nextRenewal", renewal, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }
+                }}
+              >
+                Use suggested renewal date
+              </Button>
+            )}
+          </View>
         </View>
         <Label
           size={12}
@@ -669,7 +795,7 @@ export function SubscriptionForm({
           color={colors.secondary}
           style={{ marginBottom: 10 }}
         >
-          Tracking status
+          Subscription type
         </Label>
         <Controller
           control={control}
@@ -681,7 +807,7 @@ export function SubscriptionForm({
                 [
                   "active",
                   "trial",
-                  "paused",
+                  ...(initial ? ["paused" as const] : []),
                   ...(initial?.status === "canceled" ||
                   initial?.status === "expired"
                     ? [initial.status]
@@ -691,12 +817,12 @@ export function SubscriptionForm({
               selected={f.value}
               labels={{
                 active: "Active",
-                trial: "Trial",
+                trial: "Has trial",
                 paused: "Paused",
                 canceled: "Canceled",
                 expired: "Expired",
               }}
-              onChange={f.onChange}
+              onChange={(value) => updateSchedule("status", value)}
             />
           )}
         />
@@ -721,28 +847,6 @@ export function SubscriptionForm({
         </View>
         {advanced && (
           <View style={{ marginTop: 12 }}>
-            <View style={{ marginTop: 22 }}>
-              <Controller
-                control={control}
-                name="category"
-                render={({ field: f }) => (
-                  <SelectField
-                    disabled={busy}
-                    label="Category"
-                    value={f.value}
-                    onChange={f.onChange}
-                    options={categoryOptions}
-                    testID="subscription-category"
-                    searchable
-                  />
-                )}
-              />
-            </View>
-            {dateField("startDate", "Started on")}
-            {interval !== "custom" &&
-              field("intervalCount", "Billing interval count", {
-                keyboardType: "number-pad",
-              })}
             {field("notes", "Notes (optional)", {
               multiline: true,
               numberOfLines: 3,

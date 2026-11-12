@@ -272,6 +272,7 @@ export default function Home() {
                   <ServiceIcon
                     serviceId={next.subscription.serviceId}
                     name={next.subscription.name}
+                    category={next.subscription.category}
                     size={43}
                   />
                   <View>

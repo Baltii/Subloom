@@ -8,13 +8,17 @@ import { tokens } from "../../theme/tokens";
 import { useTheme } from "../../theme/useTheme";
 import { Bloom } from "../ui/Brand";
 import { brandIdentity } from "../../brand/identity";
+import type { Category } from "../../domain/models";
+import { CategoryIcon } from "./CategoryIcon";
 export function ServiceIcon({
   serviceId,
   name,
+  category,
   size = 44,
 }: {
   serviceId: string | null;
   name: string;
+  category?: Category;
   size?: number;
 }) {
   const service = serviceFor(serviceId),
@@ -29,6 +33,7 @@ export function ServiceIcon({
       serviceId && Object.hasOwn(serviceLogos, serviceId)
         ? serviceLogos[serviceId]
         : undefined;
+  if (!service) return <CategoryIcon category={category} size={size} />;
   return (
     <View
       accessibilityElementsHidden

@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { categories } from "./categories.ts";
+export { categories } from "./categories.ts";
 
 export const currencies = [
   "USD",
@@ -57,15 +59,6 @@ export const currencies = [
   "ARS",
   "XOF",
   "XAF",
-] as const;
-export const categories = [
-  "Entertainment",
-  "Music",
-  "Productivity",
-  "Cloud & storage",
-  "Health & fitness",
-  "Education",
-  "Other",
 ] as const;
 export const intervals = [
   "weekly",

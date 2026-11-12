@@ -170,7 +170,7 @@ Run `npm run check:repository` to reject accidentally tracked private or generat
 
 ## Contributing
 
-Use `release-candidate` as the base for new work. Name working branches `feat/`, `fix/`, `refactor/`, `chore/`, `hotfix/`, or `doc/` followed by a short kebab-case description. Use Conventional Commits such as `feat(subscriptions): add service suggestions` and `docs: improve the setup guide`; hotfix commits use `fix`.
+Use `release-candidate` as the base for new work. Follow the branch prefixes and Conventional Commit types in [CONTRIBUTING.md](CONTRIBUTING.md). Never create branches starting with `codex/`; documentation branches use `docs/`.
 
 For a feature stack, target `release-candidate` with the first PR and target each predecessor with the next PR. State the merge order in every PR. Keep changes focused, preserve original-currency/date-only semantics and guest/account separation, and record the checks you actually ran. Found a bug or have an idea? [Open an issue](https://github.com/Baltii/Subloom/issues/new).
 

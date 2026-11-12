@@ -3,6 +3,7 @@ import { SubscriptionForm } from "../../features/SubscriptionForm";
 import { quickAddDates } from "../../domain/calendarEvents";
 import { dateLabel, today } from "../../domain/renewal";
 import { useApp } from "../../store/app";
+import { dateSchema } from "../../domain/models";
 
 export default function NewSubscription() {
   const { date } = useLocalSearchParams<{ date?: string | string[] }>();
@@ -11,7 +12,11 @@ export default function NewSubscription() {
   return (
     <SubscriptionForm
       key={defaults.nextRenewal}
-      defaultRenewalDate={defaults.nextRenewal}
+      defaultRenewalDate={
+        typeof date === "string" && dateSchema.safeParse(date).success
+          ? date
+          : undefined
+      }
       page={{
         title: "Add subscription",
         subtitle: date
