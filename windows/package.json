@@ -5,7 +5,7 @@
   "description": "Isolated build tools for the Expo-based Subloom Windows app",
   "devDependencies": {
     "electron": "45.0.0",
-    "electron-builder": "26.15.3"
+    "electron-builder": "26.18.0"
   },
   "dependencies": {
     "electron-updater": "6.8.11"
