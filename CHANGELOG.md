@@ -2,6 +2,14 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.16.0](https://github.com/Baltii/Subloom/compare/v1.15.0...v1.16.0) (2026-11-12)
+
+
+### Features
+
+* **subscriptions:** improve form dates and service categories ([1c28e3a](https://github.com/Baltii/Subloom/commit/1c28e3a3e0cf071c8fbd0b6c8b472813187399c1))
+* **subscriptions:** improve form dates and service categories ([93ebbdd](https://github.com/Baltii/Subloom/commit/93ebbddc6dc979280e4e9ca2db5f497e5b722f9e))
+
 ## [1.15.0](https://github.com/Baltii/Subloom/compare/v1.14.0...v1.15.0) (2026-11-11)
 
 
