@@ -56,7 +56,12 @@ function Guide({ subscription: s }: { subscription: Subscription }) {
     >
       <Card style={{ gap: 24 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
-          <ServiceIcon serviceId={s.serviceId} name={s.name} size={52} />
+          <ServiceIcon
+            serviceId={s.serviceId}
+            name={s.name}
+            category={s.category}
+            size={52}
+          />
           <View style={{ flex: 1, gap: 4 }}>
             <Heading size={22}>{s.name}</Heading>
             <Label size={13} color={colors.secondary}>

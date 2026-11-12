@@ -112,6 +112,7 @@ export function ServiceNameField({
                   <ServiceIcon
                     serviceId={service.id}
                     name={service.name}
+                    category={service.category}
                     size={34}
                   />
                   <View style={{ flex: 1 }}>

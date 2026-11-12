@@ -563,6 +563,7 @@ export default function Calendar() {
                     <ServiceIcon
                       serviceId={event.subscription.serviceId}
                       name={event.subscription.name}
+                      category={event.subscription.category}
                       size={34}
                     />
                     <View style={{ flex: 1, minWidth: 0, gap: 4 }}>

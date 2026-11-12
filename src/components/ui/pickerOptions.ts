@@ -1,4 +1,4 @@
-import { categories, currencies, intervals } from "../../domain/models";
+import { currencies, intervals } from "../../domain/models";
 import { ianaTimezones } from "../../domain/timezones";
 
 const currencyNames: Record<(typeof currencies)[number], string> = {
@@ -63,10 +63,6 @@ export const currencyOptions = currencies.map((value) => ({
   value,
   label: value,
   detail: currencyNames[value],
-}));
-export const categoryOptions = categories.map((value) => ({
-  value,
-  label: value,
 }));
 const intervalDetails = {
   weekly: "Every week",

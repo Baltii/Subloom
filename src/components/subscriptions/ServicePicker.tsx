@@ -90,7 +90,12 @@ export function ServicePicker({
                   : colors.background,
             })}
           >
-            <ServiceIcon serviceId={service.id} name={service.name} size={30} />
+            <ServiceIcon
+              serviceId={service.id}
+              name={service.name}
+              category={service.category}
+              size={30}
+            />
             <Label size={12}>{service.name}</Label>
           </Pressable>
         ))}

@@ -1,5 +1,6 @@
 import { catalog, type Service } from "./catalog";
 import { customServiceSchema, type CustomService } from "./models";
+import { categoryAppearance } from "./categories";
 
 export function serviceNameKey(name: string) {
   return name
@@ -39,8 +40,8 @@ export function personalServiceCatalog(
 ): Service[] {
   return saved.map((service) => ({
     ...service,
-    color: "#087C65",
-    background: "#EAF6EE",
+    color: categoryAppearance(service.category).color,
+    background: categoryAppearance(service.category).background,
     glyph: "",
     managementUrl: null,
     custom: true,

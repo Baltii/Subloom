@@ -127,7 +127,12 @@ export default function Details() {
                 justifyContent: "space-between",
               }}
             >
-              <ServiceIcon serviceId={s.serviceId} name={s.name} size={65} />
+              <ServiceIcon
+                serviceId={s.serviceId}
+                name={s.name}
+                category={s.category}
+                size={65}
+              />
               <Badge
                 tone={
                   s.status === "trial"

@@ -67,7 +67,11 @@ export const SubscriptionRow = memo(function SubscriptionRow({
             opacity: pressed ? 0.6 : 1,
           })}
         >
-          <ServiceIcon serviceId={s.serviceId} name={s.name} />
+          <ServiceIcon
+            serviceId={s.serviceId}
+            name={s.name}
+            category={s.category}
+          />
           <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
             <Label bold size={15} numberOfLines={2}>
               {s.name}
