@@ -2,6 +2,13 @@
 
 Release Please maintains this file from conventional commits merged into `release-candidate`.
 
+## [1.17.0](https://github.com/Baltii/Subloom/compare/v1.16.0...v1.17.0) (2026-11-19)
+
+
+### Features
+
+* add browser extension for upcoming renewals ([05077a1](https://github.com/Baltii/Subloom/commit/05077a1c1b87f74c4022308091d0c0ae3caba736))
+
 ## [1.16.0](https://github.com/Baltii/Subloom/compare/v1.15.0...v1.16.0) (2026-11-12)
 
 
