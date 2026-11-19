@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Subloom renewals</title>
+    <link rel="stylesheet" href="popup.css" />
+    <script src="popup.js" defer></script>
+  </head>
+  <body>
+    <header class="top">
+      <img src="icons/icon-48.png" width="28" height="28" alt="" />
+      <h1>Subloom</h1>
+      <button
+        class="icon-button"
+        id="refresh"
+        type="button"
+        aria-label="Refresh renewals"
+        title="Refresh renewals"
+        hidden
+      >
+        <svg
+          aria-hidden="true"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M20 11a8 8 0 1 0-2 6m2-11v5h-5" />
+        </svg>
+      </button>
+    </header>
+    <main id="content" aria-live="polite" aria-busy="true">
+      <p class="message">Loading renewals…</p>
+    </main>
+    <footer>
+      <button type="button" id="app">
+        Open Subloom <span aria-hidden="true">↗</span>
+      </button>
+    </footer>
+  </body>
+</html>

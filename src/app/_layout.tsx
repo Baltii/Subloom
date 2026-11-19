@@ -37,6 +37,7 @@ import {
   maintainPushRegistration,
 } from "../services/notifications";
 import { maintainWidgets } from "../services/widgets";
+import { installBrowserExtensionBridge } from "../services/browserExtension";
 import { maintainMacReminders } from "../services/macosNotifications";
 import { maintainWindowsReminders } from "../services/windowsNotifications";
 import { profileDisplayName } from "../domain/greeting";
@@ -112,6 +113,7 @@ function Session() {
     return () => window.removeEventListener("subloom:open-link", open);
   }, [linksReady]);
   useEffect(() => maintainWidgets(), []);
+  useEffect(installBrowserExtensionBridge, []);
   useEffect(() => maintainAppUpdates(), []);
   useEffect(() => maintainUpdateDraftProtection(), []);
   useEffect(
